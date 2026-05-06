@@ -10,22 +10,36 @@ class AchievementEngine:
         self.show_all = show_all # New flag
 
     def _grant(self, game_id, slug, print_msg):
-        query = """
+        # 1. Log it in the per-game ledger (The Ledger)
+        query_game = """
             INSERT INTO game_achievements (game_id, username, achievement_slug) 
-            VALUES (%s, %s, %s) ON CONFLICT DO NOTHING RETURNING 1;
+            VALUES (%s, %s, %s) ON CONFLICT DO NOTHING;
         """
-        self.cur.execute(query, (game_id, self.username, slug))
-        newly_granted = self.cur.fetchone()
+        self.cur.execute(query_game, (game_id, self.username, slug))
+        # cur.rowcount tells us if a row was actually inserted
+        game_unlocked = self.cur.rowcount > 0
 
-        if self.show_all:
-            # Verbose mode: Print everything this game qualifies for
-            prefix = "🎉 NEW:" if newly_granted else "🏅 QUALIFIED:"
+        # 2. Log it in the Global Trophy Cabinet (user_badges)
+        query_user = """
+            INSERT INTO user_badges (username, achievement_slug) 
+            VALUES (%s, %s) ON CONFLICT DO NOTHING;
+        """
+        self.cur.execute(query_user, (self.username, slug))
+        global_unlocked = self.cur.rowcount > 0
+
+        # --- Dynamic Logging Logic ---
+        if global_unlocked:
+            # THIS IS A GLOBAL FIRST
+            logger.info(f"🏆 NEW GLOBAL BADGE [{self.username}]: {print_msg} (First in Game: {game_id})")
+        
+        elif self.show_all:
+            # Verbose mode for summary screen
+            prefix = "🎉 NEW IN GAME:" if game_unlocked else "🏅 REPEATED:"
             logger.info(f"{prefix} [{self.username}] {print_msg} (Game: {game_id})")
-        elif newly_granted:
-            # Standard mode: Only print brand new achievements
-            logger.info(f"🎉 New Achievement [{self.username}]: {print_msg} (Game: {game_id})")
-        else:
-            logger.debug(f"  - Skipped: '{slug}' already granted for game {game_id}")
+        
+        elif game_unlocked:
+            # Logged as debug so it doesn't spam standard runs
+            logger.debug(f"  - Repeated Feat: {print_msg} in game {game_id}")
 
     def _grant_mastery(self, game_id, category, slug, name, exp_to_add):
         """Grants EXP and updates the player's total mastery progress safely."""

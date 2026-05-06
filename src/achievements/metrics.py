@@ -112,38 +112,64 @@ class GameMetrics:
 
     def _analyze_material(self, captures, evals):
         piece_values = {'pawn': 1, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9}
+        
+        # Helpers to calculate relative balance at any exact moment in the game
+        def get_balance_at_ply(target_ply):
+            my_pts = sum(piece_values.get(c['piece_taken'], 0) for c in captures if c['player'] == self.my_color and c['ply'] <= target_ply)
+            opp_pts = sum(piece_values.get(c['piece_taken'], 0) for c in captures if c['player'] == self.opp_color and c['ply'] <= target_ply)
+            return my_pts - opp_pts
+
+        def get_pawn_balance_at_ply(target_ply):
+            my_pawns = sum(1 for c in captures if c['player'] == self.my_color and c['piece_taken'] == 'pawn' and c['ply'] <= target_ply)
+            opp_pawns = sum(1 for c in captures if c['player'] == self.opp_color and c['piece_taken'] == 'pawn' and c['ply'] <= target_ply)
+            return my_pawns - opp_pawns
+
         for cap in captures:
             if cap['player'] == self.my_color:
+                # Always track total material for the "Board Wiper" badges
                 self.total_material_points += piece_values.get(cap['piece_taken'], 0)
                 
                 if cap['piece_taken'] == 'pawn':
-                    c_ply = cap['ply'] # 1-indexed ply from the DB
+                    c_ply = cap['ply']
                     eval_idx = c_ply - 1 
+                    
+                    # 1. Engine Check: Was it a blunder?
                     is_clean = True
-                    
-                    # Check 1: Was it a blunder/mistake? (Filters out poisoned pawns)
                     if 0 < eval_idx < len(evals):
-                        current_eval = evals[eval_idx]
-                        prev_eval = evals[eval_idx - 1]
-                        drop = (current_eval - prev_eval) if self.is_white else -(current_eval - prev_eval)
-                        if drop <= -100: 
-                            is_clean = False
+                        drop = (evals[eval_idx] - evals[eval_idx-1]) if self.is_white else -(evals[eval_idx] - evals[eval_idx-1])
+                        if drop <= -100: is_clean = False
                     
-                    # Check 2: Was it kept for 5 turns (or until the game ended)?
+                    # 2. Tactical Resolution Check
                     if is_clean:
-                        lost_pawn_soon = False
+                        # Record the baseline BEFORE you grabbed the pawn
+                        bal_mat_before = get_balance_at_ply(c_ply - 1)
+                        bal_pwn_before = get_pawn_balance_at_ply(c_ply - 1)
                         
-                        # Define our lookahead window safely
-                        lookahead_end = min(c_ply + 10, self.total_plies)
+                        target_ply = c_ply + 3
+                        final_ply = c_ply
                         
-                        for future_cap in captures:
-                            # Did the opponent capture a pawn back within the window?
-                            if future_cap['player'] == self.opp_color and future_cap['piece_taken'] == 'pawn':
-                                if c_ply < future_cap['ply'] <= lookahead_end:
-                                    lost_pawn_soon = True
-                                    break
-                                    
-                        if not lost_pawn_soon:
+                        # Loop through the upcoming moves to find when the dust settles
+                        # (self.san_moves is 0-indexed, so index `c_ply` is the move immediately AFTER the capture)
+                        for p_idx in range(c_ply, self.total_plies):
+                            current_ply = p_idx + 1
+                            san = self.san_moves[p_idx]
+                            
+                            # If tactical noise occurs, push the timer back 3 plies
+                            if any(char in san for char in ['x', '+', '#', '=']):
+                                target_ply = current_ply + 3
+                                
+                            final_ply = current_ply
+                            
+                            # 3 quiet plies have passed, the tactical sequence is over
+                            if current_ply == target_ply:
+                                break
+                                
+                        # 3. Final Balance Check
+                        bal_mat_after = get_balance_at_ply(final_ply)
+                        bal_pwn_after = get_pawn_balance_at_ply(final_ply)
+                        
+                        # Check if the NET change since before the capture is positive
+                        if (bal_mat_after - bal_mat_before) >= 1 and (bal_pwn_after - bal_pwn_before) >= 1:
                             self.clean_pawns_won_moves.append(self._format_move(c_ply - 1))
 
     def get_draw_reason(self):
