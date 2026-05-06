@@ -102,25 +102,35 @@ class GameMetrics:
         for cap in captures:
             if cap['player'] == self.my_color:
                 self.total_material_points += piece_values.get(cap['piece_taken'], 0)
+                
                 if cap['piece_taken'] == 'pawn':
                     c_ply = cap['ply'] # 1-indexed ply from the DB
                     eval_idx = c_ply - 1 
                     is_clean = True
+                    
+                    # Check 1: Was it a blunder/mistake? (Filters out poisoned pawns)
                     if 0 < eval_idx < len(evals):
                         current_eval = evals[eval_idx]
                         prev_eval = evals[eval_idx - 1]
                         drop = (current_eval - prev_eval) if self.is_white else -(current_eval - prev_eval)
-                        if drop <= -100: is_clean = False
+                        if drop <= -100: 
+                            is_clean = False
                     
-                    if is_clean and (self.total_plies >= c_ply + 10):
+                    # Check 2: Was it kept for 5 turns (or until the game ended)?
+                    if is_clean:
                         lost_pawn_soon = False
+                        
+                        # Define our lookahead window safely
+                        lookahead_end = min(c_ply + 10, self.total_plies)
+                        
                         for future_cap in captures:
+                            # Did the opponent capture a pawn back within the window?
                             if future_cap['player'] == self.opp_color and future_cap['piece_taken'] == 'pawn':
-                                if c_ply < future_cap['ply'] <= c_ply + 10:
+                                if c_ply < future_cap['ply'] <= lookahead_end:
                                     lost_pawn_soon = True
                                     break
+                                    
                         if not lost_pawn_soon:
-                            # CHANGED: Append formatted move (c_ply is 1-indexed, so we subtract 1)
                             self.clean_pawns_won_moves.append(self._format_move(c_ply - 1))
 
     def get_draw_reason(self):
