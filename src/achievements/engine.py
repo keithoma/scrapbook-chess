@@ -4,13 +4,10 @@ from .metrics import GameMetrics
 logger = logging.getLogger(__name__)
 
 class AchievementEngine:
-    """
-    Evaluates GameMetrics against achievement rules and triggers database inserts.
-    Organized strictly by logical achievement groupings.
-    """
-    def __init__(self, db_cursor, username):
+    def __init__(self, db_cursor, username, show_all=False):
         self.cur = db_cursor
         self.username = username
+        self.show_all = show_all # New flag
 
     def _grant(self, game_id, slug, print_msg):
         query = """
@@ -18,7 +15,14 @@ class AchievementEngine:
             VALUES (%s, %s, %s) ON CONFLICT DO NOTHING RETURNING 1;
         """
         self.cur.execute(query, (game_id, self.username, slug))
-        if self.cur.fetchone():
+        newly_granted = self.cur.fetchone()
+
+        if self.show_all:
+            # Verbose mode: Print everything this game qualifies for
+            prefix = "🎉 NEW:" if newly_granted else "🏅 QUALIFIED:"
+            logger.info(f"{prefix} [{self.username}] {print_msg} (Game: {game_id})")
+        elif newly_granted:
+            # Standard mode: Only print brand new achievements
             logger.info(f"🎉 New Achievement [{self.username}]: {print_msg} (Game: {game_id})")
         else:
             logger.debug(f"  - Skipped: '{slug}' already granted for game {game_id}")
@@ -45,7 +49,6 @@ class AchievementEngine:
     def check_wins(self, m: GameMetrics):
         self._grant(m.game_id, 'won-game', "Won a game")
         self._grant(m.game_id, f'won-{m.speed}', f"Won a {m.speed} game")
-
         if m.mid_start and m.total_plies < m.mid_start: self._grant(m.game_id, 'win-opening', "Won in the Opening")
         elif m.end_start and m.mid_start <= m.total_plies < m.end_start: self._grant(m.game_id, 'win-midgame', "Won in the Middle Game")
         elif m.end_start and m.total_plies >= m.end_start: self._grant(m.game_id, 'win-endgame', "Won in the End Game")
@@ -93,13 +96,21 @@ class AchievementEngine:
         if pts >= 30: self._grant(m.game_id, 'captured-30-points', f"Captured 30+ points of material ({pts} total)")
         if pts >= 39: self._grant(m.game_id, 'captured-39-points', f"Board Wiper: Captured {pts} points of material")
 
-        pawns = m.clean_pawns_won
-        if pawns >= 1: self._grant(m.game_id, 'clean-pawn-1', "Won a clean pawn and held it for 5+ turns")
-        if pawns >= 2: self._grant(m.game_id, 'clean-pawn-2', "Won 2 clean pawns in a single game")
-        if pawns >= 3: self._grant(m.game_id, 'clean-pawn-3', "Pawn Grabber: Won 3+ clean pawns in a single game")
+        pawns = len(m.clean_pawns_won_moves)
+        if pawns >= 1: 
+            self._grant(m.game_id, 'clean-pawn-1', f"Won a clean pawn and held it for 5+ turns (at {m.clean_pawns_won_moves[0]})")
+        if pawns >= 2: 
+            self._grant(m.game_id, 'clean-pawn-2', f"Won 2 clean pawns in a single game (2nd at {m.clean_pawns_won_moves[1]})")
+        if pawns >= 3: 
+            self._grant(m.game_id, 'clean-pawn-3', f"Pawn Grabber: Won 3+ clean pawns in a single game (3rd at {m.clean_pawns_won_moves[2]})")
 
     def check_punishments(self, m: GameMetrics):
-        if m.mistakes_punished >= 1: self._grant(m.game_id, 'punished-mistake-1', "Punished an opponent's mistake")
-        if m.mistakes_punished >= 3: self._grant(m.game_id, 'punished-mistake-3', "Opportunist: Punished 3 mistakes in one game")
-        if m.blunders_punished >= 1: self._grant(m.game_id, 'punished-blunder-1', "Punished an opponent's blunder")
-        if m.blunders_punished >= 2: self._grant(m.game_id, 'punished-blunder-2', "Executioner: Punished multiple blunders in one game")
+        if len(m.mistakes_punished_moves) >= 1: 
+            self._grant(m.game_id, 'punished-mistake-1', f"Punished an opponent's mistake (at {m.mistakes_punished_moves[0]})")
+        if len(m.mistakes_punished_moves) >= 3: 
+            self._grant(m.game_id, 'punished-mistake-3', f"Opportunist: Punished 3 mistakes in one game (3rd at {m.mistakes_punished_moves[2]})")
+            
+        if len(m.blunders_punished_moves) >= 1: 
+            self._grant(m.game_id, 'punished-blunder-1', f"Punished an opponent's blunder (at {m.blunders_punished_moves[0]})")
+        if len(m.blunders_punished_moves) >= 2: 
+            self._grant(m.game_id, 'punished-blunder-2', f"Executioner: Punished multiple blunders in one game (2nd at {m.blunders_punished_moves[1]})")

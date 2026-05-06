@@ -7,7 +7,7 @@ from .engine import AchievementEngine
 
 logger = logging.getLogger(__name__)
 
-def process_achievements(username='noctu2nality'):
+def process_achievements(username='noctu2nality', limit=None, show_all=False):
     """Main execution loop to batch process games through the engine."""
     username = username.lower()
     setup_achievements_db()
@@ -16,9 +16,14 @@ def process_achievements(username='noctu2nality'):
     
     with get_connection() as conn:
         with conn.cursor() as cur:
-            engine = AchievementEngine(cur, username)
+            engine = AchievementEngine(cur, username, show_all=show_all)
 
-            cur.execute("SELECT id, score, speed, game_data FROM games;")
+            # Modified to respect the limit and pull the most recent games first
+            query = "SELECT id, score, speed, game_data FROM games ORDER BY played_at DESC"
+            if limit:
+                query += f" LIMIT {int(limit)}"
+                
+            cur.execute(query)
             games = cur.fetchall()
             logger.debug(f"Loaded {len(games)} games from the database.")
 

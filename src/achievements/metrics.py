@@ -8,9 +8,10 @@ class GameMetrics:
     def __init__(self, game_id, score, speed, game_data, username):
         self.game_id = game_id
         self.speed = speed.lower()
-        self.total_plies = len(game_data.get('moves', '').split())
-        self.termination = game_data.get('termination', 'unknown').lower()
         self.moves_string = game_data.get('moves', '')
+        self.san_moves = self.moves_string.split()
+        self.total_plies = len(self.san_moves)
+        self.termination = game_data.get('termination', 'unknown').lower()
         
         # Player Context
         self.white_id = game_data['players']['white'].get('id', '').lower()
@@ -36,11 +37,12 @@ class GameMetrics:
         self.mistakes = 0
         self.blunders = 0
         
-        self.mistakes_punished = 0
-        self.blunders_punished = 0
+        # CHANGED: We now track the exact moves, not just a count
+        self.mistakes_punished_moves = []
+        self.blunders_punished_moves = []
+        self.clean_pawns_won_moves = []
         
         self.total_material_points = 0
-        self.clean_pawns_won = 0
 
         # Lazy loaded properties
         self._draw_reason = None
@@ -48,6 +50,17 @@ class GameMetrics:
         # Execute crunching algorithms
         self._analyze_evals(game_data.get('move_evals', []))
         self._analyze_material(game_data.get('captures', []), game_data.get('move_evals', []))
+
+    def _format_move(self, ply_index):
+        """Converts a 0-based ply index into readable notation (e.g. '17. Qxc5' or '17... Qxc5')"""
+        if ply_index >= len(self.san_moves):
+            return "Unknown"
+        move_num = (ply_index // 2) + 1
+        san = self.san_moves[ply_index]
+        if ply_index % 2 == 0:
+            return f"{move_num}. {san}"
+        else:
+            return f"{move_num}... {san}"
 
     def _analyze_evals(self, evals):
         for i in range(len(evals)):
@@ -77,8 +90,12 @@ class GameMetrics:
                         my_response_drop = (my_response_eval - current_eval) if self.is_white else -(my_response_eval - current_eval)
                         
                         if my_response_drop > -50:
-                            if opp_drop <= -300: self.blunders_punished += 1
-                            elif opp_drop <= -100: self.mistakes_punished += 1
+                            # CHANGED: Store the formatted move string of your punishing response
+                            punishing_move = self._format_move(i + 1)
+                            if opp_drop <= -300: 
+                                self.blunders_punished_moves.append(punishing_move)
+                            elif opp_drop <= -100: 
+                                self.mistakes_punished_moves.append(punishing_move)
 
     def _analyze_material(self, captures, evals):
         piece_values = {'pawn': 1, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9}
@@ -86,7 +103,7 @@ class GameMetrics:
             if cap['player'] == self.my_color:
                 self.total_material_points += piece_values.get(cap['piece_taken'], 0)
                 if cap['piece_taken'] == 'pawn':
-                    c_ply = cap['ply']
+                    c_ply = cap['ply'] # 1-indexed ply from the DB
                     eval_idx = c_ply - 1 
                     is_clean = True
                     if 0 < eval_idx < len(evals):
@@ -103,12 +120,13 @@ class GameMetrics:
                                     lost_pawn_soon = True
                                     break
                         if not lost_pawn_soon:
-                            self.clean_pawns_won += 1
+                            # CHANGED: Append formatted move (c_ply is 1-indexed, so we subtract 1)
+                            self.clean_pawns_won_moves.append(self._format_move(c_ply - 1))
 
     def get_draw_reason(self):
         if self._draw_reason is None:
             board = chess.Board()
-            for move_str in self.moves_string.split():
+            for move_str in self.san_moves:
                 try: board.push_san(move_str)
                 except ValueError: break
                     

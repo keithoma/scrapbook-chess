@@ -1,7 +1,6 @@
 import logging
 import argparse
 
-# Import your two modules
 from src.database.ingest_games import fetch_and_store_games
 from src.achievements.scanner import process_achievements
 
@@ -15,6 +14,10 @@ def main():
                         help="Lichess username to target")
     parser.add_argument("--skip-fetch", action="store_true", 
                         help="Skip pulling from Lichess and only scan the local database")
+    parser.add_argument("--scan-all", action="store_true", 
+                        help="Ignore the limit and scan EVERY game in the database")
+    parser.add_argument("--show-achievements", action="store_true", 
+                        help="Print all qualified achievements for the game, even if already granted")
     parser.add_argument("--debug", action="store_true", 
                         help="Enable highly verbose debug logging")
     
@@ -33,14 +36,21 @@ def main():
     # Step 1: Ingestion
     if not args.skip_fetch:
         print(f"📥 Fetching the last {args.limit} game(s)...")
-        # Note: Ensure your fetch_and_store_games function accepts the limit parameter
         fetch_and_store_games(username=args.user, limit=args.limit)
     else:
         print("⏭️  Skipping Lichess API fetch...")
 
     # Step 2: Achievement Scanning
-    print("🏆 Scanning local database for new achievements...")
-    process_achievements(username=args.user)
+    print("🏆 Scanning local database for achievements...")
+    
+    # Determine how many games the scanner should look at
+    scan_limit = None if args.scan_all else args.limit
+    
+    process_achievements(
+        username=args.user, 
+        limit=scan_limit, 
+        show_all=args.show_achievements
+    )
     
     print("✅ All done!")
 
