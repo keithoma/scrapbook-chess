@@ -7,6 +7,53 @@ from database.connection import get_connection
 # 2026-05-01 00:00:00 UTC
 MAY_FIRST_2026 = datetime(2026, 5, 1, tzinfo=timezone.utc)
 
+import chess
+
+def extract_game_events(uci_moves_string):
+    """
+    Simulates a game from a UCI move string and extracts specific events.
+    """
+    board = chess.Board()
+    moves = uci_moves_string.split()
+    
+    events = {
+        "captures": [],
+        "en_passants": []
+    }
+    
+    for ply, uci_move in enumerate(moves):
+        # The ply starts at 0 (White's move 1). ply % 2 == 0 is White, ply % 2 != 0 is Black.
+        move = chess.Move.from_uci(uci_move)
+        
+        # 1. Check for En Passant
+        if board.is_en_passant(move):
+            events["en_passants"].append({
+                "ply": ply + 1,
+                "move": uci_move,
+                "player": "white" if board.turn == chess.WHITE else "black"
+            })
+            
+        # 2. Check for Captures (including En Passant)
+        if board.is_capture(move):
+            # If it's en passant, the captured piece is always a pawn.
+            # Otherwise, look at the piece on the destination square *before* the move is pushed.
+            if board.is_en_passant(move):
+                captured_piece = chess.PAWN
+            else:
+                captured_piece = board.piece_type_at(move.to_square)
+                
+            events["captures"].append({
+                "ply": ply + 1,
+                "piece_taken": chess.piece_name(captured_piece), # Translates integer to 'pawn', 'queen', etc.
+                "move": uci_move,
+                "player": "white" if board.turn == chess.WHITE else "black"
+            })
+            
+        # Push the move to update the board state for the next iteration
+        board.push(move)
+        
+    return events
+
 def setup_db():
     """Ensures the games table exists before we start ingesting."""
     query = """
@@ -112,6 +159,20 @@ def format_game_data(raw_game):
         "move_times": raw_game.get('clocks', []),
         "move_evals": move_evals,
         "division": raw_game.get('division', {})
+    }
+    
+    # Get the raw UCI moves string
+    raw_moves_string = raw_game.get('moves', '')
+    
+    # Extract our specific achievements/events
+    game_events = extract_game_events(raw_moves_string)
+
+    formatted_game = {
+        "id": raw_game.get('id'),
+        # ... (your existing fields) ...
+        "moves": raw_moves_string,
+        "captures": game_events["captures"],
+        "en_passants": game_events["en_passants"]
     }
     
     return formatted_game
