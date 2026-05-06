@@ -42,6 +42,17 @@
 
 - win a game that is longer than 80 moves
 
+### Material
+
+- total points of materials captured (including trades)
+- number of clean pawns won (the pawn winning move is not a mistake nor a blunder and the pawn is kept for 5 or more turns)
+
+
+### Capitalize on Mistakes
+
+- punish opponents mistakes
+- punish opponents blunders
+
 
 ### In Game
 
