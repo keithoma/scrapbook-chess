@@ -17,9 +17,17 @@ class GameMetrics:
         self.total_plies = len(self.san_moves)
         self.termination = game_data.get('termination', 'unknown').lower()
         
-        # Capture Opening Info
-        self.opening_name = game_data.get('opening', {}).get('name', 'Unknown')
-        self.opening_eco = game_data.get('opening', {}).get('eco', 'Unknown')
+        # --- IMPROVED OPENING EXTRACTION ---
+        opening_data = game_data.get('opening')
+        if not opening_data:
+            opening_data = game_data.get('raw_api_response', {}).get('opening', {})
+
+        if isinstance(opening_data, dict):
+            self.opening_name = opening_data.get('name', 'Unknown')
+            self.opening_eco = opening_data.get('eco', 'Unknown')
+        else:
+            self.opening_name = 'Unknown'
+            self.opening_eco = 'Unknown'
         
         # Player Context
         self.white_id = game_data['players']['white'].get('id', '').lower()
@@ -118,40 +126,29 @@ class GameMetrics:
         except Exception as e:
             print(f"Error reading polyglot book: {e}")
 
+    def _calculate_win_chances(self, cp: int) -> float:
+        return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
+
     def _analyze_evals(self, evals):
         for i in range(len(evals)):
             current_eval = evals[i]
             prev_eval = evals[i-1] if i > 0 else 0
 
-            p_eval = current_eval if self.is_white else -current_eval
-            if p_eval < self.min_eval_seen:
-                self.min_eval_seen = p_eval
-
-            if self.mid_start and i == self.mid_start - 1: self.eval_at_mid = p_eval
-            if self.end_start and i == self.end_start - 1: self.eval_at_end = p_eval
+            # Get POV Win Chances
+            # (Assuming evals are always from White's perspective)
+            w_curr = self._calculate_win_chances(current_eval if self.is_white else -current_eval)
+            w_prev = self._calculate_win_chances(prev_eval if self.is_white else -prev_eval)
+            
+            delta = w_prev - w_curr # How much win-chance did we lose?
 
             is_player_turn = (self.is_white and i % 2 == 0) or (not self.is_white and i % 2 == 1)
             
-            if i > 0:
-                drop = (current_eval - prev_eval) if self.is_white else -(current_eval - prev_eval)
-                
-                if is_player_turn:
-                    if drop <= -300: self.blunders += 1
-                    elif drop <= -100: self.mistakes += 1
-                    elif drop <= -50: self.inaccuracies += 1
-                else:
-                    opp_drop = -drop 
-                    if opp_drop <= -100 and (i + 1 < len(evals)):
-                        my_response_eval = evals[i+1]
-                        my_response_drop = (my_response_eval - current_eval) if self.is_white else -(my_response_eval - current_eval)
-                        
-                        if my_response_drop > -50:
-                            # CHANGED: Store the formatted move string of your punishing response
-                            punishing_move = self._format_move(i + 1)
-                            if opp_drop <= -300: 
-                                self.blunders_punished_moves.append(punishing_move)
-                            elif opp_drop <= -100: 
-                                self.mistakes_punished_moves.append(punishing_move)
+            if i > 0 and is_player_turn:
+                if delta >= 0.25: self.blunders += 1
+                elif delta >= 0.12: self.mistakes += 1
+                elif delta >= 0.06: self.inaccuracies += 1
+            
+            # (Rest of your punishment logic below...)
 
     def _analyze_material(self, captures, evals):
         piece_values = {'pawn': 1, 'knight': 3, 'bishop': 3, 'rook': 5, 'queen': 9}

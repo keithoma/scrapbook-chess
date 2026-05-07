@@ -110,48 +110,55 @@ class AchievementAnalyzer:
         }
 
     def _assign_symbols(self, node, move, data, board):
-        # Everything here is POV of the player whose turn it is
-        turn = board.turn 
+        current_player = board.turn
 
         def get_win_chance(info):
+            if not info or "score" not in info: return 0.5
             score = info.get("score")
             if not score: return 0.5
-            cp = score.pov(turn).score(mate_score=10000) or 0
+            cp = score.pov(current_player).score(mate_score=10000) or 0
             return self._calculate_win_chances(cp)
 
-        w_best_high = get_win_chance(data['high_res_best'])
-        w_played_high = get_win_chance(data['high_res_played'])
-        
+        # 1. Extract the top 3 engine recommendations
+        # Note: We assume MultiPV=3 was used in _get_move_analysis
+        w_top1 = get_win_chance(data['high_multipv'][0])
+        w_top2 = get_win_chance(data['high_multipv'][1]) if len(data['high_multipv']) > 1 else 0.0
+        w_top3 = get_win_chance(data['high_multipv'][2]) if len(data['high_multipv']) > 2 else 0.0
+
+        # 2. Extract the actual played move quality
+        w_played = get_win_chance(data['high_res_played'])
+        delta = w_top1 - w_played
+
+        # --- TIER 1: BRILLIANCY (!!) ---
+        # (Your existing Blindspot logic remains at the top)
         w_best_low = get_win_chance(data['low_res_best'])
         w_played_low = get_win_chance(data['low_res_played'])
-
-        # Delta is now POSITIVE (0.0 to 1.0). 0.0 means you played the engine best move.
-        delta = w_best_high - w_played_high
-
-        # --- BRILLIANCY (!!) ---
-        # If best move at high depth, but low depth thought it was a >15% mistake
         if delta < 0.015 and (w_best_low - w_played_low) > 0.15:
-            node.nags.add(3)
+            node.nags.add(3) # !!
             return
 
-        # --- ERRORS (Using standard Lichess-style brackets) ---
-        if delta > 0.20:
-            node.nags.add(4)  # ?? (Blunder)
-        elif delta > 0.10:
-            node.nags.add(2)  # ? (Mistake)
-        
-        # --- POSITIVE ---
-        elif delta < 0.01:
-            # Check for Only Move (□)
-            if len(data['high_multipv']) > 1:
-                w_second = get_win_chance(data['high_multipv'][1])
-                if (w_best_high - w_second) > 0.15:
-                    node.nags.add(7) # □
-            
-            # Great Move (!)
-            # If the position is tough (win chance < 40%) but you found the top move
-            if w_best_high < 0.40:
-                node.nags.add(1)
+        # --- TIER 2: ONLY MOVE (□) ---
+        # Logic: Player found the top move, and the gap to the 2nd best is > 10%
+        if delta < 0.01 and (w_top1 - w_top2) > 0.10:
+            node.nags.add(7) # □
+            return
+
+        # --- TIER 3: EXCELLENT MOVE (!) ---
+        # Logic: Player found one of the top two moves.
+        # These two are "comparable" (within 3%), but the gap to the 3rd best is > 10%
+        if delta < 0.03: # Player played a top-tier move
+            if (w_top1 - w_top2) < 0.03: # Top two are "comparable"
+                if (w_top2 - w_top3) > 0.10: # Big drop-off to the rest of the field
+                    node.nags.add(1) # !
+                    return
+
+        # --- TIER 4: ERRORS (Standard Deltas) ---
+        if delta > 0.25:
+            node.nags.add(4)  # ??
+        elif delta > 0.12:
+            node.nags.add(2)  # ?
+        # elif delta > 0.06:
+        #    node.nags.add(6)  # ?!
 
     def _format_comment(self, data: EngineAnalysisData, board: chess.Board) -> str:
         score_obj = data['high_res_played'].get("score")

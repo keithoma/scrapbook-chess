@@ -1,12 +1,11 @@
 """
 Quick and Dirty Terminal UI.
-
-Queries the database to display a user's profile (achievements) 
-and their recent game history ledger.
+Queries the database to display a user's profile and recent game history.
 """
 
 import logging
 import json
+import math
 from datetime import datetime
 from src.database.connection import get_connection
 
@@ -19,11 +18,32 @@ def _format_date(date_obj):
         return date_obj[:10]
     return date_obj.strftime("%Y-%m-%d")
 
+def _render_bar(current, total, width=15):
+    """Renders a simple ASCII progress bar."""
+    fraction = min(current / total, 1.0)
+    filled = int(fraction * width)
+    return f"[{'#' * filled}{'-' * (width - filled)}] {int(fraction * 100)}%"
+
+def _get_mastery_info(exp):
+    """
+    Calculates Level and Next Level progress.
+    Level 1: 0-100 | Level 2: 100-300 | Level 3: 300-600 | Level 4: 600-1000
+    """
+    if exp < 100:
+        return 1, exp, 100
+    if exp < 300:
+        return 2, exp - 100, 200
+    if exp < 600:
+        return 3, exp - 300, 300
+    if exp < 1000:
+        return 4, exp - 600, 400
+    return 5, exp, 1000 # Max Level cap for now
+
 def show_profile(username: str):
     """Displays unlocked trophies, badge progress, and mastery."""
-    print(f"\n{'='*50}")
+    print(f"\n{'='*65}")
     print(f"👤 CHESS PROFILE: {username.upper()}")
-    print(f"{'='*50}")
+    print(f"{'='*65}")
 
     unlocks_query = """
         SELECT ad.type, ad.category, ad.name, uu.tier, uu.unlocked_at
@@ -55,7 +75,7 @@ def show_profile(username: str):
 
     # --- 1. TROPHY CABINET ---
     print("\n🏆 TROPHY CABINET (Unlocks)")
-    print("-" * 50)
+    print("-" * 65)
     if not unlocks:
         print("  (No trophies earned yet. Keep grinding!)")
     else:
@@ -70,7 +90,7 @@ def show_profile(username: str):
 
     # --- 2. ACTIVE PROGRESS ---
     print("\n\n📈 ACTIVE GRIND (Progress)")
-    print("-" * 50)
+    print("-" * 65)
     
     badges = [p for p in progress if p[0] == 'badge']
     mastery = [p for p in progress if p[0] == 'mastery']
@@ -78,15 +98,16 @@ def show_profile(username: str):
     if badges:
         print("\n  [BADGES]")
         for _, name, val in badges:
-            # Bronze is 10 for most badges
-            print(f"  📊 {name:<25} | {int(val)}/10 to Bronze")
+            print(f"  📊 {name:<25} | {int(val):>3}/10 to Bronze")
             
     if mastery:
-        print("\n  [MASTERY]")
+        print("\n  [OPENING MASTERY]")
         for _, name, val in mastery:
-            print(f"  📚 {name:<25} | EXP: {val:.1f}")
+            lvl, cur_exp, next_req = _get_mastery_info(val)
+            bar = _render_bar(cur_exp, next_req)
+            print(f"  📚 {name:<25} | Lvl {lvl} {bar} ({int(val)} Total EXP)")
             
-    print(f"\n{'='*50}\n")
+    print(f"\n{'='*65}\n")
 
 
 def show_history(username: str, limit: int = 10):
