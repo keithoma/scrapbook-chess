@@ -1,8 +1,6 @@
 """
 Core Engine Logic for Chess Achievement Book.
-
-This module provides the AchievementAnalyzer class, which orchestrates 
-Stockfish 16+ to perform 'Blindspot' analysis.
+Fixed: POV-Consistency and high-depth played-move evaluation.
 """
 
 import math
@@ -18,22 +16,18 @@ from src.config import STOCKFISH_PATH, BOOK_PATH
 logger = logging.getLogger(__name__)
 
 class EngineAnalysisData(TypedDict):
-    """Explicit definition of the engine analysis results dictionary."""
-    high_res: List[chess.engine.InfoDict]
-    low_res_before: chess.engine.InfoDict
-    post_high: chess.engine.InfoDict
-    post_low: chess.engine.InfoDict
+    high_res_best: chess.engine.InfoDict    # The actual #1 move
+    high_res_played: chess.engine.InfoDict  # The user's move at high depth
+    high_multipv: List[chess.engine.InfoDict] # For the "Top 3" display
+    low_res_best: chess.engine.InfoDict
+    low_res_played: chess.engine.InfoDict
     post_high_score: int
 
 class AchievementAnalyzer:
-    """
-    A context-managed wrapper for Stockfish and Polyglot opening books.
-    """
-
-    def __init__(self, low_depth: int = 8, high_depth: int = 22, threads: int = 4) -> None:
-        self.low_depth: int = low_depth
-        self.high_depth: int = high_depth
-        self.threads: int = threads
+    def __init__(self, low_depth: int = 8, high_depth: int = 15, threads: int = 4) -> None:
+        self.low_depth = low_depth
+        self.high_depth = high_depth
+        self.threads = threads
         self.engine: Optional[chess.engine.SimpleEngine] = None
         self.reader: Optional[chess.polyglot.MemoryMappedReader] = None
 
@@ -53,131 +47,146 @@ class AchievementAnalyzer:
             self.reader.close()
 
     def analyze_game(self, input_pgn: str) -> Tuple[Optional[str], List[int]]:
-        """
-        Orchestrates the analysis of a single game.
-        """
-        game: Optional[chess.pgn.Game] = chess.pgn.read_game(io.StringIO(input_pgn.strip()))
-        if not game:
-            return None, []
+        game = chess.pgn.read_game(io.StringIO(input_pgn.strip()))
+        if not game: return None, []
 
-        board: chess.Board = game.board()
-        node: Union[chess.pgn.Game, chess.pgn.ChildNode] = game
-        move_evals: List[int] = []
-        novelty_found: bool = False
+        board = game.board()
+        node = game
+        move_evals = []
+        novelty_found = False
+        
+        total_moves = sum(1 for _ in game.mainline())
+        move_count = 0
 
         while node.variations:
-            next_node: chess.pgn.ChildNode = node.variation(0)
-            move_played: chess.Move = next_node.move
+            move_count += 1
+            next_node = node.variation(0)
+            move_played = next_node.move
 
-            # 1. Gather Engine Data
-            eval_data: EngineAnalysisData = self._get_move_analysis(board, move_played)
+            eval_data = self._get_move_analysis(board, move_played)
+            if not eval_data: break
 
-            # 2. Check for Novelty (N)
+            if move_count % 10 == 0 or move_count == 1:
+                logger.info(f"      ♟️  Analyzing move {move_count}/{total_moves}...")
+
+            self._assign_symbols(next_node, move_played, eval_data, board)
+
             if self.reader and not novelty_found:
                 novelty_found = self._check_for_novelty(board, move_played, next_node)
 
-            # 3. Assign Symbols & Logic
-            self._assign_symbols(next_node, move_played, eval_data, board)
-
-            # 4. Update state and log evaluation
             move_evals.append(eval_data['post_high_score'])
-            next_node.comment = self._format_comment(eval_data)
+            next_node.comment = self._format_comment(eval_data, board)
 
             board.push(move_played)
             node = next_node
 
         return self._export_pgn(game), move_evals
 
-    def _get_move_analysis(self, board: chess.Board, move: chess.Move) -> EngineAnalysisData:
-        """
-        Runs all necessary engine evaluations for a single position.
-        """
-        if not self.engine:
-            raise RuntimeError("Engine not initialized. Use the 'with' statement.")
+    def _get_move_analysis(self, board: chess.Board, move: chess.Move) -> Optional[EngineAnalysisData]:
+        if board.is_game_over(): return None
 
-        # Pre-move analysis
-        high_res = self.engine.analyse(board, chess.engine.Limit(depth=self.high_depth), multipv=3)
-        low_res_before = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth))
+        # 1. High Depth: Get Top 3 alternatives
+        high_multipv = self.engine.analyse(board, chess.engine.Limit(depth=self.high_depth), multipv=3)
+        if not isinstance(high_multipv, list): high_multipv = [high_multipv]
 
-        # Execute Move on temporary board
-        temp_board: chess.Board = board.copy()
-        temp_board.push(move)
+        # 2. High Depth: Specifically evaluate the move played (to compare against Best)
+        high_res_played = self.engine.analyse(board, chess.engine.Limit(depth=self.high_depth), root_moves=[move])
 
-        # Post-move analysis
-        post_high = self.engine.analyse(temp_board, chess.engine.Limit(depth=self.high_depth))
-        post_low = self.engine.analyse(temp_board, chess.engine.Limit(depth=self.low_depth))
+        # 3. Low Depth: Best vs Played (for Brilliancy/Blindspot detection)
+        low_res_best = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth))
+        low_res_played = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth), root_moves=[move])
+
+        # 4. Final Score (White POV for the database list)
+        score_obj = high_res_played.get("score")
+        post_high_score = score_obj.white().score(mate_score=10000) if score_obj else 0
 
         return {
-            'high_res': high_res,
-            'low_res_before': low_res_before,
-            'post_high': post_high,
-            'post_low': post_low,
-            'post_high_score': post_high["score"].white().score(mate_score=10000) or 0
+            'high_res_best': high_multipv[0],
+            'high_res_played': high_res_played,
+            'high_multipv': high_multipv,
+            'low_res_best': low_res_best,
+            'low_res_played': low_res_played,
+            'post_high_score': post_high_score
         }
 
-    def _assign_symbols(
-        self, 
-        node: chess.pgn.ChildNode, 
-        move: chess.Move, 
-        data: EngineAnalysisData, 
-        board: chess.Board
-    ) -> None:
-        """Logic gate for assigning NAGs based on engine deltas."""
-        pov: bool = not board.turn 
+    def _assign_symbols(self, node, move, data, board):
+        # Everything here is POV of the player whose turn it is
+        turn = board.turn 
 
-        # Extract scores safely (handling None/Mate)
-        score_before_low = data['low_res_before']["score"].pov(board.turn).score(mate_score=10000) or 0
-        score_after_low = data['post_low']["score"].pov(pov).score(mate_score=10000) or 0
-        score_after_high = data['post_high']["score"].pov(pov).score(mate_score=10000) or 0
+        def get_win_chance(info):
+            score = info.get("score")
+            if not score: return 0.5
+            cp = score.pov(turn).score(mate_score=10000) or 0
+            return self._calculate_win_chances(cp)
 
-        w_before_low = self._calculate_win_chances(score_before_low)
-        w_after_low = self._calculate_win_chances(score_after_low)
-        w_after_high = self._calculate_win_chances(score_after_high)
+        w_best_high = get_win_chance(data['high_res_best'])
+        w_played_high = get_win_chance(data['high_res_played'])
+        
+        w_best_low = get_win_chance(data['low_res_best'])
+        w_played_low = get_win_chance(data['low_res_played'])
 
-        # Brilliancy (!!) - NAG 3
-        low_delta = w_before_low - w_after_low
-        best_high_score = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
-        real_delta = self._calculate_win_chances(best_high_score) - w_after_high
+        # Delta is now POSITIVE (0.0 to 1.0). 0.0 means you played the engine best move.
+        delta = w_best_high - w_played_high
 
-        if low_delta >= 0.15 and real_delta < 0.05:
-            node.nags.add(3) # Using raw integer 3 for !!
+        # --- BRILLIANCY (!!) ---
+        # If best move at high depth, but low depth thought it was a >15% mistake
+        if delta < 0.015 and (w_best_low - w_played_low) > 0.15:
+            node.nags.add(3)
             return
 
-        # Only Move (□) - NAG 7
-        if len(data['high_res']) >= 2:
-            s_best = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
-            s_second = data['high_res'][1]["score"].pov(board.turn).score(mate_score=10000) or 0
-            w_best = self._calculate_win_chances(s_best)
-            w_second = self._calculate_win_chances(s_second)
+        # --- ERRORS (Using standard Lichess-style brackets) ---
+        if delta > 0.20:
+            node.nags.add(4)  # ?? (Blunder)
+        elif delta > 0.10:
+            node.nags.add(2)  # ? (Mistake)
+        elif delta > 0.05:
+            node.nags.add(6)  # ?! (Inaccuracy)
+        
+        # --- POSITIVE ---
+        elif delta < 0.01:
+            # Check for Only Move (□)
+            if len(data['high_multipv']) > 1:
+                w_second = get_win_chance(data['high_multipv'][1])
+                if (w_best_high - w_second) > 0.15:
+                    node.nags.add(7) # □
+            
+            # Great Move (!)
+            # If the position is tough (win chance < 40%) but you found the top move
+            if w_best_high < 0.40:
+                node.nags.add(1)
 
-            if (w_best - w_second) >= 0.20 and move == data['high_res'][0]["pv"][0]:
-                node.nags.add(7) # Using raw integer 7 for □
-
-    def _format_comment(self, data: EngineAnalysisData) -> str:
-        score: int = data['post_high_score']
-        eval_str: str = f"{score / 100:.2f}" if abs(score) < 10000 else "MATE"
-        return f"[%eval {eval_str}]"
-
-    def _check_for_novelty(
-            self, board: chess.Board, 
-            move: chess.Move, 
-            node: chess.pgn.ChildNode
-        ) -> bool:
-        if not self.reader:
-            return False
-
-        book_moves: List[chess.Move] = [e.move for e in self.reader.find_all(board)]
-        if (not book_moves and len(board.move_stack) > 2) or (move not in book_moves):
-            node.nags.add(146) # Novelty
-            return True
-        return False
+    def _format_comment(self, data: EngineAnalysisData, board: chess.Board) -> str:
+        score_obj = data['high_res_played'].get("score")
+        eval_str = self._format_eval(score_obj.white()) if score_obj else "0.00"
+        
+        top_moves_list = []
+        for i, info in enumerate(data['high_multipv']):
+            pv = info.get("pv", [])
+            if not pv: continue
+            san = board.san(pv[0])
+            score = self._format_eval(info.get("score").pov(board.turn))
+            top_moves_list.append(f"{i+1}. {san} ({score})")
+            
+        return f"[%eval {eval_str}] (Top: {', '.join(top_moves_list)})"
 
     @staticmethod
     def _calculate_win_chances(cp: int) -> float:
         return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
 
+    def _format_eval(self, score: chess.engine.Score) -> str:
+        mate = score.mate()
+        if mate is not None: return f"#{mate}"
+        cp = score.score(mate_score=10000)
+        return f"{cp / 100:.2f}" if cp is not None else "0.00"
+
+    def _check_for_novelty(self, board, move, node) -> bool:
+        if not self.reader or len(board.move_stack) < 6: return False
+        book_moves = [e.move for e in self.reader.find_all(board)]
+        if move not in book_moves:
+            node.nags.add(146) # N
+            return True
+        return False
+
     def _export_pgn(self, game: chess.pgn.Game) -> str:
-        exporter = chess.pgn.StringExporter(
-            columns=None, headers=True, variations=False, comments=True
-        )
+        exporter = chess.pgn.StringExporter(columns=None, comments=True, variations=False)
         return game.accept(exporter)
