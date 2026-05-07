@@ -2,7 +2,6 @@ import json
 import logging
 from tqdm import tqdm
 
-from src.config import BOOK_PATH
 from src.database.connection import get_connection
 from src.analysis.stockfish_analyzer import AchievementAnalyzer
 
@@ -15,20 +14,24 @@ def build_pgn_from_json(game_data):
     """
     headers = [
         f'[Event "{game_data.get("speed", "rapid").title()} game"]',
-        f'[Site "https://lichess.org/{game_data["id"]}"]',
+        f'[Site "https://lichess.org/{game_data.get("id", "Unknown")}"]',
         f'[White "{game_data["players"]["white"]["name"]}"]',
         f'[Black "{game_data["players"]["black"]["name"]}"]',
-        f'[Result "{game_data["score"]}"]',
-        f'[ECO "{game_data["opening"]["eco"]}"]',
-        f'[Opening "{game_data["opening"]["name"]}"]'
+        f'[Result "{game_data.get("score", "*")}"]',
     ]
+    
+    # Safely handle missing opening data (common in aborted games)
+    if "opening" in game_data:
+        headers.append(f'[ECO "{game_data["opening"].get("eco", "")}"]')
+        headers.append(f'[Opening "{game_data["opening"].get("name", "")}"]')
+        
     moves = game_data.get('moves', '')
     return "\n".join(headers) + "\n\n" + moves + "\n"
 
 def analyze_pending_games(limit=None):
     """
-    Finds games in the database that haven't been analyzed by your custom 
-    Stockfish yet, runs them, and updates the JSONB payload.
+    Finds games in the database that haven't been analyzed by Stockfish, 
+    runs them through the AchievementAnalyzer, and updates the JSONB payload.
     """
     # 1. Query for unprocessed games
     query = """
@@ -46,52 +49,51 @@ def analyze_pending_games(limit=None):
                 cur.execute(query)
                 pending_games = cur.fetchall()
     except Exception as e:
-        logger.error(f"❌ Failed to fetch pending games: {e}")
+        logger.error("❌ Failed to fetch pending games: %s", e)
         return
 
     if not pending_games:
         logger.info("✨ No pending games require Stockfish analysis.")
         return
 
-    logger.info(f"⚙️  Found {len(pending_games)} game(s) needing deep analysis. Starting engines...")
+    logger.info("⚙️  Found %d game(s) needing deep analysis. Booting Stockfish...", len(pending_games))
 
-    # 2. Process each game
-    for game_id, game_data in pending_games:
-        logger.info(f"  -> Analyzing {game_id} (This may take a moment)")
-        
-        # Build the PGN and run it through your custom logic
-        pgn_string = build_pgn_from_json(game_data)
-        
-        # NOTE: low_depth=1, high_depth=22 is currently hardcoded here. 
-        # Lower high_depth if it takes too long to test!
-        annotated_pgn, local_evals = AchievementAnalyzer(
-            pgn_string, 
-            book_path=BOOK_PATH,
-            low_depth=1, 
-            high_depth=14
-        )
+    # 2. Boot Stockfish ONCE for the entire batch
+    # NOTE: low_depth=1, high_depth=14 is great for fast testing.
+    try:
+        with AchievementAnalyzer(low_depth=1, high_depth=14) as analyzer:
+            
+            # Wrap the loop in tqdm for a smooth terminal progress bar
+            for game_id, game_data in tqdm(pending_games, desc="Analyzing Games", unit="game"):
+                logger.debug("  -> Analyzing %s", game_id)
+                
+                # Build PGN and pass it to the analyzer method
+                pgn_string = build_pgn_from_json(game_data)
+                annotated_pgn, local_evals = analyzer.analyze_game(pgn_string)
 
-        if annotated_pgn:
-            # 3. Update the game_data dictionary
-            game_data['move_evals'] = local_evals  # Overwrite Lichess evals with yours
-            game_data['annotated_pgn'] = annotated_pgn
-            game_data['local_analysis_complete'] = True
+                if annotated_pgn:
+                    # 3. Update the game_data dictionary
+                    game_data['move_evals'] = local_evals
+                    game_data['annotated_pgn'] = annotated_pgn
+                    game_data['local_analysis_complete'] = True
 
-            # 4. Save it back to the database
-            update_query = """
-                UPDATE games 
-                SET game_data = %s 
-                WHERE id = %s
-            """
-            try:
-                with get_connection() as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(update_query, (json.dumps(game_data), game_id))
-                    conn.commit()
-                logger.info(f"  ✅ Saved analysis for {game_id}")
-            except Exception as e:
-                logger.error(f"  ❌ DB Update failed for {game_id}: {e}")
-        else:
-            logger.error(f"  ⚠️ Engine failed to analyze {game_id}")
+                    # 4. Save it back to the database safely
+                    update_query = """
+                        UPDATE games 
+                        SET game_data = %s 
+                        WHERE id = %s
+                    """
+                    try:
+                        with get_connection() as conn:
+                            with conn.cursor() as cur:
+                                cur.execute(update_query, (json.dumps(game_data), game_id))
+                            conn.commit()
+                    except Exception as e:
+                        logger.error("  ❌ DB Update failed for %s: %s", game_id, e)
+                else:
+                    logger.error("  ⚠️ Engine failed to analyze %s", game_id)
+                    
+    except Exception as e:
+        logger.error("💥 Engine critical failure: %s", e)
 
     logger.info("🏁 Stockfish analysis batch complete!")

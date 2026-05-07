@@ -134,16 +134,16 @@ class AchievementAnalyzer:
         w_after_low = self._calculate_win_chances(score_after_low)
         w_after_high = self._calculate_win_chances(score_after_high)
 
-        # Brilliancy (!!)
+        # Brilliancy (!!) - NAG 3
         low_delta = w_before_low - w_after_low
         best_high_score = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
         real_delta = self._calculate_win_chances(best_high_score) - w_after_high
 
         if low_delta >= 0.15 and real_delta < 0.05:
-            node.nags.add(chess.pgn.NAG_BRILLIANT_MOVE) # 3
+            node.nags.add(3) # Using raw integer 3 for !!
             return
 
-        # Only Move (□)
+        # Only Move (□) - NAG 7
         if len(data['high_res']) >= 2:
             s_best = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
             s_second = data['high_res'][1]["score"].pov(board.turn).score(mate_score=10000) or 0
@@ -151,7 +151,7 @@ class AchievementAnalyzer:
             w_second = self._calculate_win_chances(s_second)
 
             if (w_best - w_second) >= 0.20 and move == data['high_res'][0]["pv"][0]:
-                node.nags.add(chess.pgn.NAG_ONLY_MOVE) # 7
+                node.nags.add(7) # Using raw integer 7 for □
 
     def _format_comment(self, data: EngineAnalysisData) -> str:
         score: int = data['post_high_score']

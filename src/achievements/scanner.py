@@ -82,22 +82,32 @@ class AchievementScanner:
     def _evaluate_badges(self, metrics: GameMetrics):
         """Maps Badge IDs to their specific triggering logic."""
         
-        # A dictionary mapping the JSON ID to the metric condition that grants +1 progress
+        # Safely pull basic metrics that we know exist right now
+        is_win = getattr(metrics, 'is_win', False)
+        speed = getattr(metrics, 'speed', 'unknown')
+        
+        # Bulletproof dictionary - won't crash if advanced metrics are missing
         badge_triggers = {
             "badge_played_total": 1,
-            "badge_played_blitz": 1 if metrics.speed == "blitz" else 0,
-            "badge_played_rapid": 1 if metrics.speed == "rapid" else 0,
-            
-            "badge_won_total": 1 if metrics.is_win else 0,
-            "badge_won_blitz": 1 if metrics.is_win and metrics.speed == "blitz" else 0,
-            "badge_won_rapid": 1 if metrics.is_win and metrics.speed == "rapid" else 0,
-            
-            "badge_no_blunders": 1 if metrics.is_win and metrics.blunders == 0 else 0,
-            "badge_clean_pawns": len(metrics.clean_pawns_won_moves),
-            "badge_punish_blunders": len(metrics.blunders_punished_moves)
-            # Add the rest of your specific logic mapping here!
+            "badge_played_blitz": 1 if speed == "blitz" else 0,
+            "badge_played_rapid": 1 if speed == "rapid" else 0,
+            "badge_won_total": 1 if is_win else 0,
+            "badge_won_blitz": 1 if is_win and speed == "blitz" else 0,
+            "badge_won_rapid": 1 if is_win and speed == "rapid" else 0,
         }
 
+        for badge in self.configs["badge"]:
+            badge_id = badge["id"]
+            progress_amount = badge_triggers.get(badge_id, 0)
+            
+            if progress_amount > 0:
+                # We will add Tier-Up logic later. For now, just record the raw progress!
+                self.ledger.record_progress(
+                    game_id=metrics.game_id, 
+                    def_id=badge_id, 
+                    amount=progress_amount, 
+                    newly_unlocked_tier=None
+                )
         for badge in self.configs["badge"]:
             badge_id = badge["id"]
             progress_amount = badge_triggers.get(badge_id, 0)

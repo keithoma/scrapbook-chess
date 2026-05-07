@@ -14,6 +14,22 @@ logger = logging.getLogger(__name__)
 class AchievementLedger:
     def __init__(self, username: str):
         self.username = username
+        self._ensure_user_exists()
+
+    def _ensure_user_exists(self):
+        """Silently registers the user in the database if they don't exist."""
+        query = """
+            INSERT INTO users (username) 
+            VALUES (%s) 
+            ON CONFLICT (username) DO NOTHING;
+        """
+        try:
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, (self.username,))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Failed to register user {self.username}: {e}")
 
     def is_already_granted(self, game_id: str, def_id: str) -> bool:
         """Checks if a specific game has already triggered a specific achievement."""
