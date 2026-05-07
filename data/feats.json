@@ -1,0 +1,82 @@
+[
+  {
+    "id": "feat_connect_four",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "Connect Four",
+    "description": "Align four of your pawns side-by-side on the same rank.",
+    "flavor_text": "Wrong board game, but we respect the geometry.",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_botez_gambit",
+    "type": "feat",
+    "category": "Blunders",
+    "name": "The Botez Gambit",
+    "description": "Blunder your Queen entirely cleanly without compensation.",
+    "flavor_text": "Chat, is this theory?",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_bongcloud_played",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "The Bongcloud Attack",
+    "description": "Play the Bongcloud Opening (1. e4 e5 2. Ke2 or black equivalent).",
+    "flavor_text": "Ah, a player of true culture and refined taste.",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_bongcloud_faced",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "Disrespect Acknowledged",
+    "description": "Have an opponent play the Bongcloud against you.",
+    "flavor_text": "Did they just... move their King on move 2?",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_lone_kings",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "The Last Men Standing",
+    "description": "Reach a board state where only the two Kings remain.",
+    "flavor_text": "A duel stripped of all armies. Just two monarchs staring at each other.",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_marathon_120",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "The Century Mark",
+    "description": "Win a game that lasts longer than 120 moves.",
+    "flavor_text": "Both players aged visibly during this encounter.",
+    "is_hidden": true,
+    "config": {}
+  },
+  {
+    "id": "feat_perfect_game",
+    "type": "feat",
+    "category": "Highlights",
+    "name": "The Centaur",
+    "description": "Win a game without committing a single inaccuracy, mistake, or blunder.",
+    "flavor_text": "Are you sure you don't have Stockfish running in another tab?",
+    "is_hidden": false,
+    "config": {}
+  },
+  {
+    "id": "feat_tragic_timeout",
+    "type": "feat",
+    "category": "Blunders",
+    "name": "Snatching Defeat from the Jaws of Victory",
+    "description": "Lose on time in a completely winning position (evaluation > +5.0 in your favor).",
+    "flavor_text": "You had them on the ropes, but the clock stops for no one.",
+    "is_hidden": true,
+    "config": {}
+  }
+]

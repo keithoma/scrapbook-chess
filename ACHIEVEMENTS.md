@@ -61,10 +61,15 @@
 
 
 ## FEATS
-- four connect
-- reach lone King vs lone King
-- win a game that is longer than 120 moves (feat)
-
+- four connect (hidden)
+- botez gambit (hidden)
+- bongcloud (hidden)
+- get bongclouded (hidden)
+- reach lone King vs lone King (hidden)
+- win a game that is longer than 120 moves (hidden)
 - win a game without any mistakes, blunders, nor inaccuracy
+- lose a completely winning position on time (hidden)
+
+
 
 ### Checkmates

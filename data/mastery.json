@@ -1,0 +1,122 @@
+[
+  {
+    "id": "mastery_sicilian_black",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Mob Boss (Sicilian Defense)",
+    "description": "Gain experience by defending with the Sicilian Defense as Black.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "black",
+        "eco_prefixes": ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_sicilian_white",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Enforcer (Facing the Sicilian)",
+    "description": "Gain experience by dismantling the Sicilian Defense as White.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "white",
+        "eco_prefixes": ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_caro_kann_black",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Iron Wall (Caro-Kann)",
+    "description": "Gain experience by playing the solid Caro-Kann Defense as Black.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "black",
+        "eco_prefixes": ["B1"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_caro_kann_white",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Wall Breaker (Facing the Caro-Kann)",
+    "description": "Gain experience by cracking the Caro-Kann Defense as White.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "white",
+        "eco_prefixes": ["B1"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_kings_gambit_white",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Romantic (King's Gambit)",
+    "description": "Gain experience by playing the aggressive King's Gambit as White.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "white",
+        "eco_prefixes": ["C3"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_kings_gambit_black",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Pragmatist (Defending the King's Gambit)",
+    "description": "Gain experience by surviving and countering the King's Gambit as Black.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "black",
+        "eco_prefixes": ["C3"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_rapport_jobava_white",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Modern Artist (Rapport-Jobava)",
+    "description": "Gain experience by playing the Rapport-Jobava System as White.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "white",
+        "name_includes": ["Rapport-Jobava System"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  },
+  {
+    "id": "mastery_rapport_jobava_black",
+    "type": "mastery",
+    "category": "Openings",
+    "name": "The Art Critic (Defending the Rapport-Jobava)",
+    "description": "Gain experience by neutralizing the Rapport-Jobava System as Black.",
+    "is_hidden": false,
+    "config": {
+      "conditions": {
+        "color": "black",
+        "name_includes": ["Rapport-Jobava System"]
+      },
+      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
+    }
+  }
+]

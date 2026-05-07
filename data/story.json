@@ -1,0 +1,71 @@
+[
+  {
+    "id": "story_play_1",
+    "type": "story",
+    "category": "Onboarding",
+    "subcategory": "Milestones",
+    "name": "First Blood",
+    "description": "Play your very first rated game on Lichess.",
+    "flavor_text": "The journey of a grandmaster begins with a single pawn push.",
+    "is_hidden": false,
+    "config": {
+      "requires": {}
+    }
+  },
+  {
+    "id": "story_play_5",
+    "type": "story",
+    "category": "Onboarding",
+    "subcategory": "Milestones",
+    "name": "Regular Patron",
+    "description": "Play five rated games.",
+    "is_hidden": false,
+    "config": {
+      "requires": {
+        "all_of": ["story_play_1"]
+      }
+    }
+  },
+  {
+    "id": "story_win_blitz",
+    "type": "story",
+    "category": "Onboarding",
+    "subcategory": "Combat",
+    "name": "Lightning Strike",
+    "description": "Win a Blitz game.",
+    "is_hidden": false,
+    "config": {
+      "requires": {
+        "all_of": ["story_play_1"]
+      }
+    }
+  },
+  {
+    "id": "story_win_rapid",
+    "type": "story",
+    "category": "Onboarding",
+    "subcategory": "Combat",
+    "name": "Deep Thinker",
+    "description": "Win a Rapid game.",
+    "is_hidden": false,
+    "config": {
+      "requires": {
+        "all_of": ["story_play_1"]
+      }
+    }
+  },
+  {
+    "id": "story_win_bullet",
+    "type": "story",
+    "category": "Onboarding",
+    "subcategory": "Combat",
+    "name": "Faster than Light",
+    "description": "Win a Bullet game.",
+    "is_hidden": false,
+    "config": {
+      "requires": {
+        "all_of": ["story_play_5", "story_win_blitz"]
+      }
+    }
+  }
+]
