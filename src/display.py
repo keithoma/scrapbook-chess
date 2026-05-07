@@ -6,6 +6,7 @@ and their recent game history ledger.
 """
 
 import logging
+import json
 from datetime import datetime
 from src.database.connection import get_connection
 
@@ -77,6 +78,7 @@ def show_profile(username: str):
     if badges:
         print("\n  [BADGES]")
         for _, name, val in badges:
+            # Bronze is 10 for most badges
             print(f"  📊 {name:<25} | {int(val)}/10 to Bronze")
             
     if mastery:
@@ -93,7 +95,7 @@ def show_history(username: str, limit: int = 10):
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
     print(f"{'='*90}")
 
-    # JOIN with the 'games' table so we can extract the JSONB data for names and openings
+    # JOIN with the 'games' table to extract JSONB data
     games_query = """
         SELECT ggl.game_id, MAX(ggl.granted_at) as recent_grant, g.game_data
         FROM game_grants_ledger ggl
@@ -104,7 +106,6 @@ def show_history(username: str, limit: int = 10):
         LIMIT %s;
     """
 
-    # Fetch ad.description so we can show how the badge is earned
     ledger_query = """
         SELECT ad.name, ad.description, ad.type, ggl.change_amount, ggl.tier_unlocked
         FROM game_grants_ledger ggl
@@ -124,15 +125,27 @@ def show_history(username: str, limit: int = 10):
             for game_id, recent_grant, game_data_raw in recent_games:
                 game_data = game_data_raw if isinstance(game_data_raw, dict) else json.loads(game_data_raw)
                 
-                # 1. Names
-                white = game_data.get("players", {}).get("white", {}).get("user", {}).get("name", "Unknown")
-                black = game_data.get("players", {}).get("black", {}).get("user", {}).get("name", "Unknown")
+                # --- HELPER: Aggressive Player Name Extraction (Already working) ---
+                def get_player_name(color):
+                    p = game_data.get("players", {}).get(color, {})
+                    return (p.get("user", {}).get("name") or 
+                            p.get("name") or 
+                            p.get("id") or "Unknown")
+
+                white = get_player_name("white")
+                black = get_player_name("black")
                 
-                # 2. Openings (Matching your JSON dump exactly)
-                opening_obj = game_data.get("opening", {})
+                # --- FIXED: Aggressive Opening Extraction ---
+                # Check top level first, then fall back to raw_api_response
+                opening_obj = game_data.get("opening")
+                if not opening_obj:
+                    opening_obj = game_data.get("raw_api_response", {}).get("opening", {})
+
                 opening = "Unknown Opening"
                 if isinstance(opening_obj, dict):
                     opening = opening_obj.get("name", "Unknown Opening")
+                elif isinstance(opening_obj, str):
+                    opening = opening_obj
 
                 date_str = _format_date(recent_grant)
                 
@@ -140,5 +153,17 @@ def show_history(username: str, limit: int = 10):
                 print(f"   Opening: {opening}")
                 print(f"   [ID: {game_id} | Scanned: {date_str}]")
                 print("-" * 90)
+
+                # --- The Ledger Loop ---
+                cur.execute(ledger_query, (game_id, username))
+                grants = cur.fetchall()
+                for g_name, g_desc, g_type, g_amount, g_tier in grants:
+                    if g_type == 'badge':
+                        tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
+                        print(f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}")
+                    elif g_type == 'mastery':
+                        print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
+                    else:
+                        print(f"   ✨ {g_name:<25} | {g_desc}")
                         
     print(f"\n{'='*90}\n")
