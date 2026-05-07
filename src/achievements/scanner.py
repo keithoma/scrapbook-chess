@@ -1,37 +1,34 @@
 import os
 import re
-from datetime import datetime
 import logging
-import argparse
+from datetime import datetime
 from src.database.connection import get_connection
-from src.database.achievements_db import setup_achievements_db
-from .metrics import GameMetrics
-from .engine import AchievementEngine
+from src.achievements.metrics import GameMetrics
+from src.achievements.engine import AchievementEngine
 
 logger = logging.getLogger(__name__)
 
 def export_annotated_pgn(game_data, username):
     """Saves the annotated PGN to the debug folder with custom naming."""
-    # 1. Setup path
     output_dir = "debug/pgn_files"
     os.makedirs(output_dir, exist_ok=True)
 
-    # 2. Check if we actually have the annotated PGN
     annotated_content = game_data.get('annotated_pgn')
     if not annotated_content:
-        return # Can't export what hasn't been analyzed!
+        logger.debug(f"  [!] No annotated PGN found for {game_data.get('id')}")
+        return 
 
-    # 3. Format Filename Data
-    # Get yyyymmdd from the timestamp
+    # 1. Format Filename Data
     ts = game_data.get('timestamp', 0)
     date_str = datetime.fromtimestamp(ts).strftime("%Y%m%d")
 
-    # Determine color
+    # 2. Determine color (using your username logic)
     is_white = game_data['players']['white']['id'].lower() == username.lower()
     color_str = "white" if is_white else "black"
 
-    # Sanitize Opening Name (remove characters like : / \ ?)
+    # 3. Sanitize Opening Name for OS filesystem safety
     opening_name = game_data.get('opening', {}).get('name', 'Unknown Opening')
+    # Remove characters that Windows/Linux/Mac hate in filenames
     safe_opening = re.sub(r'[\\/*?:"<>|]', "", opening_name)
 
     filename = f"{date_str} {color_str} {safe_opening}.pgn"
@@ -41,36 +38,51 @@ def export_annotated_pgn(game_data, username):
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(annotated_content)
     
-    # Optional: logger.debug(f"📄 Exported PGN: {filename}")
+    logger.info(f"  📄 Exported Debug PGN: {filename}")
 
-def process_achievements(username='noctu2nality', limit=None, show_all=False):
-    """Main execution loop to batch process games through the engine."""
-    username = username.lower()
-    setup_achievements_db()
-    
+def process_achievements(username, limit=None, show_all=False, export_pgn=False):
+    """
+    Scans the database for games and processes them through 
+    the achievement engine.
+    """
     logger.info(f"🏆 Scanning games for {username}...")
-    
+
+    # We select game_data which now contains your 'local_analysis_complete' info
+    query = """
+        SELECT id, score, speed, game_data 
+        FROM games 
+        WHERE (game_data->'players'->'white'->>'id' = %s 
+           OR game_data->'players'->'black'->>'id' = %s)
+        ORDER BY played_at DESC
+    """
+    if limit:
+        query += f" LIMIT {limit}"
+
     with get_connection() as conn:
         with conn.cursor() as cur:
-            engine = AchievementEngine(cur, username, show_all=show_all)
+            cur.execute(query, (username, username))
+            rows = cur.fetchall()
 
-            # Modified to respect the limit and pull the most recent games first
-            query = "SELECT id, score, speed, game_data FROM games ORDER BY played_at DESC"
-            if limit:
-                query += f" LIMIT {int(limit)}"
-                
-            cur.execute(query)
-            games = cur.fetchall()
-            logger.debug(f"Loaded {len(games)} games from the database.")
+    if not rows:
+        logger.warning(f"No games found in database for user: {username}")
+        return
 
-            for game_id, score, speed, game_data in games:
-                logger.debug(f"Analyzing game {game_id}...")
-                metrics = GameMetrics(game_id, score, speed, game_data, username)
-                engine.evaluate(metrics)
-                if export_pgn:
-                    export_annotated_pgn(game_data, username)
+    # Initialize the engine
+    with get_connection() as conn:
+        engine = AchievementEngine(conn.cursor(), username, show_all=show_all)
+        
+        for game_id, score, speed, game_data in rows:
+            # 1. Build Metrics (this now runs your Solista Opening logic too!)
+            metrics = GameMetrics(game_id, score, speed, game_data, username)
             
-            conn.commit()
+            # 2. Evaluate achievements
+            engine.evaluate(metrics)
+            
+            # 3. Handle Debug Export
+            if export_pgn:
+                export_annotated_pgn(game_data, username)
+                
+        conn.commit()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process Lichess games and unlock achievements.")
