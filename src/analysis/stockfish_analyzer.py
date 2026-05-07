@@ -1,126 +1,183 @@
+"""
+Core Engine Logic for Chess Achievement Book.
+
+This module provides the AchievementAnalyzer class, which orchestrates 
+Stockfish 16+ to perform 'Blindspot' analysis.
+"""
+
+import math
+import io
+import logging
+from typing import Optional, List, Tuple, Dict, Any, TypedDict, Union
+
 import chess.pgn
 import chess.engine
-import io
-import math
 import chess.polyglot
+from src.config import STOCKFISH_PATH, BOOK_PATH
 
-STOCKFISH_PATH = "/usr/games/stockfish"
+logger = logging.getLogger(__name__)
 
-def get_win_chances(cp):
-    """Sigmoid conversion: centipawns -> winning probability (0.0 to 1.0)."""
-    return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
+class EngineAnalysisData(TypedDict):
+    """Explicit definition of the engine analysis results dictionary."""
+    high_res: List[chess.engine.InfoDict]
+    low_res_before: chess.engine.InfoDict
+    post_high: chess.engine.InfoDict
+    post_low: chess.engine.InfoDict
+    post_high_score: int
 
-def analyze_game_data(input_pgn: str, book_path: str, low_depth: int = 8, high_depth: int = 22):
-    pgn_file = io.StringIO(input_pgn.strip())
-    game = chess.pgn.read_game(pgn_file)
-    if not game: 
-        return None, []
+class AchievementAnalyzer:
+    """
+    A context-managed wrapper for Stockfish and Polyglot opening books.
+    """
 
-    # Initialize Engine
-    engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
-    engine.configure({"Threads": 4, "Hash": 512})
+    def __init__(self, low_depth: int = 8, high_depth: int = 22, threads: int = 4) -> None:
+        self.low_depth: int = low_depth
+        self.high_depth: int = high_depth
+        self.threads: int = threads
+        self.engine: Optional[chess.engine.SimpleEngine] = None
+        self.reader: Optional[chess.polyglot.MemoryMappedReader] = None
 
-    node = game
-    board = game.board()
-    move_evals = []
-    novelty_found = False
-    
-    # Open the Master Book
-    reader = None
-    if book_path:
+    def __enter__(self) -> "AchievementAnalyzer":
+        self.engine = chess.engine.SimpleEngine.popen_uci(str(STOCKFISH_PATH))
+        self.engine.configure({"Threads": self.threads, "Hash": 512})
         try:
-            reader = chess.polyglot.open_reader(book_path)
+            self.reader = chess.polyglot.open_reader(str(BOOK_PATH))
         except FileNotFoundError:
-            print(f"Warning: Opening book not found at {book_path}")
+            logger.warning("Opening book not found. Novelty detection disabled.")
+        return self
 
-    while node.variations:
-        next_node = node.variation(0)
-        move_played = next_node.move
-        
-        # --- 1. PRE-MOVE ANALYSIS (The Baseline) ---
-        
-        # A) High Depth (The Truth) - MultiPV 3
-        high_res_list = engine.analyse(board, chess.engine.Limit(depth=high_depth), multipv=3)
-        
-        w_chances_high = []
-        variation_comments = []
-        for i, info in enumerate(high_res_list):
-            cp = info["score"].pov(board.turn).score(mate_score=10000)
-            w_chances_high.append(get_win_chances(cp))
-            
-            pv_move = board.san(info["pv"][0]) if "pv" in info else "???"
-            variation_comments.append(f"{i+1}: {pv_move} ({cp/100:.2f})")
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        if self.engine:
+            self.engine.quit()
+        if self.reader:
+            self.reader.close()
 
-        best_move_high = high_res_list[0]["pv"][0] if "pv" in high_res_list[0] else None
+    def analyze_game(self, input_pgn: str) -> Tuple[Optional[str], List[int]]:
+        """
+        Orchestrates the analysis of a single game.
+        """
+        game: Optional[chess.pgn.Game] = chess.pgn.read_game(io.StringIO(input_pgn.strip()))
+        if not game:
+            return None, []
 
-        # B) Low Depth (The Blindspot)
-        low_res_before = engine.analyse(board, chess.engine.Limit(depth=low_depth))
-        w_low_best = get_win_chances(low_res_before["score"].pov(board.turn).score(mate_score=10000))
+        board: chess.Board = game.board()
+        node: Union[chess.pgn.Game, chess.pgn.ChildNode] = game
+        move_evals: List[int] = []
+        novelty_found: bool = False
 
-        # --- 2. EXECUTE MOVE & POST-MOVE ANALYSIS ---
-        
-        # Check Novelty (N) before pushing the move
-        if reader and not novelty_found:
-            all_entries = list(reader.find_all(board))
-            book_moves = [e.move for e in all_entries]
+        while node.variations:
+            next_node: chess.pgn.ChildNode = node.variation(0)
+            move_played: chess.Move = next_node.move
 
-            if not book_moves:
-                if len(board.move_stack) > 2:
-                    next_node.nags.add(146) # N
-                    novelty_found = True
-            elif move_played not in book_moves:
-                next_node.nags.add(146) # N
-                novelty_found = True
+            # 1. Gather Engine Data
+            eval_data: EngineAnalysisData = self._get_move_analysis(board, move_played)
 
-        board.push(move_played)
-        
-        # C) Post-Move High Depth
-        post_high = engine.analyse(board, chess.engine.Limit(depth=high_depth))
-        post_score_white = post_high["score"].white().score(mate_score=10000)
-        move_evals.append(post_score_white)
-        
-        # Win chance for the person who just moved
-        w_after = get_win_chances(post_score_white if not board.turn else -post_score_white)
+            # 2. Check for Novelty (N)
+            if self.reader and not novelty_found:
+                novelty_found = self._check_for_novelty(board, move_played, next_node)
 
-        # D) Post-Move Low Depth
-        post_low = engine.analyse(board, chess.engine.Limit(depth=low_depth))
-        # Note: evaluate from POV of player who just moved
-        w_low_move = get_win_chances(post_low["score"].pov(not board.turn).score(mate_score=10000))
+            # 3. Assign Symbols & Logic
+            self._assign_symbols(next_node, move_played, eval_data, board)
 
-        # --- 3. SYMBOL LOGIC (NAGS) ---
+            # 4. Update state and log evaluation
+            move_evals.append(eval_data['post_high_score'])
+            next_node.comment = self._format_comment(eval_data)
 
-        # B) Brilliancy (!!) - NAG 3
-        low_delta = w_low_best - w_low_move
-        real_delta = w_chances_high[0] - w_after
+            board.push(move_played)
+            node = next_node
 
-        # Logic: Low depth hated it (drop >= 20%), high depth loved it (drop < 5%)
-        # if low_delta >= 0.20 and real_delta < 0.05:
-        if low_delta >= 0.10 and real_delta < 0.05:
-            next_node.nags.add(3) # !!
+        return self._export_pgn(game), move_evals
 
-        # C) Only Move (□) - NAG 7
-        elif len(w_chances_high) >= 2 and (w_chances_high[0] - w_chances_high[1]) >= 0.20:
-            if move_played == best_move_high:
-                next_node.nags.add(7) # □
+    def _get_move_analysis(self, board: chess.Board, move: chess.Move) -> EngineAnalysisData:
+        """
+        Runs all necessary engine evaluations for a single position.
+        """
+        if not self.engine:
+            raise RuntimeError("Engine not initialized. Use the 'with' statement.")
 
-        # D) Good Move (!) - NAG 1
-        elif len(w_chances_high) >= 3 and (w_chances_high[1] - w_chances_high[2]) >= 0.20:
-            # Played one of the top 2 good moves
-            if move_played == best_move_high or (len(high_res_list) > 1 and move_played == high_res_list[1]["pv"][0]):
-                next_node.nags.add(1) # !
+        # Pre-move analysis
+        high_res = self.engine.analyse(board, chess.engine.Limit(depth=self.high_depth), multipv=3)
+        low_res_before = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth))
 
-        # 4. FINALIZE COMMENT
-        eval_str = f"{post_score_white / 100:.2f}" if abs(post_score_white) < 10000 else "MATE"
-        comment = f"[%eval {eval_str}] " + " | ".join(variation_comments)
-        next_node.comment = comment
+        # Execute Move on temporary board
+        temp_board: chess.Board = board.copy()
+        temp_board.push(move)
 
-        node = next_node
+        # Post-move analysis
+        post_high = self.engine.analyse(temp_board, chess.engine.Limit(depth=self.high_depth))
+        post_low = self.engine.analyse(temp_board, chess.engine.Limit(depth=self.low_depth))
 
-    # Cleanup
-    if reader: 
-        reader.close()
-    engine.quit()
+        return {
+            'high_res': high_res,
+            'low_res_before': low_res_before,
+            'post_high': post_high,
+            'post_low': post_low,
+            'post_high_score': post_high["score"].white().score(mate_score=10000) or 0
+        }
 
-    # Export to PGN string
-    exporter = chess.pgn.StringExporter(columns=None, headers=True, variations=False, comments=True)
-    return game.accept(exporter), move_evals
+    def _assign_symbols(
+        self, 
+        node: chess.pgn.ChildNode, 
+        move: chess.Move, 
+        data: EngineAnalysisData, 
+        board: chess.Board
+    ) -> None:
+        """Logic gate for assigning NAGs based on engine deltas."""
+        pov: bool = not board.turn 
+
+        # Extract scores safely (handling None/Mate)
+        score_before_low = data['low_res_before']["score"].pov(board.turn).score(mate_score=10000) or 0
+        score_after_low = data['post_low']["score"].pov(pov).score(mate_score=10000) or 0
+        score_after_high = data['post_high']["score"].pov(pov).score(mate_score=10000) or 0
+
+        w_before_low = self._calculate_win_chances(score_before_low)
+        w_after_low = self._calculate_win_chances(score_after_low)
+        w_after_high = self._calculate_win_chances(score_after_high)
+
+        # Brilliancy (!!)
+        low_delta = w_before_low - w_after_low
+        best_high_score = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
+        real_delta = self._calculate_win_chances(best_high_score) - w_after_high
+
+        if low_delta >= 0.15 and real_delta < 0.05:
+            node.nags.add(chess.pgn.NAG_BRILLIANT_MOVE) # 3
+            return
+
+        # Only Move (□)
+        if len(data['high_res']) >= 2:
+            s_best = data['high_res'][0]["score"].pov(board.turn).score(mate_score=10000) or 0
+            s_second = data['high_res'][1]["score"].pov(board.turn).score(mate_score=10000) or 0
+            w_best = self._calculate_win_chances(s_best)
+            w_second = self._calculate_win_chances(s_second)
+
+            if (w_best - w_second) >= 0.20 and move == data['high_res'][0]["pv"][0]:
+                node.nags.add(chess.pgn.NAG_ONLY_MOVE) # 7
+
+    def _format_comment(self, data: EngineAnalysisData) -> str:
+        score: int = data['post_high_score']
+        eval_str: str = f"{score / 100:.2f}" if abs(score) < 10000 else "MATE"
+        return f"[%eval {eval_str}]"
+
+    def _check_for_novelty(
+            self, board: chess.Board, 
+            move: chess.Move, 
+            node: chess.pgn.ChildNode
+        ) -> bool:
+        if not self.reader:
+            return False
+
+        book_moves: List[chess.Move] = [e.move for e in self.reader.find_all(board)]
+        if (not book_moves and len(board.move_stack) > 2) or (move not in book_moves):
+            node.nags.add(146) # Novelty
+            return True
+        return False
+
+    @staticmethod
+    def _calculate_win_chances(cp: int) -> float:
+        return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
+
+    def _export_pgn(self, game: chess.pgn.Game) -> str:
+        exporter = chess.pgn.StringExporter(
+            columns=None, headers=True, variations=False, comments=True
+        )
+        return game.accept(exporter)

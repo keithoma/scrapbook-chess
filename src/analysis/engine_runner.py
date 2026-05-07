@@ -1,5 +1,6 @@
 import json
 import logging
+from tqdm import tqdm
 
 from src.config import BOOK_PATH
 from src.database.connection import get_connection

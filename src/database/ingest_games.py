@@ -1,217 +1,230 @@
+"""
+Lichess Data Ingestion Module.
+
+This module handles fetching games from the Lichess NDJSON API, 
+parsing them into a structured format (including board event extraction), 
+and storing them in the PostgreSQL database.
+"""
+
 import json
-import requests
-import chess
 import logging
 from datetime import datetime, timezone
-from src.database.connection import get_connection 
+from typing import List, Dict, Any, Optional, Tuple
 
-# Define the boundary as a timezone-aware datetime object
-MAY_FIRST_2026 = datetime(2026, 5, 1, tzinfo=timezone.utc)
+import requests
+import chess
+from tqdm import tqdm
+
+from src.database.connection import get_connection
+from src.config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
-def extract_game_events(moves_string):
-    board = chess.Board()
-    moves = moves_string.split() if isinstance(moves_string, str) else moves_string
-    events = {"captures": [], "en_passants": []}
-    
-    for ply, move_str in enumerate(moves):
-        try:
-            move = board.parse_san(move_str)
-        except ValueError as e:
-            logger.debug(f"  [!] Invalid SAN move '{move_str}' at ply {ply}: {e}")
-            continue
+# Constants
+MAY_FIRST_2026 = datetime(2026, 5, 1, tzinfo=timezone.utc)
 
-        if board.is_en_passant(move):
-            events["en_passants"].append({
-                "ply": ply + 1,
-                "move": move_str,
-                "player": "white" if board.turn == chess.WHITE else "black"
-            })
 
-        if board.is_capture(move):
-            if board.is_en_passant(move):
-                captured_piece = "pawn"
-            else:
-                piece = board.piece_at(move.to_square)
-                captured_piece = chess.piece_name(piece.piece_type) if piece else "unknown"
-
-            events["captures"].append({
-                "ply": ply + 1,
-                "piece_taken": captured_piece,
-                "move": move_str,
-                "player": "white" if board.turn == chess.WHITE else "black"
-            })
-
-        board.push(move)
-        
-    return events
-
-def setup_db():
-    """Ensures the games table exists before we start ingesting."""
-    query = """
-    CREATE TABLE IF NOT EXISTS games (
-        id TEXT PRIMARY KEY,
-        platform TEXT,
-        played_at TIMESTAMPTZ,
-        rated BOOLEAN,
-        speed TEXT,
-        score TEXT,
-        game_data JSONB
-    );
+class LichessIngestor:
     """
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query)
-        conn.commit()
-    logger.debug("Database table 'games' verified.")
-
-def save_game_to_db(game_data: dict):
-    """Inserts a single formatted game into the PostgreSQL database."""
-    query = """
-        INSERT INTO games (id, platform, played_at, rated, speed, score, game_data)
-        VALUES (%s, %s, to_timestamp(%s), %s, %s, %s, %s)
-        ON CONFLICT (id) DO NOTHING;
+    Handles the lifecycle of game ingestion from Lichess to the local DB.
     """
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (
-                    game_data['id'],
-                    game_data['platform'],
-                    game_data['timestamp'],
-                    game_data['is_rated'],
-                    game_data['speed'],
-                    game_data['score'],
-                    json.dumps(game_data)
-                ))
-                inserted = cur.rowcount > 0
-            conn.commit()
-            
-            if inserted:
-                logger.info(f"💾 {game_data['id']}: Saved to Database ({game_data['speed']})")
-            else:
-                logger.debug(f"⏭️ {game_data['id']}: Skipped DB Insert (Already Exists)")
-    except Exception as e:
-        logger.error(f"❌ {game_data.get('id', 'unknown')}: Database Error: {e}")
 
-def parse_player(player_data):
-    if 'aiLevel' in player_data:
-        level = player_data['aiLevel']
-        return {
-            "id": f"stockfish_level_{level}",
-            "name": f"Lichess AI Level {level}",
-            "rating": 1500,
-            "is_bot": True,
-            "patron": False
+    def __init__(self, username: str, token: Optional[str] = None):
+        self.username = username
+        self.headers = {"Accept": "application/x-ndjson"}
+        if token:
+            self.headers["Authorization"] = f"Bearer {token}"
+
+    def fetch_and_store(self, limit: int = 50) -> int:
+        """
+        Main entry point: fetches, parses, and saves games.
+        """
+        self._setup_db()
+        url = f"https://lichess.org/api/games/user/{self.username}"
+        params = {
+            'max': limit,
+            'perfType': 'ultraBullet,bullet,blitz,rapid,classical',
+            'moves': 'true',
+            'opening': 'true',
+            'clocks': 'true',
+            'evals': 'false'
         }
-    
-    user_info = player_data.get('user', {})
-    return {
-        "id": user_info.get('id', 'unknown'),
-        "name": user_info.get('name', 'Unknown'),
-        "rating": player_data.get('rating', 1500),
-        "is_bot": user_info.get('title') == 'BOT',
-        "patron": user_info.get('patron', False)
-    }
-
-def get_score(winner_flag):
-    if winner_flag == 'white': return '1-0'
-    if winner_flag == 'black': return '0-1'
-    return '1/2-1/2'
-
-def format_game_data(raw_game):
-    clock_info = raw_game.get('clock', {})
-    
-    move_evals = []
-    if 'analysis' in raw_game:
-        for ply in raw_game['analysis']:
-            if 'eval' in ply:
-                move_evals.append(ply['eval'])
-            elif 'mate' in ply:
-                move_evals.append(9999 if ply['mate'] > 0 else -9999)
-
-    raw_moves_string = raw_game.get('moves', '')
-    logger.debug(f"  -> Extracting events for {raw_game.get('id')} ({len(raw_moves_string.split())} plies)")
-    game_events = extract_game_events(raw_moves_string)
-
-    formatted_game = {
-        "id": raw_game.get('id'),
-        "platform": "lichess",
-        "timestamp": raw_game.get('createdAt', 0) // 1000, 
-        "is_rated": raw_game.get('rated', False),
-        "is_friend": raw_game.get('source') == 'friend',
-        "speed": raw_game.get('speed', 'unknown'),
-        "rules": {
-            "initial": clock_info.get('initial', 0),
-            "increment": clock_info.get('increment', 0)
-        },
-        "players": {
-            "white": parse_player(raw_game.get('players', {}).get('white', {})),
-            "black": parse_player(raw_game.get('players', {}).get('black', {}))
-        },
-        "score": get_score(raw_game.get('winner')),
-        "termination": raw_game.get('status', 'unknown'),
-        "opening": {
-            "eco": raw_game.get('opening', {}).get('eco', ''),
-            "name": raw_game.get('opening', {}).get('name', '')
-        },
-        "moves": raw_moves_string,
-        "move_times": raw_game.get('clocks', []),
-        "move_evals": move_evals,
-        "division": raw_game.get('division', {}),
-        "captures": game_events["captures"],
-        "en_passants": game_events["en_passants"]
-    }
-    
-    return formatted_game
-
-def fetch_and_store_games(username: str, limit: int = 50):
-    setup_db()
-    url = f"https://lichess.org/api/games/user/{username}"
-    
-    params = {
-        'max': limit,
-        'perfType': 'ultraBullet,bullet,blitz,rapid,classical', 
-        'moves': 'true',
-        'opening': 'true',
-        'clocks': 'true',
-        'evals': 'false' 
-    }
-    headers = {'Accept': 'application/x-ndjson'}
-
-    logger.info(f"📡 Filtering games for {username} (Since May 1st, Limit: {limit})...")
-    
-    with requests.get(url, params=params, headers=headers, stream=True) as response:
-        if response.status_code != 200:
-            logger.error(f"❌ API Error: HTTP {response.status_code}")
-            return
 
         count = 0
-        total_lines_read = 0
+        logger.info("📡 Fetching games for %s (Since May 1st)...", self.username)
 
-        for line in response.iter_lines():
-            if not line: continue
-            total_lines_read += 1
+        try:
+            with requests.get(url, params=params, headers=self.headers, stream=True) as response:
+                response.raise_for_status()
+                
+                # Using tqdm for a nice progress bar on the stream
+                for line in tqdm(response.iter_lines(), desc="Ingesting", unit="game"):
+                    if not line:
+                        continue
+                    
+                    raw_game = json.loads(line)
+                    if self._should_skip(raw_game):
+                        continue
+
+                    # Process and Save
+                    clean_game = self._format_game_data(raw_game)
+                    if self._save_to_db(clean_game):
+                        count += 1
+
+        except requests.RequestException as e:
+            logger.error("Failed to fetch games from Lichess: %s", e)
+
+        logger.info("🏁 Ingestion complete. %d new games stored.", count)
+        return count
+
+    def _should_skip(self, raw_game: Dict[str, Any]) -> bool:
+        """Determines if a game should be ignored (date cutoff or invalid)."""
+        created_at = raw_game.get('createdAt')
+        if not created_at:
+            return True
+
+        game_time = datetime.fromtimestamp(created_at / 1000, tz=timezone.utc)
+        if game_time < MAY_FIRST_2026:
+            return True
+        
+        # Skip variants (InitialFen present) or very short games
+        if 'initialFen' in raw_game or len(raw_game.get('moves', '').split()) < 4:
+            return True
             
-            raw_game = json.loads(line)
-            game_id = raw_game.get('id')
+        return False
+
+    def _format_game_data(self, raw_game: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Parses raw API data into a structured internal schema.
+        
+        This method extracts tactical events (captures/en passants) and 
+        normalizes player information.
+        """
+        raw_moves = raw_game.get('moves', '')
+        captures, en_passants = self._extract_board_events(raw_moves)
+        
+        # We consolidate the cleaned data into a final record
+        formatted_record = {
+            "id": raw_game.get('id'),
+            "platform": "lichess",
+            "timestamp": raw_game.get('createdAt', 0) // 1000,
+            "is_rated": raw_game.get('rated', False),
+            "speed": raw_game.get('speed', 'unknown'),
+            "players": {
+                "white": self._parse_player(raw_game.get('players', {}).get('white', {})),
+                "black": self._parse_player(raw_game.get('players', {}).get('black', {}))
+            },
+            "score": self._get_score(raw_game.get('winner')),
+            "moves": raw_moves,
+            "captures": captures,
+            "en_passants": en_passants,
             
-            createdAt_ms = raw_game.get('createdAt')
-            if not createdAt_ms:
+            # --- DATA INTEGRITY & FUTURE-PROOFING ---
+            # We store the entire raw API response within our game_data JSONB field.
+            # Lichess API schemas can evolve; by keeping the original JSON, we can 
+            # re-parse or extract new fields (like tournament IDs or clock data) 
+            # in the future without needing to re-fetch the data from the Lichess servers.
+            "raw_api_response": raw_game 
+        }
+        
+        return formatted_record
+
+    def _extract_board_events(self, moves_string: str) -> Tuple[List[Dict], List[Dict]]:
+        """Plays through the game to find tactical events."""
+        board = chess.Board()
+        captures = []
+        en_passants = []
+        
+        for ply, move_san in enumerate(moves_string.split()):
+            try:
+                move = board.parse_san(move_san)
+            except ValueError:
                 continue
 
-            game_time = datetime.fromtimestamp(createdAt_ms / 1000, tz=timezone.utc)
+            event_meta = {
+                "ply": ply + 1,
+                "move": move_san,
+                "player": "white" if board.turn == chess.WHITE else "black"
+            }
 
-            if game_time < MAY_FIRST_2026:
-                logger.info(f"📅 Reached {game_time.strftime('%Y-%m-%d')}. Stopping fetch.")
-                break
-            
-            if 'initialFen' in raw_game or len(raw_game.get('moves', '').split()) < 4:
-                continue
-            
-            clean_game = format_game_data(raw_game)
-            save_game_to_db(clean_game)
-            count += 1
+            if board.is_en_passant(move):
+                en_passants.append(event_meta)
 
-        logger.info(f"🏁 Finished fetching. Ingested {count} games into local DB.")
+            if board.is_capture(move):
+                # Identify the victim piece
+                if board.is_en_passant(move):
+                    event_meta["piece_taken"] = "pawn"
+                else:
+                    piece = board.piece_at(move.to_square)
+                    event_meta["piece_taken"] = chess.piece_name(piece.piece_type) if piece else "unknown"
+                captures.append(event_meta)
+
+            board.push(move)
+
+        return captures, en_passants
+
+    def _save_to_db(self, game_data: Dict[str, Any]) -> bool:
+        """Inserts game into PostgreSQL using a safe transaction."""
+        query = """
+            INSERT INTO games (id, platform, played_at, rated, speed, score, game_data)
+            VALUES (%s, %s, to_timestamp(%s), %s, %s, %s, %s)
+            ON CONFLICT (id) DO NOTHING;
+        """
+        try:
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, (
+                        game_data['id'],
+                        game_data['platform'],
+                        game_data['timestamp'],
+                        game_data['is_rated'],
+                        game_data['speed'],
+                        game_data['score'],
+                        json.dumps(game_data)
+                    ))
+                    return cur.rowcount > 0
+        except Exception as e:
+            logger.error("DB Error on game %s: %s", game_data['id'], e)
+            return False
+
+    @staticmethod
+    def _parse_player(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handles AI vs Human player data normalization."""
+        if 'aiLevel' in data:
+            return {"id": f"bot_{data['aiLevel']}", "name": "Stockfish", "rating": 0}
+        
+        user = data.get('user', {})
+        return {
+            "id": user.get('id', 'unknown'),
+            "name": user.get('name', 'Unknown'),
+            "rating": data.get('rating', 1500)
+        }
+
+    @staticmethod
+    def _get_score(winner: Optional[str]) -> str:
+        if winner == 'white': return '1-0'
+        if winner == 'black': return '0-1'
+        return '1/2-1/2'
+
+    def _setup_db(self) -> None:
+        """Ensures schema readiness."""
+        query = """
+        CREATE TABLE IF NOT EXISTS games (
+            id TEXT PRIMARY KEY,
+            platform TEXT,
+            played_at TIMESTAMPTZ,
+            rated BOOLEAN,
+            speed TEXT,
+            score TEXT,
+            game_data JSONB
+        );
+        """
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query)
+
+
+def fetch_and_store_games(username: str, limit: int = 50):
+    """Functional wrapper for the orchestrator."""
+    ingestor = LichessIngestor(username)
+    ingestor.fetch_and_store(limit)
