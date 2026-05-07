@@ -117,30 +117,30 @@ def analyze_to_pgn(input_pgn: str, low_depth: int = 1, high_depth: int = 22):
 if __name__ == "__main__":
     # Example PGN variable - ensure yours is defined
     my_pgn_string = """[Event "rated rapid game"]
-[Site "https://lichess.org/0m4AtlD5"]
+[Site "https://lichess.org/mKunkW9L"]
 [Date "2026.05.07"]
 [Round "-"]
-[White "noctu2nality"]
-[Black "dion123"]
-[Result "0-1"]
-[WhiteElo "1881"]
-[BlackElo "1912"]
+[White "sa6561"]
+[Black "noctu2nality"]
+[Result "1-0"]
+[WhiteElo "1899"]
+[BlackElo "1881"]
 [TimeControl "600+0"]
 [Termination "Time forfeit"]
-[GameId "0m4AtlD5"]
+[GameId "mKunkW9L"]
 [Variant "Standard"]
-[ECO "C00"]
-[Opening "French Defense: Mediterranean Defense"]
+[ECO "A45"]
+[Opening "Indian Defense"]
 [StudyName "Game study"]
-[ChapterName "noctu2nality (1881) - dion123 (1912)"]
-[ChapterURL "https://lichess.org/study/js7aYoIw/z4QMKoXb"]
+[ChapterName "sa6561 (1899) - noctu2nality (1881)"]
+[ChapterURL "https://lichess.org/study/FWsGP3kE/szu1QvHI"]
 [Annotator "https://lichess.org/@/noctu2nality"]
 
-1. d4 e6 2. e4 Nf6 3. Nd2 Bb4 4. c3 Ba5 5. Ngf3 d5 6. e5 Nfd7 7. Bd3 O-O 8. O-O f5 9. exf6 Nxf6 10. Ne5 Nbd7 11. Re1 Nxe5 12. Rxe5 Qd6 13. Nf3 c5 14. Bg5 Ng4 15. Re1 cxd4 16. h3 dxc3 17. hxg4 cxb2 18. Rb1 Bxe1 19. Qxe1 Qa3 20. Qe3 Qxa2 21. Nd4 Bd7 22. Nxe6 Rfe8 23. Qh3 h6 24. Nc7 Rac8 25. Nxe8 Bxe8 26. Be3 Bb5 27. Bf5 Rf8 28. Bc2 Ba4 29. Bd3 Bb5 30. Bc2 Rc8 31. Bg6 d4 32. Bf4 d3 33. Bxd3 Bxd3 0-1
+1. d4 Nf6 2. e3 g6 3. a3 Bg7 4. Nc3 O-O 5. Bd2 d6 6. h3 Nbd7 7. Nf3 c5 8. Be2 cxd4 9. exd4 b6 10. O-O Bb7 11. Be3 Rc8 12. Na2 Nd5 13. c4 N5f6 14. Nc3 Ne4 15. Rc1 Re8 16. Bd3 Nxc3 17. bxc3 e5 18. Be2 Ba6 19. Qb3 Qc7 20. Nd2 Nf6 21. Rfe1 Bb7 22. Nf3 Ne4 23. Bd3 Qe7 24. Nd2 Nxd2 25. Bxd2 Qh4 26. Be3 exd4 27. cxd4 Bxd4 28. Bxd4 Qxd4 29. Rcd1 Qf4 30. Qa2 Qg5 31. Bf1 Re7 32. Rxe7 Qxe7 33. Qd2 Qh4 34. Qxd6 Ba6 35. Rd4 Qg5 36. Qf4 Qxf4 37. Rxf4 Kg7 38. Bd3 Rc7 39. g3 h5 40. Kg2 Bb7+ 41. f3 Re7 42. Kf2 Rd7 43. Be4 Bxe4 44. Rxe4 Kf6 45. Ke3 Rd1 46. c5 bxc5 47. Rc4 Ra1 48. Rc3 c4 49. Rxc4 Rxa3+ 50. Ke4 a5 51. g4 hxg4 52. hxg4 Ke6 53. f4 f5+ 54. gxf5+ gxf5+ 55. Kd4 Rf3 56. Rc6+ Kd7 57. Ra6 Rxf4+ 58. Ke5 Rf1 59. Rxa5 f4 60. Ra2 Kc6 61. Ke4 Kd6 62. Ra3 f3 63. Ke3 Ke5 64. Ra2 Kf5 65. Ra5+ Kg4 66. Ra2 Kg3 67. Ra8 f2 68. Rg8+ Kh2 69. Rf8 1-0
 
 
 
 """
     
     # Run the analysis
-    analyze_to_pgn(my_pgn_string, low_depth=3, high_depth=22)
+    analyze_to_pgn(my_pgn_string, low_depth=0, high_depth=22)
