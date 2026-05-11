@@ -9,7 +9,7 @@ This module orchestrates the end-to-end workflow of the Chess Achievement Book:
 
 Usage:
 ```bash
-uv run main.py --user <username> --limit 50 --export-pgn
+uv run main.py
 ```
 
 Author: Kei Thoma
@@ -28,27 +28,47 @@ def main():
     Parse command-line arguments and initiate the achievement tracking pipeline.
     """
     parser = argparse.ArgumentParser(description="Chess Achievement Tracker")
+
+    # -l --limit (default: 50)
     parser.add_argument("-l", "--limit", type=int, default=50,
                         help="Number of recent games to pull from Lichess (Default: 50)")
+    
+    # -u --user (default: noctu2nality)
     parser.add_argument("-u", "--user", type=str, default="noctu2nality",
                         help="Lichess username to target")
+    
+    # --skip-fetch
     parser.add_argument("--skip-fetch", action="store_true",
                         help="Skip pulling from Lichess and only scan the local database")
+    
+    # --skip-analysis
     parser.add_argument("--skip-analysis", action="store_true",
                         help="Skip the heavy Stockfish Depth 22 analysis step")
+    
+    # --scan-all
     parser.add_argument("--scan-all", action="store_true",
                         help="Ignore the limit and scan EVERY game in the database")
+    
+    # --show-achievements
     parser.add_argument("--show-achievements", action="store_true",
                         help=(
                             "Print all qualified achievements for the game, "
                             "even if already granted"
                         ))
+    
+    # --debug
     parser.add_argument("--debug", action="store_true",
                         help="Enable highly verbose debug logging")
+    
+    # --export-pgn
     parser.add_argument("--export-pgn", action="store_true",
                         help="Export annotated PGNs to /debug/pgn_files/")
+    
+    # --profile
     parser.add_argument("--profile", action="store_true", 
                         help="Display the user's unlocked trophies and mastery")
+    
+    # --history
     parser.add_argument("--history", action="store_true", 
                         help="Display the recent game ledger (what was earned per game)")
     
