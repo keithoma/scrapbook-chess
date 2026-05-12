@@ -96,15 +96,11 @@ class LichessIngestor:
     def _format_game_data(self, raw_game: Dict[str, Any]) -> Dict[str, Any]:
         """
         Parses raw API data into a structured internal schema.
-        
-        This method extracts tactical events (captures/en passants) and 
-        normalizes player information.
+        Now simplified to exclude board events, which are handled in the Metrics stage.
         """
         raw_moves = raw_game.get('moves', '')
-        captures, en_passants = self._extract_board_events(raw_moves)
         
-        # We consolidate the cleaned data into a final record
-        formatted_record = {
+        return {
             "id": raw_game.get('id'),
             "platform": "lichess",
             "timestamp": raw_game.get('createdAt', 0) // 1000,
@@ -116,52 +112,9 @@ class LichessIngestor:
             },
             "score": self._get_score(raw_game.get('winner')),
             "moves": raw_moves,
-            "captures": captures,
-            "en_passants": en_passants,
-            
-            # --- DATA INTEGRITY & FUTURE-PROOFING ---
-            # We store the entire raw API response within our game_data JSONB field.
-            # Lichess API schemas can evolve; by keeping the original JSON, we can 
-            # re-parse or extract new fields (like tournament IDs or clock data) 
-            # in the future without needing to re-fetch the data from the Lichess servers.
+            # We store the raw response so the Analyzer/Metrics can pull what they need later
             "raw_api_response": raw_game 
         }
-        
-        return formatted_record
-
-    def _extract_board_events(self, moves_string: str) -> Tuple[List[Dict], List[Dict]]:
-        """Plays through the game to find tactical events."""
-        board = chess.Board()
-        captures = []
-        en_passants = []
-        
-        for ply, move_san in enumerate(moves_string.split()):
-            try:
-                move = board.parse_san(move_san)
-            except ValueError:
-                continue
-
-            event_meta = {
-                "ply": ply + 1,
-                "move": move_san,
-                "player": "white" if board.turn == chess.WHITE else "black"
-            }
-
-            if board.is_en_passant(move):
-                en_passants.append(event_meta)
-
-            if board.is_capture(move):
-                # Identify the victim piece
-                if board.is_en_passant(move):
-                    event_meta["piece_taken"] = "pawn"
-                else:
-                    piece = board.piece_at(move.to_square)
-                    event_meta["piece_taken"] = chess.piece_name(piece.piece_type) if piece else "unknown"
-                captures.append(event_meta)
-
-            board.push(move)
-
-        return captures, en_passants
 
     def _save_to_db(self, game_data: Dict[str, Any]) -> bool:
         """Inserts game into PostgreSQL using a safe transaction."""

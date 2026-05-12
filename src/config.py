@@ -14,3 +14,7 @@ STOCKFISH_PATH = os.getenv("STOCKFISH_PATH", "/usr/games/stockfish")
 
 # Database
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Engine Depth
+LOW_DEPTH = 1
+HIGH_DEPTH = 18

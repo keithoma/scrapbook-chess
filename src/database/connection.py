@@ -8,8 +8,8 @@ interaction within the chess-achievement-book application.
 
 import os
 import sys
+import psycopg
 from typing import Optional
-from dotenv import load_dotenv
 from psycopg import Connection, Cursor
 
 from src.config import DATABASE_URL
