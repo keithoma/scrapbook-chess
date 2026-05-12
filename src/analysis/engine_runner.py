@@ -50,7 +50,7 @@ def analyze_pending_games(limit=None):
     # 2. Open DB connection and Engine ONCE for the whole batch
     try:
         # Pass explicit depths here if you want "fast testing"
-        with AchievementAnalyzer(low_depth=8, high_depth=16) as analyzer, get_connection() as conn:
+        with AchievementAnalyzer(low_depth=1, high_depth=16) as analyzer, get_connection() as conn:
             with conn.cursor() as cur:
                 
                 for game_id, game_data_raw in tqdm(pending_games, desc="Analyzing Games"):
