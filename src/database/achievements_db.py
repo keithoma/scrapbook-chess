@@ -3,7 +3,7 @@ from .connection import get_connection
 
 logger = logging.getLogger(__name__)
 
-def setup_achievements_db():
+def setup_achievements_db() -> None:
     query = """
     -- ==========================================
     -- 1. ENTITIES & DEFINITIONS
