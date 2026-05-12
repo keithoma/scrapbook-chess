@@ -2,13 +2,12 @@
 Achievement Scanner Orchestrator.
 
 Scans analyzed games, calculates metrics, and evaluates them against 
-the JSON achievement rules using the AchievementLedger.
+the YAML achievement rules using the AchievementLedger.
 """
 
-import os
 import re
-import json
 import logging
+import yaml
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List
@@ -27,17 +26,22 @@ class AchievementScanner:
         self.configs = self._load_configs()
 
     def _load_configs(self) -> Dict[str, List[Dict[str, Any]]]:
-        """Loads the JSON rule dictionaries into memory."""
+        """Loads the YAML rule dictionaries into memory."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
-        # Fixed pathing to ensure data is found relative to the project root
         data_dir = Path(__file__).resolve().parent.parent.parent / "data" / "achievements"
         
-        for filepath in data_dir.glob("*.json"):
+        # Now scanning for .yml files instead of .json
+        for filepath in data_dir.glob("*.yml"):
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
+                    data = yaml.safe_load(f)
+                    if not data:
+                        continue
+                    
                     for item in data:
-                        configs[item.get("type", "unknown")].append(item)
+                        item_type = item.get("type", "unknown")
+                        if item_type in configs:
+                            configs[item_type].append(item)
             except Exception as e:
                 logger.error("Failed to load %s: %s", filepath.name, e)
                 
@@ -47,8 +51,6 @@ class AchievementScanner:
         """Fetches analyzed games and pushes them through the evaluation pipeline."""
         logger.info("🏆 Scanning games for %s...", self.username)
 
-        # We use COALESCE and multiple paths to find the player ID 
-        # because Lichess nesting can vary.
         query = """
             SELECT id, score, speed, game_data 
             FROM games 
@@ -63,7 +65,7 @@ class AchievementScanner:
                     game_data#>>'{players,black,id}'
                 )) = %s
             )
-            AND game_data->>'local_analysis_complete' = 'true'
+            AND game_data->>'analysis_results' IS NOT NULL
             ORDER BY played_at DESC
         """
         if limit:
@@ -71,25 +73,21 @@ class AchievementScanner:
 
         with get_connection() as conn:
             with conn.cursor() as cur:
-                # We pass the username in lowercase to match the DB
                 cur.execute(query, (self.username.lower(), self.username.lower()))
                 rows = cur.fetchall()
 
         if not rows:
-            logger.warning("No analyzed games found in DB for path-check. Trying fallback search...")
-            # Fallback: Just look for the string anywhere in the players JSON
-            fallback_query = "SELECT id, score, speed, game_data FROM games WHERE game_data->'players'::text LIKE %s LIMIT 10"
-            cur.execute(fallback_query, (f'%{self.username.lower()}%',))
-            rows = cur.fetchall()
-
-        if not rows:
-            logger.error("❌ Seriously, no games found for %s. Check the table with 'SELECT * FROM games;'", self.username)
+            logger.error("❌ No analyzed games found for %s.", self.username)
             return
 
         logger.info("🎯 Found %d games to scan!", len(rows))
 
         for game_id, score, speed, game_data in rows:
-            metrics = GameMetrics(game_id, score, speed, game_data, self.username)
+            # We assume the Engine Analyzer injected 'analysis_results' into the game_data JSONB
+            analysis_results = game_data.get('analysis_results', [])
+            
+            # Updated signature based on our new metrics.py
+            metrics = GameMetrics(game_id, game_data, analysis_results, self.username)
             
             self._evaluate_badges(metrics)
             self._evaluate_mastery(metrics)
@@ -99,96 +97,91 @@ class AchievementScanner:
                 self._export_annotated_pgn(game_data)
 
     def _evaluate_badges(self, metrics: GameMetrics):
-        """Maps Badge IDs to their specific triggering logic."""
-        is_win = getattr(metrics, 'is_win', False)
-        speed = getattr(metrics, 'speed', 'unknown')
-        
-        badge_triggers = {
-            "badge_played_total": 1,
-            "badge_played_blitz": 1 if speed == "blitz" else 0,
-            "badge_played_rapid": 1 if speed == "rapid" else 0,
-            "badge_won_total": 1 if is_win else 0,
-            "badge_won_blitz": 1 if is_win and speed == "blitz" else 0,
-            "badge_won_rapid": 1 if is_win and speed == "rapid" else 0,
-        }
-
+        """
+        Dynamically evaluates badges based on YAML config.
+        Expects YAML to have config -> { metric_key: 'is_win', required_value: True }
+        """
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
-            progress_amount = badge_triggers.get(badge_id, 0)
+            config = badge.get("config", {})
+            
+            # Default to tracking a flat '+1' if no specific metric key is provided
+            metric_key = config.get("metric_key")
+            required_value = config.get("required_value")
+            
+            progress_amount = 0
+            
+            if not metric_key:
+                # If it's just a "games played" badge
+                progress_amount = 1
+            else:
+                # Dynamically check the GameMetrics object
+                actual_value = getattr(metrics, metric_key, None)
+                
+                # If the metric matches the required condition (e.g., speed == "blitz")
+                if actual_value == required_value:
+                    progress_amount = 1
+                # Or if the metric is a boolean flag (e.g., is_win == True)
+                elif isinstance(required_value, bool) and actual_value is required_value:
+                    progress_amount = 1
             
             if progress_amount > 0:
-                # Ledger now handles tier-checking internally
                 self.ledger.record_progress(metrics.game_id, badge_id, progress_amount)
 
     def _evaluate_mastery(self, metrics: GameMetrics):
         """Matches ECO codes and awards EXP for opening mastery."""
-        opening_eco = getattr(metrics, 'opening_eco', "")
-        opening_name = getattr(metrics, 'opening_name', "")
-        my_color = "white" if metrics.is_white else "black"
-
         for mastery_item in self.configs.get("mastery", []):
             cond = mastery_item.get("config", {}).get("conditions", {})
             
-            # Check color requirement (any, white, or black)
-            if cond.get("color", "any") not in ["any", my_color]:
+            color_req = cond.get("color", "any")
+            if color_req != "any" and color_req != getattr(metrics, 'my_color_name', 'any'):
                 continue
                 
-            matched_eco = any(opening_eco.startswith(p) for p in cond.get("eco_prefixes", []))
-            matched_name = any(n.lower() in opening_name.lower() for n in cond.get("name_includes", []))
+            matched_eco = any(metrics.opening_eco.startswith(p) for p in cond.get("eco_prefixes", []))
+            matched_name = any(n.lower() in metrics.opening_name.lower() for n in cond.get("name_includes", []))
 
             if matched_eco or matched_name:
                 exp = 50 if metrics.is_win else 10
-                # Bonus for clean games (if metrics supports it)
-                if getattr(metrics, 'blunders', 1) == 0: 
+                if metrics.blunders == 0: 
                     exp += 25
                 
                 self.ledger.record_progress(metrics.game_id, mastery_item["id"], exp)
 
     def _evaluate_feats(self, metrics: GameMetrics):
-        """Checks for situational occurrences (Marathons, comebacks, etc)."""
-        pass
+        """Checks for situational occurrences (Feats)."""
+        # Feats will heavily rely on the metrics calculated from the engine
+        for feat in self.configs.get("feat", []):
+            feat_id = feat["id"]
+            config = feat.get("config", {})
+            
+            # Example logic placeholder to be driven by YAML
+            if feat_id == "feat_clean_sheet" and metrics.blunders == 0 and metrics.mistakes == 0:
+                self.ledger.record_progress(metrics.game_id, feat_id, 1)
 
     def _export_annotated_pgn(self, game_data: Dict[str, Any]):
-        """Saves annotated PGN with robust name and opening detection."""
+        """Saves amended PGN with robust name and opening detection."""
         output_dir = Path("debug/pgn_files")
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        annotated_content = game_data.get('annotated_pgn')
+        # Assuming the Analyzer stored the amended PGN back into game_data
+        annotated_content = game_data.get('amended_pgn')
         if not annotated_content:
             return 
 
-        # 1. Date Extraction (Handle seconds or milliseconds)
-        ts = game_data.get('timestamp') or (game_data.get('createdAt', 0) / 1000)
+        ts = game_data.get('timestamp', 0)
         date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
         
-        # 2. Aggressive Player Name Extraction
         def get_name(color):
             p = game_data.get('players', {}).get(color, {})
-            # Tries: user.name -> name -> user.id -> id
-            return (p.get('user', {}).get('name') or 
-                    p.get('name') or 
-                    p.get('user', {}).get('id') or 
-                    p.get('id') or "Unknown")
+            return p.get('user', {}).get('name') or p.get('name') or "Unknown"
 
         white = get_name('white')
         black = get_name('black')
 
-        # 3. Aggressive Opening Extraction
-        # Look at top level, then fall back to the raw API response
-        opening_data = game_data.get('opening')
-        if not opening_data:
-            opening_data = game_data.get('raw_api_response', {}).get('opening')
-
-        opening_name = "Unknown Opening"
-        if isinstance(opening_data, dict):
-            opening_name = opening_data.get('name', "Unknown Opening")
-        elif isinstance(opening_data, str):
-            opening_name = opening_data
-
-        # Strip illegal characters for Windows/Linux/Mac filenames
+        opening_data = game_data.get('raw_api_response', {}).get('opening', {})
+        opening_name = opening_data.get('name', "Unknown Opening") if isinstance(opening_data, dict) else "Unknown"
         safe_opening = re.sub(r'[\\/*?:"<>|]', "", opening_name)
 
-        # 4. Final filename assembly
         filename = f"{date_str} - {white} vs {black} - {safe_opening}.pgn"
         file_path = output_dir / filename
 
