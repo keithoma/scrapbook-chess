@@ -10,7 +10,7 @@ import os
 import sys
 from typing import Optional
 from dotenv import load_dotenv
-import psycopg
+from psycopg import Connection, Cursor
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,7 +18,7 @@ load_dotenv()
 # The Connection URI is our primary secret; fetch it from the environment
 DB_URI: Optional[str] = os.getenv("DATABASE_URL")
 
-def get_connection():
+def get_connection() -> Connection:
     """
     Creates and returns a new connection to the PostgreSQL database.
     
@@ -41,7 +41,6 @@ def test_connection() -> None:
     """
     try:
         with get_connection() as conn:
-            # We perform a simple query to verify the connection is active
             with conn.cursor() as cur:
                 cur.execute("SELECT version();")
                 version = cur.fetchone()
@@ -49,7 +48,6 @@ def test_connection() -> None:
                 print(f"🖥️  Server version: {version[0]}")
     except Exception as e:
         print(f"❌ Connection failed: {e}")
-        # Exit with a non-zero code to signal failure to the terminal
         sys.exit(1)
 
 if __name__ == "__main__":
