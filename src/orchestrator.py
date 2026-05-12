@@ -3,8 +3,8 @@ from tqdm import tqdm
 
 from src.database.achievements_db import setup_achievements_db
 from src.database.ingest_games import fetch_and_store_games
-from src.achievements.scanner import process_achievements
 from src.analysis.engine_runner import analyze_pending_games
+from src.achievements.scanner import process_achievements
 
 logger = logging.getLogger(__name__)
 
