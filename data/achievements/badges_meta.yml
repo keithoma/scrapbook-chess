@@ -1,28 +1,100 @@
 ---
 ###############################################################################
-# SECTION 1: GAMES PLAYED
+# OBSESSION
+# Total games played across all time controls.
 ###############################################################################
+# subcategory could be `Guru`
+# I'm not sure if the category ultrabullet actually exists ... I mean we have the clock data anyway, but let's do that later
 - id: badge_played_total
   type: badge
-  category: Volume
-  name: Chess Enthusiast
-  description: Total games played across all time controls.
+  category: Veterancy
+  subcategory: 
+  name: 'Obsession'
+  description: 'Total games played across all time controls.'
+  badge-flavor-text: '*"Trying is the first step to failure."* — GM Ben Finegold'
   config:
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
-      platinum: 1000
+      pawn:
+        amount:               16     # number of pieces
+        tier-flavor-text: '*A for effort.*'
+      knight:
+        amount:               64     # number of squares
+        tier-flavor-text: '*$2^{64}$ grains of rice worth of effort.*'
+      bishop:
+        amount:              256     # number of squares in a team game
+        tier-flavor-text: '*You won at least some of them, right?*'
+      rook:
+        amount:              400     # number of games after 2 plies
+        tier-flavor-text: '*"I\'m not hardstuck."*'
+      queen:
+        amount:             2500     # minimum elo to become grandmaster
+        tier-flavor-text: '*Good job!*'
+      king:
+        amount:             4096     # = 64 * 64
+        tier-flavor-text: '*Grass touching is advised.*'
+      immortal:
+        amount:             8902     # number of games after 3 plies
+        tier-flavor-text: '*Are these all bullet games?*'
+      legend:
+        amount:            20000     # just a round number
+        tier-flavor-text: '*Really? Now I need to add more content.*'
+
+
+
+###############################################################################
+# WINNER
+# Total games won across all time controls.
+###############################################################################
+- id: badge_won_total
+  type: badge
+  category: Veterancy
+  subcategory:
+  name: 'Winner'
+  description: 'Total games won across all time controls.'
+  badge-flavor-text: '*Something something... sign of a gentleman*.'
+  config:
+    tiers:
+      pawn:
+        amount:                7     # (16) | just a lucky number
+        tier-flavor-text: '*“I like the moment when I break a man\'s ego.”*'
+      knight:
+        amount:               21     # (64) | blackjack
+        tier-flavor-text: '*Winner winner chicken dinner.*'
+      bishop:
+        amount:               67     # (256) | meme
+        tier-flavor-text: '*"I understood that reference."*'
+      rook:
+        amount:               77     # (400) | another lucky number
+        tier-flavor-text: '*"The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam*'
+      queen:
+        amount:              777     # (2500) | another lucky number
+        tier-flavor-text: '*You know what? Good job! I\'m proud of you, actually.*'
+      king:
+        amount:             1931     # (4096) | on this year, Nevada legalized gambling
+        tier-flavor-text: 'If rock paper scissors is a game of chance, then chess must be too.'
+      immortal:
+        amount:             4444     # (8902) | the quad jack
+        tier-flavor-text: '*Actually, you win a lot...*'
+      legend:
+        amount:            20000     # just a round number
+        tier-flavor-text: '*I\'m considering not counting ultrabullet games in the next update.*'
+
+
+
 - id: badge_played_ultrabullet
   type: badge
-  category: Volume
-  name: Speed Demon
-  description: Total Ultra Bullet games played.
+  category: Veterancy
+  subcategory:
+  name:
+  description: 'Total Ultra Bullet games played.'
   config:
     tiers:
       bronze: 10
       silver: 50
       gold: 250
+
+
+
 - id: badge_played_bullet
   type: badge
   category: Volume
@@ -33,16 +105,88 @@
       bronze: 10
       silver: 50
       gold: 250
+
+
+###############################################################################
+# Blitz Dopamine Loop
+# Total Blitz games played.
+###############################################################################
 - id: badge_played_blitz
   type: badge
-  category: Volume
-  name: Blitz Regular
-  description: Total Blitz games played.
+  category: Veterancy
+  subcategory:
+  name: 'Blitz Dopamine Loop'
+  description: 'Total Blitz games played.'
+  badge-flavor-text: '*"He who analyzes blitz is stupid."* — Rashid Nezhmetdinov'
   config:
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      pawn:
+        amount:               15     # all the numbers here are from total games played -1
+        tier-flavor-text: '*"Who the hell is Rashid Nezhmetdinov?"*'
+      knight:
+        amount:               63     #
+        tier-flavor-text: '*You know Rashid Nezhmetdinov is good because you can\'t pronounce his name.*'
+      bishop:
+        amount:              255     #
+        tier-flavor-text: '*"Wait, is the number of games required the same as \'Obsession\' but minus 1?"*'
+      rook:
+        amount:              399     #
+        tier-flavor-text: '*By the way, I just wanted to say: you are doing a great job at playing chess.*'
+      queen:
+        amount:             2499     #
+        tier-flavor-text: '*Just some feedback: Have you considered trying to win some of these?*'
+      king:
+        amount:             4095     #
+        tier-flavor-text: '*You have spent approximately 23 days of your finite lifespan playing Blitz.*'
+      immortal:
+        amount:             8901     #
+        tier-flavor-text: '*Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.*'
+      legend:
+        amount:            20000     # except for this number
+        tier-flavor-text: '*Thank you for playing. Don\'t forget to like, comment, and subscribe, and hit that notification bell.*'
+
+
+
+###############################################################################
+# Blitz Losern't
+# Total Blitz games won.
+###############################################################################
+# Here WIP
+- id: badge_won_blitz
+  type: badge
+  category: Veterancy
+  subcategory:
+  name: 'Blitz Losern\'t'
+  description: Total Blitz games won.
+  badge-flavor-text: '*No time for losers.*'
+  config:
+    tiers:
+      pawn:
+        amount:                1     # all the numbers here are from total games played -1
+        tier-flavor-text: '*Why not? Here is a freebie.*'
+      knight:
+        amount:               63     #
+        tier-flavor-text: '**'
+      bishop:
+        amount:              255     #
+        tier-flavor-text: '**'
+      rook:
+        amount:              399     #
+        tier-flavor-text: '**'
+      queen:
+        amount:             2499     #
+        tier-flavor-text: '**'
+      king:
+        amount:             4095     #
+        tier-flavor-text: '**'
+      immortal:
+        amount:             8901     #
+        tier-flavor-text: '**'
+      legend:
+        amount:            20000     # except for this number
+        tier-flavor-text: '**'
+
+
 - id: badge_played_rapid
   type: badge
   category: Volume
@@ -67,16 +211,7 @@
 ###############################################################################
 # SECTION 2: GAMES WON
 ###############################################################################
-- id: badge_won_total
-  type: badge
-  category: Combat
-  name: Gladiator
-  description: Total games won across all time controls.
-  config:
-    tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+
 - id: badge_won_ultrabullet
   type: badge
   category: Combat
@@ -97,16 +232,7 @@
       bronze: 10
       silver: 50
       gold: 250
-- id: badge_won_blitz
-  type: badge
-  category: Combat
-  name: Blitz Champion
-  description: Total Blitz games won.
-  config:
-    tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+
 - id: badge_won_rapid
   type: badge
   category: Combat
