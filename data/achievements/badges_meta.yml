@@ -260,22 +260,22 @@
         tier-flavor-text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
       bishop:
         amount:               83     #
-        tier-flavor-text: '**'
+        tier-flavor-text: '*"... quite strange, if not suspicious." — your boss*'
       rook:
         amount:              131     #
-        tier-flavor-text: '**'
+        tier-flavor-text: '*One thing is for sure: You don\'t work at Amazon.*'
       queen:
         amount:              829     #
-        tier-flavor-text: '*Just some feedback: Have you considered trying to win some of these?*'
+        tier-flavor-text: '*Royal Straight Flush*'
       king:
         amount:             1367     #
-        tier-flavor-text: '*You have spent approximately 23 days of your finite lifespan playing Blitz.*'
+        tier-flavor-text: '**'
       immortal:
         amount:             2969     #
-        tier-flavor-text: '*Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.*'
+        tier-flavor-text: '*You are the toiletgate of our time.*'
       legend:
         amount:             5000     # obviously not prime
-        tier-flavor-text: '*Thank you for playing. Don\'t forget to like, comment, and subscribe, and hit that notification bell.*'
+        tier-flavor-text: '*Fine, I\'ll stop with the toilet humor. I was done anyways.*'
 
 
 
@@ -287,35 +287,35 @@
   type: badge
   category: Veterancy
   subcategory:
-  name: Rapid Master
+  name: 
   description: 'Total Rapid games won.'
   badge-flavor-text: '*"I hate rapid." — Daniil Dubov, World Rapid Chess Champion*'
   config:
     tiers:
       pawn:
-        amount:                5     # (Blitz 15) | 5 ply toiletpaper
+        amount:                3     # let's just take the fibonacci sequence here
         tier-flavor-text: '*"Wait, am I actually good?"*'
       knight:
-        amount:               19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
-        tier-flavor-text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
+        amount:               13     #
+        tier-flavor-text: '*Your opponents must be playing chess on their smart fridge.*'
       bishop:
-        amount:               83     #
-        tier-flavor-text: '**'
+        amount:               34     #
+        tier-flavor-text: '*Your Ad Could Go Here.*'
       rook:
-        amount:              131     #
-        tier-flavor-text: '**'
+        amount:               55     #
+        tier-flavor-text: '*Fine, I\'ll acknowledge you: You play well... sometimes.*'
       queen:
-        amount:              829     #
-        tier-flavor-text: '*Just some feedback: Have you considered trying to win some of these?*'
+        amount:              377     #
+        tier-flavor-text: '*By the way, the number of wins required is not random, but you wouldn\'t get it.*'
       king:
-        amount:             1367     #
-        tier-flavor-text: '*You have spent approximately 23 days of your finite lifespan playing Blitz.*'
+        amount:              610     #
+        tier-flavor-text: '*Congratulations!*'
       immortal:
-        amount:             2969     #
-        tier-flavor-text: '*Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.*'
+        amount:              987     #
+        tier-flavor-text: '**'
       legend:
         amount:             5000     # obviously not prime
-        tier-flavor-text: '*Thank you for playing. Don\'t forget to like, comment, and subscribe, and hit that notification bell.*'
+        tier-flavor-text: '*You are not supposed to be in here. Leave immediately.*'
 
 
 
