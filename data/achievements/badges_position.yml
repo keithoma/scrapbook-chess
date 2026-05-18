@@ -13,17 +13,17 @@
   config:
     tiers:
       pawn:
-        amount:              500     #
-        tier-flavor-text: '**'
+        amount:               69     # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
+        tier-flavor-text: '*Every kids favorite number.*'
       knight:
-        amount:               19     #
+        amount:              420     #
         tier-flavor-text: '**'
       bishop:
-        amount:               83     #
-        tier-flavor-text: '**'
+        amount:              666     #
+        tier-flavor-text: '*How many games did you lose bming a won game just to progress this achievement?*'
       rook:
-        amount:              131     #
-        tier-flavor-text: '**'
+        amount:             1337     #
+        tier-flavor-text: '*"You simplify to progress this achievement. I simplify because I don\'t want to think. We are not the same."*'
       queen:
         amount:              829     #
         tier-flavor-text: '**'
@@ -40,42 +40,42 @@
 
 
 ###############################################################################
-#
+# FRENCH MOVE
 #
 ###############################################################################
 - id: badge_en_passant
   type: badge
   category:
   subcategory
-  name:
+  name: 'French Move'
   description: 'Total number of en passants.'
   badge-flavor-text: '*En passant is forced.*'
   config:
     tiers:
       pawn:
         amount:                1     #
-        tier-flavor-text: '**'
+        tier-flavor-text: '*THIS BADGE IS NOW PROPERTY OF ANARCHY CHESS*'
       knight:
-        amount:               19     #
-        tier-flavor-text: '**'
+        amount:                2     #
+        tier-flavor-text: '*"Google en passant* "Holy hell" "A new resoonce just dropped"'
       bishop:
-        amount:               83     #
-        tier-flavor-text: '**'
+        amount:                4     #
+        tier-flavor-text: '*Pipi meme*'
       rook:
-        amount:              131     #
-        tier-flavor-text: '**'
+        amount:                7     #
+        tier-flavor-text: '*We all hate Jessica here.*'
       queen:
-        amount:              829     #
+        amount:               11     #
         tier-flavor-text: '**'
       king:
-        amount:             1367     #
-        tier-flavor-text: '**'
+        amount:               16     #
+        tier-flavor-text: '*"Finally, this feels like a normal progression."*'
       immortal:
-        amount:             2969     #
-        tier-flavor-text: '**'
+        amount:               22     #
+        tier-flavor-text: '*Actually 1984*'
       legend:
-        amount:             5000     #
-        tier-flavor-text: '**'
+        amount:             1984     #
+        tier-flavor-text: '*How?*'
 ---
 
 ###############################################################################
