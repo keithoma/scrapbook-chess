@@ -53,7 +53,7 @@
   config:
     tiers:
       pawn:
-        amount:              500     #
+        amount:                1     #
         tier-flavor-text: '**'
       knight:
         amount:               19     #
