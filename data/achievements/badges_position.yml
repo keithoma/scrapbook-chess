@@ -14,7 +14,7 @@
     tiers:
       pawn:
         amount:               69     # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
-        tier-flavor-text: '*Every kids favorite number.*'
+        tier-flavor-text: '*I lick your bishop if you lick mine.*'
       knight:
         amount:              420     #
         tier-flavor-text: '**'
@@ -25,17 +25,17 @@
         amount:             1337     #
         tier-flavor-text: '*"You simplify to progress this achievement. I simplify because I don\'t want to think. We are not the same."*'
       queen:
-        amount:              829     #
-        tier-flavor-text: '**'
+        amount:             2000     #
+        tier-flavor-text: '*"You are doing something great."*'
       king:
-        amount:             1367     #
-        tier-flavor-text: '**'
+        amount:             8000     #
+        tier-flavor-text: '*They are considering awarding you the Nobel price for your achievements.*'
       immortal:
-        amount:             2969     #
-        tier-flavor-text: '**'
+        amount:             8008     #
+        tier-flavor-text: '*I mean you knew this was coming.*'
       legend:
-        amount:             5000     #
-        tier-flavor-text: '**'
+        amount:            80085     #
+        tier-flavor-text: '*Seek medical help.*'
 
 
 
