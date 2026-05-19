@@ -3,6 +3,7 @@ from .connection import get_connection
 
 logger = logging.getLogger(__name__)
 
+
 def setup_achievements_db() -> None:
     query = """
     -- ==========================================
@@ -71,12 +72,14 @@ def setup_achievements_db() -> None:
         granted_at TIMESTAMPTZ DEFAULT NOW()
     );
     """
-    
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(query)
             conn.commit()
-        logger.debug("Database schemas verified (Single Table Inheritance applied).")
+        logger.debug(
+            "Database schemas verified (Single Table Inheritance applied)."
+        )
     except Exception as e:
         logger.error(f"Failed to initialize database schemas: {e}")

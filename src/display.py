@@ -11,6 +11,7 @@ from src.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
+
 def _format_date(date_obj):
     if not date_obj:
         return "Unknown Date"
@@ -18,11 +19,13 @@ def _format_date(date_obj):
         return date_obj[:10]
     return date_obj.strftime("%Y-%m-%d")
 
+
 def _render_bar(current, total, width=15):
     """Renders a simple ASCII progress bar."""
     fraction = min(current / total, 1.0)
     filled = int(fraction * width)
     return f"[{'#' * filled}{'-' * (width - filled)}] {int(fraction * 100)}%"
+
 
 def _get_mastery_info(exp):
     """
@@ -37,7 +40,8 @@ def _get_mastery_info(exp):
         return 3, exp - 300, 300
     if exp < 1000:
         return 4, exp - 600, 400
-    return 5, exp, 1000 # Max Level cap for now
+    return 5, exp, 1000  # Max Level cap for now
+
 
 def show_profile(username: str):
     """Displays unlocked trophies, badge progress, and mastery."""
@@ -52,7 +56,7 @@ def show_profile(username: str):
         WHERE uu.username = %s
         ORDER BY ad.type, ad.category, uu.unlocked_at DESC;
     """
-    
+
     progress_query = """
         SELECT ad.type, ad.name, up.current_value
         FROM user_progress up
@@ -65,7 +69,7 @@ def show_profile(username: str):
         with conn.cursor() as cur:
             cur.execute(unlocks_query, (username,))
             unlocks = cur.fetchall()
-            
+
             cur.execute(progress_query, (username,))
             progress = cur.fetchall()
 
@@ -85,28 +89,28 @@ def show_profile(username: str):
                 print(f"\n  [{ach_type.upper()}]")
                 current_type = ach_type
             date_str = _format_date(unlocked_at)
-            tier_str = f"({tier.upper()})" if tier != 'base' else ""
+            tier_str = f"({tier.upper()})" if tier != "base" else ""
             print(f"  ✨ {name:<25} {tier_str:<10} | {date_str}")
 
     # --- 2. ACTIVE PROGRESS ---
     print("\n\n📈 ACTIVE GRIND (Progress)")
     print("-" * 65)
-    
-    badges = [p for p in progress if p[0] == 'badge']
-    mastery = [p for p in progress if p[0] == 'mastery']
-    
+
+    badges = [p for p in progress if p[0] == "badge"]
+    mastery = [p for p in progress if p[0] == "mastery"]
+
     if badges:
         print("\n  [BADGES]")
         for _, name, val in badges:
             print(f"  📊 {name:<25} | {int(val):>3}/10 to Bronze")
-            
+
     if mastery:
         print("\n  [OPENING MASTERY]")
         for _, name, val in mastery:
             lvl, cur_exp, next_req = _get_mastery_info(val)
             bar = _render_bar(cur_exp, next_req)
             print(f"  📚 {name:<25} | Lvl {lvl} {bar} ({int(val)} Total EXP)")
-            
+
     print(f"\n{'='*65}\n")
 
 
@@ -144,23 +148,32 @@ def show_history(username: str, limit: int = 10):
                 return
 
             for game_id, recent_grant, game_data_raw in recent_games:
-                game_data = game_data_raw if isinstance(game_data_raw, dict) else json.loads(game_data_raw)
-                
+                game_data = (
+                    game_data_raw
+                    if isinstance(game_data_raw, dict)
+                    else json.loads(game_data_raw)
+                )
+
                 # --- HELPER: Aggressive Player Name Extraction (Already working) ---
                 def get_player_name(color):
                     p = game_data.get("players", {}).get(color, {})
-                    return (p.get("user", {}).get("name") or 
-                            p.get("name") or 
-                            p.get("id") or "Unknown")
+                    return (
+                        p.get("user", {}).get("name")
+                        or p.get("name")
+                        or p.get("id")
+                        or "Unknown"
+                    )
 
                 white = get_player_name("white")
                 black = get_player_name("black")
-                
+
                 # --- FIXED: Aggressive Opening Extraction ---
                 # Check top level first, then fall back to raw_api_response
                 opening_obj = game_data.get("opening")
                 if not opening_obj:
-                    opening_obj = game_data.get("raw_api_response", {}).get("opening", {})
+                    opening_obj = game_data.get("raw_api_response", {}).get(
+                        "opening", {}
+                    )
 
                 opening = "Unknown Opening"
                 if isinstance(opening_obj, dict):
@@ -169,7 +182,7 @@ def show_history(username: str, limit: int = 10):
                     opening = opening_obj
 
                 date_str = _format_date(recent_grant)
-                
+
                 print(f"\n⚔️  {white} vs {black}")
                 print(f"   Opening: {opening}")
                 print(f"   [ID: {game_id} | Scanned: {date_str}]")
@@ -179,12 +192,18 @@ def show_history(username: str, limit: int = 10):
                 cur.execute(ledger_query, (game_id, username))
                 grants = cur.fetchall()
                 for g_name, g_desc, g_type, g_amount, g_tier in grants:
-                    if g_type == 'badge':
-                        tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
-                        print(f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}")
-                    elif g_type == 'mastery':
-                        print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
+                    if g_type == "badge":
+                        tier_msg = (
+                            f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
+                        )
+                        print(
+                            f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
+                        )
+                    elif g_type == "mastery":
+                        print(
+                            f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})"
+                        )
                     else:
                         print(f"   ✨ {g_name:<25} | {g_desc}")
-                        
+
     print(f"\n{'='*90}\n")

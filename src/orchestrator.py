@@ -8,6 +8,7 @@ from src.achievements.scanner import process_achievements
 
 logger = logging.getLogger(__name__)
 
+
 def run_pipeline(args):
     """
     Executes the Chess Achievement Book workflow.
@@ -19,19 +20,19 @@ def run_pipeline(args):
     if not args.skip_fetch:
         logger.info("📥 Fetching games for %s", args.user)
         fetch_and_store_games(username=args.user, limit=args.limit)
-    
+
     # 2. Engine Analysis
     if not args.skip_analysis:
         # We wrap the logic here if we want a high-level progress bar,
         # but typically we'll put the tqdm inside analyze_pending_games.
         logger.info("🧠 Commencing Stockfish Deep Analysis...")
         analyze_pending_games(limit=args.limit)
-    
+
     # 3. Achievement Scanning
     logger.info("🏆 Scanning for achievements...")
     process_achievements(
         username=args.user,
         limit=args.limit,
         show_all=args.show_achievements,
-        export_pgn=args.export_pgn
+        export_pgn=args.export_pgn,
     )

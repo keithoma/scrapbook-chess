@@ -11,3 +11,12 @@ dependencies = [
     "requests>=2.33.1",
     "tqdm>=4.67.3",
 ]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+]
+
+[tool.black]
+line-length = 80 # Google Python Style Guide recommendation
+target-version = ["py312"]

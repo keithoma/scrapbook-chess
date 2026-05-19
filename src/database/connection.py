@@ -1,8 +1,8 @@
 """
 Database Connection Utility
 ---------------------------
-This module handles the initialization of the PostgreSQL connection using 
-environment variables. It serves as the primary entry point for database 
+This module handles the initialization of the PostgreSQL connection using
+environment variables. It serves as the primary entry point for database
 interaction within the chess-achievement-book application.
 """
 
@@ -14,21 +14,25 @@ from psycopg import Connection, Cursor
 
 from src.config import DATABASE_URL
 
+
 def get_connection() -> Connection:
     """
     Creates and returns a new connection to the PostgreSQL database.
-    
+
     Returns:
         psycopg.Connection: A connection object ready for queries.
-        
+
     Raises:
         psycopg.Error: If the connection could not be established.
         ValueError: If DATABASE_URL is missing from the .env file.
     """
     if not DATABASE_URL:
-        raise ValueError("❌ DATABASE_URL not found in .env. Check your configuration.")
-    
+        raise ValueError(
+            "❌ DATABASE_URL not found in .env. Check your configuration."
+        )
+
     return psycopg.connect(DATABASE_URL)
+
 
 def test_connection() -> None:
     """
@@ -45,6 +49,7 @@ def test_connection() -> None:
     except Exception as e:
         print(f"❌ Connection failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     test_connection()
