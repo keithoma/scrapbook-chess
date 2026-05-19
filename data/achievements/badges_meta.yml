@@ -413,7 +413,7 @@
 
 # also include daily streaks
 
-- id: badge_win_on_weekends
+- id: badge_win_weekends
   type: badge
   category: Win Streaks
   name: Weekend Warrior
@@ -424,6 +424,88 @@
       silver: 50
       gold: 250
 
+
+
+###############################################################################
+#
+#
+###############################################################################
+- id: badge_win_weekends
+  type: badge
+  category: 
+  subcategory: 
+  name: ''
+  description: 'Games won on weekends.'
+  badge-flavor-text: ''
+  config:
+    hidden: true
+    tiers:
+      pawn:
+        amount:               16     #
+        tier-flavor-text: '**'
+      knight:
+        amount:               64     #
+        tier-flavor-text: '**'
+      bishop:
+        amount:              256     #
+        tier-flavor-text: '**'
+      rook:
+        amount:              400     #
+        tier-flavor-text: '**'
+      queen:
+        amount:             2500     #
+        tier-flavor-text: '**'
+      king:
+        amount:             4096     #
+        tier-flavor-text: '**'
+      immortal:
+        amount:             8902     #
+        tier-flavor-text: '**'
+      legend:
+        amount:            20000     #
+        tier-flavor-text: '**'
+
+
+
+
+###############################################################################
+#
+#
+###############################################################################
+- id: badge_werewolf
+  type: badge
+  category: 
+  subcategory: 
+  name: 'Werewolf'
+  description: 'Games won on a full moon night.'
+  badge-flavor-text: ''
+  config:
+    hidden: true
+    tiers:
+      pawn:
+        amount:               16     #
+        tier-flavor-text: '**'
+      knight:
+        amount:               64     #
+        tier-flavor-text: '**'
+      bishop:
+        amount:              256     #
+        tier-flavor-text: '**'
+      rook:
+        amount:              400     #
+        tier-flavor-text: '**'
+      queen:
+        amount:             2500     #
+        tier-flavor-text: '**'
+      king:
+        amount:             4096     #
+        tier-flavor-text: '**'
+      immortal:
+        amount:             8902     #
+        tier-flavor-text: '**'
+      legend:
+        amount:            20000     #
+        tier-flavor-text: '**'
 
 
 ---
