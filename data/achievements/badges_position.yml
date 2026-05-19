@@ -40,14 +40,14 @@
 
 
 ###############################################################################
-# FRENCH MOVE
+# THE FRENCH MOVE
 #
 ###############################################################################
 - id: badge_en_passant
   type: badge
   category:
   subcategory
-  name: 'French Move'
+  name: 'The French Move'
   description: 'Total number of en passants.'
   badge-flavor-text: '*En passant is forced.*'
   config:
