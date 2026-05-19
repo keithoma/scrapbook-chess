@@ -11,22 +11,23 @@
   description: 'Total points of materials captured.'
   badge-flavor-text: '*You know this is not the point, right?*'
   config:
+    hidden: False
     tiers:
       pawn:
         amount:               69     # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
         tier-flavor-text: '*I lick your bishop if you lick mine.*'
       knight:
         amount:              420     #
-        tier-flavor-text: '**'
+        tier-flavor-text: '*FYI, there is a bug in the code so that queen trades do not give progression for this achievement.*'
       bishop:
         amount:              666     #
         tier-flavor-text: '*How many games did you lose bming a won game just to progress this achievement?*'
       rook:
         amount:             1337     #
-        tier-flavor-text: '*"You simplify to progress this achievement. I simplify because I don\'t want to think. We are not the same."*'
+        tier-flavor-text: '*You simplify to progress this achievement. I simplify because I don\'t want to think. We are not the same.*'
       queen:
         amount:             2000     #
-        tier-flavor-text: '*"You are doing something great."*'
+        tier-flavor-text: '*You are doing something great.*'
       king:
         amount:             8000     #
         tier-flavor-text: '*They are considering awarding you the Nobel price for your achievements.*'
@@ -41,7 +42,7 @@
 
 ###############################################################################
 # THE FRENCH MOVE
-#
+# Total number of en passants.
 ###############################################################################
 - id: badge_en_passant
   type: badge
@@ -51,22 +52,23 @@
   description: 'Total number of en passants.'
   badge-flavor-text: '*En passant is forced.*'
   config:
+    hidden: False
     tiers:
       pawn:
         amount:                1     #
-        tier-flavor-text: '*THIS BADGE IS NOW PROPERTY OF ANARCHY CHESS*'
+        tier-flavor-text: '*Google en passant.*'
       knight:
         amount:                2     #
-        tier-flavor-text: '*"Google en passant* "Holy hell" "A new resoonce just dropped"'
+        tier-flavor-text: '*"Holy hell!" "New response just dropped." "Actual zombie." "Call the exorcist!" "Bishop goes on vacation, never comes back." "Knightmare fuel" "Pawn storm incoming!" "Queen sacrifice, anyone?" "Rook in the corner, plotting world domination" "Ignite the Chessboard!" "Checkmate or riot!" "Jessica is not fucking welcome here!" "Holy bishops on skateboards" "Get ready for the Bishop Beatdown!" "Eat a nuclear bomb!"*'
       bishop:
         amount:                4     #
-        tier-flavor-text: '*Pipi meme*'
+        tier-flavor-text: '*"Stop saying "New response just dropped" every time someone says something on this godforsaken sub, no, a new response did not drop, just an average mediocre statement that adds nothing more to a conversation, for the love of fucking god."*'
       rook:
         amount:                7     #
-        tier-flavor-text: '*We all hate Jessica here.*'
+        tier-flavor-text: '*"Are you kidding ??? What the **** are you talking about man ? You are a biggest looser i ever seen in my life ! You was doing PIPI in your pampers when i was beating players much more stronger then you! You are not proffesional, because proffesionals knew how to lose and congratulate opponents, you are like a girl crying after i beat you! Be brave, be honest to yourself and stop this trush talkings!!! Everybody know that i am very good blitz player, i can win anyone in the world in single game! And \"w\"esley \"s\"o is nobody for me, just a player who are crying every single time when loosing, ( remember what you say about Firouzja ) !!! Stop playing with my name, i deserve to have a good name during whole my chess carrier, I am Officially inviting you to OTB blitz match with the Prize fund! Both of us will invest 5000$ and winner takes it all! I suggest all other people who\'s intrested in this situation, just take a look at my results in 2016 and 2017 Blitz World championships, and that should be enough... No need to listen for every crying babe, Tigran Petrosyan is always play Fair ! And if someone will continue Officially talk about me like that, we will meet in Court! God bless with true! True will never die ! Liers will kicked off..."*'
       queen:
         amount:               11     #
-        tier-flavor-text: '**'
+        tier-flavor-text: '*Femboys*'
       king:
         amount:               16     #
         tier-flavor-text: '*"Finally, this feels like a normal progression."*'
