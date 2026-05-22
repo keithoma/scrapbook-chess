@@ -6,7 +6,7 @@ unlocks, and game history grants into the database.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from src.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
@@ -96,13 +96,27 @@ class AchievementLedger:
                 config = res[0] if res else {}
 
                 newly_unlocked_tier = None
-                if "tiers" in config:
-                    # Check tiers in descending order (Gold -> Silver -> Bronze)
-                    for tier, threshold in sorted(
-                        config["tiers"].items(),
-                        key=lambda x: x[1],
-                        reverse=True,
-                    ):
+                raw_tiers = config.get("tiers")
+
+                if raw_tiers:
+                    normalized_tiers = []
+                    
+                    # Modern sequential list layout wrapper tracking
+                    if isinstance(raw_tiers, list):
+                        for t in raw_tiers:
+                            if isinstance(t, dict):
+                                normalized_tiers.append((t.get("name"), t.get("amount", 0)))
+                    
+                    # Fallback dictionary mapping protection
+                    elif isinstance(raw_tiers, dict):
+                        for k, v in raw_tiers.items():
+                            if isinstance(v, dict):
+                                normalized_tiers.append((k, v.get("amount", 0)))
+                            else:
+                                normalized_tiers.append((k, v))
+
+                    # Process thresholds from highest target values down to baseline
+                    for tier, threshold in sorted(normalized_tiers, key=lambda x: x[1], reverse=True):
                         if new_total >= threshold:
                             # Check if already unlocked
                             cur.execute(

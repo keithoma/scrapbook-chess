@@ -15,7 +15,6 @@ BOOK_PATH = (
 )
 
 # Engine Settings
-# Defaulting to your TUXEDO path, but overrideable via .env
 STOCKFISH_PATH = os.getenv("STOCKFISH_PATH", "/usr/games/stockfish")
 
 # Database
@@ -23,7 +22,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Engine Depth
 LOW_DEPTH = 1
-HIGH_DEPTH = 10
+HIGH_DEPTH = 6
 
 # Grace Period for Checkmate Achievements
 MATE_GRACE_THRESHOLD = (

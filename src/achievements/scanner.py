@@ -1,5 +1,6 @@
 import re
 import logging
+import json
 import yaml
 from pathlib import Path
 from datetime import datetime
@@ -24,6 +25,44 @@ class AchievementScanner:
         self.show_all = show_all
         self.ledger = AchievementLedger(username)
         self.configs = self._load_yaml_configs()
+        
+        # Automatically sync YAML files into the database definitions table on boot!
+        self.sync_definitions()
+
+    def sync_definitions(self) -> None:
+        """Synchronizes all loaded YAML achievement profiles into the database definitions catalog."""
+        logger.info("🔄 Synchronizing achievement definitions catalog with local YAML files...")
+        
+        query = """
+            INSERT INTO achievement_definitions (id, type, name, description, config)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE SET
+                type = EXCLUDED.type,
+                name = EXCLUDED.name,
+                description = EXCLUDED.description,
+                config = EXCLUDED.config;
+        """
+        
+        count = 0
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                for item_type, items in self.configs.items():
+                    for item in items:
+                        item_id = item.get("id")
+                        if not item_id:
+                            continue
+                        
+                        name = item.get("name") or item_id.replace("badge_", "").replace("_", " ").title()
+                        description = item.get("description", "")
+                        
+                        # Use json.dumps so PostgreSQL receives clean, native JSON strings!
+                        config_json = json.dumps(item.get("config", {}))
+                        
+                        cur.execute(query, (item_id, item_type, name, description, config_json))
+                        count += 1
+            conn.commit()
+            
+        logger.info(f"✨ Successfully synchronized {count} definitions into the database registry.")
 
     def _load_yaml_configs(self) -> Dict[str, List[Dict[str, Any]]]:
         """Reads all achievement configuration files from the local data registry."""
