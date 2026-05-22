@@ -21,7 +21,7 @@ from src.config import DATABASE_URL
 logger = logging.getLogger(__name__)
 
 # Constants
-MAY_FIRST_2026 = datetime(2026, 5, 1, tzinfo=timezone.utc)
+MAY_FIRST_2026 = datetime(2026, 5, 21, tzinfo=timezone.utc)
 
 
 class LichessIngestor:
@@ -39,7 +39,6 @@ class LichessIngestor:
         """
         Main entry point: fetches, parses, and saves games.
         """
-        self._setup_db()
         url = f"https://lichess.org/api/games/user/{self.username}"
         params = {
             "max": limit,
@@ -180,23 +179,6 @@ class LichessIngestor:
         if winner == "black":
             return "0-1"
         return "1/2-1/2"
-
-    def _setup_db(self) -> None:
-        """Ensures schema readiness."""
-        query = """
-        CREATE TABLE IF NOT EXISTS games (
-            id TEXT PRIMARY KEY,
-            platform TEXT,
-            played_at TIMESTAMPTZ,
-            rated BOOLEAN,
-            speed TEXT,
-            score TEXT,
-            game_data JSONB
-        );
-        """
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query)
 
 
 def fetch_and_store_games(username: str, limit: int = 50):

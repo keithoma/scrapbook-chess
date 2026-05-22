@@ -1,7 +1,7 @@
 import logging
 from tqdm import tqdm
 
-from src.database.achievements_db import setup_achievements_db
+from src.database.initialize import initialize_database
 from src.database.ingest_games import fetch_and_store_games
 from src.analysis.engine_runner import analyze_pending_games
 from src.achievements.scanner import process_achievements
@@ -14,7 +14,7 @@ def run_pipeline(args):
     Executes the Chess Achievement Book workflow.
     """
     # 0. Infrastructure
-    setup_achievements_db()
+    initialize_database()
 
     # 1. Ingestion
     if not args.skip_fetch:
