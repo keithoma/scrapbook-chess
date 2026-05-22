@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 from src.database.initialize import initialize_database
 from src.database.ingest_games import fetch_and_store_games
-from src.analysis.engine_runner import analyze_pending_games
+from src.analysis.engine_service import run_engine_analysis
 from src.achievements.scanner import process_achievements
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ def run_pipeline(args):
         # We wrap the logic here if we want a high-level progress bar,
         # but typically we'll put the tqdm inside analyze_pending_games.
         logger.info("🧠 Commencing Stockfish Deep Analysis...")
-        analyze_pending_games(limit=args.limit)
+        run_engine_analysis(limit=args.limit)
 
     # 3. Achievement Scanning
     logger.info("🏆 Scanning for achievements...")

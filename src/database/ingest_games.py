@@ -21,7 +21,7 @@ from src.config import DATABASE_URL
 logger = logging.getLogger(__name__)
 
 # Constants
-MAY_FIRST_2026 = datetime(2026, 5, 21, tzinfo=timezone.utc)
+START = datetime(2026, 5, 21, tzinfo=timezone.utc)
 
 
 class LichessIngestor:
@@ -51,7 +51,7 @@ class LichessIngestor:
 
         count = 0
         logger.info(
-            "📡 Fetching games for %s (Since May 1st)...", self.username
+            "📡 Fetching games for %s (Since May 21st)...", self.username
         )
 
         try:
@@ -89,7 +89,7 @@ class LichessIngestor:
             return True
 
         game_time = datetime.fromtimestamp(created_at / 1000, tz=timezone.utc)
-        if game_time < MAY_FIRST_2026:
+        if game_time < START:
             return True
 
         # Skip variants (InitialFen present) or very short games

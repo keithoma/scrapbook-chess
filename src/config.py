@@ -23,7 +23,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Engine Depth
 LOW_DEPTH = 1
-HIGH_DEPTH = 18
+HIGH_DEPTH = 10
 
 # Grace Period for Checkmate Achievements
 MATE_GRACE_THRESHOLD = (
