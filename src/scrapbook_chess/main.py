@@ -16,12 +16,12 @@ Author: Kei Thoma
 License: MIT
 """
 
-import logging
 import argparse
+import logging
 import sys
 
+from scrapbook_chess.display import show_history, show_profile
 from scrapbook_chess.orchestrator import run_pipeline
-from scrapbook_chess.display import show_profile, show_history
 
 
 def main():

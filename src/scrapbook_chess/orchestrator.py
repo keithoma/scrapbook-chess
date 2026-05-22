@@ -1,9 +1,9 @@
 import logging
 
-from scrapbook_chess.database.initialize import initialize_database
-from scrapbook_chess.database.ingest_games import fetch_and_store_games
-from scrapbook_chess.analysis.engine_service import run_engine_analysis
 from scrapbook_chess.achievements.scanner import process_achievements
+from scrapbook_chess.analysis.engine_service import run_engine_analysis
+from scrapbook_chess.database.ingest_games import fetch_and_store_games
+from scrapbook_chess.database.initialize import initialize_database
 
 logger = logging.getLogger(__name__)
 
