@@ -21,7 +21,7 @@ from src.config import DATABASE_URL
 logger = logging.getLogger(__name__)
 
 # Constants
-START = datetime(2026, 5, 21, tzinfo=timezone.utc)
+START = datetime(2026, 5, 1, tzinfo=timezone.utc)
 
 
 class LichessIngestor:
@@ -51,7 +51,7 @@ class LichessIngestor:
 
         count = 0
         logger.info(
-            "📡 Fetching games for %s (Since May 21st)...", self.username
+            "📡 Fetching games for %s (Since May 1st)...", self.username
         )
 
         try:
