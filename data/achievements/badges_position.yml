@@ -1,42 +1,50 @@
----
+
 ###############################################################################
 # Anti-antichess
 # Total points of materials captured.
 ###############################################################################
 - id: badge_material_total
   type: badge
-  category: Veterancy
-  subcategory: 
-  name: 'Anti-antichess'
-  description: 'Total points of materials captured.'
-  badge-flavor-text: '*You know this is not the point, right?*'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Anti-antichess"
+  description: "Total points of materials captured."
+  flavor_text: '*You know this is not the point, right?*'
   config:
-    hidden: False
+    metric_key: "total_material_captured"
+    is_hidden: false
     tiers:
-      pawn:
-        amount:               69     # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
-        tier-flavor-text: '*I lick your bishop if you lick mine.*'
-      knight:
-        amount:              420     #
-        tier-flavor-text: '*FYI, there is a bug in the code so that queen trades do not give progression for this achievement.*'
-      bishop:
-        amount:              666     #
-        tier-flavor-text: '*How many games did you lose bming a won game just to progress this achievement?*'
-      rook:
-        amount:             1337     #
-        tier-flavor-text: '*You simplify to progress this achievement. I simplify because I don\'t want to think. We are not the same.*'
-      queen:
-        amount:             2000     #
-        tier-flavor-text: '*You are doing something great.*'
-      king:
-        amount:             8000     #
-        tier-flavor-text: '*They are considering awarding you the Nobel price for your achievements.*'
-      immortal:
-        amount:             8008     #
-        tier-flavor-text: '*I mean you knew this was coming.*'
-      legend:
-        amount:            80085     #
-        tier-flavor-text: '*Seek medical help.*'
+      - name: "pawn"
+        amount: 69     # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
+        flavor_text: "*I lick your bishop if you lick mine.*"
+
+      - name: "knight"
+        amount: 420     #
+        flavor_text: "*FYI, there is a bug in the code so that queen trades do not give progression for this achievement.*"
+
+      - name: "bishop"
+        amount: 666     #
+        flavor_text: "*How many games did you lose bming a won game just to progress this achievement?*"
+
+      - name: "rook"
+        amount: 1337     #
+        flavor_text: '*You simplify to progress this achievement. I simplify because I don''t want to think. We are not the same.*'
+
+      - name: "queen"
+        amount: 2000     #
+        flavor_text: "*You are doing something great.*"
+
+      - name: "king"
+        amount: 8000     #
+        flavor_text: "*They are considering awarding you the Nobel price for your achievements.*"
+
+      - name: "immortal"
+        amount: 8008     #
+        flavor_text: "*I mean you knew this was coming.*"
+
+      - name: "legend"
+        amount: 80085     #
+        flavor_text: "*Seek medical help.*"
 
 
 
@@ -46,81 +54,219 @@
 ###############################################################################
 - id: badge_en_passant
   type: badge
-  category:
-  subcategory
-  name: 'The French Move'
-  description: 'Total number of en passants.'
-  badge-flavor-text: '*En passant is forced.*'
+  category: "Variety"
+  subcategory: ""
+  name: "The French Move"
+  description: "Total number of en passants."
+  flavor_text: '*En passant is forced.*'
   config:
-    hidden: False
+    metric_key: "en_passant_count"
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                1     #
-        tier-flavor-text: '*Google en passant.*'
-      knight:
-        amount:                2     #
-        tier-flavor-text: '*"Holy hell!" "New response just dropped." "Actual zombie." "Call the exorcist!" "Bishop goes on vacation, never comes back." "Knightmare fuel" "Pawn storm incoming!" "Queen sacrifice, anyone?" "Rook in the corner, plotting world domination" "Ignite the Chessboard!" "Checkmate or riot!" "Jessica is not fucking welcome here!" "Holy bishops on skateboards" "Get ready for the Bishop Beatdown!" "Eat a nuclear bomb!"*'
-      bishop:
-        amount:                4     #
-        tier-flavor-text: '*"Stop saying "New response just dropped" every time someone says something on this godforsaken sub, no, a new response did not drop, just an average mediocre statement that adds nothing more to a conversation, for the love of fucking god."*'
-      rook:
-        amount:                7     #
-        tier-flavor-text: '*"Are you kidding ??? What the **** are you talking about man ? You are a biggest looser i ever seen in my life ! You was doing PIPI in your pampers when i was beating players much more stronger then you! You are not proffesional, because proffesionals knew how to lose and congratulate opponents, you are like a girl crying after i beat you! Be brave, be honest to yourself and stop this trush talkings!!! Everybody know that i am very good blitz player, i can win anyone in the world in single game! And \"w\"esley \"s\"o is nobody for me, just a player who are crying every single time when loosing, ( remember what you say about Firouzja ) !!! Stop playing with my name, i deserve to have a good name during whole my chess carrier, I am Officially inviting you to OTB blitz match with the Prize fund! Both of us will invest 5000$ and winner takes it all! I suggest all other people who\'s intrested in this situation, just take a look at my results in 2016 and 2017 Blitz World championships, and that should be enough... No need to listen for every crying babe, Tigran Petrosyan is always play Fair ! And if someone will continue Officially talk about me like that, we will meet in Court! God bless with true! True will never die ! Liers will kicked off..."*'
-      queen:
-        amount:               11     #
-        tier-flavor-text: '*Femboys*'
-      king:
-        amount:               16     #
-        tier-flavor-text: '*"Finally, this feels like a normal progression."*'
-      immortal:
-        amount:               22     #
-        tier-flavor-text: '*Actually 1984*'
-      legend:
-        amount:             1984     #
-        tier-flavor-text: '*How?*'
----
+      - name: "pawn"
+        amount: 1     #
+        flavor_text: "*Google en passant.*"
+
+      - name: "knight"
+        amount: 2     #
+        flavor_text: '*"Holy hell!" "New response just dropped." "Actual zombie." "Call the exorcist!" "Bishop goes on vacation, never comes back." "Knightmare fuel" "Pawn storm incoming!" "Queen sacrifice, anyone?" "Rook in the corner, plotting world domination" "Ignite the Chessboard!" "Checkmate or riot!" "Jessica is not fucking welcome here!" "Holy bishops on skateboards" "Get ready for the Bishop Beatdown!" "Eat a nuclear bomb!"*'
+
+      - name: "bishop"
+        amount: 4     #
+        flavor_text: '*"Stop saying ""New response just dropped"" every time someone says something on this godforsaken sub, no, a new response did not drop, just an average mediocre statement that adds nothing more to a conversation, for the love of fucking god."*'
+
+      - name: "rook"
+        amount: 7     #
+        flavor_text: '*"Are you kidding ??? What the **** are you talking about man ? You are a biggest looser i ever seen in my life ! You was doing PIPI in your pampers when i was beating players much more stronger then you! You are not proffesional, because proffesionals knew how to lose and congratulate opponents, you are like a girl crying after i beat you! Be brave, be honest to yourself and stop this trush talkings!!! Everybody know that i am very good blitz player, i can win anyone in the world in single game! And ""w""esley ""s""o is nobody for me, just a player who are crying every single time when loosing, ( remember what you say about Firouzja ) !!! Stop playing with my name, i deserve to have a good name during whole my chess carrier, I am Officially inviting you to OTB blitz match with the Prize fund! Both of us will invest 5000$ and winner takes it all! I suggest all other people who''s intrested in this situation, just take a look at my results in 2016 and 2017 Blitz World championships, and that should be enough... No need to listen for every crying babe, Tigran Petrosyan is always play Fair ! And if someone will continue Officially talk about me like that, we will meet in Court! God bless with true! True will never die ! Liers will kicked off..."*'
+
+      - name: "queen"
+        amount: 11     #
+        flavor_text: "*Femboys*"
+
+      - name: "king"
+        amount: 16     #
+        flavor_text: '*"Finally, this feels like a normal progression."*'
+
+      - name: "immortal"
+        amount: 22     #
+        flavor_text: "*Actually 1984*"
+
+      - name: "legend"
+        amount: 1984     #
+        flavor_text: "*How?*"
+
+
 
 ###############################################################################
 # SECTION 5: PROMOTION
 ###############################################################################
 - id: badge_promotion
   type: badge
-  category: Material
-  subcategory: 
-  name: Promotion Master
-  description: Number of all promotions achieved.
+  category: "Material"
+  subcategory: ""
+  name: "Promotion Master"
+  description: "Number of all promotions achieved."
+  flavor_text: ""
   config:
+    metric_key: "promotion_count"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "bronze"
+        amount: 10
+        flavor_text: ""
 
+      - name: "silver"
+        amount: 50
+        flavor_text: ""
+
+      - name: "gold"
+        amount: 250
+        flavor_text: ""
+
+
+
+###############################################################################
+# OPPOSITE SIDE CASTLING
+# Games won where castling occurred on opposite sides.
+###############################################################################
 - id: badge_opposite_side_casteling
   type: badge
-  category: Skill
-  subcategory:
-  name:
-  description: 'Games won in games where opposite side castling'
-  badge-flavor-text: '**'
+  category: "Skill"
+  subcategory: ""
+  name: "Mirror Dimension"
+  description: "Games won in games where opposite side castling occurred."
+  flavor_text: ""
+  config:
+    metric_key: "opposite_castling_wins"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
-
+###############################################################################
+# TOTAL CHECKS
+# Total checks delivered across your games.
+###############################################################################
 - id: badge_total_checks
   type: badge
-  category: Skill
-  subcategory:
-  name:
-  description: ''
-  badge-flavor-text: '**'
+  category: "Skill"
+  subcategory: ""
+  name: "Inquisitor"
+  description: "Total number of checks delivered to the enemy king."
+  flavor_text: ""
+  config:
+    metric_key: "total_checks_delivered"
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
-
+###############################################################################
+# FIANCHETTO TOTAL
+# Total bishops developed via fianchetto squares.
+###############################################################################
 - id: badge_fianchetto_total
   type: badge
-  category: Skill
-  subcategory:
-  name:
-  description: ''
-  badge-flavor-text: '**'
+  category: "Skill"
+  subcategory: ""
+  name: "Flank Sniper"
+  description: "Total number of bishops developed via fianchetto."
+  flavor_text: ""
+  config:
+    metric_key: "fianchetto_count"
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""

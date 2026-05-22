@@ -1,142 +1,581 @@
+
 ###############################################################################
 # SECTION 1: DRAW RECOVERY
 ###############################################################################
 - id: badge_draw_lost_threefold
   type: badge
-  category: Resilience
-  name: Deja Vu Defense
-  description: Draw a previously lost position by three fold repetition.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Draw a previously lost position by three fold repetition."
+  flavor_text: ""
   config:
+    metric_key: "is_drawn_from_lost_by_repetition"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_draw_lost_agreement
   type: badge
-  category: Resilience
-  name: Silver Tongue
-  description: Draw a previously lost position by agreement.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Draw a previously lost position by agreement."
+  flavor_text: ""
   config:
+    metric_key: "is_drawn_from_lost_by_agreement"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_draw_lost_50move
   type: badge
-  category: Resilience
-  name: The Long Hold
-  description: Draw a previously lost position by the 50 move rule.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Draw a previously lost position by the 50 move rule."
+  flavor_text: ""
   config:
+    metric_key: "is_drawn_from_lost_by_50move"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_draw_lost_insufficient
   type: badge
-  category: Resilience
-  name: Scorched Earth
-  description: Draw a previously lost position by insufficient material.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Draw a previously lost position by insufficient material."
+  flavor_text: ""
   config:
+    metric_key: "is_drawn_from_lost_by_insufficient"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
----
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
 ###############################################################################
 # SECTION 2: COMEBACKS
 ###############################################################################
 - id: badge_comeback_1_5_late
   type: badge
-  category: Comebacks
-  name: Late Bloomer
-  description: Be down 1.5 or more after the opening and the mid game and still win.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Be down 1.5 or more after the opening and the mid game and still win."
+  flavor_text: ""
   config:
+    metric_key: "is_comeback_from_1_5_down_late"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_comeback_2_0_fast
   type: badge
-  category: Comebacks
-  name: Swift Retribution
-  description: Be down 2.0 or more after the opening and win in 20 moves after the opening.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Be down 2.0 or more after the opening and win in 20 moves after the opening."
+  flavor_text: ""
   config:
+    metric_key: "is_comeback_from_2_0_down_fast"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_comeback_3_0_mid
   type: badge
-  category: Comebacks
-  name: Miracle Worker
-  description: Be down 3.0 or more after the opening and win.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Be down 3.0 or more after the opening and win."
+  flavor_text: ""
   config:
+    metric_key: "is_comeback_from_3_0_down_mid"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_comeback_endgame_2_0
   type: badge
-  category: Comebacks
-  name: Never Surrender
-  description: Start the end game with 2.0 down and draw or win.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Start the end game with 2.0 down and draw or win."
+  flavor_text: ""
   config:
+    metric_key: "is_comeback_from_2_0_down_endgame"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
----
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
 ###############################################################################
 # SECTION 3: PRECISION
 ###############################################################################
 - id: badge_perfect_eval
   type: badge
-  category: Precision
-  name: Iron Clad
-  description: Win a game with always being above 0.0 as white, or below +0.5 as black.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Win a game with always being above 0.0 as white, or below +0.5 as black."
+  flavor_text: ""
   config:
+    metric_key: "is_perfect_eval_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_no_blunders
   type: badge
-  category: Precision
-  name: Solid Play
-  description: Win a game without any blunders.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Win a game without any blunders."
+  flavor_text: ""
   config:
+    metric_key: "is_no_blunder_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_no_mistakes_blunders
   type: badge
-  category: Precision
-  name: Flawless Victory
-  description: Win a game without any mistakes and blunders.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Win a game without any mistakes and blunders."
+  flavor_text: ""
   config:
+    metric_key: "is_flawless_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_punish_mistakes
   type: badge
-  category: Capitalization
-  name: Opportunist
-  description: Punish opponents mistakes.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Punish opponents mistakes."
+  flavor_text: ""
   config:
+    metric_key: "opponent_mistakes_punished"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
 - id: badge_punish_blunders
   type: badge
-  category: Capitalization
-  name: Sharp Justice
-  description: Punish opponents blunders.
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Punish opponents blunders."
+  flavor_text: ""
   config:
+    metric_key: "opponent_blunders_punished"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
----
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""

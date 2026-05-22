@@ -1,4 +1,3 @@
----
 ####################################################################################################
 #                                                                                                  #
 #   ####   ###  #   # #####  ####      ####  #      ###  #   # ##### ####      #   #  ###  #   #   #
@@ -15,44 +14,48 @@
 # OBSESSION
 # Total games played across all time controls.
 ###############################################################################
-# subcategory could be `Guru`
-# I'm not sure if the category ultrabullet actually exists ... I mean we have the clock data 
-# anyway, but let's do that later
-# what about hyperbullet?
 - id: badge_played_total
   type: badge
-  category: Veterancy
-  subcategory: 
-  name: 'Obsession'
-  description: 'Total games played across all time controls.'
-  badge-flavor-text: '*"Trying is the first step to failure."* — GM Ben Finegold'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Obsession"
+  description: "Total games played across all time controls."
+  flavor_text: '*"Trying is the first step to failure."* — GM Ben Finegold'
   config:
-    hidden: False
+    metric_key: null
+    is_hidden: false
     tiers:
-      pawn:
-        amount:               16     # number of pieces
-        tier-flavor-text: '*A for effort.*'
-      knight:
-        amount:               64     # number of squares
-        tier-flavor-text: '*$2^{64}$ grains of rice worth of effort.*'
-      bishop:
-        amount:              256     # number of squares in a team game
-        tier-flavor-text: '*You won at least some of them, right?*'
-      rook:
-        amount:              400     # number of games after 2 plies
-        tier-flavor-text: '*"I\'m not hardstuck."*'
-      queen:
-        amount:             2500     # minimum elo to become grandmaster
-        tier-flavor-text: '*Good job!*'
-      king:
-        amount:             4096     # = 64 * 64
-        tier-flavor-text: '*Grass touching is advised.*'
-      immortal:
-        amount:             8902     # number of games after 3 plies
-        tier-flavor-text: '*Are these all bullet games?*'
-      legend:
-        amount:            20000     # just a round number
-        tier-flavor-text: '*Really? Now I need to add more content.*'
+      - name: "pawn"
+        amount: 16     # number of pieces
+        flavor_text: "*A for effort.*"
+
+      - name: "knight"
+        amount: 64     # number of squares
+        flavor_text: "*$2^{64}$ grains of rice worth of effort.*"
+
+      - name: "bishop"
+        amount: 256     # number of squares in a team game
+        flavor_text: "*You won at least some of them, right?*"
+
+      - name: "rook"
+        amount: 400     # number of games after 2 plies
+        flavor_text: '*"I''m not hardstuck."*'
+
+      - name: "queen"
+        amount: 2500     # minimum elo to become grandmaster
+        flavor_text: "*Good job!*"
+
+      - name: "king"
+        amount: 4096     # = 64 * 64
+        flavor_text: "*Grass touching is advised.*"
+
+      - name: "immortal"
+        amount: 8902     # number of games after 3 plies
+        flavor_text: "*Are these all bullet games?*"
+
+      - name: "legend"
+        amount: 20000     # just a round number
+        flavor_text: "*Really? Now I need to add more content.*"
 
 
 
@@ -62,38 +65,47 @@
 ###############################################################################
 - id: badge_won_total
   type: badge
-  category: Veterancy
-  subcategory:
-  name: 'Winner'
-  description: 'Total games won across all time controls.'
-  badge-flavor-text: '*Something something... sign of a gentleman*.'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Winner"
+  description: "Total games won across all time controls."
+  flavor_text: "*Something something... sign of a gentleman*."
   config:
-    hidden: False
+    metric_key: "is_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                7     # (16) | just a lucky number
-        tier-flavor-text: '*“I like the moment when I break a man\'s ego.”*'
-      knight:
-        amount:               21     # (64) | blackjack
-        tier-flavor-text: '*Winner winner chicken dinner.*'
-      bishop:
-        amount:               67     # (256) | meme
-        tier-flavor-text: '*"I understood that reference."*'
-      rook:
-        amount:               77     # (400) | another lucky number
-        tier-flavor-text: '*"The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam*'
-      queen:
-        amount:              777     # (2500) | another lucky number
-        tier-flavor-text: '*You know what? Good job! I\'m proud of you, actually.*'
-      king:
-        amount:             1931     # (4096) | on this year, Nevada legalized gambling
-        tier-flavor-text: 'If rock paper scissors is a game of chance, then chess must be too.'
-      immortal:
-        amount:             4444     # (8902) | the quad jack
-        tier-flavor-text: '*Actually, you win a lot...*'
-      legend:
-        amount:            20000     # just a round number
-        tier-flavor-text: '*I\'m considering not counting ultrabullet games in the next update.*'
+      - name: "pawn"
+        amount: 7     # (16) | just a lucky number
+        flavor_text: '*“I like the moment when I break a man''s ego.”*'
+
+      - name: "knight"
+        amount: 21     # (64) | blackjack
+        flavor_text: "*Winner winner chicken dinner.*"
+
+      - name: "bishop"
+        amount: 67     # (256) | meme
+        flavor_text: '*"I understood that reference."*'
+
+      - name: "rook"
+        amount: 77     # (400) | another lucky number
+        flavor_text: '*"The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam*'
+
+      - name: "queen"
+        amount: 777     # (2500) | another lucky number
+        flavor_text: '*You know what? Good job! I''m proud of you, actually.*'
+
+      - name: "king"
+        amount: 1931     # (4096) | on this year, Nevada legalized gambling
+        flavor_text: "If rock paper scissors is a game of chance, then chess must be too."
+
+      - name: "immortal"
+        amount: 4444     # (8902) | the quad jack
+        flavor_text: "*Actually, you win a lot...*"
+
+      - name: "legend"
+        amount: 20000     # just a round number
+        flavor_text: '*I''m considering not counting ultrabullet games in the next update.*'
 
 
 ###############################################################################
@@ -102,38 +114,47 @@
 ###############################################################################
 - id: badge_played_ultrabullet
   type: badge
-  category: Veterancy
-  subcategory:
-  name:
-  badge-flavor-text:
-  description: 'Total Ultra Bullet games played.'
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Ultra Bullet games played."
+  flavor_text: ""
   config:
-    hidden: False
+    metric_key: "speed"
+    required_value: "ultrabullet"
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                1     #
-        tier-flavor-text: '**'
-      knight:
-        amount:                2     #
-        tier-flavor-text: '**'
-      bishop:
-        amount:                3     #
-        tier-flavor-text: '**'
-      rook:
-        amount:                4     #
-        tier-flavor-text: '**'
-      queen:
-        amount:                5     #
-        tier-flavor-text: '**'
-      king:
-        amount:                6     #
-        tier-flavor-text: ''
-      immortal:
-        amount:                7     #
-        tier-flavor-text: ''
-      legend:
-        amount:                8     #
-        tier-flavor-text: ''
+      - name: "pawn"
+        amount: 1     #
+        flavor_text: "**"
+
+      - name: "knight"
+        amount: 2     #
+        flavor_text: "**"
+
+      - name: "bishop"
+        amount: 3     #
+        flavor_text: "**"
+
+      - name: "rook"
+        amount: 4     #
+        flavor_text: "**"
+
+      - name: "queen"
+        amount: 5     #
+        flavor_text: "**"
+
+      - name: "king"
+        amount: 6     #
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7     #
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8     #
+        flavor_text: ""
 
 
 
@@ -143,13 +164,47 @@
 ###############################################################################
 - id: badge_won_ultrabullet
   type: badge
-  category: Veterancy
-  subcategory:
-  name:
-  badge-flavor-text:
-  description: 'Total Ultra Bullet games won.''
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Ultra Bullet games won."
+  flavor_text: ""
   config:
+    metric_key: "is_ultrabullet_win"
+    required_value: true
+    is_hidden: false
     tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
@@ -159,13 +214,47 @@
 ###############################################################################
 - id: badge_played_bullet
   type: badge
-  category: Veterancy
-  subcategory:
-  name:
-  description: 'Total Bullet games played.'
-  badge-flavor-text:
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Bullet games played."
+  flavor_text: ""
   config:
+    metric_key: "speed"
+    required_value: "bullet"
+    is_hidden: false
     tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
@@ -175,13 +264,47 @@
 ###############################################################################
 - id: badge_won_bullet
   type: badge
-  category: Veterancy
-  subcategory
-  name:
-  description: 'Total Bullet games won.'
-  badge-flavor-text:
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Bullet games won."
+  flavor_text: ""
   config:
+    metric_key: "is_bullet_win"
+    required_value: true
+    is_hidden: false
     tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
@@ -191,37 +314,47 @@
 ###############################################################################
 - id: badge_played_blitz
   type: badge
-  category: Veterancy
-  subcategory:
-  name: 'Blitz Dopamine Loop'
-  description: 'Total Blitz games played.'
-  badge-flavor-text: '*"He who analyzes blitz is stupid."* — Rashid Nezhmetdinov'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Blitz Dopamine Loop"
+  description: "Total Blitz games played."
+  flavor_text: '*"He who analyzes blitz is stupid."* — Rashid Nezhmetdinov'
   config:
+    metric_key: "speed"
+    required_value: "blitz"
+    is_hidden: false
     tiers:
-      pawn:
-        amount:               15     # all the numbers here are from total games played -1
-        tier-flavor-text: '*"Who the hell is Rashid Nezhmetdinov?"*'
-      knight:
-        amount:               63     #
-        tier-flavor-text: '*You know Rashid Nezhmetdinov is good because you can\'t pronounce his name.*'
-      bishop:
-        amount:              255     #
-        tier-flavor-text: '*"Wait, is the number of games required the same as \'Obsession\' but minus 1?"*'
-      rook:
-        amount:              399     #
-        tier-flavor-text: '*By the way, I just wanted to say: you are doing a great job at playing chess.*'
-      queen:
-        amount:             2499     #
-        tier-flavor-text: '*Just some feedback: Have you considered trying to win some of these?*'
-      king:
-        amount:             4095     #
-        tier-flavor-text: '*You have spent approximately 23 days of your finite lifespan playing Blitz.*'
-      immortal:
-        amount:             8901     #
-        tier-flavor-text: '*Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.*'
-      legend:
-        amount:            20000     # except for this number
-        tier-flavor-text: '*Thank you for playing. Don\'t forget to like, comment, and subscribe, and hit that notification bell.*'
+      - name: "pawn"
+        amount: 15     # all the numbers here are from total games played -1
+        flavor_text: '*"Who the hell is Rashid Nezhmetdinov?"*'
+
+      - name: "knight"
+        amount: 63     #
+        flavor_text: '*You know Rashid Nezhmetdinov is good because you can''t pronounce his name.*'
+
+      - name: "bishop"
+        amount: 255     #
+        flavor_text: '*"Wait, is the number of games required the same as ''Obsession'' but minus 1?"*'
+
+      - name: "rook"
+        amount: 399     #
+        flavor_text: '*By the way, I just wanted to say: you are doing a great job at playing chess.*'
+
+      - name: "queen"
+        amount: 2499     #
+        flavor_text: '*Just some feedback: Have you considered trying to win some of these?*'
+
+      - name: "king"
+        amount: 4095     #
+        flavor_text: '*You have spent approximately 23 days of your finite lifespan playing Blitz.*'
+
+      - name: "immortal"
+        amount: 8901     #
+        flavor_text: '*Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.*'
+
+      - name: "legend"
+        amount: 20000     # except for this number
+        flavor_text: '*Thank you for playing. Don''t forget to like, comment, and subscribe, and hit that notification bell.*'
 
 
 
@@ -229,40 +362,49 @@
 # Blitz Losern't
 # Total Blitz games won.
 ###############################################################################
-# Here WIP
 - id: badge_won_blitz
   type: badge
-  category: Veterancy
-  subcategory:
-  name: 'Blitz Losern\'t'
-  description: 'Total Blitz games won.'
-  badge-flavor-text: '*No time for losers.*'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Blitz Losern''t"
+  description: "Total Blitz games won."
+  flavor_text: "*No time for losers.*"
   config:
+    metric_key: "is_blitz_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                1     # here the joke is normal numbers, I guess
-        tier-flavor-text: '*Why not? Here is a freebie.*'
-      knight:
-        amount:               10     #
-        tier-flavor-text: '*Amazing! We are all very proud of you.*'
-      bishop:
-        amount:               25     #
-        tier-flavor-text: '*"This progression feels suspiciously like a tutorial."*'
-      rook:
-        amount:               50     #
-        tier-flavor-text: '*Halfway there! You can do it!*'
-      queen:
-        amount:              100     #
-        tier-flavor-text: '*Okay, the hand-holding is over.*'
-      king:
-        amount:             2500     #
-        tier-flavor-text: '*Wait, you actually managed to do it?*'
-      immortal:
-        amount:             5000     #
-        tier-flavor-text: '*You now have more Blitz wins than Magnus Carlsen does on one of his accounts. Nice.*'
-      legend:
-        amount:            20000     #
-        tier-flavor-text: '*You got me. There is no more content here. See, the sky is just painted.*'
+      - name: "pawn"
+        amount: 1     # here the joke is normal numbers, I guess
+        flavor_text: "*Why not? Here is a freebie.*"
+
+      - name: "knight"
+        amount: 10     #
+        flavor_text: "*Amazing! We are all very proud of you.*"
+
+      - name: "bishop"
+        amount: 25     #
+        flavor_text: '*"This progression feels suspiciously like a tutorial."*'
+
+      - name: "rook"
+        amount: 50     #
+        flavor_text: "*Halfway there! You can do it!*"
+
+      - name: "queen"
+        amount: 100     #
+        flavor_text: "*Okay, the hand-holding is over.*"
+
+      - name: "king"
+        amount: 2500     #
+        flavor_text: "*Wait, you actually managed to do it?*"
+
+      - name: "immortal"
+        amount: 5000     #
+        flavor_text: "*You now have more Blitz wins than Magnus Carlsen does on one of his accounts. Nice.*"
+
+      - name: "legend"
+        amount: 20000     #
+        flavor_text: "*You got me. There is no more content here. See, the sky is just painted.*"
 
 
 
@@ -272,37 +414,47 @@
 ###############################################################################
 - id: badge_played_rapid
   type: badge
-  category: Veterancy
-  subcategory:
-  name: 'Restroom Rapid Ritual'
-  description: 'Total Rapid games played.'
-  badge-flavor-text: '*"My boss makes a dollar, I make a dime. That\'s why I poop on company time."*'
+  category: "Veterancy"
+  subcategory: ""
+  name: "Restroom Rapid Ritual"
+  description: "Total Rapid games played."
+  flavor_text: '*"My boss makes a dollar, I make a dime. That''s why I poop on company time."*'
   config:
+    metric_key: "speed"
+    required_value: "rapid"
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                5     # (Blitz 15) | 5 ply toiletpaper
-        tier-flavor-text: '*"Are your legs asleep already?"*'
-      knight:
-        amount:               19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
-        tier-flavor-text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
-      bishop:
-        amount:               83     #
-        tier-flavor-text: '*"... quite strange, if not suspicious." — your boss*'
-      rook:
-        amount:              131     #
-        tier-flavor-text: '*One thing is for sure: You don\'t work at Amazon.*'
-      queen:
-        amount:              829     #
-        tier-flavor-text: '*Royal Straight Flush*'
-      king:
-        amount:             1367     #
-        tier-flavor-text: '**'
-      immortal:
-        amount:             2969     #
-        tier-flavor-text: '*You are the toiletgate of our time.*'
-      legend:
-        amount:             5000     # obviously not prime
-        tier-flavor-text: '*Fine, I\'ll stop with the toilet humor. I was done anyways.*'
+      - name: "pawn"
+        amount: 5     # (Blitz 15) | 5 ply toiletpaper
+        flavor_text: '*"Are your legs asleep already?"*'
+
+      - name: "knight"
+        amount: 19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
+        flavor_text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
+
+      - name: "bishop"
+        amount: 83     #
+        flavor_text: '*"... quite strange, if not suspicious." — your boss*'
+
+      - name: "rook"
+        amount: 131     #
+        flavor_text: "*One thing is for sure: You don''t work at Amazon.*"
+
+      - name: "queen"
+        amount: 829     #
+        flavor_text: "*Royal Straight Flush*"
+
+      - name: "king"
+        amount: 1367     #
+        flavor_text: "**"
+
+      - name: "immortal"
+        amount: 2969     #
+        flavor_text: "*You are the toiletgate of our time.*"
+
+      - name: "legend"
+        amount: 5000     # obviously not prime
+        flavor_text: "*Fine, I''ll stop with the toilet humor. I was done anyways.*"
 
 
 
@@ -312,37 +464,47 @@
 ###############################################################################
 - id: badge_won_rapid
   type: badge
-  category: Veterancy
-  subcategory:
-  name: 
-  description: 'Total Rapid games won.'
-  badge-flavor-text: '*"I hate rapid." — Daniil Dubov, World Rapid Chess Champion*'
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Rapid games won."
+  flavor_text: '*"I hate rapid." — Daniil Dubov, World Rapid Chess Champion*'
   config:
+    metric_key: "is_rapid_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      pawn:
-        amount:                3     # let's just take the fibonacci sequence here
-        tier-flavor-text: '*"Wait, am I actually good?"*'
-      knight:
-        amount:               13     #
-        tier-flavor-text: '*Your opponents must be playing chess on their smart fridge.*'
-      bishop:
-        amount:               34     #
-        tier-flavor-text: '*Your Ad Could Go Here.*'
-      rook:
-        amount:               55     #
-        tier-flavor-text: '*Fine, I\'ll acknowledge you: You play well... sometimes.*'
-      queen:
-        amount:              377     #
-        tier-flavor-text: '*By the way, the number of wins required is not random, but you wouldn\'t get it.*'
-      king:
-        amount:              610     #
-        tier-flavor-text: '*Congratulations!*'
-      immortal:
-        amount:              987     #
-        tier-flavor-text: '*Okay, let\'s be real though: The online rapid pool is not very good compared to Blitz.*'
-      legend:
-        amount:             5000     # obviously not prime
-        tier-flavor-text: '*You are not supposed to be in here. Leave immediately.*'
+      - name: "pawn"
+        amount: 3     # let's just take the fibonacci sequence here
+        flavor_text: '*"Wait, am I actually good?"*'
+
+      - name: "knight"
+        amount: 13     #
+        flavor_text: "*Your opponents must be playing chess on their smart fridge.*"
+
+      - name: "bishop"
+        amount: 34     #
+        flavor_text: "*Your Ad Could Go Here.*"
+
+      - name: "rook"
+        amount: 55     #
+        flavor_text: "*Fine, I''ll acknowledge you: You play well... sometimes.*"
+
+      - name: "queen"
+        amount: 377     #
+        flavor_text: "*By the way, the number of wins required is not random, but you wouldn''t get it.*"
+
+      - name: "king"
+        amount: 610     #
+        flavor_text: "*Congratulations!*"
+
+      - name: "immortal"
+        amount: 987     #
+        flavor_text: "*Okay, let''s be real though: The online rapid pool is not very good compared to Blitz.*"
+
+      - name: "legend"
+        amount: 5000     # obviously not prime
+        flavor_text: "*You are not supposed to be in here. Leave immediately.*"
 
 
 
@@ -352,13 +514,47 @@
 ###############################################################################
 - id: badge_played_classical
   type: badge
-  category: Veterancy
-  subcategory:
-  name:
-  description: 'Total Classical games played.'
-  badge-flavor-text:
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Classical games played."
+  flavor_text: ""
   config:
+    metric_key: "speed"
+    required_value: "classical"
+    is_hidden: false
     tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
@@ -368,17 +564,50 @@
 ###############################################################################
 - id: badge_won_classical
   type: badge
-  category: Veterancy
-  subcategory:
-  name:
-  description: 'Total Classical games won.'
-  badge-flavor-text:
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Classical games won."
+  flavor_text: ""
   config:
+    metric_key: "is_classical_win"
+    required_value: true
+    is_hidden: false
     tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
----
 ####################################################################################################
 #                                                                                                  #
 #  #   #  ###  #   #      ####   #   #   ###    ####  #####                                        #
@@ -392,42 +621,155 @@
 
 
 ###############################################################################
-# SECTION 3: WIN PHASE
+#
+# Win games during the opening.
 ###############################################################################
 - id: badge_win_phase_opening
   type: badge
-  category: Combat
-  name: Early Knockout
-  description: Win games during the opening phase.
+  category: "Combat"
+  subcategory: ""
+  name: "Early Knockout"
+  description: "Win games during the opening."
+  flavor_text: ""
   config:
+    metric_key: "win_phase"
+    required_value: "opening"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win games during the middle game.
+###############################################################################
 - id: badge_win_phase_midgame
   type: badge
-  category: Combat
-  name: Midgame Dominator
-  description: Win games during the middle game phase.
+  category: "Combat"
+  subcategory: ""
+  name: "Midgame Dominator"
+  description: "Win games during the middle game."
+  flavor_text: ""
   config:
+    metric_key: "win_phase"
+    required_value: "midgame"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win games during the endgame.
+###############################################################################
 - id: badge_win_phase_endgame
   type: badge
-  category: Combat
-  name: Endgame Grinder
-  description: Win games during the end game phase.
+  category: "Combat"
+  subcategory: ""
+  name: "Endgame Grinder"
+  description: "Win games during the endgame."
+  flavor_text: ""
   config:
+    metric_key: "win_phase"
+    required_value: "endgame"
+    is_hidden: false
     tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
----
 ####################################################################################################
 #                                                                                                  #
 #  ####   ###  ##### #####      ###  #   # ####       ##### ### #   # #####                        #
@@ -438,104 +780,108 @@
 #                                                                                                  #
 ####################################################################################################
 
-# also include daily streaks
-
-- id: badge_win_weekends
-  type: badge
-  category: Win Streaks
-  name: Weekend Warrior
-  description: Win a game on a weekend.
-  config:
-    tiers:
-      bronze: 10
-      silver: 50
-      gold: 250
-
 
 
 ###############################################################################
 #
-#
+# Win a game on a weekend.
 ###############################################################################
 - id: badge_win_weekends
   type: badge
-  category: 
-  subcategory: 
-  name: ''
-  description: 'Games won on weekends.'
-  badge-flavor-text: ''
+  category: "Win Streaks"
+  subcategory: ""
+  name: "Weekend Warrior"
+  description: "Win a game on a weekend."
+  flavor_text: ""
   config:
-    hidden: true
+    metric_key: "is_weekend_win"
+    required_value: true
+    is_hidden: false
     tiers:
-      pawn:
-        amount:               16     #
-        tier-flavor-text: '**'
-      knight:
-        amount:               64     #
-        tier-flavor-text: '**'
-      bishop:
-        amount:              256     #
-        tier-flavor-text: '**'
-      rook:
-        amount:              400     #
-        tier-flavor-text: '**'
-      queen:
-        amount:             2500     #
-        tier-flavor-text: '**'
-      king:
-        amount:             4096     #
-        tier-flavor-text: '**'
-      immortal:
-        amount:             8902     #
-        tier-flavor-text: '**'
-      legend:
-        amount:            20000     #
-        tier-flavor-text: '**'
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
 
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 
 ###############################################################################
 #
-#
+# Games won on a full moon night.
 ###############################################################################
 - id: badge_werewolf
   type: badge
-  category: 
-  subcategory: 
-  name: 'Werewolf'
-  description: 'Games won on a full moon night.'
-  badge-flavor-text: ''
+  category: "Variety"
+  subcategory: ""
+  name: "Werewolf"
+  description: "Games won on a full moon night."
+  flavor_text: ""
   config:
-    hidden: true
+    metric_key: "is_full_moon_win"
+    required_value: true
+    is_hidden: true
     tiers:
-      pawn:
-        amount:               16     #
-        tier-flavor-text: '**'
-      knight:
-        amount:               64     #
-        tier-flavor-text: '**'
-      bishop:
-        amount:              256     #
-        tier-flavor-text: '**'
-      rook:
-        amount:              400     #
-        tier-flavor-text: '**'
-      queen:
-        amount:             2500     #
-        tier-flavor-text: '**'
-      king:
-        amount:             4096     #
-        tier-flavor-text: '**'
-      immortal:
-        amount:             8902     #
-        tier-flavor-text: '**'
-      legend:
-        amount:            20000     #
-        tier-flavor-text: '**'
+      - name: "pawn"
+        amount: 16     #
+        flavor_text: "**"
+
+      - name: "knight"
+        amount: 64     #
+        flavor_text: "**"
+
+      - name: "bishop"
+        amount: 256     #
+        flavor_text: "**"
+
+      - name: "rook"
+        amount: 400     #
+        flavor_text: "**"
+
+      - name: "queen"
+        amount: 2500     #
+        flavor_text: "**"
+
+      - name: "king"
+        amount: 4096     #
+        flavor_text: "**"
+
+      - name: "immortal"
+        amount: 8902     #
+        flavor_text: "**"
+
+      - name: "legend"
+        amount: 20000     #
+        flavor_text: "**"
 
 
----
+
 ####################################################################################################
 #                                                                                                  #
 #  #   #  ###  ####                                                                                #
@@ -553,29 +899,90 @@
 ###############################################################################
 - id: badge_upset
   type: badge
-  category: Underdog
-  name: Giant Slayer
-  description: Beat an opponent rated 100+ points higher than you.
+  category: "Underdog"
+  subcategory: ""
+  name: "Giant Slayer"
+  description: "Beat an opponent rated 100+ points higher than you."
+  flavor_text: ""
   config:
-    tiers: { bronze: 5, silver: 25, gold: 100 }
+    metric_key: "rating_diff"
+    required_value: 100
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
 - id: hold_your_own
   type: badge
-  category: Underdog
-  name: Hold Your Own
-  description: draw an opponent rated 150 or more points than you
+  category: "Underdog"
+  subcategory: ""
+  name: "Hold Your Own"
+  description: "Draw an opponent rated 150 or more points than you."
+  flavor_text: ""
   config:
-    tiers: { bronze: 10, silver: 50, gold: 250 }
----
+    metric_key: "draw_rating_diff"
+    required_value: 150
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
 
----
-###############################################################################
-# SECTION 5: OPENING DIVERSITY
-###############################################################################
-- id: badge_opening_diversity
-  type: badge
-  category: Variety
-  name: Jack of all Trades
-  description: Play 20 different opening variations (ECO codes).
-  config:
-    tiers: { bronze: 20, silver: 50, gold: 100 }
----
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
