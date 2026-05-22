@@ -4,7 +4,7 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 import chess.pgn
 import chess.polyglot
-from src.config import BOOK_PATH
+from scrapbook_chess.config import BOOK_PATH
 
 logger = logging.getLogger(__name__)
 

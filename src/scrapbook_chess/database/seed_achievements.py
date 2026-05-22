@@ -10,7 +10,7 @@ import logging
 import json
 import glob
 from pathlib import Path
-from src.database.connection import get_connection
+from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 

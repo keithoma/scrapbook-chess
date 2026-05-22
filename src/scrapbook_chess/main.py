@@ -20,8 +20,8 @@ import logging
 import argparse
 import sys
 
-from src.orchestrator import run_pipeline
-from src.display import show_profile, show_history
+from scrapbook_chess.orchestrator import run_pipeline
+from scrapbook_chess.display import show_profile, show_history
 
 
 def main():

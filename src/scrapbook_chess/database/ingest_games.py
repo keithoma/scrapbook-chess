@@ -15,13 +15,13 @@ import requests
 import chess
 from tqdm import tqdm
 
-from src.database.connection import get_connection
-from src.config import DATABASE_URL
+from scrapbook_chess.database.connection import get_connection
+from scrapbook_chess.config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
 # Constants
-START = datetime(2026, 5, 1, tzinfo=timezone.utc)
+START = datetime(2026, 5, 22, tzinfo=timezone.utc)
 
 
 class LichessIngestor:

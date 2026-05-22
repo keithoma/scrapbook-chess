@@ -4,7 +4,7 @@ import chess
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 
-from src.achievements.patterns import is_fianchetto_development, track_castling_side
+from scrapbook_chess.achievements.patterns import is_fianchetto_development, track_castling_side
 
 
 def _is_clean_capture_quiescent(

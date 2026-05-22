@@ -8,7 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import argparse
 import logging
-from src.database.connection import get_connection
+from scrapbook_chess.database.connection import get_connection
 
 # Configure clean console feedback
 logging.basicConfig(level=logging.INFO, format="%(message)s")

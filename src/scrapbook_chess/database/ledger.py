@@ -7,7 +7,7 @@ unlocks, and game history grants into the database.
 
 import logging
 from typing import Optional, List, Dict, Any
-from src.database.connection import get_connection
+from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 

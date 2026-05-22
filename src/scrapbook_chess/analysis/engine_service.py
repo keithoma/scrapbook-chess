@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 import chess.pgn
 import chess.engine
-from src.database.connection import get_connection
-from src.config import STOCKFISH_PATH, LOW_DEPTH, HIGH_DEPTH, MATE_GRACE_THRESHOLD, MATE_GRACE_PLIES
+from scrapbook_chess.database.connection import get_connection
+from scrapbook_chess.config import STOCKFISH_PATH, LOW_DEPTH, HIGH_DEPTH, MATE_GRACE_THRESHOLD, MATE_GRACE_PLIES
 
 logger = logging.getLogger(__name__)
 

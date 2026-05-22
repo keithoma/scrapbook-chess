@@ -1,7 +1,7 @@
 [project]
-name = "chess-achievement-book"
+name = "scrapbook-chess"
 version = "0.1.0"
-description = "Add your description here"
+description = "A gamified personal scrapbook for tracing chess milestones and breakthroughs"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -14,9 +14,19 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=26.5.1",
+    "ruff>=0.15.14",
 ]
 
-[tool.black]
-line-length = 80 # Google Python Style Guide recommendation
-target-version = ["py312"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+scrapbook-chess = "scrapbook_chess.main:main"
+
+[tool.ruff]
+# Set the line length to 80 to match your Google Python Style Guide preference
+line-length = 80
+
+[tool.ruff.lint]
+# "E" and "F" are standard PEP8 checks, "I" automatically sorts your imports (replacing isort)
+select = ["E", "F", "I"]

@@ -6,10 +6,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-from src.database.connection import get_connection
-from src.database.ledger import AchievementLedger
-from src.analysis.annotation_service import GameAnnotator
-from src.achievements.metrics import GameMetrics
+from scrapbook_chess.database.connection import get_connection
+from scrapbook_chess.database.ledger import AchievementLedger
+from scrapbook_chess.analysis.annotation_service import GameAnnotator
+from scrapbook_chess.achievements.metrics import GameMetrics
 
 logger = logging.getLogger(__name__)
 

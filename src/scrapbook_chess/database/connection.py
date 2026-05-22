@@ -12,7 +12,7 @@ import psycopg
 from typing import Optional
 from psycopg import Connection, Cursor
 
-from src.config import DATABASE_URL
+from scrapbook_chess.config import DATABASE_URL
 
 
 def get_connection() -> Connection:

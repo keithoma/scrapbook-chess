@@ -1,10 +1,9 @@
 import logging
-from tqdm import tqdm
 
-from src.database.initialize import initialize_database
-from src.database.ingest_games import fetch_and_store_games
-from src.analysis.engine_service import run_engine_analysis
-from src.achievements.scanner import process_achievements
+from scrapbook_chess.database.initialize import initialize_database
+from scrapbook_chess.database.ingest_games import fetch_and_store_games
+from scrapbook_chess.analysis.engine_service import run_engine_analysis
+from scrapbook_chess.achievements.scanner import process_achievements
 
 logger = logging.getLogger(__name__)
 
