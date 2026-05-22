@@ -1,12 +1,11 @@
 """
 Achievement Ledger operations.
 
-Provides the interface for the Scanner to safely record progress,
-unlocks, and game history grants into the database.
+Provides the interface for the Scanner to safely record progress, unlocks, and game history grants into the database.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
@@ -100,13 +99,15 @@ class AchievementLedger:
 
                 if raw_tiers:
                     normalized_tiers = []
-                    
+
                     # Modern sequential list layout wrapper tracking
                     if isinstance(raw_tiers, list):
                         for t in raw_tiers:
                             if isinstance(t, dict):
-                                normalized_tiers.append((t.get("name"), t.get("amount", 0)))
-                    
+                                normalized_tiers.append(
+                                    (t.get("name"), t.get("amount", 0))
+                                )
+
                     # Fallback dictionary mapping protection
                     elif isinstance(raw_tiers, dict):
                         for k, v in raw_tiers.items():
@@ -116,7 +117,9 @@ class AchievementLedger:
                                 normalized_tiers.append((k, v))
 
                     # Process thresholds from highest target values down to baseline
-                    for tier, threshold in sorted(normalized_tiers, key=lambda x: x[1], reverse=True):
+                    for tier, threshold in sorted(
+                        normalized_tiers, key=lambda x: x[1], reverse=True
+                    ):
                         if new_total >= threshold:
                             # Check if already unlocked
                             cur.execute(

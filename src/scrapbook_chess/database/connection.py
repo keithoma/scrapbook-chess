@@ -6,11 +6,10 @@ environment variables. It serves as the primary entry point for database
 interaction within the chess-achievement-book application.
 """
 
-import os
 import sys
+
 import psycopg
-from typing import Optional
-from psycopg import Connection, Cursor
+from psycopg import Connection
 
 from scrapbook_chess.config import DATABASE_URL
 

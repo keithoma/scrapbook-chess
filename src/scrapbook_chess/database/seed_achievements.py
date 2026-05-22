@@ -6,10 +6,11 @@ with the master list of all available trophies, badges, and feats loaded
 from the JSON files in the /data/achievements/ directory.
 """
 
-import logging
-import json
 import glob
+import json
+import logging
 from pathlib import Path
+
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)

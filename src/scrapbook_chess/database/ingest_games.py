@@ -9,14 +9,12 @@ and storing them in the PostgreSQL database.
 import json
 import logging
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import requests
-import chess
 from tqdm import tqdm
 
 from scrapbook_chess.database.connection import get_connection
-from scrapbook_chess.config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 

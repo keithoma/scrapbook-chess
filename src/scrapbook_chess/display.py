@@ -3,10 +3,10 @@ Quick and Dirty Terminal UI.
 Queries the database to display a user's profile and recent game history.
 """
 
-import logging
 import json
-import math
+import logging
 from datetime import datetime
+
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
@@ -45,9 +45,9 @@ def _get_mastery_info(exp):
 
 def show_profile(username: str):
     """Displays highest unlocked trophies with custom flavor text, badge progress, and mastery."""
-    print(f"\n{'='*65}")
+    print(f"\n{'=' * 65}")
     print(f"👤 CHESS PROFILE: {username.upper()}")
-    print(f"{'='*65}")
+    print(f"{'=' * 65}")
 
     unlocks_query = """
         SELECT ad.id, ad.type, ad.category, ad.name, uu.tier, uu.unlocked_at, ad.config
@@ -79,10 +79,22 @@ def show_profile(username: str):
 
     # --- 1. DYNAMICALLY FILTER HIGHEST TIERS & EXTRACT FLAVOR TEXT ---
     highest_unlocks = {}
-    for def_id, ach_type, category, name, tier, unlocked_at, config_raw in unlocks_raw:
-        config = config_raw if isinstance(config_raw, dict) else json.loads(config_raw or "{}")
+    for (
+        def_id,
+        ach_type,
+        category,
+        name,
+        tier,
+        unlocked_at,
+        config_raw,
+    ) in unlocks_raw:
+        config = (
+            config_raw
+            if isinstance(config_raw, dict)
+            else json.loads(config_raw or "{}")
+        )
         tiers_cfg = config.get("tiers", [])
-        
+
         weight = 0
         flavor_text = ""
 
@@ -93,7 +105,7 @@ def show_profile(username: str):
                     weight = idx
                     flavor_text = t.get("flavor_text", "")
                     break
-        # Fallback dict format parsing 
+        # Fallback dict format parsing
         elif isinstance(tiers_cfg, dict):
             t_val = tiers_cfg.get(tier, {})
             if isinstance(t_val, dict):
@@ -103,7 +115,10 @@ def show_profile(username: str):
                 weight = t_val
 
         # Dedup to keep only the absolute highest tier unlocked for this badge id
-        if def_id not in highest_unlocks or weight > highest_unlocks[def_id]["weight"]:
+        if (
+            def_id not in highest_unlocks
+            or weight > highest_unlocks[def_id]["weight"]
+        ):
             highest_unlocks[def_id] = {
                 "type": ach_type or "",
                 "category": category or "",
@@ -111,7 +126,7 @@ def show_profile(username: str):
                 "tier": tier or "",
                 "unlocked_at": unlocked_at,
                 "weight": weight,
-                "flavor_text": flavor_text or ""
+                "flavor_text": flavor_text or "",
             }
 
     # --- 2. DISPLAY TROPHY CABINET ---
@@ -123,17 +138,23 @@ def show_profile(username: str):
         current_type = ""
         # Coerce sorting keys to strings to ensure NoneType comparisons never trip up the engine
         sorted_items = sorted(
-            highest_unlocks.values(), 
-            key=lambda x: (str(x["type"]), str(x["category"]), x["unlocked_at"] if x["unlocked_at"] else datetime.min)
+            highest_unlocks.values(),
+            key=lambda x: (
+                str(x["type"]),
+                str(x["category"]),
+                x["unlocked_at"] if x["unlocked_at"] else datetime.min,
+            ),
         )
-        
+
         for item in sorted_items:
             if item["type"] != current_type:
                 print(f"\n  [{item['type'].upper()}]")
                 current_type = item["type"]
-            
+
             date_str = _format_date(item["unlocked_at"])
-            tier_str = f"({item['tier'].upper()})" if item["tier"] != "base" else ""
+            tier_str = (
+                f"({item['tier'].upper()})" if item["tier"] != "base" else ""
+            )
             print(f"  ✨ {item['name']:<25} {tier_str:<10} | {date_str}")
             if item["flavor_text"] and item["flavor_text"] != "**":
                 print(f"     {item['flavor_text']}")
@@ -148,9 +169,13 @@ def show_profile(username: str):
     if badges:
         print("\n  [BADGES]")
         for _, name, val, config_raw in badges:
-            config = config_raw if isinstance(config_raw, dict) else json.loads(config_raw or "{}")
+            config = (
+                config_raw
+                if isinstance(config_raw, dict)
+                else json.loads(config_raw or "{}")
+            )
             tiers_cfg = config.get("tiers", [])
-            
+
             # Find next target tier amount dynamically based on layout
             next_target = None
             if isinstance(tiers_cfg, list):
@@ -160,13 +185,22 @@ def show_profile(username: str):
                         next_target = amt
                         break
             elif isinstance(tiers_cfg, dict):
-                sorted_amts = sorted([v.get("amount", 0) if isinstance(v, dict) else v for v in tiers_cfg.values()])
+                sorted_amts = sorted(
+                    [
+                        v.get("amount", 0) if isinstance(v, dict) else v
+                        for v in tiers_cfg.values()
+                    ]
+                )
                 for amt in sorted_amts:
                     if amt > val:
                         next_target = amt
                         break
 
-            target_str = f"/{int(next_target)} to next tier" if next_target else " (MAXED)"
+            target_str = (
+                f"/{int(next_target)} to next tier"
+                if next_target
+                else " (MAXED)"
+            )
             print(f"  📊 {name:<25} | {int(val):>5}{target_str}")
 
     if mastery:
@@ -176,14 +210,14 @@ def show_profile(username: str):
             bar = _render_bar(cur_exp, next_req)
             print(f"  📚 {name:<25} | Lvl {lvl} {bar} ({int(val)} Total EXP)")
 
-    print(f"\n{'='*65}\n")
+    print(f"\n{'=' * 65}\n")
 
 
 def show_history(username: str, limit: int = 10):
     """Displays the ledger of what was earned in recent games."""
-    print(f"\n{'='*90}")
+    print(f"\n{'=' * 90}")
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
-    print(f"{'='*90}")
+    print(f"{'=' * 90}")
 
     games_query = """
         SELECT ggl.game_id, MAX(ggl.granted_at) as recent_grant, g.game_data
@@ -232,7 +266,9 @@ def show_history(username: str, limit: int = 10):
 
                 opening_obj = game_data.get("opening")
                 if not opening_obj:
-                    opening_obj = game_data.get("raw_api_response", {}).get("opening", {})
+                    opening_obj = game_data.get("raw_api_response", {}).get(
+                        "opening", {}
+                    )
 
                 opening = "Unknown Opening"
                 if isinstance(opening_obj, dict):
@@ -251,11 +287,17 @@ def show_history(username: str, limit: int = 10):
                 grants = cur.fetchall()
                 for g_name, g_desc, g_type, g_amount, g_tier in grants:
                     if g_type == "badge":
-                        tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
-                        print(f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}")
+                        tier_msg = (
+                            f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
+                        )
+                        print(
+                            f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
+                        )
                     elif g_type == "mastery":
-                        print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
+                        print(
+                            f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})"
+                        )
                     else:
                         print(f"   ✨ {g_name:<25} | {g_desc}")
 
-    print(f"\n{'='*90}\n")
+    print(f"\n{'=' * 90}\n")

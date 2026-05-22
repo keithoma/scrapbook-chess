@@ -1,15 +1,16 @@
-import re
-import logging
 import json
-import yaml
-from pathlib import Path
+import logging
+import re
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import yaml
+
+from scrapbook_chess.achievements.metrics import GameMetrics
+from scrapbook_chess.analysis.annotation_service import GameAnnotator
 from scrapbook_chess.database.connection import get_connection
 from scrapbook_chess.database.ledger import AchievementLedger
-from scrapbook_chess.analysis.annotation_service import GameAnnotator
-from scrapbook_chess.achievements.metrics import GameMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +26,16 @@ class AchievementScanner:
         self.show_all = show_all
         self.ledger = AchievementLedger(username)
         self.configs = self._load_yaml_configs()
-        
+
         # Automatically sync YAML files into the database definitions table on boot!
         self.sync_definitions()
 
     def sync_definitions(self) -> None:
         """Synchronizes all loaded YAML achievement profiles into the database definitions catalog."""
-        logger.info("🔄 Synchronizing achievement definitions catalog with local YAML files...")
-        
+        logger.info(
+            "🔄 Synchronizing achievement definitions catalog with local YAML files..."
+        )
+
         query = """
             INSERT INTO achievement_definitions (id, type, name, description, config)
             VALUES (%s, %s, %s, %s, %s)
@@ -42,7 +45,7 @@ class AchievementScanner:
                 description = EXCLUDED.description,
                 config = EXCLUDED.config;
         """
-        
+
         count = 0
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -51,26 +54,48 @@ class AchievementScanner:
                         item_id = item.get("id")
                         if not item_id:
                             continue
-                        
-                        name = item.get("name") or item_id.replace("badge_", "").replace("_", " ").title()
+
+                        name = (
+                            item.get("name")
+                            or item_id.replace("badge_", "")
+                            .replace("_", " ")
+                            .title()
+                        )
                         description = item.get("description", "")
-                        
+
                         # Use json.dumps so PostgreSQL receives clean, native JSON strings!
                         config_json = json.dumps(item.get("config", {}))
-                        
-                        cur.execute(query, (item_id, item_type, name, description, config_json))
+
+                        cur.execute(
+                            query,
+                            (
+                                item_id,
+                                item_type,
+                                name,
+                                description,
+                                config_json,
+                            ),
+                        )
                         count += 1
             conn.commit()
-            
-        logger.info(f"✨ Successfully synchronized {count} definitions into the database registry.")
+
+        logger.info(
+            f"✨ Successfully synchronized {count} definitions into the database registry."
+        )
 
     def _load_yaml_configs(self) -> Dict[str, List[Dict[str, Any]]]:
         """Reads all achievement configuration files from the local data registry."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
-        data_dir = Path(__file__).resolve().parent.parent.parent / "data" / "achievements"
+        data_dir = (
+            Path(__file__).resolve().parent.parent.parent
+            / "data"
+            / "achievements"
+        )
 
         if not data_dir.exists():
-            logger.warning(f"Achievement directory not found at {data_dir}. Scanning skipped.")
+            logger.warning(
+                f"Achievement directory not found at {data_dir}. Scanning skipped."
+            )
             return configs
 
         for filepath in data_dir.glob("*.yml"):
@@ -85,13 +110,17 @@ class AchievementScanner:
                         if item_type in configs:
                             configs[item_type].append(item)
             except Exception as e:
-                logger.error(f"Failed to parse YAML configuration {filepath.name}: {e}")
+                logger.error(
+                    f"Failed to parse YAML configuration {filepath.name}: {e}"
+                )
 
         return configs
 
-    def scan_games(self, limit: Optional[int] = None, export_pgn: bool = False) -> None:
+    def scan_games(
+        self, limit: Optional[int] = None, export_pgn: bool = False
+    ) -> None:
         """Fetches engine-analyzed games and pushes them through the evaluation pipeline."""
-        
+
         # Target games where Stockfish analysis has successfully finished
         query = """
             SELECT id, game_data 
@@ -108,7 +137,9 @@ class AchievementScanner:
                 rows = cur.fetchall()
 
         if not rows:
-            logger.info("✨ No analyzed games found ready for achievement scanning.")
+            logger.info(
+                "✨ No analyzed games found ready for achievement scanning."
+            )
             return
 
         logger.info(f"🎯 Found {len(rows)} analyzed game(s) to scan.")
@@ -118,13 +149,19 @@ class AchievementScanner:
             for game_id, game_data_raw in rows:
                 try:
                     # Failsafe parsing if the adapter layer returns strings
-                    game_data = game_data_raw if isinstance(game_data_raw, dict) else yaml.safe_load(game_data_raw)
-                    
+                    game_data = (
+                        game_data_raw
+                        if isinstance(game_data_raw, dict)
+                        else yaml.safe_load(game_data_raw)
+                    )
+
                     move_evals = game_data.get("move_evals", [])
                     moves_string = game_data.get("moves", "")
 
                     # 1. Generate live classifications and a compiled PGN string
-                    annotated_plies, final_pgn = annotator.annotate_game_moves(moves_string, move_evals)
+                    annotated_plies, final_pgn = annotator.annotate_game_moves(
+                        moves_string, move_evals
+                    )
 
                     # 2. Extract metrics profile
                     metrics = GameMetrics(
@@ -132,7 +169,7 @@ class AchievementScanner:
                         game_data=game_data,
                         annotated_plies=annotated_plies,
                         move_evals=move_evals,
-                        username=self.username
+                        username=self.username,
                     )
 
                     # 3. Evaluate rules engines
@@ -145,7 +182,9 @@ class AchievementScanner:
                         self._export_annotated_pgn(game_data, final_pgn)
 
                 except Exception as e:
-                    logger.error(f"❌ Failed processing achievement scans for game {game_id}: {e}")
+                    logger.error(
+                        f"❌ Failed processing achievement scans for game {game_id}: {e}"
+                    )
 
     def _evaluate_badges(self, metrics: GameMetrics) -> None:
         """Evaluates ongoing metric thresholds (e.g., total games won, total rapid matches)."""
@@ -180,8 +219,14 @@ class AchievementScanner:
                 continue
 
             # Match on ECO codes or specific opening titles
-            matched_eco = any(metrics.opening_eco.startswith(pref) for pref in conditions.get("eco_prefixes", []))
-            matched_name = any(word.lower() in metrics.opening_name.lower() for word in conditions.get("name_includes", []))
+            matched_eco = any(
+                metrics.opening_eco.startswith(pref)
+                for pref in conditions.get("eco_prefixes", [])
+            )
+            matched_name = any(
+                word.lower() in metrics.opening_name.lower()
+                for word in conditions.get("name_includes", [])
+            )
 
             if matched_eco or matched_name:
                 # Award performance scaling scale: Win gets 50 EXP, Loss/Draw gets 10 EXP
@@ -189,19 +234,27 @@ class AchievementScanner:
                 if metrics.blunders == 0:
                     base_exp += 25.0  # Precision bonus allocation
 
-                self.ledger.record_progress(metrics.game_id, mastery["id"], base_exp)
+                self.ledger.record_progress(
+                    metrics.game_id, mastery["id"], base_exp
+                )
 
     def _evaluate_feats(self, metrics: GameMetrics) -> None:
         """Validates situational unique performance triggers."""
         for feat in self.configs.get("feat", []):
             feat_id = feat["id"]
-            
+
             # Example dynamic assignment map matching your clean metrics variables
-            if feat_id == "feat_clean_sheet" and metrics.blunders == 0 and metrics.mistakes == 0:
+            if (
+                feat_id == "feat_clean_sheet"
+                and metrics.blunders == 0
+                and metrics.mistakes == 0
+            ):
                 if metrics.is_win:
                     self.ledger.record_progress(metrics.game_id, feat_id, 1.0)
 
-    def _export_annotated_pgn(self, game_data: Dict[str, Any], pgn_content: str) -> None:
+    def _export_annotated_pgn(
+        self, game_data: Dict[str, Any], pgn_content: str
+    ) -> None:
         """Saves fully annotated PGN maps containing real move analysis commentary directly to disk."""
         output_dir = Path("debug/pgn_files")
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -215,9 +268,13 @@ class AchievementScanner:
 
         white = extract_player_name("white")
         black = extract_player_name("black")
-        
+
         # Clean file names of operating system forbidden characters
-        opening_title = game_data.get("raw_api_response", {}).get("opening", {}).get("name", "Unknown")
+        opening_title = (
+            game_data.get("raw_api_response", {})
+            .get("opening", {})
+            .get("name", "Unknown")
+        )
         safe_opening = re.sub(r'[\\/*?:"<>|]', "", opening_title)
 
         filename = f"{date_str} - {white} vs {black} - {safe_opening}.pgn"
@@ -232,6 +289,7 @@ class AchievementScanner:
 # =====================================================================
 # FUNCTIONAL WRAPPER FOR ORCHESTRATOR
 # =====================================================================
+
 
 def process_achievements(
     username: str,

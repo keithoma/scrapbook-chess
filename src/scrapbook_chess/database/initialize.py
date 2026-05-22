@@ -3,16 +3,18 @@ Initializes all the databases.
 """
 
 import logging
+
 from .connection import get_connection
 
 logger = logging.getLogger(__name__)
+
 
 def initialize_database() -> None:
     """
     Executes core DDL statements to construct the chess achievement database.
     Tables are ordered strictly by relational dependencies.
     """
-    
+
     # 1. Independent Core Tables
     core_tables = """
     CREATE TABLE IF NOT EXISTS users (
@@ -77,17 +79,19 @@ def initialize_database() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 # Execute core tables first
-                logger.debug("Creating core tables (users, games, definitions)...")
+                logger.debug(
+                    "Creating core tables (users, games, definitions)..."
+                )
                 cur.execute(core_tables)
-                
+
                 # Execute dependent tables second
                 logger.debug("Creating dependent progress and ledger tables...")
                 cur.execute(dependent_tables)
-                
+
             # Commit everything atomically in a single transaction
             conn.commit()
         logger.info("⚡ Database schema initialization successful.")
-        
+
     except Exception as e:
         logger.error(f"❌ Critical database initialization failure: {e}")
         raise e
