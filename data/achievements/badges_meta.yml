@@ -27,6 +27,7 @@
   description: 'Total games played across all time controls.'
   badge-flavor-text: '*"Trying is the first step to failure."* — GM Ben Finegold'
   config:
+    hidden: False
     tiers:
       pawn:
         amount:               16     # number of pieces
@@ -67,6 +68,7 @@
   description: 'Total games won across all time controls.'
   badge-flavor-text: '*Something something... sign of a gentleman*.'
   config:
+    hidden: False
     tiers:
       pawn:
         amount:                7     # (16) | just a lucky number
@@ -106,7 +108,32 @@
   badge-flavor-text:
   description: 'Total Ultra Bullet games played.'
   config:
+    hidden: False
     tiers:
+      pawn:
+        amount:                1     #
+        tier-flavor-text: '**'
+      knight:
+        amount:                2     #
+        tier-flavor-text: '**'
+      bishop:
+        amount:                3     #
+        tier-flavor-text: '**'
+      rook:
+        amount:                4     #
+        tier-flavor-text: '**'
+      queen:
+        amount:                5     #
+        tier-flavor-text: '**'
+      king:
+        amount:                6     #
+        tier-flavor-text: ''
+      immortal:
+        amount:                7     #
+        tier-flavor-text: ''
+      legend:
+        amount:                8     #
+        tier-flavor-text: ''
 
 
 
