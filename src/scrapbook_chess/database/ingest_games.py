@@ -48,9 +48,7 @@ class LichessIngestor:
         }
 
         count = 0
-        logger.info(
-            "📡 Fetching games for %s (Since May 1st)...", self.username
-        )
+        logger.info("📡 Fetching games for %s (Since May 1st)...", self.username)
 
         try:
             with requests.get(
@@ -59,9 +57,7 @@ class LichessIngestor:
                 response.raise_for_status()
 
                 # Using tqdm for a nice progress bar on the stream
-                for line in tqdm(
-                    response.iter_lines(), desc="Ingesting", unit="game"
-                ):
+                for line in tqdm(response.iter_lines(), desc="Ingesting", unit="game"):
                     if not line:
                         continue
 
@@ -91,10 +87,7 @@ class LichessIngestor:
             return True
 
         # Skip variants (InitialFen present) or very short games
-        if (
-            "initialFen" in raw_game
-            or len(raw_game.get("moves", "").split()) < 4
-        ):
+        if "initialFen" in raw_game or len(raw_game.get("moves", "").split()) < 4:
             return True
 
         return False

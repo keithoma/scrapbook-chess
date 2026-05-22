@@ -2,18 +2,18 @@
 Chess Achievement Book: CLI Entry Point
 
 This module orchestrates the end-to-end workflow of the Chess Achievement Book:
+
 1. Ingestion: Pulls recent games from the Lichess API for a specific user.
-2. Analysis: Runs deep Stockfish evaluation to identify brilliancies and novelties.
+
+2. Analysis: Runs deep Stockfish evaluation to identify brilliancies and
+   novelties.
+
 3. Achievement Scanning: Evaluates games against a ledger of trophies and
    exports annotated PGNs with professional NAG symbols.
 
-Usage:
-```bash
-uv run main.py
-```
+Usage: ```bash uv run main.py ```
 
-Author: Kei Thoma
-License: MIT
+Author: Kei Thoma License: MIT
 """
 
 import argparse
@@ -73,10 +73,7 @@ def main():
     parser.add_argument(
         "--show-achievements",
         action="store_true",
-        help=(
-            "Print all qualified achievements for the game, "
-            "even if already granted"
-        ),
+        help=("Print all qualified achievements for the game, even if already granted"),
     )
 
     # --debug

@@ -12,9 +12,7 @@ def is_fianchetto_development(
         return False
 
     fianchetto_squares = (
-        {chess.B2, chess.G2}
-        if my_color == chess.WHITE
-        else {chess.B7, chess.G7}
+        {chess.B2, chess.G2} if my_color == chess.WHITE else {chess.B7, chess.G7}
     )
     return move.to_square in fianchetto_squares
 

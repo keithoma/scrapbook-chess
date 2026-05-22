@@ -146,12 +146,8 @@ class GameMetrics:
         self.clean_queens_count = 0
 
         # --- PARSE STATIC RATING VALUES ---
-        white_rating = (
-            game_data.get("players", {}).get("white", {}).get("rating", 1500)
-        )
-        black_rating = (
-            game_data.get("players", {}).get("black", {}).get("rating", 1500)
-        )
+        white_rating = game_data.get("players", {}).get("white", {}).get("rating", 1500)
+        black_rating = game_data.get("players", {}).get("black", {}).get("rating", 1500)
         my_rating = white_rating if self.is_white else black_rating
         opp_rating = black_rating if self.is_white else white_rating
 
@@ -185,9 +181,7 @@ class GameMetrics:
             self.is_full_moon_win = True
 
         # Run the single processing pass
-        self._aggregate_metrics(
-            annotated_plies, move_evals, game_data.get("moves", "")
-        )
+        self._aggregate_metrics(annotated_plies, move_evals, game_data.get("moves", ""))
 
     def _aggregate_metrics(
         self,
@@ -231,9 +225,7 @@ class GameMetrics:
                     else board.piece_at(move.to_square).piece_type
                 )
                 if is_my_turn and captured_piece:
-                    self.total_material_captured += piece_values.get(
-                        captured_piece, 0
-                    )
+                    self.total_material_captured += piece_values.get(captured_piece, 0)
 
             # 2. Geometric Core Pattern Detection
             if is_my_turn and board.is_en_passant(move):
@@ -245,9 +237,7 @@ class GameMetrics:
             if is_my_turn and board.gives_check(move):
                 self.total_checks_delivered += 1
 
-            if is_my_turn and is_fianchetto_development(
-                board, move, self.my_color
-            ):
+            if is_my_turn and is_fianchetto_development(board, move, self.my_color):
                 self.fianchetto_count += 1
 
             is_castle, side = track_castling_side(board, move)

@@ -79,9 +79,7 @@ def initialize_database() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 # Execute core tables first
-                logger.debug(
-                    "Creating core tables (users, games, definitions)..."
-                )
+                logger.debug("Creating core tables (users, games, definitions)...")
                 cur.execute(core_tables)
 
                 # Execute dependent tables second

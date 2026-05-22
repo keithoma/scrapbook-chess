@@ -1,7 +1,8 @@
 """
 Achievement Ledger operations.
 
-Provides the interface for the Scanner to safely record progress, unlocks, and game history grants into the database.
+Provides the interface for the Scanner to safely record progress, unlocks, and
+game history grants into the database.
 """
 
 import logging
@@ -32,7 +33,8 @@ class AchievementLedger:
             logger.error(f"Failed to register user {self.username}: {e}")
 
     def is_already_granted(self, game_id: str, def_id: str) -> bool:
-        """Checks if a specific game has already triggered a specific achievement."""
+        """Checks if a specific game has already triggered a specific
+        achievement."""
         query = """
             SELECT 1 FROM game_grants_ledger 
             WHERE game_id = %s AND username = %s AND def_id = %s
@@ -151,6 +153,4 @@ class AchievementLedger:
             conn.commit()
 
         if newly_unlocked_tier:
-            print(
-                f"🎉 ACHIEVEMENT UNLOCKED: {def_id} - {newly_unlocked_tier.upper()}!"
-            )
+            print(f"🎉 ACHIEVEMENT UNLOCKED: {def_id} - {newly_unlocked_tier.upper()}!")

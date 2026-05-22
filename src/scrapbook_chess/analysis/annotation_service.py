@@ -22,9 +22,7 @@ class GameAnnotator:
         try:
             self.reader = chess.polyglot.open_reader(str(BOOK_PATH))
         except FileNotFoundError:
-            logger.warning(
-                "Opening book (.bin) not found. Book detection disabled."
-            )
+            logger.warning("Opening book (.bin) not found. Book detection disabled.")
 
     def __enter__(self):
         return self

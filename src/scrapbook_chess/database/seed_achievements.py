@@ -68,9 +68,7 @@ def seed_database():
         )
         return
 
-    logger.info(
-        "💾 Seeding %d achievements into the database...", len(achievements)
-    )
+    logger.info("💾 Seeding %d achievements into the database...", len(achievements))
 
     try:
         with get_connection() as conn:

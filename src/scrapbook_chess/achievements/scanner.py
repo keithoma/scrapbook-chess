@@ -57,9 +57,7 @@ class AchievementScanner:
 
                         name = (
                             item.get("name")
-                            or item_id.replace("badge_", "")
-                            .replace("_", " ")
-                            .title()
+                            or item_id.replace("badge_", "").replace("_", " ").title()
                         )
                         description = item.get("description", "")
 
@@ -87,9 +85,7 @@ class AchievementScanner:
         """Reads all achievement configuration files from the local data registry."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
         data_dir = (
-            Path(__file__).resolve().parent.parent.parent
-            / "data"
-            / "achievements"
+            Path(__file__).resolve().parent.parent.parent / "data" / "achievements"
         )
 
         if not data_dir.exists():
@@ -110,15 +106,11 @@ class AchievementScanner:
                         if item_type in configs:
                             configs[item_type].append(item)
             except Exception as e:
-                logger.error(
-                    f"Failed to parse YAML configuration {filepath.name}: {e}"
-                )
+                logger.error(f"Failed to parse YAML configuration {filepath.name}: {e}")
 
         return configs
 
-    def scan_games(
-        self, limit: Optional[int] = None, export_pgn: bool = False
-    ) -> None:
+    def scan_games(self, limit: Optional[int] = None, export_pgn: bool = False) -> None:
         """Fetches engine-analyzed games and pushes them through the evaluation pipeline."""
 
         # Target games where Stockfish analysis has successfully finished
@@ -137,9 +129,7 @@ class AchievementScanner:
                 rows = cur.fetchall()
 
         if not rows:
-            logger.info(
-                "✨ No analyzed games found ready for achievement scanning."
-            )
+            logger.info("✨ No analyzed games found ready for achievement scanning.")
             return
 
         logger.info(f"🎯 Found {len(rows)} analyzed game(s) to scan.")
@@ -234,9 +224,7 @@ class AchievementScanner:
                 if metrics.blunders == 0:
                     base_exp += 25.0  # Precision bonus allocation
 
-                self.ledger.record_progress(
-                    metrics.game_id, mastery["id"], base_exp
-                )
+                self.ledger.record_progress(metrics.game_id, mastery["id"], base_exp)
 
     def _evaluate_feats(self, metrics: GameMetrics) -> None:
         """Validates situational unique performance triggers."""

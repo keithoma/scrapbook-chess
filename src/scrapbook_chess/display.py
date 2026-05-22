@@ -44,7 +44,8 @@ def _get_mastery_info(exp):
 
 
 def show_profile(username: str):
-    """Displays highest unlocked trophies with custom flavor text, badge progress, and mastery."""
+    """Displays highest unlocked trophies with custom flavor text, badge
+    progress, and mastery."""
     print(f"\n{'=' * 65}")
     print(f"👤 CHESS PROFILE: {username.upper()}")
     print(f"{'=' * 65}")
@@ -114,11 +115,9 @@ def show_profile(username: str):
             else:
                 weight = t_val
 
-        # Dedup to keep only the absolute highest tier unlocked for this badge id
-        if (
-            def_id not in highest_unlocks
-            or weight > highest_unlocks[def_id]["weight"]
-        ):
+        # Dedup to keep only the absolute highest tier unlocked for this badge
+        # id
+        if def_id not in highest_unlocks or weight > highest_unlocks[def_id]["weight"]:
             highest_unlocks[def_id] = {
                 "type": ach_type or "",
                 "category": category or "",
@@ -136,7 +135,8 @@ def show_profile(username: str):
         print("  (No trophies earned yet. Keep grinding!)")
     else:
         current_type = ""
-        # Coerce sorting keys to strings to ensure NoneType comparisons never trip up the engine
+        # Coerce sorting keys to strings to ensure NoneType comparisons never
+        # trip up the engine
         sorted_items = sorted(
             highest_unlocks.values(),
             key=lambda x: (
@@ -152,9 +152,7 @@ def show_profile(username: str):
                 current_type = item["type"]
 
             date_str = _format_date(item["unlocked_at"])
-            tier_str = (
-                f"({item['tier'].upper()})" if item["tier"] != "base" else ""
-            )
+            tier_str = f"({item['tier'].upper()})" if item["tier"] != "base" else ""
             print(f"  ✨ {item['name']:<25} {tier_str:<10} | {date_str}")
             if item["flavor_text"] and item["flavor_text"] != "**":
                 print(f"     {item['flavor_text']}")
@@ -197,9 +195,7 @@ def show_profile(username: str):
                         break
 
             target_str = (
-                f"/{int(next_target)} to next tier"
-                if next_target
-                else " (MAXED)"
+                f"/{int(next_target)} to next tier" if next_target else " (MAXED)"
             )
             print(f"  📊 {name:<25} | {int(val):>5}{target_str}")
 
@@ -287,16 +283,12 @@ def show_history(username: str, limit: int = 10):
                 grants = cur.fetchall()
                 for g_name, g_desc, g_type, g_amount, g_tier in grants:
                     if g_type == "badge":
-                        tier_msg = (
-                            f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
-                        )
+                        tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
                         print(
                             f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                         )
                     elif g_type == "mastery":
-                        print(
-                            f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})"
-                        )
+                        print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
                     else:
                         print(f"   ✨ {g_name:<25} | {g_desc}")
 

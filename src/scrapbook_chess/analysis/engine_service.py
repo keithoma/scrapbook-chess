@@ -35,9 +35,7 @@ class MoveAnalysis(TypedDict):
 class StockfishEvaluator:
     """Handles the lifecycle, configurations, and multi-PV queries for the Stockfish engine."""
 
-    def __init__(
-        self, low_depth: int, high_depth: int, threads: int = 4
-    ) -> None:
+    def __init__(self, low_depth: int, high_depth: int, threads: int = 4) -> None:
         self.low_depth = low_depth
         self.high_depth = high_depth
         self.threads = threads
@@ -73,18 +71,11 @@ class StockfishEvaluator:
         # Execute Mate Grace Period Playout if the game ended prematurely but is completely won
         if analysis_results and not board.is_game_over(claim_draw=True):
             last_eval = analysis_results[-1]["high_depth_eval"]
-            if (
-                last_eval["type"] == "mate"
-                or abs(last_eval["value"]) >= mate_threshold
-            ):
-                self._run_mate_grace_period(
-                    board, terminal_node, max_plies=mate_plies
-                )
+            if last_eval["type"] == "mate" or abs(last_eval["value"]) >= mate_threshold:
+                self._run_mate_grace_period(board, terminal_node, max_plies=mate_plies)
 
         amended_pgn = game.accept(
-            chess.pgn.StringExporter(
-                columns=None, comments=True, variations=True
-            )
+            chess.pgn.StringExporter(columns=None, comments=True, variations=True)
         )
         return analysis_results, amended_pgn
 
@@ -109,9 +100,7 @@ class StockfishEvaluator:
             )
 
         # Low Depth Pass
-        low_res = self.engine.analyse(
-            board, chess.engine.Limit(depth=self.low_depth)
-        )
+        low_res = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth))
 
         return {
             "ply": ply,
@@ -128,9 +117,7 @@ class StockfishEvaluator:
                 if info.get("pv")
             ],
             "low_best_move": {
-                "move": board.san(low_res["pv"][0])
-                if low_res.get("pv")
-                else None,
+                "move": board.san(low_res["pv"][0]) if low_res.get("pv") else None,
                 "eval": self._parse_score(low_res.get("score"), board.turn),
             },
         }
@@ -191,15 +178,11 @@ def run_engine_analysis(limit: Optional[int] = None) -> None:
         logger.info("✨ No pending games require Stockfish analysis.")
         return
 
-    logger.info(
-        "⚙️  Found %d game(s) for deep engine analysis.", len(pending_games)
-    )
+    logger.info("⚙️  Found %d game(s) for deep engine analysis.", len(pending_games))
 
     try:
         with (
-            StockfishEvaluator(
-                low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH
-            ) as evaluator,
+            StockfishEvaluator(low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH) as evaluator,
             get_connection() as conn,
         ):
             with conn.cursor() as cur:
@@ -248,6 +231,4 @@ def run_engine_analysis(limit: Optional[int] = None) -> None:
                         continue
 
     except Exception as batch_err:
-        logger.error(
-            "💥 Engine batch processing critical failure: %s", batch_err
-        )
+        logger.error("💥 Engine batch processing critical failure: %s", batch_err)

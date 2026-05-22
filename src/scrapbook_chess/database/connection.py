@@ -26,9 +26,7 @@ def get_connection() -> Connection:
         ValueError: If DATABASE_URL is missing from the .env file.
     """
     if not DATABASE_URL:
-        raise ValueError(
-            "❌ DATABASE_URL not found in .env. Check your configuration."
-        )
+        raise ValueError("❌ DATABASE_URL not found in .env. Check your configuration.")
 
     return psycopg.connect(DATABASE_URL)
 
