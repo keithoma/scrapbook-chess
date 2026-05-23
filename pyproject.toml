@@ -15,11 +15,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.3",
     "ruff>=0.15.14",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["scrapbook_chess*"]
 
 [project.scripts]
 scrapbook-chess = "scrapbook_chess.main:main"
@@ -33,3 +35,6 @@ convention = "google"
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.uv]
+package = true
