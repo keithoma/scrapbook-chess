@@ -6,7 +6,7 @@
   type: badge
   category: "Veterancy"
   subcategory: ""
-  name: "Moves Played"
+  name: "Effort"
   description: "Play a valid move in any game."
   flavor_text: ""
   config:
@@ -54,7 +54,7 @@
   type: badge
   category: ""
   subcategory: ""
-  name: "Time Manager"
+  name: "Lightening"
   description: "Win a game with always having more time than the opponent."
   flavor_text: ""
   config:
@@ -102,7 +102,7 @@
   type: badge
   category: ""
   subcategory: ""
-  name: "Clutch Performer"
+  name: "Clutch"
   description: "Win a time scramble."
   flavor_text: ""
   config:

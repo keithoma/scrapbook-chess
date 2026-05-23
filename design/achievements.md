@@ -28,6 +28,7 @@ last_reviewed: 2026-05-23
 
 | Name                  | Category    | Subcategory   | Description                                         |
 |:----------------------|:------------|:--------------|:----------------------------------------------------|
+| Effort                |             |               | Play a valid move in any game.                      |
 | Obsession             | Veterancy   |               | Total games played across all time controls.        |
 | Winner                | Veterancy   |               | Total games won across all time controls.           |
 | Player                | Veterancy   |               | Total Ultra Bullet games played.                    |
@@ -43,6 +44,8 @@ last_reviewed: 2026-05-23
 | Phase Master          |             |               | Win games during the opening.                       |
 | Phase Master          |             |               | Win games during the middle game.                   |
 | Phase Master          |             |               | Win games during the endgame.                       |
+| Lightening            |             |               | Win a game with always having more time [...].      |
+| Clutch                |             |               | Win a time scramble.                                |
 | Early Bird            |             |               | Win a game between 5am and 11am.                    |
 | Lunch Break Master    |             |               | Win a game between 11am and 3pm.                    |
 | Afternoon Architect   |             |               | Win a game between 3pm and 7pm.                     |
