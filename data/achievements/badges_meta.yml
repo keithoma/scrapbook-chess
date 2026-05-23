@@ -1445,7 +1445,7 @@
   description: "Win a game on a weekday."
   flavor_text: ""
   config:
-    metric_key: "is_weekend_win"
+    metric_key: "is_weekday_win"
     required_value: true
     is_hidden: false
     tiers:

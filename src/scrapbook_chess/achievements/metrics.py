@@ -91,9 +91,12 @@ class GameMetrics:
             "clean_queens_count": 0,
         }
 
+        if self.is_win and game_date.weekday() in (0, 1, 2, 3, 4):
+            self.triggers["is_weekday_win"] = True
+
         if self.is_win and game_date.weekday() in (5, 6):
             self.triggers["is_weekend_win"] = True
-
+        
         base_full_moon = datetime(2026, 1, 3, tzinfo=UTC)
         days_since = (game_date - base_full_moon).total_seconds() / 86400.0
         lunar_phase = days_since % 29.530589
