@@ -63,9 +63,7 @@ last_reviewed: 2026-05-23
 
 #### Not yet implemented
 
-- move played
-- winning with always having more time than the opponent
-- winning a time scramble
+
 
 #### Shelved ideas
 

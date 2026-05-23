@@ -1,3 +1,149 @@
+###############################################################################
+#
+# Make a move
+###############################################################################
+- id: badge_moves_played
+  type: badge
+  category: "Veterancy"
+  subcategory: ""
+  name: "Moves Played"
+  description: "Play a valid move in any game."
+  flavor_text: ""
+  config:
+    metric_key: "my_moves_count"
+    required_value: null
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 100
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 200
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 300
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 400
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 500
+        flavor_text: ""
+
+      - name: "king"
+        amount: 600
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 700
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 800
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a game with always having more time than the opponent.
+###############################################################################
+- id: badge_time_advantage
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Time Manager"
+  description: "Win a game with always having more time than the opponent."
+  flavor_text: ""
+  config:
+    metric_key: "is_time_advantage_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a time scramble
+###############################################################################
+- id: badge_time_scramble
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Clutch Performer"
+  description: "Win a time scramble."
+  flavor_text: ""
+  config:
+    metric_key: "is_time_scramble_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
 ####################################################################################################
 #                                                                                                  #
 #   ####   ###  #   # #####  ####      ####  #      ###  #   # ##### ####      #   #  ###  #   #   #

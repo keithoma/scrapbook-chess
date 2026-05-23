@@ -1,3 +1,4 @@
+# metrics.py
 """Game metrics aggregation utilities."""
 
 import json
@@ -17,7 +18,6 @@ class GameMetrics:
 
     def __init__(self, row_data: dict[str, Any], username: str) -> None:
         self.username = username.lower()
-        # FIX 1: Read 'game_id' exactly as the SQL View outputs it
         self.game_id = row_data["game_id"]
         
         self.speed = row_data["time_control"].lower()
@@ -33,7 +33,6 @@ class GameMetrics:
         opp_rating = row_data.get("black_rating" if self.is_white else "white_rating") or 0
         rating_diff = opp_rating - my_rating
 
-        # FIX 2: Tally the fast relational columns so they can be written to SQL
         self.fast_columns = {
             "blunders_count": 0,
             "mistakes_count": 0,
@@ -49,6 +48,9 @@ class GameMetrics:
 
         self.triggers = {
             "total_plies": 0,
+            "my_moves_count": 0,          # NEW
+            "is_time_advantage_win": False, # NEW
+            "is_time_scramble_win": False,  # NEW
 
             "win_phase": None,
             "rating_diff": rating_diff if self.is_win else 0,
@@ -71,7 +73,6 @@ class GameMetrics:
             "is_evening_win": self.is_win and (19 <= hour < 23),
             "is_night_owl_win": self.is_win and (hour >= 23 or hour < 5),
 
-            
             "is_ultrabullet_win": self.is_win and self.speed == "ultrabullet",
             "is_bullet_win": self.is_win and self.speed == "bullet",
             "is_blitz_win": self.is_win and self.speed == "blitz",
@@ -90,7 +91,6 @@ class GameMetrics:
             "clean_queens_count": 0,
         }
 
-
         if self.is_win and game_date.weekday() in (5, 6):
             self.triggers["is_weekend_win"] = True
 
@@ -100,24 +100,44 @@ class GameMetrics:
         if self.is_win and ((lunar_phase < 1.25) or (lunar_phase > 28.28)):
             self.triggers["is_full_moon_win"] = True
 
-        # Safely parse JSONB columns (Psycopg might return strings or dicts)
         cls_raw = row_data.get("ply_classifications")
         evals_raw = row_data.get("move_evals")
         classifications = json.loads(cls_raw) if isinstance(cls_raw, str) else (cls_raw or [])
         evals = json.loads(evals_raw) if isinstance(evals_raw, str) else (evals_raw or [])
 
-        self._aggregate_tactics(row_data["raw_moves"], classifications, evals)
+        self._aggregate_tactics(row_data, classifications, evals)
 
     def _aggregate_tactics(
-        self, moves_string: str, classifications: list[dict[str, Any]], evals: list[dict[str, Any]]
+        self, row_data: dict[str, Any], classifications: list[dict[str, Any]], evals: list[dict[str, Any]]
     ) -> None:
+        moves_string = row_data["raw_moves"]
         board = chess.Board()
         san_moves = moves_string.split()
         self.triggers["total_plies"] = len(san_moves)
 
+        # Safely parse clocks for time achievements 
+        clocks_raw = row_data.get("clocks")
+        valid_clocks = []
+        if isinstance(clocks_raw, str):
+            try:
+                valid_clocks = json.loads(clocks_raw)
+            except Exception:
+                pass
+        elif isinstance(clocks_raw, list):
+            valid_clocks = clocks_raw
+            
+        valid_clocks = [c for c in valid_clocks if isinstance(c, (int, float))]
+        # Lichess clocks are often in hundredths of a second
+        clock_unit_divisor = 100.0 if (valid_clocks and max(valid_clocks) > 10000) else 1.0
+
+        # Require a reasonably long game (20+ plies) so "always having more time" isn't a 2-move fluke
+        always_more_time = bool(valid_clocks) and len(san_moves) >= 20
+        scramble_plies = 0
+        my_clock = None
+        opp_clock = None
+
         piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
         white_castle_side, black_castle_side = None, None
-        
         total_cpl = 0.0
         my_evaluated_moves_count = 0
 
@@ -130,6 +150,24 @@ class GameMetrics:
             except ValueError:
                 break
 
+            # Process clocks
+            clock_idx = ply - 1
+            if clock_idx < len(valid_clocks):
+                c_val = valid_clocks[clock_idx] / clock_unit_divisor
+                if is_my_turn:
+                    my_clock = c_val
+                else:
+                    opp_clock = c_val
+
+            if my_clock is not None and opp_clock is not None:
+                # If your remaining time is ever lower than your opponent's, flag fails
+                if my_clock < opp_clock:
+                    always_more_time = False
+                
+                # Both players under 30 seconds
+                if my_clock <= 30.0 and opp_clock <= 30.0:
+                    scramble_plies += 1
+
             if board.is_capture(move):
                 captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
                 if is_my_turn and captured_piece:
@@ -137,6 +175,7 @@ class GameMetrics:
                     self.trigger_plies.setdefault("total_material_captured", []).append(ply)
 
             if is_my_turn:
+                self.triggers["my_moves_count"] += 1
                 if board.is_en_passant(move): 
                     self.triggers["en_passant_count"] += 1
                     self.trigger_plies.setdefault("en_passant_count", []).append(ply)
@@ -155,7 +194,6 @@ class GameMetrics:
                 if is_white_turn: white_castle_side = side
                 else: black_castle_side = side
 
-            # Parse Annotations and Tally the Fast Columns
             if (ply - 1) < len(classifications):
                 anno = classifications[ply - 1]
                 cls = anno.get("classification", "normal")
@@ -178,7 +216,6 @@ class GameMetrics:
                             self.triggers[names[captured_piece]] += 1
                             self.trigger_plies.setdefault(names[captured_piece], []).append(ply)
 
-            # Parse Engine Evals for ACPL (Average Centipawn Loss)
             if is_my_turn and (ply - 1) < len(evals):
                 eval_data = evals[ply - 1]
                 played_score = eval_data.get("high_depth_eval", {})
@@ -199,6 +236,13 @@ class GameMetrics:
             self.triggers["opposite_castling_wins"] = True
 
         if self.is_win:
+            if always_more_time:
+                self.triggers["is_time_advantage_win"] = True
+            
+            # Require at least 5 full moves under 30s
+            if scramble_plies >= 10:
+                self.triggers["is_time_scramble_win"] = True
+
             if self.triggers["total_plies"] <= 20: self.triggers["win_phase"] = "opening"
             elif self.triggers["total_plies"] <= 60: self.triggers["win_phase"] = "midgame"
             else: self.triggers["win_phase"] = "endgame"
