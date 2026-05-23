@@ -225,7 +225,6 @@ def show_history(username: str, limit: int = 10) -> None:
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
     print(f"{'=' * 90}")
 
-    # FIXED: Querying the new flat columns instead of the deleted `game_data` JSONB blob
     games_query = """
         SELECT 
             ggl.game_id, 
@@ -258,7 +257,6 @@ def show_history(username: str, limit: int = 10) -> None:
             return
 
         for game_id, recent_grant, white, black, opening_name, raw_moves in recent_games:
-            # FIXED: We no longer need to parse JSON to get names and openings!
             opening = opening_name or "Unknown Opening"
             date_str = _format_date(recent_grant)
 
@@ -270,11 +268,11 @@ def show_history(username: str, limit: int = 10) -> None:
             cur.execute(ledger_query, (game_id, username))
             grants = cur.fetchall()
 
-            # Prepare a simple tokenized move list from raw_moves so we can
-            # map ply numbers to SAN (best-effort: strip numeric move markers)
+            # Tokenize move list from raw_moves to map ply numbers to SAN
             tokens: list[str] = []
             if raw_moves:
-                tokens = [t for t in raw_moves.replace("\n", " ").split() if not t.endswith('.')]
+                # Strip numeric move markers (e.g., "1.", "2.") to isolate the SAN strings
+                tokens = [t for t in raw_moves.replace("\n", " ").split() if not (t.endswith('.') or '...' in t)]
 
             for g_name, g_desc, g_type, g_amount, g_tier, g_plies in grants:
                 if g_type == "badge":
@@ -282,15 +280,25 @@ def show_history(username: str, limit: int = 10) -> None:
                     print(
                         f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                     )
-                    # If we recorded trigger_plies, display them with SAN if available
+                    
+                    # Convert raw plies into standard chess notation formatting
                     if g_plies:
                         move_entries = []
                         for p in g_plies:
                             try:
-                                san = tokens[p - 1] if 0 <= (p - 1) < len(tokens) else f"(ply {p})"
+                                san = tokens[p - 1] if 0 <= (p - 1) < len(tokens) else None
+                                if san:
+                                    move_num = (p + 1) // 2
+                                    if p % 2 != 0:
+                                        formatted_move = f"{move_num}. {san}"
+                                    else:
+                                        formatted_move = f"{move_num}... {san}"
+                                else:
+                                    formatted_move = f"(ply {p})"
                             except Exception:
-                                san = f"(ply {p})"
-                            move_entries.append(f"{p}:{san}")
+                                formatted_move = f"(ply {p})"
+                            move_entries.append(formatted_move)
+                            
                         print(f"      Triggered at: {', '.join(move_entries)}")
                 elif g_type == "mastery":
                     print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
