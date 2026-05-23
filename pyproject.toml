@@ -29,6 +29,7 @@ scrapbook-chess = "scrapbook_chess.main:main"
 
 [tool.ruff.lint]
 select = ["B", "D", "E", "F", "I", "S", "UP", "ANN", "SIM", "FURB"]
+per-file-ignores = { "tests/**/*.py" = ["S101"] }
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

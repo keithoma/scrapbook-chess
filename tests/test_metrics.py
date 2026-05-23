@@ -28,8 +28,14 @@ def test_game_metrics():
 
 def test_acpl_calculation():
     evals = [
-        {"high_depth_eval": {"type": "cp", "value": 100}, "high_top_moves": [{"eval": {"type": "cp", "value": 150}}]},
-        {"high_depth_eval": {"type": "cp", "value": 200}, "high_top_moves": [{"eval": {"type": "cp", "value": 200}}]}
+        {
+            "high_depth_eval": {"type": "cp", "value": 100}, 
+            "high_top_moves": [{"eval": {"type": "cp", "value": 150}}]
+        },
+        {
+            "high_depth_eval": {"type": "cp", "value": 200}, 
+            "high_top_moves": [{"eval": {"type": "cp", "value": 200}}]
+        }
     ]
     
     annotated_plies = [
