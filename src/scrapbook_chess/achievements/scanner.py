@@ -24,7 +24,12 @@ class AchievementScanner:
     """
 
     def __init__(self, username: str, show_all: bool = False) -> None:
-        """Initialize the achievement scanner for `username`."""
+        """Initialize the achievement scanner for `username`.
+
+        Args:
+            username: Target profile name query flag.
+            show_all: Boolean filter flag denoting exposure thresholds.
+        """
         self.username = username
         self.show_all = show_all
         self.ledger = AchievementLedger(username)
@@ -81,7 +86,11 @@ class AchievementScanner:
         logger.info("✨ Synchronized %d definitions into DB registry.", count)
 
     def _load_yaml_configs(self) -> dict[str, list[dict[str, Any]]]:
-        """Reads all achievement configuration files from the local data registry."""
+        """Reads all achievement configuration files from the local data registry.
+
+        Returns:
+            A dictionary grouping sorted config objects by profile type keys.
+        """
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
         data_dir = (
             Path(__file__).resolve().parent.parent.parent / "data" / "achievements"
@@ -105,14 +114,19 @@ class AchievementScanner:
                         if item_type in configs:
                             configs[item_type].append(item)
             except Exception as e:
-                    logger.error(
-                        f"Failed to parse YAML configuration {filepath.name}: {e}"
-                    )
+                logger.error(
+                    f"Failed to parse YAML configuration {filepath.name}: {e}"
+                )
 
         return configs
 
     def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
-        """Fetch engine-analyzed games and push them through the pipeline."""
+        """Fetch engine-analyzed games and push them through the pipeline.
+
+        Args:
+            limit: Maximum constraint boundaries on evaluated records processed.
+            export_pgn: Toggles physical writing of files straight out to disk blocks.
+        """
         # Target games where Stockfish analysis has successfully finished
         query = """
             SELECT id, game_data 
@@ -133,8 +147,7 @@ class AchievementScanner:
 
         logger.info(f"🎯 Found {len(rows)} analyzed game(s) to scan.")
 
-        # Initialize the annotator once to handle book lookups safely
-        # across the whole batch
+        # Initialize the annotator once to handle book lookups safely across the batch
         with GameAnnotator() as annotator:
             for game_id, game_data_raw in rows:
                 try:
@@ -181,7 +194,8 @@ class AchievementScanner:
     def _evaluate_badges(self, metrics: GameMetrics) -> None:
         """Evaluate ongoing metric thresholds.
 
-        Examples: total games won, total rapid matches.
+        Args:
+            metrics: A populated GameMetrics instance container.
         """
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
@@ -204,7 +218,11 @@ class AchievementScanner:
                     self.ledger.record_progress(metrics.game_id, badge_id, 1.0)
 
     def _evaluate_mastery(self, metrics: GameMetrics) -> None:
-        """Calculates specific openings and updates experience points pools."""
+        """Calculates specific openings and updates experience points pools.
+
+        Args:
+            metrics: A populated GameMetrics instance container.
+        """
         for mastery in self.configs.get("mastery", []):
             conditions = mastery.get("config", {}).get("conditions", {})
 
@@ -232,7 +250,11 @@ class AchievementScanner:
                 self.ledger.record_progress(metrics.game_id, mastery["id"], base_exp)
 
     def _evaluate_feats(self, metrics: GameMetrics) -> None:
-        """Validates situational unique performance triggers."""
+        """Validates situational unique performance triggers.
+
+        Args:
+            metrics: A populated GameMetrics instance container.
+        """
         for feat in self.configs.get("feat", []):
             feat_id = feat["id"]
 
@@ -248,7 +270,12 @@ class AchievementScanner:
     def _export_annotated_pgn(
         self, game_data: dict[str, Any], pgn_content: str
     ) -> None:
-        """Save annotated PGN content to disk for debugging or export."""
+        """Save annotated PGN content to disk for debugging or export.
+
+        Args:
+            game_data: Raw payload map storing specific details about historical match.
+            pgn_content: Finished annotated output text file structure.
+        """
         output_dir = Path("debug/pgn_files")
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -290,6 +317,13 @@ def process_achievements(
     show_all: bool = False,
     export_pgn: bool = False,
 ) -> None:
-    """Orchestrator entry point execution hook."""
+    """Orchestrator entry point execution hook.
+
+    Args:
+        username: Target system identity signature.
+        limit: Max record parsing loop size.
+        show_all: Global diagnostic formatting context flags.
+        export_pgn: Triggers filesystem persistence tasks down the path.
+    """
     scanner = AchievementScanner(username, show_all)
     scanner.scan_games(limit, export_pgn)
