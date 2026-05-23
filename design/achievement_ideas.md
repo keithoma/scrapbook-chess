@@ -19,3 +19,5 @@
 ## Feats
 - playing the sequnece to do setting back mate
 - find a queen sac that is the best move
+- winning on a specific holiday
+- are you an engine? Spent exactly 5 or lesse seconds on each move

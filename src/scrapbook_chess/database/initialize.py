@@ -113,16 +113,31 @@ def initialize_database() -> None:
     CREATE OR REPLACE VIEW master_game_history AS
     SELECT 
         g.id AS game_id,
+        g.platform,
         g.played_at,
         g.time_control,
+        g.is_rated,
         g.score,
+        g.termination_status,
         g.opening_name,
         g.opening_eco,
+        g.white_username,
+        g.white_rating,
+        g.white_rating_diff,
+        g.black_username,
+        g.black_rating,
+        g.black_rating_diff,
+        g.raw_moves,
+        g.clocks,
+        g.pipeline_status,
+        g.move_evals,
+        g.annotated_pgn,
+        g.ply_classifications,
         g.blunders_count,
         g.mistakes_count,
         g.inaccuracies_count,
         g.book_moves_count,
-        g.annotated_pgn,
+        g.acpl,
         g.metrics,
         COALESCE(
             jsonb_agg(
@@ -135,7 +150,15 @@ def initialize_database() -> None:
         ) AS achievements_earned
     FROM games g
     LEFT JOIN game_grants_ledger l ON g.id = l.game_id
-    GROUP BY g.id;
+    GROUP BY 
+        g.id, g.platform, g.played_at, g.time_control, g.is_rated, g.score, 
+        g.termination_status, g.opening_name, g.opening_eco, 
+        g.white_username, g.white_rating, g.white_rating_diff, 
+        g.black_username, g.black_rating, g.black_rating_diff, 
+        g.raw_moves, g.clocks, g.pipeline_status, g.move_evals, 
+        g.annotated_pgn, g.ply_classifications, g.blunders_count, 
+        g.mistakes_count, g.inaccuracies_count, g.book_moves_count, 
+        g.acpl, g.metrics;
     """
 
     try:

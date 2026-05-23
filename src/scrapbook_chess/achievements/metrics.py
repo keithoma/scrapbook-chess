@@ -1,9 +1,6 @@
-"""Game metrics aggregation utilities.
+"""Game metrics aggregation utilities."""
 
-Calculates custom achievement-related triggers (like fianchettos and moon phases)
-and packs them into a JSONB dictionary for the Scanner to use.
-"""
-
+import json
 from datetime import UTC, datetime
 from typing import Any
 
@@ -15,40 +12,58 @@ from scrapbook_chess.achievements.patterns import (
     is_clean_capture_quiescent,
 )
 
-
 class GameMetrics:
     """Aggregates custom game triggers to be stored in the metrics JSONB column."""
 
-    def __init__(
-        self,
-        row_data: dict[str, Any],
-        username: str,
-    ) -> None:
-        """Initialize using the flat database row dictionary."""
+    def __init__(self, row_data: dict[str, Any], username: str) -> None:
         self.username = username.lower()
-        self.game_id = row_data["id"]
+        # FIX 1: Read 'game_id' exactly as the SQL View outputs it
+        self.game_id = row_data["game_id"]
         
-        # Standard flat metrics
         self.speed = row_data["time_control"].lower()
         self.score = row_data["score"]
-        
-        # Player Context
         self.is_white = row_data["white_username"] == self.username
         self.my_color_name = "white" if self.is_white else "black"
         self.my_color = chess.WHITE if self.is_white else chess.BLACK
 
-        # Outcomes
-        self.is_win = (self.is_white and self.score == "1-0") or (
-            not self.is_white and self.score == "0-1"
-        )
+        self.is_win = (self.is_white and self.score == "1-0") or (not self.is_white and self.score == "0-1")
         self.is_draw = self.score == "1/2-1/2"
 
-        # --- YAML METRIC KEY LINKS (The Property Bag) ---
+        # FIX 2: Tally the fast relational columns so they can be written to SQL
+        self.fast_columns = {
+            "blunders_count": 0,
+            "mistakes_count": 0,
+            "inaccuracies_count": 0,
+            "book_moves_count": 0,
+            "acpl": 0.0,
+        }
+        
+        game_date = row_data["played_at"]
+        hour = game_date.hour
+
         self.triggers = {
             "total_plies": 0,
+            
             "win_phase": None,
+
             "is_weekend_win": False,
             "is_full_moon_win": False,
+            
+            "is_monday_win": self.is_win and game_date.weekday() == 0,
+            "is_tuesday_win": self.is_win and game_date.weekday() == 1,
+            "is_wednesday_win": self.is_win and game_date.weekday() == 2,
+            "is_thursday_win": self.is_win and game_date.weekday() == 3,
+            "is_friday_win": self.is_win and game_date.weekday() == 4,
+            "is_saturday_win": self.is_win and game_date.weekday() == 5,
+            "is_sunday_win": self.is_win and game_date.weekday() == 6,
+
+            "is_early_morning_win": self.is_win and (5 <= hour < 11),
+            "is_noon_win": self.is_win and (11 <= hour < 15),
+            "is_afternoon_win": self.is_win and (15 <= hour < 19),
+            "is_evening_win": self.is_win and (19 <= hour < 23),
+            "is_night_owl_win": self.is_win and (hour >= 23 or hour < 5),
+
+            
             "is_ultrabullet_win": self.is_win and self.speed == "ultrabullet",
             "is_bullet_win": self.is_win and self.speed == "bullet",
             "is_blitz_win": self.is_win and self.speed == "blitz",
@@ -67,9 +82,7 @@ class GameMetrics:
             "clean_queens_count": 0,
         }
 
-        # Environmental Triggers
-        game_date = row_data["played_at"] # Passed in as datetime from DB
-        
+
         if self.is_win and game_date.weekday() in (5, 6):
             self.triggers["is_weekend_win"] = True
 
@@ -79,27 +92,26 @@ class GameMetrics:
         if self.is_win and ((lunar_phase < 1.25) or (lunar_phase > 28.28)):
             self.triggers["is_full_moon_win"] = True
 
-        # Process the move lists for custom tactical metrics
-        self._aggregate_tactics(
-            row_data["raw_moves"], 
-            row_data.get("ply_classifications", [])
-        )
+        # Safely parse JSONB columns (Psycopg might return strings or dicts)
+        cls_raw = row_data.get("ply_classifications")
+        evals_raw = row_data.get("move_evals")
+        classifications = json.loads(cls_raw) if isinstance(cls_raw, str) else (cls_raw or [])
+        evals = json.loads(evals_raw) if isinstance(evals_raw, str) else (evals_raw or [])
+
+        self._aggregate_tactics(row_data["raw_moves"], classifications, evals)
 
     def _aggregate_tactics(
-        self, moves_string: str, ply_classifications: list[dict[str, Any]]
+        self, moves_string: str, classifications: list[dict[str, Any]], evals: list[dict[str, Any]]
     ) -> None:
-        """Processes the SAN string to tally up tactical achievement triggers."""
         board = chess.Board()
         san_moves = moves_string.split()
         self.triggers["total_plies"] = len(san_moves)
 
-        piece_values = {
-            chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
-            chess.ROOK: 5, chess.QUEEN: 9,
-        }
-
-        white_castle_side = None
-        black_castle_side = None
+        piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
+        white_castle_side, black_castle_side = None, None
+        
+        total_cpl = 0.0
+        my_evaluated_moves_count = 0
 
         for ply, move_san in enumerate(san_moves, start=1):
             is_white_turn = ply % 2 != 0
@@ -110,66 +122,68 @@ class GameMetrics:
             except ValueError:
                 break
 
-            # 1. Tally Tactical Material Captures
             if board.is_capture(move):
-                captured_piece = (
-                    chess.PAWN if board.is_en_passant(move)
-                    else board.piece_at(move.to_square).piece_type
-                )
+                captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
                 if is_my_turn and captured_piece:
                     self.triggers["total_material_captured"] += piece_values.get(captured_piece, 0)
 
-            # 2. Geometric Core Pattern Detection
             if is_my_turn:
-                if board.is_en_passant(move):
-                    self.triggers["en_passant_count"] += 1
-                if move.promotion:
-                    self.triggers["promotion_count"] += 1
-                if board.gives_check(move):
-                    self.triggers["total_checks_delivered"] += 1
-                if is_fianchetto_development(board, move, self.my_color):
-                    self.triggers["fianchetto_count"] += 1
+                if board.is_en_passant(move): self.triggers["en_passant_count"] += 1
+                if move.promotion: self.triggers["promotion_count"] += 1
+                if board.gives_check(move): self.triggers["total_checks_delivered"] += 1
+                if is_fianchetto_development(board, move, self.my_color): self.triggers["fianchetto_count"] += 1
 
             is_castle, side = track_castling_side(board, move)
             if is_castle:
                 if is_white_turn: white_castle_side = side
                 else: black_castle_side = side
 
-            # 3. Hybrid Logic: Quiet-Window Clean Captures
-            if (ply - 1) < len(ply_classifications):
-                cls = ply_classifications[ply - 1].get("classification", "normal")
+            # Parse Annotations and Tally the Fast Columns
+            if (ply - 1) < len(classifications):
+                anno = classifications[ply - 1]
+                cls = anno.get("classification", "normal")
                 
-                if (
-                    is_my_turn and board.is_capture(move)
-                    and cls not in ("mistake", "blunder")
-                ):
-                    captured_piece = (
-                        chess.PAWN if board.is_en_passant(move)
-                        else board.piece_at(move.to_square).piece_type
-                    )
+                if is_my_turn:
+                    if anno.get("is_book"): self.fast_columns["book_moves_count"] += 1
+                    if cls == "blunder": self.fast_columns["blunders_count"] += 1
+                    elif cls == "mistake": self.fast_columns["mistakes_count"] += 1
+                    elif cls == "inaccuracy": self.fast_columns["inaccuracies_count"] += 1
+                
+                if is_my_turn and board.is_capture(move) and cls not in ("mistake", "blunder"):
+                    captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
                     if is_clean_capture_quiescent(san_moves, ply, self.my_color, captured_piece):
-                        piece_names = {
-                            chess.PAWN: "clean_pawns_count",
-                            chess.KNIGHT: "clean_knights_count",
-                            chess.BISHOP: "clean_bishops_count",
-                            chess.ROOK: "clean_rooks_count",
+                        names = {
+                            chess.PAWN: "clean_pawns_count", chess.KNIGHT: "clean_knights_count",
+                            chess.BISHOP: "clean_bishops_count", chess.ROOK: "clean_rooks_count",
                             chess.QUEEN: "clean_queens_count",
                         }
-                        if captured_piece in piece_names:
-                            self.triggers[piece_names[captured_piece]] += 1
+                        if captured_piece in names:
+                            self.triggers[names[captured_piece]] += 1
+
+            # Parse Engine Evals for ACPL (Average Centipawn Loss)
+            if is_my_turn and (ply - 1) < len(evals):
+                eval_data = evals[ply - 1]
+                played_score = eval_data.get("high_depth_eval", {})
+                top_moves = eval_data.get("high_top_moves", [])
+
+                if played_score.get("type") == "cp" and top_moves and top_moves[0]["eval"]["type"] == "cp":
+                    best_cp = top_moves[0]["eval"]["value"]
+                    played_cp = played_score["value"]
+                    total_cpl += max(0, best_cp - played_cp)
+                    my_evaluated_moves_count += 1
 
             board.push(move)
 
-        # Opposite Side Castling Win Check
+        if my_evaluated_moves_count > 0:
+            self.fast_columns["acpl"] = round(total_cpl / my_evaluated_moves_count, 1)
+
         if self.is_win and white_castle_side and black_castle_side and (white_castle_side != black_castle_side):
             self.triggers["opposite_castling_wins"] = True
 
-        # Process Combat Game Phase length windows
         if self.is_win:
             if self.triggers["total_plies"] <= 20: self.triggers["win_phase"] = "opening"
             elif self.triggers["total_plies"] <= 60: self.triggers["win_phase"] = "midgame"
             else: self.triggers["win_phase"] = "endgame"
 
     def export_metrics(self) -> dict[str, Any]:
-        """Returns the fully aggregated property bag to be saved to DB."""
         return self.triggers

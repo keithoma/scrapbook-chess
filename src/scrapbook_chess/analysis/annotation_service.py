@@ -11,7 +11,7 @@ from typing import Any
 
 import chess.pgn
 import chess.polyglot
-from json import json
+import json
 from tqdm import tqdm
 
 from scrapbook_chess.config import BOOK_PATH

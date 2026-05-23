@@ -99,29 +99,35 @@ def show_profile(username: str) -> None:
             if isinstance(config_raw, dict)
             else json.loads(config_raw or "{}")
         )
-        tiers_cfg = config.get("tiers", [])
-
+        
+        # Robust parsing for the new flat schema
         weight = 0
         flavor_text = ""
+        
+        # Check if config has 'tiers' key, or if it's structured differently
+        if "tiers" in config:
+            tiers_cfg = config["tiers"]
+            # Parse sequential list format
+            if isinstance(tiers_cfg, list):
+                for idx, t in enumerate(tiers_cfg):
+                    if isinstance(t, dict) and t.get("name") == tier:
+                        weight = idx
+                        flavor_text = t.get("flavor_text", "")
+                        break
+            # Fallback dict format parsing
+            elif isinstance(tiers_cfg, dict):
+                t_val = tiers_cfg.get(tier, {})
+                if isinstance(t_val, dict):
+                    weight = t_val.get("amount", 0)
+                    flavor_text = t_val.get("flavor_text", "")
+                else:
+                    weight = t_val
+        else:
+            # If no tiers are defined, it's a flat achievement
+             weight = 1
+             flavor_text = config.get("flavor_text", "")
 
-        # Parse sequential list format
-        if isinstance(tiers_cfg, list):
-            for idx, t in enumerate(tiers_cfg):
-                if isinstance(t, dict) and t.get("name") == tier:
-                    weight = idx
-                    flavor_text = t.get("flavor_text", "")
-                    break
-        # Fallback dict format parsing
-        elif isinstance(tiers_cfg, dict):
-            t_val = tiers_cfg.get(tier, {})
-            if isinstance(t_val, dict):
-                weight = t_val.get("amount", 0)
-                flavor_text = t_val.get("flavor_text", "")
-            else:
-                weight = t_val
-
-        # Dedup to keep only the absolute highest tier unlocked for this badge
-        # id
+        # Dedup to keep only the absolute highest tier unlocked for this badge id
         if def_id not in highest_unlocks or weight > highest_unlocks[def_id]["weight"]:
             highest_unlocks[def_id] = {
                 "type": ach_type or "",
@@ -140,8 +146,7 @@ def show_profile(username: str) -> None:
         print("  (No trophies earned yet. Keep grinding!)")
     else:
         current_type = ""
-        # Coerce sorting keys to strings to ensure NoneType comparisons never
-        # trip up the engine
+        # Coerce sorting keys to strings to ensure NoneType comparisons never trip up the engine
         sorted_items = sorted(
             highest_unlocks.values(),
             key=lambda x: (
@@ -157,7 +162,7 @@ def show_profile(username: str) -> None:
                 current_type = item["type"]
 
             date_str = _format_date(item["unlocked_at"])
-            tier_str = f"({item['tier'].upper()})" if item["tier"] != "base" else ""
+            tier_str = f"({item['tier'].upper()})" if item["tier"] and item["tier"] != "base" else ""
             print(f"  ✨ {item['name']:<25} {tier_str:<10} | {date_str}")
             if item["flavor_text"] and item["flavor_text"] != "**":
                 print(f"     {item['flavor_text']}")
@@ -220,12 +225,18 @@ def show_history(username: str, limit: int = 10) -> None:
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
     print(f"{'=' * 90}")
 
+    # FIXED: Querying the new flat columns instead of the deleted `game_data` JSONB blob
     games_query = """
-        SELECT ggl.game_id, MAX(ggl.granted_at) as recent_grant, g.game_data
+        SELECT 
+            ggl.game_id, 
+            MAX(ggl.granted_at) as recent_grant,
+            g.white_username,
+            g.black_username,
+            g.opening_name
         FROM game_grants_ledger ggl
         JOIN games g ON ggl.game_id = g.id
         WHERE ggl.username = %s
-        GROUP BY ggl.game_id, g.game_data
+        GROUP BY ggl.game_id, g.white_username, g.black_username, g.opening_name
         ORDER BY recent_grant DESC
         LIMIT %s;
     """
@@ -245,35 +256,9 @@ def show_history(username: str, limit: int = 10) -> None:
             print("\n 🦗 No history found. Run the scanner first!")
             return
 
-        for game_id, recent_grant, game_data_raw in recent_games:
-            game_data = (
-                game_data_raw
-                if isinstance(game_data_raw, dict)
-                else json.loads(game_data_raw)
-            )
-
-            def get_player_name(color: str, gd: dict[str, Any] = game_data) -> str:
-                p = gd.get("players", {}).get(color, {})
-                return (
-                    p.get("user", {}).get("name")
-                    or p.get("name")
-                    or p.get("id")
-                    or "Unknown"
-                )
-
-            white = get_player_name("white")
-            black = get_player_name("black")
-
-            opening_obj = game_data.get("opening")
-            if not opening_obj:
-                opening_obj = game_data.get("raw_api_response", {}).get("opening", {})
-
-            opening = "Unknown Opening"
-            if isinstance(opening_obj, dict):
-                opening = opening_obj.get("name", "Unknown Opening")
-            elif isinstance(opening_obj, str):
-                opening = opening_obj
-
+        for game_id, recent_grant, white, black, opening_name in recent_games:
+            # FIXED: We no longer need to parse JSON to get names and openings!
+            opening = opening_name or "Unknown Opening"
             date_str = _format_date(recent_grant)
 
             print(f"\n⚔️  {white} vs {black}")
@@ -285,7 +270,7 @@ def show_history(username: str, limit: int = 10) -> None:
             grants = cur.fetchall()
             for g_name, g_desc, g_type, g_amount, g_tier in grants:
                 if g_type == "badge":
-                    tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
+                    tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier and g_tier != "base" else ""
                     print(
                         f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                     )

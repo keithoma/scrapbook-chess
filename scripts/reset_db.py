@@ -32,10 +32,15 @@ def reset_database(force: bool = False) -> None:
 
     logger.info("🧹 Wiping database tables via cascading truncate...")
 
-    query = (
-        "TRUNCATE games, users, game_grants_ledger,"
-        " user_progress, user_unlocks CASCADE;"
-    )
+    query = """
+        DROP VIEW IF EXISTS master_game_history CASCADE;
+        DROP TABLE IF EXISTS game_grants_ledger CASCADE;
+        DROP TABLE IF EXISTS user_unlocks CASCADE;
+        DROP TABLE IF EXISTS user_progress CASCADE;
+        DROP TABLE IF EXISTS games CASCADE;
+        DROP TABLE IF EXISTS achievement_definitions CASCADE;
+        DROP TABLE IF EXISTS users CASCADE;
+    """
 
     try:
         from scrapbook_chess.database.connection import get_connection

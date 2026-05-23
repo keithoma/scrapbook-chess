@@ -64,7 +64,7 @@ class AchievementScanner:
     def _load_yaml_configs(self) -> dict[str, list[dict[str, Any]]]:
         """Reads all achievement configuration files from the local data registry."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
-        data_dir = Path(__file__).resolve().parent.parent.parent / "data" / "achievements"
+        data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data" / "achievements"
 
         if not data_dir.exists():
             return configs
@@ -85,13 +85,12 @@ class AchievementScanner:
 
     def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
         """Fetch ANNOTATED games, generate metrics, and evaluate achievements."""
+        import psycopg # Ensure psycopg is imported at the top of your file!
         
-        # We query the master view here so we get a flat, easy-to-read dictionary!
         query = "SELECT * FROM master_game_history WHERE pipeline_status = 'ANNOTATED' ORDER BY played_at ASC"
         if limit:
             query += f" LIMIT {limit}"
 
-        # We use dict_row so we can pass the entire row cleanly to GameMetrics
         with get_connection() as conn, conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
             cur.execute(query)
             rows = cur.fetchall()
@@ -107,9 +106,14 @@ class AchievementScanner:
                 for row in rows:
                     game_id = row["game_id"]
                     try:
-                        # 1. Generate Custom Metrics Property Bag
+                        # 1. Generate Custom Metrics & Fast SQL Columns
                         metrics_engine = GameMetrics(row, self.username)
                         custom_metrics = metrics_engine.export_metrics()
+                        fast_cols = metrics_engine.fast_columns
+
+                        # Inject the calculated fast columns back into the dictionary 
+                        # so _evaluate_feats and _evaluate_mastery can read them!
+                        row.update(fast_cols)
 
                         # 2. Evaluate rules against the flat row + custom metrics
                         self._evaluate_badges(row, custom_metrics)
@@ -120,34 +124,56 @@ class AchievementScanner:
                         if export_pgn and row.get("annotated_pgn"):
                             self._export_annotated_pgn(row, row["annotated_pgn"])
 
-                        # 4. Save metrics and mark SCANNED
-                        update_sql = "UPDATE games SET metrics = %s, pipeline_status = 'SCANNED' WHERE id = %s"
-                        write_cur.execute(update_sql, (json.dumps(custom_metrics), game_id))
+                        # 4. Save metrics AND fast columns, mark SCANNED
+                        update_sql = """
+                            UPDATE games 
+                            SET metrics = %s,
+                                blunders_count = %s,
+                                mistakes_count = %s,
+                                inaccuracies_count = %s,
+                                book_moves_count = %s,
+                                acpl = %s,
+                                pipeline_status = 'SCANNED' 
+                            WHERE id = %s
+                        """
+                        write_cur.execute(update_sql, (
+                            json.dumps(custom_metrics),
+                            fast_cols["blunders_count"],
+                            fast_cols["mistakes_count"],
+                            fast_cols["inaccuracies_count"],
+                            fast_cols["book_moves_count"],
+                            fast_cols["acpl"],
+                            game_id
+                        ))
                         write_conn.commit()
 
-                    except Exception as e:
-                        logger.error("❌ Failed processing achievement scans for game %s: %s", game_id, e)
+                    except Exception as game_err:
+                        # The trace will point exactly to the broken line if you run with --debug
+                        logger.error("❌ Failed processing achievement scans for game %s: %s", game_id, game_err, exc_info=True)
                         write_conn.rollback()
                         continue
-        except Exception as e:
-             logger.error("💥 Scanner batch processing critical failure: %s", e)
+                        
+        except Exception as batch_err:
+             logger.error("💥 Scanner batch processing critical failure: %s", batch_err)
 
     def _evaluate_badges(self, row: dict[str, Any], custom_metrics: dict[str, Any]) -> None:
-        """Evaluate ongoing metric thresholds."""
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
             config = badge.get("config", {})
             metric_key = config.get("metric_key")
             required_value = config.get("required_value")
 
+            # If no key, default behavior (skip or count)
             if not metric_key:
                 self.ledger.record_progress(row["game_id"], badge_id, 1.0)
                 continue
 
-            # Check if metric exists in custom property bag OR base row
-            actual_value = custom_metrics.get(metric_key)
-            if actual_value is None:
-                actual_value = row.get(metric_key)
+            # STRICT CHECK: If the key isn't in our metrics, don't guess!
+            if metric_key not in custom_metrics:
+                logger.debug(f"Skipping badge {badge_id}: metric '{metric_key}' not found.")
+                continue
+
+            actual_value = custom_metrics[metric_key]
 
             if actual_value == required_value:
                 self.ledger.record_progress(row["game_id"], badge_id, 1.0)

@@ -4,6 +4,7 @@ Provides the interface for the Scanner to safely record progress, unlocks, and
 game history grants into the database.
 """
 
+import json
 import logging
 
 from scrapbook_chess.database.connection import get_connection
@@ -83,7 +84,7 @@ class AchievementLedger:
                     "INSERT INTO user_progress (username, def_id, current_value) "
                     "VALUES (%s, %s, %s) "
                     "ON CONFLICT (username, def_id) DO UPDATE SET "
-                    "current_value = current_value + EXCLUDED.current_value "
+                    "current_value = user_progress.current_value + EXCLUDED.current_value "
                     "RETURNING current_value;"
                 )
                 cur.execute(upsert_progress_sql, (self.username, def_id, amount))
@@ -95,7 +96,13 @@ class AchievementLedger:
                     (def_id,),
                 )
                 res = cur.fetchone()
-                config = res[0] if res else {}
+                config_raw = res[0] if res else {}
+                
+                config = (
+                    config_raw
+                    if isinstance(config_raw, dict)
+                    else json.loads(config_raw or "{}")
+                )
 
                 newly_unlocked_tier = None
                 raw_tiers = config.get("tiers")

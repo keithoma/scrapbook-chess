@@ -626,9 +626,9 @@
 ###############################################################################
 - id: badge_win_phase_opening
   type: badge
-  category: "Combat"
+  category: ""
   subcategory: ""
-  name: "Early Knockout"
+  name: ""
   description: "Win games during the opening."
   flavor_text: ""
   config:
@@ -676,9 +676,9 @@
 ###############################################################################
 - id: badge_win_phase_midgame
   type: badge
-  category: "Combat"
+  category: ""
   subcategory: ""
-  name: "Midgame Dominator"
+  name: ""
   description: "Win games during the middle game."
   flavor_text: ""
   config:
@@ -726,9 +726,9 @@
 ###############################################################################
 - id: badge_win_phase_endgame
   type: badge
-  category: "Combat"
+  category: ""
   subcategory: ""
-  name: "Endgame Grinder"
+  name: ""
   description: "Win games during the endgame."
   flavor_text: ""
   config:
@@ -780,6 +780,560 @@
 #                                                                                                  #
 ####################################################################################################
 
+###############################################################################
+#
+# Win a game in the early morning.
+###############################################################################
+- id: badge_win_early_morning
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Early Bird"
+  description: "Win a game between 5am and 11am."
+  flavor_text: ""
+  config:
+    metric_key: "is_early_morning_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a game at noon.
+###############################################################################
+- id: badge_win_noon
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Lunch Break Master"
+  description: "Win a game between 11am and 3pm."
+  flavor_text: ""
+  config:
+    metric_key: "is_noon_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a game in the afternoon.
+###############################################################################
+- id: badge_win_afternoon
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Afternoon Architect"
+  description: "Win a game between 3pm and 7pm."
+  flavor_text: ""
+  config:
+    metric_key: "is_afternoon_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a game in the evening.
+###############################################################################
+- id: badge_win_evening
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Evening Tactician"
+  description: "Win a game between 7pm and 11pm."
+  flavor_text: ""
+  config:
+    metric_key: "is_evening_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+###############################################################################
+#
+# Win a game late at night.
+###############################################################################
+- id: badge_win_night_owl
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Night Owl"
+  description: "Win a game between 11pm and 5am."
+  flavor_text: ""
+  config:
+    metric_key: "is_night_owl_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+###############################################################################
+#
+# Win a game on a Monday.
+###############################################################################
+- id: badge_win_monday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Monday Mates"
+  description: "Win a game on a Monday."
+  flavor_text: ""
+  config:
+    metric_key: "is_monday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Tuesday.
+###############################################################################
+- id: badge_win_tuesday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Tuesday Tactics"
+  description: "Win a game on a Tuesday."
+  flavor_text: ""
+  config:
+    metric_key: "is_tuesday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Wednesday.
+###############################################################################
+- id: badge_win_wednesday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Wednesday Warriors"
+  description: "Win a game on a Wednesday."
+  flavor_text: ""
+  config:
+    metric_key: "is_wednesday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Thursday.
+###############################################################################
+- id: badge_win_thursday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Thursday Thrashers"
+  description: "Win a game on a Thursday."
+  flavor_text: ""
+  config:
+    metric_key: "is_thursday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Friday.
+###############################################################################
+- id: badge_win_friday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Friday Finisher"
+  description: "Win a game on a Friday."
+  flavor_text: ""
+  config:
+    metric_key: "is_friday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Saturday.
+###############################################################################
+- id: badge_win_saturday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Saturday Slayer"
+  description: "Win a game on a Saturday."
+  flavor_text: ""
+  config:
+    metric_key: "is_saturday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a Sunday.
+###############################################################################
+- id: badge_win_sunday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: "Sunday Scholar"
+  description: "Win a game on a Sunday."
+  flavor_text: ""
+  config:
+    metric_key: "is_sunday_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+###############################################################################
+#
+# Win a game on a weekday.
+###############################################################################
+- id: badge_win_weekday
+  type: badge
+  category: ""
+  subcategory: ""
+  name: ""
+  description: "Win a game on a weekday."
+  flavor_text: ""
+  config:
+    metric_key: "is_weekend_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
 
 
 ###############################################################################
@@ -899,9 +1453,9 @@
 ###############################################################################
 - id: badge_upset
   type: badge
-  category: "Underdog"
+  category: ""
   subcategory: ""
-  name: "Giant Slayer"
+  name: ""
   description: "Beat an opponent rated 100+ points higher than you."
   flavor_text: ""
   config:
@@ -944,9 +1498,9 @@
 
 - id: hold_your_own
   type: badge
-  category: "Underdog"
+  category: ""
   subcategory: ""
-  name: "Hold Your Own"
+  name: ""
   description: "Draw an opponent rated 150 or more points than you."
   flavor_text: ""
   config:
