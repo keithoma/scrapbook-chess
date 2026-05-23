@@ -1,13 +1,16 @@
-# Chess Achievement Book - Architecture & Project Structure
+# Scrapbook; Chess - Architecture & Project Structure
 
 ## Overview
 
-The Chess Achievement Book is a Python-based CLI application that fetches chess games from Lichess, analyzes them with Stockfish engine, and tracks player achievements through a gamified trophy system.
+Scrapbook; Chess is currently a Python-based CLI application (planning to deploy it as
+web application soon) that fetches chess games from Lichess (and later from chess.com),
+analyzes them with Stockfish engine, and tracks player achievements through a gamified
+trophy system.
 
 ## Project Structure
 
 ```
-chess-achievement-book/
+scrapbook-chess/
 ├── .git/                          # Git version control
 ├── .gitignore                     # Git ignore rules
 ├── .python-version                # Python version specification (3.12)
