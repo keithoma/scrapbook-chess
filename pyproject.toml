@@ -8,6 +8,7 @@ dependencies = [
     "psycopg[binary]>=3.3.4",
     "python-chess>=1.999",
     "python-dotenv>=1.2.2",
+    "pyyaml>=6.0.3",
     "requests>=2.33.1",
     "tqdm>=4.67.3",
 ]
@@ -26,3 +27,7 @@ scrapbook-chess = "scrapbook_chess.main:main"
 [tool.ruff.lint]
 # "E" and "F" are standard PEP8 checks, "I" automatically sorts your imports (replacing isort)
 select = ["E", "F", "I"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

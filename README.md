@@ -1,4 +1,4 @@
-# WIP
+# Scrapbook; Chess
 
 ### Credits & Resources
 

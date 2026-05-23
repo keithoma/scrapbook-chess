@@ -1,9 +1,67 @@
-.vscode/
-
-.env
+# ==========================================
+# Python Core & Bytecode
+# ==========================================
 __pycache__/
-.venv/
-*.jsonl
+*.py[cod]
+*$py.class
+*.so
 
+# ==========================================
+# Build Artifacts & Packages (Setuptools/Pip)
+# ==========================================
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Environment & Virtual Environments
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+python/
+
+# ==========================================
+# Tooling Caches
+# ==========================================
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.pyright_cache/
+.coverage
+htmlcov/
+
+# ==========================================
+# Secrets & Environment Configurations
+# ==========================================
+.env
+.env.*
+!.env.example
+*.local
+
+# ==========================================
+# OS Specific
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Workspace Specific
+# ==========================================
 opening_books/
 debug/pgn_files/
