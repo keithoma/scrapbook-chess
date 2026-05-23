@@ -44,20 +44,19 @@ def is_clean_capture_quiescent(
     my_color: chess.Color,
     captured_type: int,
 ) -> bool:
-    """Simulates forward to see if a piece capture remains stable for 3 quiet plies.
-
-    Resets the countdown timer if tactical events (captures, checks, promotions) occur.
-    """
+    """Simulates forward to see if a piece capture remains stable for 3 quiet plies."""
     board = chess.Board()
     for ply in range(1, start_ply + 1):
         board.push(board.parse_san(san_moves[ply - 1]))
 
-    def get_net_balance(b: chess.Board) -> int:
-        return len(b.pieces(captured_type, my_color)) - len(
-            b.pieces(captured_type, not my_color)
-        )
+    def get_net_material(b: chess.Board) -> int:
+        """Evaluates total material advantage to properly detect take-backs of any piece."""
+        values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
+        my_mat = sum(len(b.pieces(pt, my_color)) * val for pt, val in values.items())
+        opp_mat = sum(len(b.pieces(pt, not my_color)) * val for pt, val in values.items())
+        return my_mat - opp_mat
 
-    baseline_balance = get_net_balance(board)
+    baseline_balance = get_net_material(board)
     quiet_plies_remaining = 3
 
     for forward_ply in range(start_ply + 1, len(san_moves) + 1):
@@ -70,7 +69,8 @@ def is_clean_capture_quiescent(
 
             board.push(move)
 
-            if get_net_balance(board) < baseline_balance:
+            # If the opponent "took back" any piece, our total material drops
+            if get_net_material(board) < baseline_balance:
                 return False
 
             if is_capture or is_promotion or gives_check:
