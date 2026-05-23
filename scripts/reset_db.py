@@ -1,27 +1,23 @@
-"""Utility script to purge the local development database.
-
-Use with care — this performs destructive truncation of tables.
-"""
+"""Utility script to purge the local development database."""
 
 import argparse
 import logging
 import sys
-from pathlib import Path
 
-# Fix pythonpath resolution before importing from src
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.append(str(PROJECT_ROOT))
+from scrapbook_chess.database.connection import get_connection
 
-# Configure clean console feedback
+# set up a logger
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
 def reset_database(force: bool = False) -> None:
-    """Safely purges all user, game, and achievement progress tables."""
+    """Safely purges all user, game, and achievement progress tables.
+    
+    Args:
+        force (bool): Flag to skip the yes/no-confirmation.
+    """
     if not force:
-        # Safety Interlock: require explicit human verification
         user_input = input(
             "⚠️  WARNING: This will wipe ALL games, users, and progress. "
             "Proceed? [y/N]: "
@@ -42,17 +38,11 @@ def reset_database(force: bool = False) -> None:
         DROP TABLE IF EXISTS users CASCADE;
     """
 
-    try:
-        from scrapbook_chess.database.connection import get_connection
-
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query)
-            conn.commit()
-        logger.info("✨ Database is completely empty. Clean slate achieved.")
-    except Exception as e:
-        logger.error(f"❌ Failed to reset database: {e}")
-        sys.exit(1)
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query)
+        conn.commit()
+    logger.info("✨ Database is completely empty. Clean slate achieved.")
 
 
 if __name__ == "__main__":
