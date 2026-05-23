@@ -116,7 +116,7 @@ class AchievementScanner:
                         row.update(fast_cols)
 
                         # 2. Evaluate rules against the flat row + custom metrics
-                        self._evaluate_badges(row, custom_metrics)
+                        self._evaluate_badges(row, custom_metrics, metrics_engine.trigger_plies)
                         self._evaluate_mastery(row)
                         self._evaluate_feats(row)
 
@@ -156,7 +156,7 @@ class AchievementScanner:
         except Exception as batch_err:
              logger.error("💥 Scanner batch processing critical failure: %s", batch_err)
 
-    def _evaluate_badges(self, row: dict[str, Any], custom_metrics: dict[str, Any]) -> None:
+    def _evaluate_badges(self, row: dict[str, Any], custom_metrics: dict[str, Any], trigger_plies: dict[str, list[int]]) -> None:
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
             config = badge.get("config", {})
@@ -174,9 +174,24 @@ class AchievementScanner:
                 continue
 
             actual_value = custom_metrics[metric_key]
+            current_trigger_plies = trigger_plies.get(metric_key, [])
 
-            if actual_value == required_value:
-                self.ledger.record_progress(row["game_id"], badge_id, 1.0)
+            # If required_value is set, reward based on comparison
+            if required_value is not None:
+                is_match = False
+                if isinstance(required_value, (int, float)) and isinstance(actual_value, (int, float)):
+                    # Threshold achievements (rating_diff, etc.)
+                    is_match = actual_value >= required_value
+                else:
+                    # Categorical/Boolean achievements
+                    is_match = actual_value == required_value
+                
+                if is_match:
+                    self.ledger.record_progress(row["game_id"], badge_id, 1.0, current_trigger_plies)
+            
+            # If it's a numeric metric with no required_value, accumulate its count (en_passant_count, total_material_captured, etc.)
+            elif isinstance(actual_value, (int, float)) and actual_value > 0:
+                self.ledger.record_progress(row["game_id"], badge_id, float(actual_value), current_trigger_plies)
 
     def _evaluate_mastery(self, row: dict[str, Any]) -> None:
         """Calculates specific openings and updates experience points pools."""

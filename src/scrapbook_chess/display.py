@@ -232,17 +232,18 @@ def show_history(username: str, limit: int = 10) -> None:
             MAX(ggl.granted_at) as recent_grant,
             g.white_username,
             g.black_username,
-            g.opening_name
+            g.opening_name,
+            g.raw_moves
         FROM game_grants_ledger ggl
         JOIN games g ON ggl.game_id = g.id
         WHERE ggl.username = %s
-        GROUP BY ggl.game_id, g.white_username, g.black_username, g.opening_name
+        GROUP BY ggl.game_id, g.white_username, g.black_username, g.opening_name, g.raw_moves
         ORDER BY recent_grant DESC
         LIMIT %s;
     """
 
     ledger_query = """
-        SELECT ad.name, ad.description, ad.type, ggl.change_amount, ggl.tier_unlocked
+        SELECT ad.name, ad.description, ad.type, ggl.change_amount, ggl.tier_unlocked, ggl.trigger_plies
         FROM game_grants_ledger ggl
         JOIN achievement_definitions ad ON ggl.def_id = ad.id
         WHERE ggl.game_id = %s AND ggl.username = %s;
@@ -256,7 +257,7 @@ def show_history(username: str, limit: int = 10) -> None:
             print("\n 🦗 No history found. Run the scanner first!")
             return
 
-        for game_id, recent_grant, white, black, opening_name in recent_games:
+        for game_id, recent_grant, white, black, opening_name, raw_moves in recent_games:
             # FIXED: We no longer need to parse JSON to get names and openings!
             opening = opening_name or "Unknown Opening"
             date_str = _format_date(recent_grant)
@@ -268,12 +269,29 @@ def show_history(username: str, limit: int = 10) -> None:
 
             cur.execute(ledger_query, (game_id, username))
             grants = cur.fetchall()
-            for g_name, g_desc, g_type, g_amount, g_tier in grants:
+
+            # Prepare a simple tokenized move list from raw_moves so we can
+            # map ply numbers to SAN (best-effort: strip numeric move markers)
+            tokens: list[str] = []
+            if raw_moves:
+                tokens = [t for t in raw_moves.replace("\n", " ").split() if not t.endswith('.')]
+
+            for g_name, g_desc, g_type, g_amount, g_tier, g_plies in grants:
                 if g_type == "badge":
                     tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier and g_tier != "base" else ""
                     print(
                         f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                     )
+                    # If we recorded trigger_plies, display them with SAN if available
+                    if g_plies:
+                        move_entries = []
+                        for p in g_plies:
+                            try:
+                                san = tokens[p - 1] if 0 <= (p - 1) < len(tokens) else f"(ply {p})"
+                            except Exception:
+                                san = f"(ply {p})"
+                            move_entries.append(f"{p}:{san}")
+                        print(f"      Triggered at: {', '.join(move_entries)}")
                 elif g_type == "mastery":
                     print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
                 else:

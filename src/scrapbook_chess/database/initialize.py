@@ -104,6 +104,7 @@ def initialize_database() -> None:
         change_amount REAL,
         tier_unlocked TEXT,
         performance_grade TEXT,
+        trigger_plies INTEGER[] DEFAULT ARRAY[]::INTEGER[],
         granted_at TIMESTAMPTZ DEFAULT NOW()
     );
     """
@@ -144,7 +145,8 @@ def initialize_database() -> None:
                 jsonb_build_object(
                     'achievement_id', l.def_id,
                     'tier_unlocked', l.tier_unlocked,
-                    'progress_gained', l.change_amount
+                    'progress_gained', l.change_amount,
+                    'trigger_plies', l.trigger_plies
                 )
             ) FILTER (WHERE l.def_id IS NOT NULL), '[]'::jsonb
         ) AS achievements_earned

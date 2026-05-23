@@ -54,5 +54,6 @@ CREATE TABLE IF NOT EXISTS game_grants_ledger (
     def_id TEXT REFERENCES achievement_definitions(id),
     change_amount FLOAT,
     tier_unlocked TEXT,
+    trigger_plies INTEGER[] DEFAULT ARRAY[]::INTEGER[],
     granted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -72,10 +72,12 @@ class AchievementLedger:
 
         logger.info("🏆 FEAT UNLOCKED: %s in game %s", def_id, game_id)
 
-    def record_progress(self, game_id: str, def_id: str, amount: float) -> None:
+    def record_progress(self, game_id: str, def_id: str, amount: float, trigger_plies: list[int] | None = None) -> None:
         """Add progress and check for tier unlocks internally."""
         if self.is_already_granted(game_id, def_id):
             return
+
+        trigger_plies_arr = trigger_plies or []
 
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -154,11 +156,11 @@ class AchievementLedger:
                 cur.execute(
                     """
                     INSERT INTO game_grants_ledger (
-                        game_id, username, def_id, change_amount, tier_unlocked
+                        game_id, username, def_id, change_amount, tier_unlocked, trigger_plies
                     )
-                    VALUES (%s, %s, %s, %s, %s);
+                    VALUES (%s, %s, %s, %s, %s, %s);
                 """,
-                    (game_id, self.username, def_id, amount, newly_unlocked_tier),
+                    (game_id, self.username, def_id, amount, newly_unlocked_tier, trigger_plies_arr),
                 )
             conn.commit()
 

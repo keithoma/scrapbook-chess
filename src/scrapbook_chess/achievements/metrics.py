@@ -29,6 +29,10 @@ class GameMetrics:
         self.is_win = (self.is_white and self.score == "1-0") or (not self.is_white and self.score == "0-1")
         self.is_draw = self.score == "1/2-1/2"
 
+        my_rating = row_data.get("white_rating" if self.is_white else "black_rating") or 0
+        opp_rating = row_data.get("black_rating" if self.is_white else "white_rating") or 0
+        rating_diff = opp_rating - my_rating
+
         # FIX 2: Tally the fast relational columns so they can be written to SQL
         self.fast_columns = {
             "blunders_count": 0,
@@ -37,14 +41,18 @@ class GameMetrics:
             "book_moves_count": 0,
             "acpl": 0.0,
         }
-        
+
         game_date = row_data["played_at"]
         hour = game_date.hour
 
+        self.trigger_plies: dict[str, list[int]] = {}
+
         self.triggers = {
             "total_plies": 0,
-            
+
             "win_phase": None,
+            "rating_diff": rating_diff if self.is_win else 0,
+            "draw_rating_diff": rating_diff if self.is_draw else 0,
 
             "is_weekend_win": False,
             "is_full_moon_win": False,
@@ -126,12 +134,21 @@ class GameMetrics:
                 captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
                 if is_my_turn and captured_piece:
                     self.triggers["total_material_captured"] += piece_values.get(captured_piece, 0)
+                    self.trigger_plies.setdefault("total_material_captured", []).append(ply)
 
             if is_my_turn:
-                if board.is_en_passant(move): self.triggers["en_passant_count"] += 1
-                if move.promotion: self.triggers["promotion_count"] += 1
-                if board.gives_check(move): self.triggers["total_checks_delivered"] += 1
-                if is_fianchetto_development(board, move, self.my_color): self.triggers["fianchetto_count"] += 1
+                if board.is_en_passant(move): 
+                    self.triggers["en_passant_count"] += 1
+                    self.trigger_plies.setdefault("en_passant_count", []).append(ply)
+                if move.promotion: 
+                    self.triggers["promotion_count"] += 1
+                    self.trigger_plies.setdefault("promotion_count", []).append(ply)
+                if board.gives_check(move): 
+                    self.triggers["total_checks_delivered"] += 1
+                    self.trigger_plies.setdefault("total_checks_delivered", []).append(ply)
+                if is_fianchetto_development(board, move, self.my_color): 
+                    self.triggers["fianchetto_count"] += 1
+                    self.trigger_plies.setdefault("fianchetto_count", []).append(ply)
 
             is_castle, side = track_castling_side(board, move)
             if is_castle:
@@ -159,6 +176,7 @@ class GameMetrics:
                         }
                         if captured_piece in names:
                             self.triggers[names[captured_piece]] += 1
+                            self.trigger_plies.setdefault(names[captured_piece], []).append(ply)
 
             # Parse Engine Evals for ACPL (Average Centipawn Loss)
             if is_my_turn and (ply - 1) < len(evals):

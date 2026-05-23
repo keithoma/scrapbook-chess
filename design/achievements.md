@@ -1,6 +1,30 @@
-# Badges Catalog
+---
+title: Achievements
+status: in-progress
+priority: high
+last_reviewed: 2026-05-23
+---
 
-## Meta
+# Achievements
+
+[#TOC]
+
+## Story
+
+### Main Story
+
+### Episodes
+
+#### Ideas
+
+- we could have unlockable episodes (that are independent from the main story)
+  - such as losing after playing f3 or f6 unlocks `Ben Finegold Episode` containing missions for all his rules
+
+## Badges
+
+### Meta
+
+#### Already Implemented
 
 | Name                  | Category    | Subcategory   | Description                                         |
 |:----------------------|:------------|:--------------|:----------------------------------------------------|
@@ -37,8 +61,55 @@
 | Upset                 |             |               | Beat an opponent rated 100+ points higher than you. |
 | Hold Your Own         |             |               | Draw an opponent rated 150 or more points than you. |
 
-### Not yet implemented
+#### Not yet implemented
 
 - move played
 - winning with always having more time than the opponent
 - winning a time scramble
+
+#### Shelved ideas
+
+- games won by method (checkmate, timeout, abandonment, resignation)
+- win a game longer than 80 moves
+
+these five are shelved for now because they promote toxic play patterns and furthermore the player 
+is not in control to get them
+
+### Evaluation
+
+#### Not yet implemented
+
+- find a retreating move that is also the best move
+
+### Board
+
+### Hybrid
+
+## Mastery
+
+### Not yet implemented
+
+- skewer
+- fork
+- discovery
+- pawn sac
+- exchange sac
+- piece sac
+- 7 man standing
+
+## Scraps
+
+### Not yet implemented
+
+- playing the sequnece to do setting back mate
+- find a queen sac that is the best move
+- winning on a specific holiday
+- are you an engine? Spent exactly 5 or lesse seconds on each move
+- (from shelved meta badge idea) make win a long game into a hidden feat with stalling detection logic
+- (from shelved meta badge idea) - make resignation into a hidden feat where opponent resigns in a completely winning position "Huh?"
+
+## Other
+
+- there is a fundamentally two more different type of achievements
+  - meta achievements that batches achievements together
+  - streak and diversity kind of achievements where multiple games are required

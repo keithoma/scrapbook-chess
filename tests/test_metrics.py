@@ -1,25 +1,26 @@
 import pytest
 from scrapbook_chess.achievements.metrics import GameMetrics
 
-@pytest.fixture
-def mock_game_data():
-    return {
-        "speed": "blitz",
-        "score": "1-0",
-        "players": {"white": {"id": "player1", "rating": 1500}, "black": {"id": "opp", "rating": 1400}},
-        "timestamp": 1767446400,  # A known date for predictable lunar/weekend tests
-        "moves": "e4 e5"
-    }
+from datetime import datetime, timezone
 
-def test_game_metrics(mock_game_data):
+def test_game_metrics():
     """Test that basic win/loss logic works correctly."""
-    metrics = GameMetrics(
-        game_id="test_1",
-        game_data=mock_game_data,
-        annotated_plies=[],
-        move_evals=[],
-        username="player1"
-    )
+    row_data = {
+        "game_id": "test_1",
+        "time_control": "blitz",
+        "score": "1-0",
+        "white_username": "player1",
+        "black_username": "opp",
+        "white_rating": 1500,
+        "black_rating": 1400,
+        "played_at": datetime.fromtimestamp(1767446400, tz=timezone.utc),  # A known date
+
+        "raw_moves": "e4 e5",
+        "ply_classifications": [],
+        "move_evals": []
+    }
+    
+    metrics = GameMetrics(row_data=row_data, username="player1")
     
     assert metrics.is_win is True
     assert metrics.is_white is True
@@ -36,18 +37,20 @@ def test_acpl_calculation():
         {"classification": "blunder", "is_book": False}
     ]
     
-    # Update this to match "p1" as the white player
-    mock_game_data = {
-        "moves": "e4 e5",
-        "players": {"white": {"id": "p1"}}
+    row_data = {
+        "game_id": "1",
+        "time_control": "blitz",
+        "score": "1-0",
+        "white_username": "p1",
+        "black_username": "p2",
+        "white_rating": 1500,
+        "black_rating": 1500,
+        "played_at": datetime.fromtimestamp(1767446400, tz=timezone.utc),
+        "raw_moves": "e4 e5",
+        "ply_classifications": annotated_plies,
+        "move_evals": evals
     }
     
-    metrics = GameMetrics(
-        game_id="1", 
-        game_data=mock_game_data, 
-        annotated_plies=annotated_plies, 
-        move_evals=evals, 
-        username="p1"
-    )
+    metrics = GameMetrics(row_data=row_data, username="p1")
     
-    assert metrics.acpl == 50.0
+    assert metrics.fast_columns["acpl"] == 50.0
