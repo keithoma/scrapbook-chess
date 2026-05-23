@@ -8,10 +8,11 @@ from typing import Any
 import chess
 
 from scrapbook_chess.achievements.patterns import (
+    is_clean_capture_quiescent,
     is_fianchetto_development,
     track_castling_side,
-    is_clean_capture_quiescent,
 )
+
 
 class GameMetrics:
     """Aggregates custom game triggers to be stored in the metrics JSONB column."""

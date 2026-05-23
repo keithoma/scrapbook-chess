@@ -4,6 +4,7 @@ Wraps opening-book lookup and converts engine evaluations into annotated PGN.
 """
 
 import io
+import json
 import logging
 import math
 import types
@@ -11,7 +12,6 @@ from typing import Any
 
 import chess.pgn
 import chess.polyglot
-import json
 from tqdm import tqdm
 
 from scrapbook_chess.config import BOOK_PATH

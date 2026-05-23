@@ -1,7 +1,7 @@
-import pytest
+from datetime import UTC, datetime
+
 from scrapbook_chess.achievements.metrics import GameMetrics
 
-from datetime import datetime, timezone
 
 def test_game_metrics():
     """Test that basic win/loss logic works correctly."""
@@ -13,7 +13,7 @@ def test_game_metrics():
         "black_username": "opp",
         "white_rating": 1500,
         "black_rating": 1400,
-        "played_at": datetime.fromtimestamp(1767446400, tz=timezone.utc),  # A known date
+        "played_at": datetime.fromtimestamp(1767446400, tz=UTC),  # A known date
 
         "raw_moves": "e4 e5",
         "ply_classifications": [],
@@ -45,7 +45,7 @@ def test_acpl_calculation():
         "black_username": "p2",
         "white_rating": 1500,
         "black_rating": 1500,
-        "played_at": datetime.fromtimestamp(1767446400, tz=timezone.utc),
+        "played_at": datetime.fromtimestamp(1767446400, tz=UTC),
         "raw_moves": "e4 e5",
         "ply_classifications": annotated_plies,
         "move_evals": evals

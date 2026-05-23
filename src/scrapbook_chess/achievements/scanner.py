@@ -3,7 +3,6 @@
 import json
 import logging
 import re
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -85,8 +84,6 @@ class AchievementScanner:
 
     def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
         """Fetch ANNOTATED games, generate metrics, and evaluate achievements."""
-        import psycopg # Ensure psycopg is imported at the top of your file!
-        
         query = "SELECT * FROM master_game_history WHERE pipeline_status = 'ANNOTATED' ORDER BY played_at ASC"
         if limit:
             query += f" LIMIT {limit}"
