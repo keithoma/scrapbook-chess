@@ -1,18 +1,21 @@
-"""
-Quick and Dirty Terminal UI.
+"""Quick and Dirty Terminal UI.
+
 Queries the database to display a user's profile and recent game history.
 """
+
+from __future__ import annotations
 
 import json
 import logging
 from datetime import datetime
+from typing import Any
 
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
 
-def _format_date(date_obj):
+def _format_date(date_obj: str | datetime | None) -> str:
     if not date_obj:
         return "Unknown Date"
     if isinstance(date_obj, str):
@@ -20,17 +23,17 @@ def _format_date(date_obj):
     return date_obj.strftime("%Y-%m-%d")
 
 
-def _render_bar(current, total, width=15):
+def _render_bar(current: float, total: float, width: int = 15) -> str:
     """Renders a simple ASCII progress bar."""
-    fraction = min(current / total, 1.0)
+    fraction = 0.0 if total <= 0 else min(current / total, 1.0)
     filled = int(fraction * width)
     return f"[{'#' * filled}{'-' * (width - filled)}] {int(fraction * 100)}%"
 
 
-def _get_mastery_info(exp):
-    """
-    Calculates Level and Next Level progress.
-    Level 1: 0-100 | Level 2: 100-300 | Level 3: 300-600 | Level 4: 600-1000
+def _get_mastery_info(exp: int) -> tuple[int, int, int]:
+    """Calculates Level and Next Level progress.
+
+    Level 1: 0-100 | Level 2: 100-300 | Level 3: 300-600 | Level 4: 600-1000.
     """
     if exp < 100:
         return 1, exp, 100
@@ -43,9 +46,12 @@ def _get_mastery_info(exp):
     return 5, exp, 1000  # Max Level cap for now
 
 
-def show_profile(username: str):
-    """Displays highest unlocked trophies with custom flavor text, badge
-    progress, and mastery."""
+def show_profile(username: str) -> None:
+    """Display highest unlocked trophies and progress.
+
+    Shows highest unlocked trophies with flavor text, badge progress, and
+    mastery.
+    """
     print(f"\n{'=' * 65}")
     print(f"👤 CHESS PROFILE: {username.upper()}")
     print(f"{'=' * 65}")
@@ -66,13 +72,12 @@ def show_profile(username: str):
         ORDER BY ad.type, up.current_value DESC;
     """
 
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(unlocks_query, (username,))
-            unlocks_raw = cur.fetchall()
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(unlocks_query, (username,))
+        unlocks_raw = cur.fetchall()
 
-            cur.execute(progress_query, (username,))
-            progress_raw = cur.fetchall()
+        cur.execute(progress_query, (username,))
+        progress_raw = cur.fetchall()
 
     if not unlocks_raw and not progress_raw:
         print("\n 🦗 *crickets* ... No data found. Play some games!")
@@ -142,7 +147,7 @@ def show_profile(username: str):
             key=lambda x: (
                 str(x["type"]),
                 str(x["category"]),
-                x["unlocked_at"] if x["unlocked_at"] else datetime.min,
+                x["unlocked_at"] or datetime.min,
             ),
         )
 
@@ -209,7 +214,7 @@ def show_profile(username: str):
     print(f"\n{'=' * 65}\n")
 
 
-def show_history(username: str, limit: int = 10):
+def show_history(username: str, limit: int = 10) -> None:
     """Displays the ledger of what was earned in recent games."""
     print(f"\n{'=' * 90}")
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
@@ -232,64 +237,61 @@ def show_history(username: str, limit: int = 10):
         WHERE ggl.game_id = %s AND ggl.username = %s;
     """
 
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(games_query, (username, limit))
-            recent_games = cur.fetchall()
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(games_query, (username, limit))
+        recent_games = cur.fetchall()
 
-            if not recent_games:
-                print("\n 🦗 No history found. Run the scanner first!")
-                return
+        if not recent_games:
+            print("\n 🦗 No history found. Run the scanner first!")
+            return
 
-            for game_id, recent_grant, game_data_raw in recent_games:
-                game_data = (
-                    game_data_raw
-                    if isinstance(game_data_raw, dict)
-                    else json.loads(game_data_raw)
+        for game_id, recent_grant, game_data_raw in recent_games:
+            game_data = (
+                game_data_raw
+                if isinstance(game_data_raw, dict)
+                else json.loads(game_data_raw)
+            )
+
+            def get_player_name(color: str, gd: dict[str, Any] = game_data) -> str:
+                p = gd.get("players", {}).get(color, {})
+                return (
+                    p.get("user", {}).get("name")
+                    or p.get("name")
+                    or p.get("id")
+                    or "Unknown"
                 )
 
-                def get_player_name(color):
-                    p = game_data.get("players", {}).get(color, {})
-                    return (
-                        p.get("user", {}).get("name")
-                        or p.get("name")
-                        or p.get("id")
-                        or "Unknown"
+            white = get_player_name("white")
+            black = get_player_name("black")
+
+            opening_obj = game_data.get("opening")
+            if not opening_obj:
+                opening_obj = game_data.get("raw_api_response", {}).get("opening", {})
+
+            opening = "Unknown Opening"
+            if isinstance(opening_obj, dict):
+                opening = opening_obj.get("name", "Unknown Opening")
+            elif isinstance(opening_obj, str):
+                opening = opening_obj
+
+            date_str = _format_date(recent_grant)
+
+            print(f"\n⚔️  {white} vs {black}")
+            print(f"   Opening: {opening}")
+            print(f"   [ID: {game_id} | Scanned: {date_str}]")
+            print("-" * 90)
+
+            cur.execute(ledger_query, (game_id, username))
+            grants = cur.fetchall()
+            for g_name, g_desc, g_type, g_amount, g_tier in grants:
+                if g_type == "badge":
+                    tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
+                    print(
+                        f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                     )
-
-                white = get_player_name("white")
-                black = get_player_name("black")
-
-                opening_obj = game_data.get("opening")
-                if not opening_obj:
-                    opening_obj = game_data.get("raw_api_response", {}).get(
-                        "opening", {}
-                    )
-
-                opening = "Unknown Opening"
-                if isinstance(opening_obj, dict):
-                    opening = opening_obj.get("name", "Unknown Opening")
-                elif isinstance(opening_obj, str):
-                    opening = opening_obj
-
-                date_str = _format_date(recent_grant)
-
-                print(f"\n⚔️  {white} vs {black}")
-                print(f"   Opening: {opening}")
-                print(f"   [ID: {game_id} | Scanned: {date_str}]")
-                print("-" * 90)
-
-                cur.execute(ledger_query, (game_id, username))
-                grants = cur.fetchall()
-                for g_name, g_desc, g_type, g_amount, g_tier in grants:
-                    if g_type == "badge":
-                        tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier else ""
-                        print(
-                            f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
-                        )
-                    elif g_type == "mastery":
-                        print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
-                    else:
-                        print(f"   ✨ {g_name:<25} | {g_desc}")
+                elif g_type == "mastery":
+                    print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")
+                else:
+                    print(f"   ✨ {g_name:<25} | {g_desc}")
 
     print(f"\n{'=' * 90}\n")

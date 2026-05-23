@@ -1,5 +1,4 @@
-"""
-Chess Achievement Book: CLI Entry Point
+"""Scrapbookl; Chess: CLI Entry Point.
 
 This module orchestrates the end-to-end workflow of the Chess Achievement Book:
 
@@ -12,8 +11,6 @@ This module orchestrates the end-to-end workflow of the Chess Achievement Book:
    exports annotated PGNs with professional NAG symbols.
 
 Usage: ```bash uv run main.py ```
-
-Author: Kei Thoma License: MIT
 """
 
 import argparse
@@ -24,10 +21,8 @@ from scrapbook_chess.display import show_history, show_profile
 from scrapbook_chess.orchestrator import run_pipeline
 
 
-def main():
-    """
-    Parse command-line arguments and initiate the achievement tracking pipeline.
-    """
+def main() -> None:
+    """Parse command-line arguments and initiate the achievement tracking pipeline."""
     parser = argparse.ArgumentParser(description="Chess Achievement Tracker")
 
     # -l --limit (default: 50)

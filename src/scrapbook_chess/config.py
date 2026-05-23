@@ -1,3 +1,5 @@
+"""Project-level configuration and environment-derived constants."""
+
 import os
 from pathlib import Path
 

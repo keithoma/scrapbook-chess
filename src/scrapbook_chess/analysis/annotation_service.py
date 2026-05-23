@@ -1,7 +1,13 @@
+"""Game annotation utilities.
+
+Wraps opening-book lookup and converts engine evals into annotated PGN.
+"""
+
 import io
 import logging
 import math
-from typing import Any, Dict, List, Optional, Tuple
+import types
+from typing import Any
 
 import chess.pgn
 import chess.polyglot
@@ -12,31 +18,39 @@ logger = logging.getLogger(__name__)
 
 
 class GameAnnotator:
-    """
-    Combines raw engine evaluations with opening books to classify moves
-    using Lichess-style win-chance drops.
+    """Combines raw engine evaluations with opening books to classify moves.
+
+    Uses Lichess-style win-chance drops for classification.
     """
 
-    def __init__(self):
-        self.reader: Optional[chess.polyglot.MemoryMappedReader] = None
+    def __init__(self) -> None:
+        """Open the polyglot book reader if available."""
+        self.reader: chess.polyglot.MemoryMappedReader | None = None
         try:
             self.reader = chess.polyglot.open_reader(str(BOOK_PATH))
         except FileNotFoundError:
             logger.warning("Opening book (.bin) not found. Book detection disabled.")
 
-    def __enter__(self):
+    def __enter__(self) -> "GameAnnotator":
+        """Enter the context manager and return the annotator."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: type | None,
+        exc_val: Exception | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
+        """Exit the context manager and close the reader if open."""
         if self.reader:
             self.reader.close()
 
     def annotate_game_moves(
-        self, moves_string: str, move_evals: List[Dict[str, Any]]
-    ) -> Tuple[List[Dict[str, Any]], str]:
-        """
-        Loops through the game plies, tags book moves, measures win-chance drops,
-        and builds a professionally annotated PGN with NAG symbols (!, ?, ?!, ??).
+        self, moves_string: str, move_evals: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], str]:
+        """Loops through the game plies, tags book moves, and measures drops.
+
+        Builds an annotated PGN with NAG symbols (!, ?, ?!, ??).
         """
         game = chess.pgn.read_game(io.StringIO(moves_string))
         if not game:
@@ -54,7 +68,7 @@ class GameAnnotator:
             nag = 0
             drop = 0.0
 
-            # Process engine data if available (Engine stores evaluations matching the ply index)
+            # Process engine data if available.
             if not is_book and (ply - 1) < len(move_evals):
                 eval_data = move_evals[ply - 1]
 
@@ -110,7 +124,7 @@ class GameAnnotator:
         return any(entry.move == move for entry in self.reader.find_all(board))
 
     @staticmethod
-    def _to_win_chance(eval_score: Dict[str, Any]) -> float:
+    def _to_win_chance(eval_score: dict[str, Any]) -> float:
         """Converts cp or mate engine metrics to a clear 0.0 - 1.0 probability scale."""
         if eval_score["type"] == "mate":
             return 1.0 if eval_score["value"] > 0 else 0.0

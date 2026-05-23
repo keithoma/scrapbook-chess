@@ -1,5 +1,4 @@
-"""
-Lichess Data Ingestion Module.
+"""Lichess Data Ingestion Module.
 
 This module handles fetching games from the Lichess NDJSON API,
 parsing them into a structured format (including board event extraction),
@@ -8,8 +7,8 @@ and storing them in the PostgreSQL database.
 
 import json
 import logging
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import requests
 from tqdm import tqdm
@@ -19,24 +18,21 @@ from scrapbook_chess.database.connection import get_connection
 logger = logging.getLogger(__name__)
 
 # Constants
-START = datetime(2026, 5, 22, tzinfo=timezone.utc)
+START = datetime(2026, 5, 22, tzinfo=UTC)
 
 
 class LichessIngestor:
-    """
-    Handles the lifecycle of game ingestion from Lichess to the local DB.
-    """
+    """Handles the lifecycle of game ingestion from Lichess to the local DB."""
 
-    def __init__(self, username: str, token: Optional[str] = None):
+    def __init__(self, username: str, token: str | None = None) -> None:
+        """Initialize the Lichess ingestor with optional API token."""
         self.username = username
         self.headers = {"Accept": "application/x-ndjson"}
         if token:
             self.headers["Authorization"] = f"Bearer {token}"
 
     def fetch_and_store(self, limit: int = 50) -> int:
-        """
-        Main entry point: fetches, parses, and saves games.
-        """
+        """Main entry point: fetches, parses, and saves games."""
         url = f"https://lichess.org/api/games/user/{self.username}"
         params = {
             "max": limit,
@@ -52,7 +48,7 @@ class LichessIngestor:
 
         try:
             with requests.get(
-                url, params=params, headers=self.headers, stream=True
+                url, params=params, headers=self.headers, stream=True, timeout=30
             ) as response:
                 response.raise_for_status()
 
@@ -76,25 +72,22 @@ class LichessIngestor:
         logger.info("🏁 Ingestion complete. %d new games stored.", count)
         return count
 
-    def _should_skip(self, raw_game: Dict[str, Any]) -> bool:
+    def _should_skip(self, raw_game: dict[str, Any]) -> bool:
         """Determines if a game should be ignored (date cutoff or invalid)."""
         created_at = raw_game.get("createdAt")
         if not created_at:
             return True
 
-        game_time = datetime.fromtimestamp(created_at / 1000, tz=timezone.utc)
+        game_time = datetime.fromtimestamp(created_at / 1000, tz=UTC)
         if game_time < START:
             return True
 
         # Skip variants (InitialFen present) or very short games
-        if "initialFen" in raw_game or len(raw_game.get("moves", "").split()) < 4:
-            return True
+        return "initialFen" in raw_game or len(raw_game.get("moves", "").split()) < 4
 
-        return False
+    def _format_game_data(self, raw_game: dict[str, Any]) -> dict[str, Any]:
+        """Parses raw API data into a structured internal schema.
 
-    def _format_game_data(self, raw_game: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Parses raw API data into a structured internal schema.
         Now simplified to exclude board events, which are handled in the Metrics stage.
         """
         raw_moves = raw_game.get("moves", "")
@@ -115,11 +108,11 @@ class LichessIngestor:
             },
             "score": self._get_score(raw_game.get("winner")),
             "moves": raw_moves,
-            # We store the raw response so the Analyzer/Metrics can pull what they need later
+            # Store the raw response so Analyzer/Metrics can pull additional details
             "raw_api_response": raw_game,
         }
 
-    def _save_to_db(self, game_data: Dict[str, Any]) -> bool:
+    def _save_to_db(self, game_data: dict[str, Any]) -> bool:
         """Inserts game into PostgreSQL using a safe transaction."""
         query = """
             INSERT INTO games (id, platform, played_at, rated, speed, score, game_data)
@@ -127,27 +120,26 @@ class LichessIngestor:
             ON CONFLICT (id) DO NOTHING;
         """
         try:
-            with get_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(
-                        query,
-                        (
-                            game_data["id"],
-                            game_data["platform"],
-                            game_data["timestamp"],
-                            game_data["is_rated"],
-                            game_data["speed"],
-                            game_data["score"],
-                            json.dumps(game_data),
-                        ),
-                    )
-                    return cur.rowcount > 0
+            with get_connection() as conn, conn.cursor() as cur:
+                cur.execute(
+                    query,
+                    (
+                        game_data["id"],
+                        game_data["platform"],
+                        game_data["timestamp"],
+                        game_data["is_rated"],
+                        game_data["speed"],
+                        game_data["score"],
+                        json.dumps(game_data),
+                    ),
+                )
+                return cur.rowcount > 0
         except Exception as e:
             logger.error("DB Error on game %s: %s", game_data["id"], e)
             return False
 
     @staticmethod
-    def _parse_player(data: Dict[str, Any]) -> Dict[str, Any]:
+    def _parse_player(data: dict[str, Any]) -> dict[str, Any]:
         """Handles AI vs Human player data normalization."""
         if "aiLevel" in data:
             return {
@@ -164,7 +156,7 @@ class LichessIngestor:
         }
 
     @staticmethod
-    def _get_score(winner: Optional[str]) -> str:
+    def _get_score(winner: str | None) -> str:
         if winner == "white":
             return "1-0"
         if winner == "black":
@@ -172,7 +164,7 @@ class LichessIngestor:
         return "1/2-1/2"
 
 
-def fetch_and_store_games(username: str, limit: int = 50):
+def fetch_and_store_games(username: str, limit: int = 50) -> None:
     """Functional wrapper for the orchestrator."""
     ingestor = LichessIngestor(username)
     ingestor.fetch_and_store(limit)

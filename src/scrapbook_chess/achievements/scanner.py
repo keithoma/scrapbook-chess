@@ -1,9 +1,11 @@
+"""Achievement scanner: load YAML definitions and evaluate analyzed games."""
+
 import json
 import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 
@@ -16,12 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class AchievementScanner:
-    """
-    Loads achievement rules from YAML files, orchestrates move annotation,
-    builds game metrics, and logs progress/unlocks into the database ledger.
+    """Loads achievement rules from YAML files and orchestrates scanning.
+
+    Builds game metrics and logs progress/unlocks into the database ledger.
     """
 
-    def __init__(self, username: str, show_all: bool = False):
+    def __init__(self, username: str, show_all: bool = False) -> None:
+        """Initialize the achievement scanner for `username`."""
         self.username = username
         self.show_all = show_all
         self.ledger = AchievementLedger(username)
@@ -31,10 +34,8 @@ class AchievementScanner:
         self.sync_definitions()
 
     def sync_definitions(self) -> None:
-        """Synchronizes all loaded YAML achievement profiles into the database definitions catalog."""
-        logger.info(
-            "🔄 Synchronizing achievement definitions catalog with local YAML files..."
-        )
+        """Synchronize local YAML achievement profiles into the DB catalog."""
+        logger.info("🔄 Synchronizing achievement definitions with local YAML files...")
 
         query = """
             INSERT INTO achievement_definitions (id, type, name, description, config)
@@ -61,7 +62,7 @@ class AchievementScanner:
                         )
                         description = item.get("description", "")
 
-                        # Use json.dumps so PostgreSQL receives clean, native JSON strings!
+                        # Use json.dumps so PostgreSQL receives a clean JSON string
                         config_json = json.dumps(item.get("config", {}))
 
                         cur.execute(
@@ -77,11 +78,9 @@ class AchievementScanner:
                         count += 1
             conn.commit()
 
-        logger.info(
-            f"✨ Successfully synchronized {count} definitions into the database registry."
-        )
+        logger.info("✨ Synchronized %d definitions into DB registry.", count)
 
-    def _load_yaml_configs(self) -> Dict[str, List[Dict[str, Any]]]:
+    def _load_yaml_configs(self) -> dict[str, list[dict[str, Any]]]:
         """Reads all achievement configuration files from the local data registry."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
         data_dir = (
@@ -96,7 +95,7 @@ class AchievementScanner:
 
         for filepath in data_dir.glob("*.yml"):
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                     if not data:
                         continue
@@ -106,13 +105,14 @@ class AchievementScanner:
                         if item_type in configs:
                             configs[item_type].append(item)
             except Exception as e:
-                logger.error(f"Failed to parse YAML configuration {filepath.name}: {e}")
+                    logger.error(
+                        f"Failed to parse YAML configuration {filepath.name}: {e}"
+                    )
 
         return configs
 
-    def scan_games(self, limit: Optional[int] = None, export_pgn: bool = False) -> None:
-        """Fetches engine-analyzed games and pushes them through the evaluation pipeline."""
-
+    def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
+        """Fetch engine-analyzed games and push them through the pipeline."""
         # Target games where Stockfish analysis has successfully finished
         query = """
             SELECT id, game_data 
@@ -123,10 +123,9 @@ class AchievementScanner:
         if limit:
             query += f" LIMIT {limit}"
 
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query)
-                rows = cur.fetchall()
+        with get_connection() as conn, conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
 
         if not rows:
             logger.info("✨ No analyzed games found ready for achievement scanning.")
@@ -134,7 +133,8 @@ class AchievementScanner:
 
         logger.info(f"🎯 Found {len(rows)} analyzed game(s) to scan.")
 
-        # Initialize the annotator once to handle book lookups across the whole batch safely
+        # Initialize the annotator once to handle book lookups safely
+        # across the whole batch
         with GameAnnotator() as annotator:
             for game_id, game_data_raw in rows:
                 try:
@@ -173,11 +173,16 @@ class AchievementScanner:
 
                 except Exception as e:
                     logger.error(
-                        f"❌ Failed processing achievement scans for game {game_id}: {e}"
+                        "❌ Failed processing achievement scans for game %s: %s",
+                        game_id,
+                        e,
                     )
 
     def _evaluate_badges(self, metrics: GameMetrics) -> None:
-        """Evaluates ongoing metric thresholds (e.g., total games won, total rapid matches)."""
+        """Evaluate ongoing metric thresholds.
+
+        Examples: total games won, total rapid matches.
+        """
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
             config = badge.get("config", {})
@@ -219,7 +224,7 @@ class AchievementScanner:
             )
 
             if matched_eco or matched_name:
-                # Award performance scaling scale: Win gets 50 EXP, Loss/Draw gets 10 EXP
+                # Award performance scaling: Win gets 50 EXP, Loss/Draw gets 10 EXP
                 base_exp = 50.0 if metrics.is_win else 10.0
                 if metrics.blunders == 0:
                     base_exp += 25.0  # Precision bonus allocation
@@ -236,14 +241,14 @@ class AchievementScanner:
                 feat_id == "feat_clean_sheet"
                 and metrics.blunders == 0
                 and metrics.mistakes == 0
+                and metrics.is_win
             ):
-                if metrics.is_win:
-                    self.ledger.record_progress(metrics.game_id, feat_id, 1.0)
+                self.ledger.record_progress(metrics.game_id, feat_id, 1.0)
 
     def _export_annotated_pgn(
-        self, game_data: Dict[str, Any], pgn_content: str
+        self, game_data: dict[str, Any], pgn_content: str
     ) -> None:
-        """Saves fully annotated PGN maps containing real move analysis commentary directly to disk."""
+        """Save annotated PGN content to disk for debugging or export."""
         output_dir = Path("debug/pgn_files")
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -281,7 +286,7 @@ class AchievementScanner:
 
 def process_achievements(
     username: str,
-    limit: Optional[int] = None,
+    limit: int | None = None,
     show_all: bool = False,
     export_pgn: bool = False,
 ) -> None:

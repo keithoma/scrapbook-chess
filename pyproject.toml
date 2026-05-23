@@ -25,8 +25,10 @@ where = ["src"]
 scrapbook-chess = "scrapbook_chess.main:main"
 
 [tool.ruff.lint]
-# "E" and "F" are standard PEP8 checks, "I" automatically sorts your imports (replacing isort)
-select = ["E", "F", "I"]
+select = ["B", "D", "E", "F", "I", "S", "UP", "ANN", "SIM", "FURB"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [build-system]
 requires = ["setuptools"]

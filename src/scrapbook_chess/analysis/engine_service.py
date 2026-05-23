@@ -1,7 +1,13 @@
+"""Engine integration utilities for running Stockfish analyses in batch.
+
+Provides evaluation helpers and a batch runner to analyze pending games.
+"""
+
 import io
 import json
 import logging
-from typing import Any, Dict, List, Optional, Tuple, TypedDict
+import types
+from typing import Any, TypedDict
 
 import chess.engine
 import chess.pgn
@@ -20,40 +26,53 @@ logger = logging.getLogger(__name__)
 
 
 class EvalScore(TypedDict):
+    """TypedDict for engine evaluation score.
+
+    `type` is either "cp" or "mate".
+    """
     type: str  # "cp" or "mate"
     value: int
 
 
 class MoveAnalysis(TypedDict):
+    """TypedDict describing the per-move analysis payload."""
     ply: int
     move_san: str
     high_depth_eval: EvalScore
-    high_top_moves: List[Dict[str, Any]]
-    low_best_move: Dict[str, Any]
+    high_top_moves: list[dict[str, Any]]
+    low_best_move: dict[str, Any]
 
 
 class StockfishEvaluator:
-    """Handles the lifecycle, configurations, and multi-PV queries for the Stockfish engine."""
+    """Handles the lifecycle, configurations, and multi-PV queries for Stockfish."""
 
     def __init__(self, low_depth: int, high_depth: int, threads: int = 4) -> None:
+        """Initialize the evaluator with depth ranges and thread count."""
         self.low_depth = low_depth
         self.high_depth = high_depth
         self.threads = threads
-        self.engine: Optional[chess.engine.SimpleEngine] = None
+        self.engine: chess.engine.SimpleEngine | None = None
 
     def __enter__(self) -> "StockfishEvaluator":
+        """Start the Stockfish engine process and configure it."""
         self.engine = chess.engine.SimpleEngine.popen_uci(str(STOCKFISH_PATH))
         self.engine.configure({"Threads": self.threads, "Hash": 512})
         return self
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
+        """Stop the engine process when leaving the context."""
         if self.engine:
             self.engine.quit()
 
     def evaluate_game(
         self, pgn_text: str, mate_threshold: int, mate_plies: int
-    ) -> Tuple[List[MoveAnalysis], str]:
-        """Generates move-by-move engine evaluations and appends resignation playouts if won."""
+    ) -> tuple[list[MoveAnalysis], str]:
+        """Generate per-move engine evaluations and append mate playouts if needed."""
         game = chess.pgn.read_game(io.StringIO(pgn_text.strip()))
         if not game:
             return [], pgn_text
@@ -68,7 +87,7 @@ class StockfishEvaluator:
             board.push(move)
             terminal_node = node
 
-        # Execute Mate Grace Period Playout if the game ended prematurely but is completely won
+        # Execute mate playout if the game ended prematurely and is fully won
         if analysis_results and not board.is_game_over(claim_draw=True):
             last_eval = analysis_results[-1]["high_depth_eval"]
             if last_eval["type"] == "mate" or abs(last_eval["value"]) >= mate_threshold:
@@ -148,7 +167,7 @@ class StockfishEvaluator:
 
     @staticmethod
     def _parse_score(
-        score_obj: Optional[chess.engine.PovScore], turn: chess.Color
+        score_obj: chess.engine.PovScore | None, turn: chess.Color
     ) -> EvalScore:
         if not score_obj:
             return {"type": "cp", "value": 0}
@@ -163,16 +182,18 @@ class StockfishEvaluator:
 # =====================================================================
 
 
-def run_engine_analysis(limit: Optional[int] = None) -> None:
-    """Queries the database for unanalyzed games and updates them with Stockfish evaluations."""
-    query = "SELECT id, game_data FROM games WHERE game_data->>'local_analysis_complete' IS NULL"
+def run_engine_analysis(limit: int | None = None) -> None:
+    """Query the DB for unanalyzed games and run Stockfish evaluations."""
+    query = (
+        "SELECT id, game_data FROM games "
+        "WHERE game_data->>'local_analysis_complete' IS NULL"
+    )
     if limit:
         query += f" LIMIT {limit}"
 
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query)
-            pending_games = cur.fetchall()
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(query)
+        pending_games = cur.fetchall()
 
     if not pending_games:
         logger.info("✨ No pending games require Stockfish analysis.")
@@ -182,53 +203,66 @@ def run_engine_analysis(limit: Optional[int] = None) -> None:
 
     try:
         with (
-            StockfishEvaluator(low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH) as evaluator,
             get_connection() as conn,
+            StockfishEvaluator(low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH)
+            as evaluator,
+            conn.cursor() as cur,
         ):
-            with conn.cursor() as cur:
-                for game_id, game_data_raw in tqdm(
-                    pending_games, desc="Analyzing Games"
-                ):
-                    try:
-                        game_data = (
-                            game_data_raw
-                            if isinstance(game_data_raw, dict)
-                            else json.loads(game_data_raw)
-                        )
-
-                        # Rebuild basic PGN frame for python-chess parsing
-                        pgn_string = (
-                            f'[White "{game_data.get("players", {}).get("white", {}).get("name", "Unknown")}"]\n'
-                            f'[Black "{game_data.get("players", {}).get("black", {}).get("name", "Unknown")}"]\n'
-                            f'[Result "{game_data.get("score", "*")}"]\n\n'
-                            f"{game_data.get('moves', '')}\n"
-                        )
-
-                        evals, annotated_pgn = evaluator.evaluate_game(
-                            pgn_string,
-                            mate_threshold=MATE_GRACE_THRESHOLD,
-                            mate_plies=MATE_GRACE_PLIES,
-                        )
-
-                        if evals:
-                            game_data["move_evals"] = evals
-                            game_data["annotated_pgn"] = annotated_pgn
-                            game_data["local_analysis_complete"] = True
-
-                            cur.execute(
-                                "UPDATE games SET game_data = %s WHERE id = %s",
-                                (json.dumps(game_data), game_id),
+            for game_id, game_data_raw in tqdm(
+                pending_games, desc="Analyzing Games"
+            ):
+                        try:
+                            game_data = (
+                                game_data_raw
+                                if isinstance(game_data_raw, dict)
+                                else json.loads(game_data_raw)
                             )
-                            conn.commit()
+                            # Rebuild basic PGN frame for python-chess parsing
+                            white_name = (
+                                game_data.get("players", {})
+                                .get("white", {})
+                                .get("name", "Unknown")
+                            )
+                            black_name = (
+                                game_data.get("players", {})
+                                .get("black", {})
+                                .get("name", "Unknown")
+                            )
+                            result_tag = game_data.get("score", "*")
+                            moves_text = game_data.get("moves", "")
 
-                    except Exception as game_err:
-                        logger.error(
-                            "❌ Failed processing game %s: %s",
-                            game_id,
-                            game_err,
-                        )
-                        conn.rollback()
-                        continue
+                            pgn_string = (
+                                f'[White "{white_name}"]\n'
+                                f'[Black "{black_name}"]\n'
+                                f'[Result "{result_tag}"]\n\n'
+                                f"{moves_text}\n"
+                            )
+
+                            evals, annotated_pgn = evaluator.evaluate_game(
+                                pgn_string,
+                                mate_threshold=MATE_GRACE_THRESHOLD,
+                                mate_plies=MATE_GRACE_PLIES,
+                            )
+
+                            if evals:
+                                game_data["move_evals"] = evals
+                                game_data["annotated_pgn"] = annotated_pgn
+                                game_data["local_analysis_complete"] = True
+
+                                cur.execute(
+                                    "UPDATE games SET game_data = %s WHERE id = %s",
+                                    (json.dumps(game_data), game_id),
+                                )
+                                conn.commit()
+
+                        except Exception as game_err:
+                            logger.error(
+                                "❌ Failed processing game %s: %s",
+                                game_id,
+                                game_err,
+                            )
+                            conn.rollback()
+                            continue
 
     except Exception as batch_err:
         logger.error("💥 Engine batch processing critical failure: %s", batch_err)

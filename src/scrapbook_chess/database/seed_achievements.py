@@ -1,5 +1,4 @@
-"""
-Achievement Dictionary Seeder.
+"""Achievement Dictionary Seeder.
 
 Run this script to populate or update the 'achievement_definitions' table
 with the master list of all available trophies, badges, and feats loaded
@@ -10,14 +9,15 @@ import glob
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
 
-def load_json_files() -> list:
-    """Loads all achievement JSON files from the data directory."""
+def load_json_files() -> list[dict[str, Any]]:
+    """Load all achievement JSON files from the data directory."""
     achievements = []
     # Traverse up from src/database/seed_achievements.py to the root, then into data/
     root_dir = Path(__file__).resolve().parent.parent.parent
@@ -27,7 +27,7 @@ def load_json_files() -> list:
     pattern = str(data_dir / "*.json")
     for filepath in glob.glob(pattern):
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 data = json.load(f)
                 achievements.extend(data)
                 logger.debug(
@@ -41,13 +41,14 @@ def load_json_files() -> list:
     return achievements
 
 
-def seed_database():
-    """Upserts the achievement dictionary into the PostgreSQL database."""
+def seed_database() -> None:
+    """Upsert the achievement dictionary into the PostgreSQL database."""
     query = """
-        INSERT INTO achievement_definitions 
-            (id, type, category, subcategory, name, description, flavor_text, is_hidden, config)
-        VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO achievement_definitions (
+            id, type, category, subcategory, name, description, flavor_text,
+            is_hidden, config
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (id) DO UPDATE SET
             type = EXCLUDED.type,
             category = EXCLUDED.category,
@@ -63,9 +64,7 @@ def seed_database():
     achievements = load_json_files()
 
     if not achievements:
-        logger.error(
-            "❌ No achievements found to seed. Check your /data/achievements folder."
-        )
+        logger.error("❌ No achievements found to seed. Check achievements folder.")
         return
 
     logger.info("💾 Seeding %d achievements into the database...", len(achievements))
@@ -74,7 +73,7 @@ def seed_database():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for ach in achievements:
-                    # Using .get() ensures we insert NULL if a specific JSON doesn't have that key
+                    # Using .get() ensures we insert NULL when a JSON key is missing
                     cur.execute(
                         query,
                         (

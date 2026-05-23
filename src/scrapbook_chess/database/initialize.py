@@ -1,6 +1,4 @@
-"""
-Initializes all the databases.
-"""
+"""Initializes all the databases."""
 
 import logging
 
@@ -10,11 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 def initialize_database() -> None:
-    """
-    Executes core DDL statements to construct the chess achievement database.
+    """Executes core DDL statements to construct the chess achievement database.
+
     Tables are ordered strictly by relational dependencies.
     """
-
     # 1. Independent Core Tables
     core_tables = """
     CREATE TABLE IF NOT EXISTS users (

@@ -1,6 +1,5 @@
-"""
-Database Connection Utility
----------------------------
+"""Database Connection Utility.
+
 This module handles the initialization of the PostgreSQL connection using
 environment variables. It serves as the primary entry point for database
 interaction within the chess-achievement-book application.
@@ -15,8 +14,7 @@ from scrapbook_chess.config import DATABASE_URL
 
 
 def get_connection() -> Connection:
-    """
-    Creates and returns a new connection to the PostgreSQL database.
+    """Creates and returns a new connection to the PostgreSQL database.
 
     Returns:
         psycopg.Connection: A connection object ready for queries.
@@ -32,17 +30,16 @@ def get_connection() -> Connection:
 
 
 def test_connection() -> None:
-    """
-    Performs a connection test to ensure the database is reachable.
+    """Performs a connection test to ensure the database is reachable.
+
     Prints status to the console.
     """
     try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT version();")
-                version = cur.fetchone()
-                print("✅ Successfully connected to PostgreSQL!")
-                print(f"🖥️  Server version: {version[0]}")
+        with get_connection() as conn, conn.cursor() as cur:
+            cur.execute("SELECT version();")
+            version = cur.fetchone()
+            print("✅ Successfully connected to PostgreSQL!")
+            print(f"🖥️  Server version: {version[0]}")
     except Exception as e:
         print(f"❌ Connection failed: {e}")
         sys.exit(1)

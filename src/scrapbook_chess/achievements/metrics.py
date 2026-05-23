@@ -1,5 +1,10 @@
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+"""Game metrics aggregation utilities.
+
+Collects and computes achievement-related metrics from annotated games.
+"""
+
+from datetime import UTC, datetime
+from typing import Any
 
 import chess
 
@@ -10,20 +15,20 @@ from scrapbook_chess.achievements.patterns import (
 
 
 def _is_clean_capture_quiescent(
-    san_moves: List[str],
+    san_moves: list[str],
     start_ply: int,
     my_color: chess.Color,
     captured_type: int,
 ) -> bool:
-    """
-    Simulates forward to see if a piece capture remains stable for 3 quiet plies.
+    """Simulates forward to see if a piece capture remains stable for 3 quiet plies.
+
     Resets the countdown timer if tactical events (captures, checks, promotions) occur.
     """
     board = chess.Board()
     for ply in range(1, start_ply + 1):
         board.push(board.parse_san(san_moves[ply - 1]))
 
-    def get_net_balance(b):
+    def get_net_balance(b: chess.Board) -> int:
         return len(b.pieces(captured_type, my_color)) - len(
             b.pieces(captured_type, not my_color)
         )
@@ -59,19 +64,21 @@ def _is_clean_capture_quiescent(
 
 
 class GameMetrics:
-    """
-    Aggregates game data, engine evaluations, and annotations into a single,
-    easy-to-scan profile for a specific user, perfectly mapping to YAML definitions.
+    """Aggregate game data, engine evaluations, and annotations.
+
+    Provides an easy-to-scan profile for a specific user, mapping to YAML
+    definitions.
     """
 
     def __init__(
         self,
         game_id: str,
-        game_data: Dict[str, Any],
-        annotated_plies: List[Dict[str, Any]],
-        move_evals: List[Dict[str, Any]],
+        game_data: dict[str, Any],
+        annotated_plies: list[dict[str, Any]],
+        move_evals: list[dict[str, Any]],
         username: str,
-    ):
+    ) -> None:
+        """Initialize the metrics aggregator for a given game and user."""
         self.game_id = game_id
         self.username = username.lower()
         self.speed = game_data.get("speed", "unknown").lower()
@@ -169,12 +176,12 @@ class GameMetrics:
 
         # Environmental Triggers
         played_timestamp = game_data.get("timestamp", 0)
-        game_date = datetime.fromtimestamp(played_timestamp, tz=timezone.utc)
+        game_date = datetime.fromtimestamp(played_timestamp, tz=UTC)
 
         if self.is_win and game_date.weekday() in (5, 6):
             self.is_weekend_win = True
 
-        base_full_moon = datetime(2026, 1, 3, tzinfo=timezone.utc)
+        base_full_moon = datetime(2026, 1, 3, tzinfo=UTC)
         days_since = (game_date - base_full_moon).total_seconds() / 86400.0
         lunar_phase = days_since % 29.530589
         if self.is_win and ((lunar_phase < 1.25) or (lunar_phase > 28.28)):
@@ -185,10 +192,10 @@ class GameMetrics:
 
     def _aggregate_metrics(
         self,
-        annotated_plies: List[Dict[str, Any]],
-        move_evals: List[Dict[str, Any]],
+        annotated_plies: list[dict[str, Any]],
+        move_evals: list[dict[str, Any]],
         moves_string: str,
-    ):
+    ) -> None:
         """Processes the move list and boards to tally up achievement triggers."""
         board = chess.Board()
         san_moves = moves_string.split()
@@ -323,9 +330,13 @@ class GameMetrics:
             self.acpl = round(total_cpl / my_evaluated_moves_count, 1)
 
         # Opposite Side Castling Win Check
-        if self.is_win and white_castle_side and black_castle_side:
-            if white_castle_side != black_castle_side:
-                self.opposite_castling_wins = True
+        if (
+            self.is_win
+            and white_castle_side
+            and black_castle_side
+            and white_castle_side != black_castle_side
+        ):
+            self.opposite_castling_wins = True
 
         # Process Combat Game Phase length windows
         if self.is_win:

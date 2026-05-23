@@ -1,3 +1,6 @@
+"""Orchestrates the main workflow."""
+
+import argparse
 import logging
 
 from scrapbook_chess.achievements.scanner import process_achievements
@@ -8,10 +11,8 @@ from scrapbook_chess.database.initialize import initialize_database
 logger = logging.getLogger(__name__)
 
 
-def run_pipeline(args):
-    """
-    Executes the Chess Achievement Book workflow.
-    """
+def run_pipeline(args: argparse.Namespace) -> None:
+    """Executes the main workflow."""
     # 0. Infrastructure
     initialize_database()
 
@@ -22,8 +23,6 @@ def run_pipeline(args):
 
     # 2. Engine Analysis
     if not args.skip_analysis:
-        # We wrap the logic here if we want a high-level progress bar,
-        # but typically we'll put the tqdm inside analyze_pending_games.
         logger.info("🧠 Commencing Stockfish Deep Analysis...")
         run_engine_analysis(limit=args.limit)
 

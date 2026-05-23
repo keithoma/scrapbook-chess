@@ -1,12 +1,17 @@
+"""Achievement move patterns and simple board heuristics.
+
+Small helpers for identifying common motif-based achievements.
+"""
+
 import chess
 
 
 def is_fianchetto_development(
     board: chess.Board, move: chess.Move, my_color: chess.Color
 ) -> bool:
-    """
-    Checks if the move develops a bishop to a standard flank sniper square
-    (b2/g2 for White, b7/g7 for Black).
+    """Checks if the move develops a bishop to a standard flank sniper square.
+
+    Examples: b2/g2 for White, b7/g7 for Black.
     """
     if board.piece_at(move.from_square).piece_type != chess.BISHOP:
         return False
@@ -20,8 +25,9 @@ def is_fianchetto_development(
 def track_castling_side(
     board: chess.Board, move: chess.Move
 ) -> tuple[bool, str | None]:
-    """
-    Identifies castling moves and returns the orientation ('K' for King-side, 'Q' for Queen-side).
+    """Identifies castling moves and returns the orientation.
+
+    Returns 'K' for King-side and 'Q' for Queen-side.
     """
     if not board.is_castling(move):
         return False, None
