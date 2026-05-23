@@ -1,4 +1,8 @@
-"""Utility script to purge the local development database."""
+"""Utility script to purge the local development database.
+
+Example:
+    $ uv run scripts/reset_db.py
+"""
 
 import argparse
 import logging

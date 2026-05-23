@@ -1,4 +1,8 @@
-"""A quick script to manually read and verify the responce from Lichess API."""
+"""A quick script to manually read and verify the responce from Lichess API.
+
+Example:
+    $ uv run scripts/lichess_api.py
+"""
 
 import json
 import logging
