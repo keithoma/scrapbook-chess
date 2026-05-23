@@ -7,7 +7,7 @@ last_reviewed: 2026-05-23
 
 # Achievements
 
-[#TOC]
+[TOC]
 
 ## Story
 
