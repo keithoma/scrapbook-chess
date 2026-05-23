@@ -179,7 +179,13 @@ class GameMetrics:
                     scramble_plies += 1
 
             if board.is_capture(move):
-                captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
+                if board.is_en_passant(move):
+                    captured_piece = chess.PAWN
+                else:
+                    captured = board.piece_at(move.to_square)
+                    assert captured is not None
+                    captured_piece = captured.piece_type
+
                 if is_my_turn and captured_piece:
                     self.triggers["total_material_captured"] += piece_values.get(captured_piece, 0)
                     self.trigger_plies.setdefault("total_material_captured", []).append(ply)
@@ -215,7 +221,12 @@ class GameMetrics:
                     elif cls == "inaccuracy": self.fast_columns["inaccuracies_count"] += 1
                 
                 if is_my_turn and board.is_capture(move) and cls not in ("mistake", "blunder"):
-                    captured_piece = chess.PAWN if board.is_en_passant(move) else board.piece_at(move.to_square).piece_type
+                    if board.is_en_passant(move):
+                        captured_piece = chess.PAWN
+                    else:
+                        captured_piece_obj = board.piece_at(move.to_square)
+                        assert captured_piece_obj is not None
+                        captured_piece = captured_piece_obj.piece_type
                     if is_clean_capture_quiescent(san_moves, ply, self.my_color, captured_piece):
                         names = {
                             chess.PAWN: "clean_pawns_count", chess.KNIGHT: "clean_knights_count",

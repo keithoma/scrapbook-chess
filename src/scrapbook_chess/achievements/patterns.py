@@ -14,7 +14,8 @@ def is_fianchetto_development(
 
     Examples: b2/g2 for White, b7/g7 for Black.
     """
-    if board.piece_at(move.from_square).piece_type != chess.BISHOP:
+    piece = board.piece_at(move.from_square)
+    if piece is None or piece.piece_type != chess.BISHOP:
         return False
 
     fianchetto_squares = (
