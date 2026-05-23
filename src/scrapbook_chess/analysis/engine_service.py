@@ -249,24 +249,19 @@ class StockfishEvaluator:
 
 
 # =====================================================================
-# BATCH PROCESSING ENTRYPOINT (Replaces engine_runner.py)
+# BATCH PROCESSING ENTRYPOINT (Refactored for Flat Schema)
 # =====================================================================
 
-
 def run_engine_analysis(limit: int | None = None) -> None:
-    """Query the DB for unanalyzed games and run Stockfish evaluations.
+    """Query the DB for INGESTED games and run Stockfish evaluations.
 
-    Extracts games missing local analysis metadata, builds appropriate PGN structures,
-    processes the engine evaluations through an initialized instance of
-    StockfishEvaluator, and flushes updated evaluation results back into the JSON
-    database records.
-
-    Args:
-        limit: An optional maximum cap on the number of records to process.
+    Extracts basic game info, processes the engine evaluations, and updates
+    the dedicated move_evals JSONB column while bumping the pipeline status.
     """
     query = (
-        "SELECT id, game_data FROM games "
-        "WHERE game_data->>'local_analysis_complete' IS NULL"
+        "SELECT id, white_username, black_username, score, raw_moves "
+        "FROM games "
+        "WHERE pipeline_status = 'INGESTED'"
     )
     if limit:
         query += f" LIMIT {limit}"
@@ -284,33 +279,14 @@ def run_engine_analysis(limit: int | None = None) -> None:
     try:
         with (
             get_connection() as conn,
-            StockfishEvaluator(low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH)
-            as evaluator,
+            StockfishEvaluator(low_depth=LOW_DEPTH, high_depth=HIGH_DEPTH) as evaluator,
             conn.cursor() as cur,
         ):
-            for game_id, game_data_raw in tqdm(
-                pending_games, desc="Analyzing Games"
-            ):
+            for row in tqdm(pending_games, desc="Analyzing Games"):
+                game_id, white_name, black_name, result_tag, moves_text = row
+                
                 try:
-                    game_data = (
-                        game_data_raw
-                        if isinstance(game_data_raw, dict)
-                        else json.loads(game_data_raw)
-                    )
                     # Rebuild basic PGN frame for python-chess parsing
-                    white_name = (
-                        game_data.get("players", {})
-                        .get("white", {})
-                        .get("name", "Unknown")
-                    )
-                    black_name = (
-                        game_data.get("players", {})
-                        .get("black", {})
-                        .get("name", "Unknown")
-                    )
-                    result_tag = game_data.get("score", "*")
-                    moves_text = game_data.get("moves", "")
-
                     pgn_string = (
                         f'[White "{white_name}"]\n'
                         f'[Black "{black_name}"]\n'
@@ -318,29 +294,26 @@ def run_engine_analysis(limit: int | None = None) -> None:
                         f"{moves_text}\n"
                     )
 
-                    evals, annotated_pgn = evaluator.evaluate_game(
+                    evals, engine_pgn = evaluator.evaluate_game(
                         pgn_string,
                         mate_threshold=MATE_GRACE_THRESHOLD,
                         mate_plies=MATE_GRACE_PLIES,
                     )
 
                     if evals:
-                        game_data["move_evals"] = evals
-                        game_data["annotated_pgn"] = annotated_pgn
-                        game_data["local_analysis_complete"] = True
-
-                        cur.execute(
-                            "UPDATE games SET game_data = %s WHERE id = %s",
-                            (json.dumps(game_data), game_id),
-                        )
+                        # Write strictly to our dedicated flat columns
+                        update_sql = """
+                            UPDATE games 
+                            SET move_evals = %s, 
+                                annotated_pgn = %s, 
+                                pipeline_status = 'ANALYZED' 
+                            WHERE id = %s
+                        """
+                        cur.execute(update_sql, (json.dumps(evals), engine_pgn, game_id))
                         conn.commit()
 
                 except Exception as game_err:
-                    logger.error(
-                        "❌ Failed processing game %s: %s",
-                        game_id,
-                        game_err,
-                    )
+                    logger.error("❌ Failed processing game %s: %s", game_id, game_err)
                     conn.rollback()
                     continue
 

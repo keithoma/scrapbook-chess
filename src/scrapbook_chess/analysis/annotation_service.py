@@ -11,8 +11,11 @@ from typing import Any
 
 import chess.pgn
 import chess.polyglot
+from json import json
+from tqdm import tqdm
 
 from scrapbook_chess.config import BOOK_PATH
+from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
@@ -166,3 +169,68 @@ class GameAnnotator:
         # Lichess constant-based centipawn formula
         cp = eval_score["value"]
         return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
+
+# =====================================================================
+# BATCH PROCESSING ENTRYPOINT (New!)
+# =====================================================================
+
+def run_annotation_batch(limit: int | None = None) -> None:
+    """Query the DB for ANALYZED games and apply book/engine annotations.
+
+    Reads the raw engine evaluation JSON, applies win-chance drop logic,
+    and saves the final polished PGN and ply classifications.
+    """
+    # Notice we grab the `annotated_pgn` from Stage 1, because it might contain
+    # engine mate-playout variations that we want to preserve!
+    query = (
+        "SELECT id, annotated_pgn, move_evals "
+        "FROM games "
+        "WHERE pipeline_status = 'ANALYZED'"
+    )
+    if limit:
+        query += f" LIMIT {limit}"
+
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(query)
+        pending_games = cur.fetchall()
+
+    if not pending_games:
+        logger.info("✨ No pending games require annotation.")
+        return
+
+    logger.info("📝 Found %d game(s) for PGN annotation.", len(pending_games))
+
+    try:
+        with (
+            get_connection() as conn,
+            GameAnnotator() as annotator,
+            conn.cursor() as cur,
+        ):
+            for game_id, pgn_text, move_evals_raw in tqdm(pending_games, desc="Annotating"):
+                try:
+                    move_evals = (
+                        move_evals_raw if isinstance(move_evals_raw, list) 
+                        else json.loads(move_evals_raw)
+                    )
+
+                    # Pass the PGN text and engine data to your logic
+                    plies, final_pgn = annotator.annotate_game_moves(pgn_text, move_evals)
+
+                    if plies and final_pgn:
+                        update_sql = """
+                            UPDATE games 
+                            SET ply_classifications = %s,
+                                annotated_pgn = %s,
+                                pipeline_status = 'ANNOTATED'
+                            WHERE id = %s
+                        """
+                        cur.execute(update_sql, (json.dumps(plies), final_pgn, game_id))
+                        conn.commit()
+
+                except Exception as game_err:
+                    logger.error("❌ Failed annotating game %s: %s", game_id, game_err)
+                    conn.rollback()
+                    continue
+
+    except Exception as batch_err:
+        logger.error("💥 Annotation batch processing critical failure: %s", batch_err)

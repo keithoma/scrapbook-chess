@@ -1,8 +1,7 @@
 """Lichess Data Ingestion Module.
 
 This module handles fetching games from the Lichess NDJSON API,
-parsing them into a structured format (including board event extraction),
-and storing them in the PostgreSQL database.
+parsing them into a structured flat format, and storing them in the PostgreSQL database.
 """
 
 import json
@@ -52,7 +51,6 @@ class LichessIngestor:
             ) as response:
                 response.raise_for_status()
 
-                # Using tqdm for a nice progress bar on the stream
                 for line in tqdm(response.iter_lines(), desc="Ingesting", unit="game"):
                     if not line:
                         continue
@@ -61,7 +59,6 @@ class LichessIngestor:
                     if self._should_skip(raw_game):
                         continue
 
-                    # Process and Save
                     clean_game = self._format_game_data(raw_game)
                     if self._save_to_db(clean_game):
                         count += 1
@@ -82,77 +79,83 @@ class LichessIngestor:
         if game_time < START:
             return True
 
-        # Skip variants (InitialFen present) or very short games
         return "initialFen" in raw_game or len(raw_game.get("moves", "").split()) < 4
 
     def _format_game_data(self, raw_game: dict[str, Any]) -> dict[str, Any]:
-        """Parses raw API data into a structured internal schema.
-
-        Now simplified to exclude board events, which are handled in the Metrics stage.
-        """
-        raw_moves = raw_game.get("moves", "")
+        """Parses raw API data into our new flat database schema."""
+        white_player = self._parse_player(raw_game.get("players", {}).get("white", {}))
+        black_player = self._parse_player(raw_game.get("players", {}).get("black", {}))
+        opening = raw_game.get("opening", {})
 
         return {
             "id": raw_game.get("id"),
             "platform": "lichess",
-            "timestamp": raw_game.get("createdAt", 0) // 1000,
+            "played_at": raw_game.get("createdAt", 0) // 1000,
+            "time_control": raw_game.get("speed", "unknown"),
             "is_rated": raw_game.get("rated", False),
-            "speed": raw_game.get("speed", "unknown"),
-            "players": {
-                "white": self._parse_player(
-                    raw_game.get("players", {}).get("white", {})
-                ),
-                "black": self._parse_player(
-                    raw_game.get("players", {}).get("black", {})
-                ),
-            },
             "score": self._get_score(raw_game.get("winner")),
-            "moves": raw_moves,
-            # Store the raw response so Analyzer/Metrics can pull additional details
-            "raw_api_response": raw_game,
+            "termination_status": raw_game.get("status", "unknown"),
+            
+            "opening_name": opening.get("name"),
+            "opening_eco": opening.get("eco"),
+            
+            "white_username": white_player["id"],
+            "white_rating": white_player["rating"],
+            "white_rating_diff": white_player["rating_diff"],
+            
+            "black_username": black_player["id"],
+            "black_rating": black_player["rating"],
+            "black_rating_diff": black_player["rating_diff"],
+            
+            "raw_moves": raw_game.get("moves", ""),
+            "clocks": raw_game.get("clocks", []),
         }
 
-    def _save_to_db(self, game_data: dict[str, Any]) -> bool:
-        """Inserts game into PostgreSQL using a safe transaction."""
+    def _save_to_db(self, game: dict[str, Any]) -> bool:
+        """Inserts game into PostgreSQL matching the flat schema."""
         query = """
-            INSERT INTO games (id, platform, played_at, rated, speed, score, game_data)
-            VALUES (%s, %s, to_timestamp(%s), %s, %s, %s, %s)
+            INSERT INTO games (
+                id, platform, played_at, time_control, is_rated, score, termination_status,
+                opening_name, opening_eco,
+                white_username, white_rating, white_rating_diff,
+                black_username, black_rating, black_rating_diff,
+                raw_moves, clocks
+            )
+            VALUES (
+                %(id)s, %(platform)s, to_timestamp(%(played_at)s), %(time_control)s, %(is_rated)s, %(score)s, %(termination_status)s,
+                %(opening_name)s, %(opening_eco)s,
+                %(white_username)s, %(white_rating)s, %(white_rating_diff)s,
+                %(black_username)s, %(black_rating)s, %(black_rating_diff)s,
+                %(raw_moves)s, %(clocks)s
+            )
             ON CONFLICT (id) DO NOTHING;
         """
         try:
             with get_connection() as conn, conn.cursor() as cur:
-                cur.execute(
-                    query,
-                    (
-                        game_data["id"],
-                        game_data["platform"],
-                        game_data["timestamp"],
-                        game_data["is_rated"],
-                        game_data["speed"],
-                        game_data["score"],
-                        json.dumps(game_data),
-                    ),
-                )
+                # psycopg handles dict parameter mapping perfectly via %(key)s
+                cur.execute(query, game)
                 return cur.rowcount > 0
         except Exception as e:
-            logger.error("DB Error on game %s: %s", game_data["id"], e)
+            logger.error("DB Error on game %s: %s", game["id"], e)
             return False
 
     @staticmethod
     def _parse_player(data: dict[str, Any]) -> dict[str, Any]:
-        """Handles AI vs Human player data normalization."""
+        """Handles AI vs Human player data normalization, including rating diffs."""
         if "aiLevel" in data:
             return {
                 "id": f"bot_{data['aiLevel']}",
                 "name": "Stockfish",
                 "rating": 0,
+                "rating_diff": 0,
             }
 
         user = data.get("user", {})
         return {
-            "id": user.get("id", "unknown"),
+            "id": user.get("id", "unknown").lower(), # Lowercase for clean querying
             "name": user.get("name", "Unknown"),
             "rating": data.get("rating", 1500),
+            "rating_diff": data.get("ratingDiff"), # Might be None, SQL handles it!
         }
 
     @staticmethod

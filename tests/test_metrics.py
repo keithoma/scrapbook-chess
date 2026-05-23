@@ -11,7 +11,7 @@ def mock_game_data():
         "moves": "e4 e5"
     }
 
-def test_game_metrics_win_conditions(mock_game_data):
+def test_game_metrics(mock_game_data):
     """Test that basic win/loss logic works correctly."""
     metrics = GameMetrics(
         game_id="test_1",
