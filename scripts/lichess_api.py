@@ -14,7 +14,7 @@ from rich import print as rprint
 load_dotenv()
 
 # set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 def fetch_latest_games(username: str, limit: int = 1) -> None:
