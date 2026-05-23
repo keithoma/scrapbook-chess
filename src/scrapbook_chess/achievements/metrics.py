@@ -160,9 +160,15 @@ class GameMetrics:
                     opp_clock = c_val
 
             if my_clock is not None and opp_clock is not None:
-                # If your remaining time is ever lower than your opponent's, flag fails
-                if my_clock < opp_clock:
-                    always_more_time = False
+                # 1. Scramble applies continuously, so we check it on every single ply
+                if my_clock <= 30.0 and opp_clock <= 30.0:
+                    scramble_plies += 1
+                
+                # 2. Time advantage is ONLY checked at the end of our turn.
+                # This naturally shifts the comparison: White's Move 2 vs Black's Move 1.
+                if is_my_turn:
+                    if my_clock < opp_clock:
+                        always_more_time = False
                 
                 # Both players under 30 seconds
                 if my_clock <= 30.0 and opp_clock <= 30.0:
