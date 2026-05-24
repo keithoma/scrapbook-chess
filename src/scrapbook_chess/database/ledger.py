@@ -7,6 +7,8 @@ game history grants into the database.
 import json
 import logging
 
+from psycopg import sql
+
 from scrapbook_chess.database.connection import get_connection
 
 logger = logging.getLogger(__name__)
@@ -22,11 +24,11 @@ class AchievementLedger:
 
     def _ensure_user_exists(self) -> None:
         """Silently register the user in the database if they don't exist."""
-        query = """
+        query = sql.SQL("""
             INSERT INTO users (username) 
             VALUES (%s) 
             ON CONFLICT (username) DO NOTHING;
-        """
+        """)
         try:
             with get_connection() as conn:
                 with conn.cursor() as cur:
@@ -40,10 +42,10 @@ class AchievementLedger:
 
         Returns True when an entry exists for the given game and definition.
         """
-        query = """
+        query = sql.SQL("""
             SELECT 1 FROM game_grants_ledger 
             WHERE game_id = %s AND username = %s AND def_id = %s
-        """
+        """)
         with get_connection() as conn, conn.cursor() as cur:
             cur.execute(query, (game_id, self.username, def_id))
             return cur.fetchone() is not None
@@ -53,13 +55,13 @@ class AchievementLedger:
         if self.is_already_granted(game_id, def_id):
             return
 
-        unlock_query = """
+        unlock_query = sql.SQL("""
             INSERT INTO user_unlocks (username, def_id, tier)
             VALUES (%s, %s, 'base')
             ON CONFLICT (username, def_id, tier) DO NOTHING;
-        """
+        """)
 
-        ledger_query = (
+        ledger_query = sql.SQL(
             "INSERT INTO game_grants_ledger (game_id, username, def_id) "
             "VALUES (%s, %s, %s);"
         )
@@ -88,7 +90,7 @@ class AchievementLedger:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 # 1. Update/Insert progress and get the total
-                upsert_progress_sql = (
+                upsert_progress_sql = sql.SQL(
                     "INSERT INTO user_progress (username, def_id, current_value) "
                     "VALUES (%s, %s, %s) "
                     "ON CONFLICT (username, def_id) DO UPDATE "
@@ -103,10 +105,10 @@ class AchievementLedger:
                 new_total = row[0]
 
                 # 2. Check for tier unlock
-                cur.execute(
-                    "SELECT config FROM achievement_definitions WHERE id = %s",
-                    (def_id,),
+                select_def_q = sql.SQL(
+                    "SELECT config FROM achievement_definitions WHERE id = %s"
                 )
+                cur.execute(select_def_q, (def_id,))
                 res = cur.fetchone()
                 config_raw = res[0] if res else {}
 
@@ -144,14 +146,14 @@ class AchievementLedger:
                     ):
                         if new_total >= threshold:
                             # Check if already unlocked
-                            select_unlock_q = (
+                            select_unlock_q = sql.SQL(
                                 "SELECT 1 FROM user_unlocks "
                                 "WHERE username=%s AND def_id=%s AND tier=%s"
                             )
                             cur.execute(select_unlock_q, (self.username, def_id, tier))
                             if not cur.fetchone():
                                 newly_unlocked_tier = tier
-                                insert_unlock_q = (
+                                insert_unlock_q = sql.SQL(
                                     "INSERT INTO user_unlocks (username, def_id, tier) "
                                     "VALUES (%s, %s, %s)"
                                 )
@@ -161,15 +163,15 @@ class AchievementLedger:
                             break
 
                 # 3. Save to Ledger
-                query = (
+                ledger_q = sql.SQL(
                     "INSERT INTO game_grants_ledger "
-                    "game_id, username, def_id, "
+                    "(game_id, username, def_id, "
                     "change_amount, tier_unlocked, "
-                    "trigger_plies"
+                    "trigger_plies) "
                     "VALUES (%s, %s, %s, %s, %s, %s);"
                 )
                 cur.execute(
-                    query,
+                    ledger_q,
                     (
                         game_id,
                         self.username,

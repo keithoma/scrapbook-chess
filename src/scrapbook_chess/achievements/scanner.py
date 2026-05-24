@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 
 import psycopg
+from psycopg import sql
+from psycopg.rows import dict_row  # Explicitly import dict_row to satisfy Pylance
 import yaml
 
 from scrapbook_chess.achievements.metrics import GameMetrics
@@ -54,7 +56,8 @@ class AchievementScanner:
         """
         logger.info("🔄 Synchronizing achievement definitions with local YAML files...")
 
-        query = """
+        # Wrap in sql.SQL
+        query = sql.SQL("""
             INSERT INTO achievement_definitions (id, type, name, description, config)
             VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT (id) DO UPDATE SET
@@ -62,7 +65,7 @@ class AchievementScanner:
                 name = EXCLUDED.name,
                 description = EXCLUDED.description,
                 config = EXCLUDED.config;
-        """
+        """)
 
         count = 0
         with get_connection() as conn, conn.cursor() as cur:
@@ -116,19 +119,27 @@ class AchievementScanner:
 
     def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
         """Fetch ANNOTATED games, generate metrics, and evaluate achievements."""
-        query = (
+        
+        # Build query safely using sql.SQL parameterization for the LIMIT
+        base_query = (
             "SELECT * FROM master_game_history "
             "WHERE pipeline_status = 'ANNOTATED' "
             "ORDER BY played_at ASC"
         )
+        
         if limit:
-            query += f" LIMIT {limit}"
+            query = sql.SQL(base_query + " LIMIT %s")
+            params = (limit,)
+        else:
+            query = sql.SQL(base_query)
+            params = ()
 
         with (
             get_connection() as conn,
-            conn.cursor(row_factory=psycopg.rows.dict_row) as cur,
+            # Use explicitly imported dict_row
+            conn.cursor(row_factory=dict_row) as cur, 
         ):
-            cur.execute(query)
+            cur.execute(query, params)
             rows = cur.fetchall()
 
         if not rows:
@@ -163,7 +174,8 @@ class AchievementScanner:
                             self._export_annotated_pgn(row, row["annotated_pgn"])
 
                         # 4. Save metrics AND fast columns, mark SCANNED
-                        update_sql = """
+                        # Wrap in sql.SQL
+                        update_sql = sql.SQL("""
                             UPDATE games 
                             SET metrics = %s,
                                 blunders_count = %s,
@@ -173,7 +185,7 @@ class AchievementScanner:
                                 acpl = %s,
                                 pipeline_status = 'SCANNED' 
                             WHERE id = %s
-                        """
+                        """)
                         write_cur.execute(
                             update_sql,
                             (
@@ -189,8 +201,6 @@ class AchievementScanner:
                         write_conn.commit()
 
                     except Exception as game_err:
-                        # The trace will point exactly to the broken line if you run
-                        # with --debug
                         logger.error(
                             "❌ Failed processing achievement scans for game %s: %s",
                             game_id,

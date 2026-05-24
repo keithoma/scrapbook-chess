@@ -12,6 +12,7 @@ from typing import Any
 
 import chess.pgn
 import chess.polyglot
+from psycopg import sql
 from tqdm import tqdm
 
 from scrapbook_chess.config import BOOK_PATH
@@ -84,43 +85,50 @@ class GameAnnotator:
             if not is_book and (ply - 1) < len(move_evals):
                 eval_data = move_evals[ply - 1]
 
+                # Safety check: ensure the JSON payload is actually a dictionary
+                if not isinstance(eval_data, dict):
+                    logger.warning(f"Skipping malformed eval data at ply {ply}")
+                    board.push(move)
+                    continue
+
                 # 1. Classification logic
-                played_score = eval_data["high_depth_eval"]
-                top_moves = eval_data.get("high_top_moves", [])
-                best_score = top_moves[0]["eval"] if top_moves else played_score
+                played_score = eval_data.get("high_depth_eval")
+                if played_score:
+                    top_moves = eval_data.get("high_top_moves", [])
+                    best_score = top_moves[0]["eval"] if top_moves else played_score
 
-                w_best = self._to_win_chance(best_score)
-                w_played = self._to_win_chance(played_score)
-                drop = max(0.0, w_best - w_played)
+                    w_best = self._to_win_chance(best_score)
+                    w_played = self._to_win_chance(played_score)
+                    drop = max(0.0, w_best - w_played)
 
-                if drop >= 0.15:
-                    classification, nag = "blunder", 4
-                elif drop >= 0.10:
-                    classification, nag = "mistake", 2
-                elif drop >= 0.05:
-                    classification, nag = "inaccuracy", 6
+                    if drop >= 0.15:
+                        classification, nag = "blunder", 4
+                    elif drop >= 0.10:
+                        classification, nag = "mistake", 2
+                    elif drop >= 0.05:
+                        classification, nag = "inaccuracy", 6
 
-                # 2. Inject engine commentary
-                comment_parts = [f"Eval: {self._format_score(played_score)}"]
+                    # 2. Inject engine commentary
+                    comment_parts = [f"Eval: {self._format_score(played_score)}"]
 
-                # Add Top 2 High Depth alternatives
-                if top_moves:
-                    alternatives = []
-                    for i, choice in enumerate(top_moves[:2], 1):
-                        move = choice['move']
-                        score = self._format_score(choice['eval'])
-                        alternatives.append(f"{i}. {move} ({score})")
-                    
-                    comment_parts.append(f"Top: {' | '.join(alternatives)}")
+                    # Add Top 2 High Depth alternatives
+                    if top_moves:
+                        alternatives = []
+                        for i, choice in enumerate(top_moves[:2], 1):
+                            alt_move = choice.get("move")
+                            score = self._format_score(choice.get("eval", {}))
+                            alternatives.append(f"{i}. {alt_move} ({score})")
+                        
+                        comment_parts.append(f"Top: {' | '.join(alternatives)}")
 
-                # Add Low Depth choice
-                low_best = eval_data.get("low_best_move", {})
-                move = low_best.get("move")
-                if move:
-                    score = self._format_score(low_best.get("eval", 0))
-                    comment_parts.append(f"Low: {move} ({score})")
+                    # Add Low Depth choice
+                    low_best = eval_data.get("low_best_move", {})
+                    low_move = low_best.get("move")
+                    if low_move:
+                        score = self._format_score(low_best.get("eval", {}))
+                        comment_parts.append(f"Low: {low_move} ({score})")
 
-                node.comment = " // ".join(comment_parts)
+                    node.comment = " // ".join(comment_parts)
 
             # Apply NAG symbols
             if nag > 0:
@@ -136,6 +144,8 @@ class GameAnnotator:
                     "win_chance_drop": round(drop, 3),
                 }
             )
+            
+            # Now 'move' safely remains the original chess.Move object!
             board.push(move)
 
         # Export PGN with included comments and variations
@@ -153,8 +163,11 @@ class GameAnnotator:
     @staticmethod
     def _format_score(eval_score: dict[str, Any]) -> str:
         """Formats the EvalScore dictionary for human-readable PGN comments."""
+        if not eval_score or "value" not in eval_score:
+            return "0.00"
+
         val = eval_score["value"]
-        if eval_score["type"] == "mate":
+        if eval_score.get("type") == "mate":
             return f"{'+' if val > 0 else ''}M{abs(val)}"
 
         # Display centipawns as decimal (e.g., +0.50)
@@ -164,7 +177,10 @@ class GameAnnotator:
     @staticmethod
     def _to_win_chance(eval_score: dict[str, Any]) -> float:
         """Converts cp or mate engine metrics to a 0.0 - 1.0 probability scale."""
-        if eval_score["type"] == "mate":
+        if not eval_score or "value" not in eval_score:
+            return 0.5
+
+        if eval_score.get("type") == "mate":
             return 1.0 if eval_score["value"] > 0 else 0.0
 
         # Lichess constant-based centipawn formula
@@ -183,18 +199,22 @@ def run_annotation_batch(limit: int | None = None) -> None:
     Reads the raw engine evaluation JSON, applies win-chance drop logic,
     and saves the final polished PGN and ply classifications.
     """
-    # Notice we grab the `annotated_pgn` from Stage 1, because it might contain
-    # engine mate-playout variations that we want to preserve!
-    query = (
+    base_query = (
         "SELECT id, annotated_pgn, move_evals "
         "FROM games "
         "WHERE pipeline_status = 'ANALYZED'"
     )
+    
+    # Safely compose dynamic SQL for the limit
     if limit:
-        query += f" LIMIT {limit}"
+        query = sql.SQL(base_query + " LIMIT %s")
+        params = (limit,)
+    else:
+        query = sql.SQL(base_query)
+        params = ()
 
     with get_connection() as conn, conn.cursor() as cur:
-        cur.execute(query)
+        cur.execute(query, params)
         pending_games = cur.fetchall()
 
     if not pending_games:
@@ -225,13 +245,14 @@ def run_annotation_batch(limit: int | None = None) -> None:
                     )
 
                     if plies and final_pgn:
-                        update_sql = """
+                        # Wrap the static query in sql.SQL
+                        update_sql = sql.SQL("""
                             UPDATE games 
                             SET ply_classifications = %s,
                                 annotated_pgn = %s,
                                 pipeline_status = 'ANNOTATED'
                             WHERE id = %s
-                        """
+                        """)
                         cur.execute(update_sql, (json.dumps(plies), final_pgn, game_id))
                         conn.commit()
 

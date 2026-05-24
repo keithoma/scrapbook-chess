@@ -234,10 +234,6 @@ class GameMetrics:
                 if is_my_turn and my_clock < opp_clock:
                     always_more_time = False
 
-                # Both players under 30 seconds
-                if my_clock <= 30.0 and opp_clock <= 30.0:
-                    scramble_plies += 1
-
             if board.is_capture(move):
                 if board.is_en_passant(move):
                     captured_piece = chess.PAWN

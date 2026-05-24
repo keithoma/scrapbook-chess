@@ -11,6 +11,7 @@ from typing import Any, TypedDict
 
 import chess.engine
 import chess.pgn
+from psycopg import sql
 from tqdm import tqdm
 
 from scrapbook_chess.config import (
@@ -46,8 +47,8 @@ class MoveAnalysis(TypedDict):
         high_depth_eval: The evaluation score at the deeper search limit.
         high_top_moves: A list of alternative top candidate moves and their 
             evaluations.
-        low_best_move: The single best move and evaluation found at the lower search 
-            limit.
+        low_best_move: dict containing the single best move and evaluation found 
+            at the lower search limit.
     """
 
     ply: int
@@ -90,38 +91,14 @@ class StockfishEvaluator:
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
     ) -> None:
-        """Stop the engine process when leaving the context window.
-
-        Args:
-            exc_type: The exception type if an exception occurred, else None.
-            exc_val: The exception instance if an exception occurred, else None.
-            exc_tb: The traceback instance if an exception occurred, else None.
-        """
+        """Stop the engine process when leaving the context window."""
         if self.engine:
             self.engine.quit()
 
     def evaluate_game(
-        self, pgn_text: str, mate_threshold: int, mate_plies: int
+        self, pgn_text: str, mate_threshold: float, mate_plies: int
     ) -> tuple[list[MoveAnalysis], str]:
-        """Generate per-move engine evaluations and append mate playouts if needed.
-
-        Parses the provided PGN string, steps through each move to perform high and low
-        depth engine evaluations, and structurally extends the game if a winning
-        advantage exists but the game ended prematurely.
-
-        Args:
-            pgn_text: The raw PGN text representing the game string.
-            mate_threshold: The centipawn boundary above which a position is
-                considered a completely winning advantage for playout triggering.
-            mate_plies: Maximum number of plies allowed for the engine playout.
-
-        Returns:
-            A tuple containing:
-                - A list of dictionary payloads capturing analysis metrics for each
-                  move.
-                - An amended, string-exported PGN that includes any simulated engine
-                  extensions.
-        """
+        """Generate per-move engine evaluations and append mate playouts if needed."""
         game = chess.pgn.read_game(io.StringIO(pgn_text.strip()))
         if not game:
             return [], pgn_text
@@ -151,26 +128,24 @@ class StockfishEvaluator:
     def _analyze_position(
         self, board: chess.Board, played_move: chess.Move, ply: int
     ) -> MoveAnalysis:
-        """Perform multi-depth evaluation on a single given board state.
+        """Perform multi-depth evaluation on a single given board state."""
+        # Satisfy Pylance that the engine is loaded
+        if not self.engine:
+            raise RuntimeError("Engine not initialized. Use inside a context manager.")
 
-        Args:
-            board: A chess.Board snapshot representing the position before the move.
-            played_move: The actual chess.Move executed by the player.
-            ply: The sequential half-move index.
-
-        Returns:
-            A MoveAnalysis dictionary mapping out alternative variants and evaluations.
-        """
         # High Depth Pass (MultiPV=2)
         high_res = self.engine.analyse(
             board, chess.engine.Limit(depth=self.high_depth), multipv=2
         )
 
-        # Isolate the evaluation of what the human actually played
-        played_move_info = next(
-            (m for m in high_res if m.get("pv") and m["pv"][0] == played_move),
-            None,
-        )
+        # Safely isolate the evaluation of what the human actually played
+        played_move_info = None
+        for m in high_res:
+            pv = m.get("pv")
+            if pv and pv[0] == played_move:
+                played_move_info = m
+                break
+
         if not played_move_info:
             played_move_info = self.engine.analyse(
                 board,
@@ -180,6 +155,10 @@ class StockfishEvaluator:
 
         # Low Depth Pass
         low_res = self.engine.analyse(board, chess.engine.Limit(depth=self.low_depth))
+        
+        # Safely parse low depth PV
+        low_pv = low_res.get("pv")
+        low_best_san = board.san(low_pv[0]) if low_pv else None
 
         return {
             "ply": ply,
@@ -189,14 +168,14 @@ class StockfishEvaluator:
             ),
             "high_top_moves": [
                 {
-                    "move": board.san(info["pv"][0]),
-                    "eval": self._parse_score(info["score"], board.turn),
+                    "move": board.san(info.get("pv", [])[0]),
+                    "eval": self._parse_score(info.get("score"), board.turn),
                 }
                 for info in high_res
                 if info.get("pv")
             ],
             "low_best_move": {
-                "move": board.san(low_res["pv"][0]) if low_res.get("pv") else None,
+                "move": low_best_san,
                 "eval": self._parse_score(low_res.get("score"), board.turn),
             },
         }
@@ -207,16 +186,10 @@ class StockfishEvaluator:
         terminal_node: chess.pgn.GameNode,
         max_plies: int,
     ) -> None:
-        """Simulate engine versus engine playouts to verify forced mate pathways.
+        """Simulate engine versus engine playouts to verify forced mate pathways."""
+        if not self.engine:
+            raise RuntimeError("Engine not initialized. Use inside a context manager.")
 
-        Appends the resulting generated move chain as commented metadata directly
-        onto the PGN game tree node references.
-
-        Args:
-            board: A chess.Board instance at the game's cutoff position.
-            terminal_node: The active game tree node matching the current board state.
-            max_plies: The strict limit on how many moves the engine can play out.
-        """
         sim_board = board.copy()
         sim_moves = []
 
@@ -239,21 +212,19 @@ class StockfishEvaluator:
     def _parse_score(
         score_obj: chess.engine.PovScore | None, turn: chess.Color
     ) -> EvalScore:
-        """Normalize a python-chess PovScore object into an EvalScore structure.
-
-        Args:
-            score_obj: The raw evaluation object generated by the engine, or None.
-            turn: The active side's color perspective to orient evaluations.
-
-        Returns:
-            An EvalScore dictionary outlining evaluation type and integer score.
-        """
+        """Normalize a python-chess PovScore object into an EvalScore structure."""
         if not score_obj:
             return {"type": "cp", "value": 0}
+            
         pov_score = score_obj.pov(turn)
+        
         if pov_score.is_mate():
-            return {"type": "mate", "value": pov_score.mate()}
-        return {"type": "cp", "value": pov_score.score() or 0}
+            mate_val = pov_score.mate()
+            # Pylance guard: ensure it's strictly an integer
+            return {"type": "mate", "value": mate_val if mate_val is not None else 0}
+            
+        cp_val = pov_score.score()
+        return {"type": "cp", "value": cp_val if cp_val is not None else 0}
 
 
 # =====================================================================
@@ -262,21 +233,23 @@ class StockfishEvaluator:
 
 
 def run_engine_analysis(limit: int | None = None) -> None:
-    """Query the DB for INGESTED games and run Stockfish evaluations.
-
-    Extracts basic game info, processes the engine evaluations, and updates
-    the dedicated move_evals JSONB column while bumping the pipeline status.
-    """
-    query = (
+    """Query the DB for INGESTED games and run Stockfish evaluations."""
+    base_query = (
         "SELECT id, white_username, black_username, score, raw_moves "
         "FROM games "
         "WHERE pipeline_status = 'INGESTED'"
     )
+    
+    # Safely compose dynamic SQL for the limit
     if limit:
-        query += f" LIMIT {limit}"
+        query = sql.SQL(base_query + " LIMIT %s")
+        params = (limit,)
+    else:
+        query = sql.SQL(base_query)
+        params = ()
 
     with get_connection() as conn, conn.cursor() as cur:
-        cur.execute(query)
+        cur.execute(query, params)
         pending_games = cur.fetchall()
 
     if not pending_games:
@@ -310,14 +283,14 @@ def run_engine_analysis(limit: int | None = None) -> None:
                     )
 
                     if evals:
-                        # Write strictly to our dedicated flat columns
-                        update_sql = """
+                        # Write strictly to our dedicated flat columns using sql.SQL
+                        update_sql = sql.SQL("""
                             UPDATE games 
                             SET move_evals = %s, 
                                 annotated_pgn = %s, 
                                 pipeline_status = 'ANALYZED' 
                             WHERE id = %s
-                        """
+                        """)
                         cur.execute(
                             update_sql, (json.dumps(evals), engine_pgn, game_id)
                         )

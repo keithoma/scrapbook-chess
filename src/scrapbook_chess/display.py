@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import json
 import logging
-import textwrap
 from datetime import datetime
+
+from psycopg import sql
 
 from scrapbook_chess.database.connection import get_connection
 
@@ -56,21 +57,21 @@ def show_profile(username: str) -> None:
     print(f"👤 CHESS PROFILE: {username.upper()}")
     print(f"{'=' * 65}")
 
-    unlocks_query = """
+    unlocks_query = sql.SQL("""
         SELECT ad.id, ad.type, ad.category, ad.name, uu.tier, uu.unlocked_at, ad.config
         FROM user_unlocks uu
         JOIN achievement_definitions ad ON uu.def_id = ad.id
         WHERE uu.username = %s
         ORDER BY ad.type, ad.category, uu.unlocked_at DESC;
-    """
+    """)
 
-    progress_query = """
+    progress_query = sql.SQL("""
         SELECT ad.type, ad.name, up.current_value, ad.config
         FROM user_progress up
         JOIN achievement_definitions ad ON up.def_id = ad.id
         WHERE up.username = %s
         ORDER BY ad.type, up.current_value DESC;
-    """
+    """)
 
     with get_connection() as conn, conn.cursor() as cur:
         cur.execute(unlocks_query, (username,))
@@ -230,7 +231,7 @@ def show_history(username: str, limit: int = 10) -> None:
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
     print(f"{'=' * 90}")
 
-    games_query = textwrap.dedent("""
+    games_query = sql.SQL("""
         SELECT 
             ggl.game_id, 
             MAX(ggl.granted_at) as recent_grant,
@@ -248,7 +249,7 @@ def show_history(username: str, limit: int = 10) -> None:
         LIMIT %s;
     """)
 
-    ledger_query = textwrap.dedent("""
+    ledger_query = sql.SQL("""
         SELECT 
             ad.name, ad.description, ad.type, ggl.change_amount, 
             ggl.tier_unlocked, ggl.trigger_plies
