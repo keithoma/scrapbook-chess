@@ -95,40 +95,34 @@ class LichessIngestor:
             "is_rated": raw_game.get("rated", False),
             "score": self._get_score(raw_game.get("winner")),
             "termination_status": raw_game.get("status", "unknown"),
-            
             "opening_name": opening.get("name"),
             "opening_eco": opening.get("eco"),
-            
             "white_username": white_player["id"],
             "white_rating": white_player["rating"],
             "white_rating_diff": white_player["rating_diff"],
-            
             "black_username": black_player["id"],
             "black_rating": black_player["rating"],
             "black_rating_diff": black_player["rating_diff"],
-            
             "raw_moves": raw_game.get("moves", ""),
             "clocks": raw_game.get("clocks", []),
         }
 
     def _save_to_db(self, game: dict[str, Any]) -> bool:
         """Inserts game into PostgreSQL matching the flat schema."""
+        # Define the query as a single static string
         query = """
             INSERT INTO games (
-                id, platform, played_at, time_control, is_rated, score, termination_status,
-                opening_name, opening_eco,
-                white_username, white_rating, white_rating_diff,
-                black_username, black_rating, black_rating_diff,
-                raw_moves, clocks
-            )
-            VALUES (
-                %(id)s, %(platform)s, to_timestamp(%(played_at)s), %(time_control)s, %(is_rated)s, %(score)s, %(termination_status)s,
-                %(opening_name)s, %(opening_eco)s,
-                %(white_username)s, %(white_rating)s, %(white_rating_diff)s,
-                %(black_username)s, %(black_rating)s, %(black_rating_diff)s,
-                %(raw_moves)s, %(clocks)s
-            )
-            ON CONFLICT (id) DO NOTHING;
+                id, platform, played_at, time_control, is_rated, score, 
+                termination_status, opening_name, opening_eco, white_username, 
+                white_rating, white_rating_diff, black_username, black_rating, 
+                black_rating_diff, raw_moves, clocks
+            ) VALUES (
+                %(id)s, %(platform)s, to_timestamp(%(played_at)s), %(time_control)s, 
+                %(is_rated)s, %(score)s, %(termination_status)s, %(opening_name)s, 
+                %(opening_eco)s, %(white_username)s, %(white_rating)s, 
+                %(white_rating_diff)s, %(black_username)s, %(black_rating)s, 
+                %(black_rating_diff)s, %(raw_moves)s, %(clocks)s
+            ) ON CONFLICT (id) DO NOTHING;
         """
         try:
             with get_connection() as conn, conn.cursor() as cur:
@@ -152,10 +146,10 @@ class LichessIngestor:
 
         user = data.get("user", {})
         return {
-            "id": user.get("id", "unknown").lower(), # Lowercase for clean querying
+            "id": user.get("id", "unknown").lower(),  # Lowercase for clean querying
             "name": user.get("name", "Unknown"),
             "rating": data.get("rating", 1500),
-            "rating_diff": data.get("ratingDiff"), # Might be None, SQL handles it!
+            "rating_diff": data.get("ratingDiff"),  # Might be None, SQL handles it!
         }
 
     @staticmethod

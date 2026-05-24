@@ -62,7 +62,7 @@ class GameAnnotator:
             move_evals: A list of dicts containing engine analysis for each ply.
 
         Returns:
-            A tuple containing a list of ply classification metadata and the 
+            A tuple containing a list of ply classification metadata and the
             final PGN string with injected commentary and symbols.
         """
         game = chess.pgn.read_game(io.StringIO(moves_string))
@@ -107,17 +107,18 @@ class GameAnnotator:
                 if top_moves:
                     alternatives = []
                     for i, choice in enumerate(top_moves[:2], 1):
-                        alternatives.append(
-                            f"{i}. {choice['move']} ({self._format_score(choice['eval'])})"
-                        )
+                        move = choice['move']
+                        score = self._format_score(choice['eval'])
+                        alternatives.append(f"{i}. {move} ({score})")
+                    
                     comment_parts.append(f"Top: {' | '.join(alternatives)}")
 
                 # Add Low Depth choice
                 low_best = eval_data.get("low_best_move", {})
-                if low_best.get("move"):
-                    comment_parts.append(
-                        f"Low: {low_best['move']} ({self._format_score(low_best['eval'])})"
-                    )
+                move = low_best.get("move")
+                if move:
+                    score = self._format_score(low_best.get("eval", 0))
+                    comment_parts.append(f"Low: {move} ({score})")
 
                 node.comment = " // ".join(comment_parts)
 
@@ -170,9 +171,11 @@ class GameAnnotator:
         cp = eval_score["value"]
         return 0.5 + 0.5 * (2 / (1 + math.exp(-0.003682 * cp)) - 1)
 
+
 # =====================================================================
 # BATCH PROCESSING ENTRYPOINT (New!)
 # =====================================================================
+
 
 def run_annotation_batch(limit: int | None = None) -> None:
     """Query the DB for ANALYZED games and apply book/engine annotations.
@@ -206,15 +209,20 @@ def run_annotation_batch(limit: int | None = None) -> None:
             GameAnnotator() as annotator,
             conn.cursor() as cur,
         ):
-            for game_id, pgn_text, move_evals_raw in tqdm(pending_games, desc="Annotating"):
+            for game_id, pgn_text, move_evals_raw in tqdm(
+                pending_games, desc="Annotating"
+            ):
                 try:
                     move_evals = (
-                        move_evals_raw if isinstance(move_evals_raw, list) 
+                        move_evals_raw
+                        if isinstance(move_evals_raw, list)
                         else json.loads(move_evals_raw)
                     )
 
                     # Pass the PGN text and engine data to your logic
-                    plies, final_pgn = annotator.annotate_game_moves(pgn_text, move_evals)
+                    plies, final_pgn = annotator.annotate_game_moves(
+                        pgn_text, move_evals
+                    )
 
                     if plies and final_pgn:
                         update_sql = """

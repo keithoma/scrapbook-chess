@@ -72,7 +72,13 @@ class AchievementLedger:
 
         logger.info("🏆 FEAT UNLOCKED: %s in game %s", def_id, game_id)
 
-    def record_progress(self, game_id: str, def_id: str, amount: float, trigger_plies: list[int] | None = None) -> None:
+    def record_progress(
+        self,
+        game_id: str,
+        def_id: str,
+        amount: float,
+        trigger_plies: list[int] | None = None,
+    ) -> None:
         """Add progress and check for tier unlocks internally."""
         if self.is_already_granted(game_id, def_id):
             return
@@ -85,12 +91,16 @@ class AchievementLedger:
                 upsert_progress_sql = (
                     "INSERT INTO user_progress (username, def_id, current_value) "
                     "VALUES (%s, %s, %s) "
-                    "ON CONFLICT (username, def_id) DO UPDATE SET "
-                    "current_value = user_progress.current_value + EXCLUDED.current_value "
+                    "ON CONFLICT (username, def_id) DO UPDATE "
+                    "SET current_value = user_progress.current_value + "
+                    "EXCLUDED.current_value "
                     "RETURNING current_value;"
                 )
                 cur.execute(upsert_progress_sql, (self.username, def_id, amount))
-                new_total = cur.fetchone()[0]
+                row = cur.fetchone()
+                if row is None:
+                    raise ValueError(f"Failed to upsert progress for {def_id}")
+                new_total = row[0]
 
                 # 2. Check for tier unlock
                 cur.execute(
@@ -99,7 +109,7 @@ class AchievementLedger:
                 )
                 res = cur.fetchone()
                 config_raw = res[0] if res else {}
-                
+
                 config = (
                     config_raw
                     if isinstance(config_raw, dict)
@@ -138,9 +148,7 @@ class AchievementLedger:
                                 "SELECT 1 FROM user_unlocks "
                                 "WHERE username=%s AND def_id=%s AND tier=%s"
                             )
-                            cur.execute(
-                                select_unlock_q, (self.username, def_id, tier)
-                            )
+                            cur.execute(select_unlock_q, (self.username, def_id, tier))
                             if not cur.fetchone():
                                 newly_unlocked_tier = tier
                                 insert_unlock_q = (
@@ -153,14 +161,23 @@ class AchievementLedger:
                             break
 
                 # 3. Save to Ledger
+                query = (
+                    "INSERT INTO game_grants_ledger "
+                    "game_id, username, def_id, "
+                    "change_amount, tier_unlocked, "
+                    "trigger_plies"
+                    "VALUES (%s, %s, %s, %s, %s, %s);"
+                )
                 cur.execute(
-                    """
-                    INSERT INTO game_grants_ledger (
-                        game_id, username, def_id, change_amount, tier_unlocked, trigger_plies
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s);
-                """,
-                    (game_id, self.username, def_id, amount, newly_unlocked_tier, trigger_plies_arr),
+                    query,
+                    (
+                        game_id,
+                        self.username,
+                        def_id,
+                        amount,
+                        newly_unlocked_tier,
+                        trigger_plies_arr,
+                    ),
                 )
             conn.commit()
 

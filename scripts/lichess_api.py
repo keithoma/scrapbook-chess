@@ -21,6 +21,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
+
 def fetch_latest_games(username: str, limit: int = 1) -> None:
     """Fetches the most recent games for a user to verify API structure.
 
@@ -44,7 +45,7 @@ def fetch_latest_games(username: str, limit: int = 1) -> None:
     # Lichess personal API token is not mandatory, but good to have
     headers = {
         "Accept": "application/x-ndjson",
-        "Authorization": f"Bearer {token}" if token else ""
+        "Authorization": f"Bearer {token}" if token else "",
     }
 
     url = f"https://lichess.org/api/games/user/{username}"
@@ -57,23 +58,19 @@ def fetch_latest_games(username: str, limit: int = 1) -> None:
         "clocks": "true",
         "evals": "false",
     }
-    
+
     try:
         with requests.get(
-            url,
-            params=params,
-            headers=headers,
-            stream=True,
-            timeout=30
+            url, params=params, headers=headers, stream=True, timeout=30
         ) as response:
             response.raise_for_status()
 
-            count = 0 
+            count = 0
             for line in response.iter_lines():
                 if line:
                     raw_game = json.loads(line)
                     rprint(raw_game)
-                    
+
                     # just a failsafe to cut the connection from our side
                     count += 1
                     if count >= limit:
@@ -82,10 +79,11 @@ def fetch_latest_games(username: str, limit: int = 1) -> None:
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to fetch data: {e}")
 
+
 if __name__ == "__main__":
     user = os.getenv("LICHESS_USER_NAME")
     if not user:
         logger.error("LICHESS_USER_NAME not set in .env")
         sys.exit(1)
-        
+
     fetch_latest_games(username=user, limit=1)

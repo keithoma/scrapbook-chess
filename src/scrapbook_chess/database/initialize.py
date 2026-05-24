@@ -174,7 +174,7 @@ def initialize_database() -> None:
 
                 logger.debug("Creating dependent progress and ledger tables...")
                 cur.execute(dependent_tables)
-                
+
                 logger.debug("Creating master history view...")
                 cur.execute(master_view)
 

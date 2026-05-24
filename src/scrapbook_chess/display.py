@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import textwrap
 from datetime import datetime
 
 from scrapbook_chess.database.connection import get_connection
@@ -98,11 +99,11 @@ def show_profile(username: str) -> None:
             if isinstance(config_raw, dict)
             else json.loads(config_raw or "{}")
         )
-        
+
         # Robust parsing for the new flat schema
         weight = 0
         flavor_text = ""
-        
+
         # Check if config has 'tiers' key, or if it's structured differently
         if "tiers" in config:
             tiers_cfg = config["tiers"]
@@ -123,8 +124,8 @@ def show_profile(username: str) -> None:
                     weight = t_val
         else:
             # If no tiers are defined, it's a flat achievement
-             weight = 1
-             flavor_text = config.get("flavor_text", "")
+            weight = 1
+            flavor_text = config.get("flavor_text", "")
 
         # Dedup to keep only the absolute highest tier unlocked for this badge id
         if def_id not in highest_unlocks or weight > highest_unlocks[def_id]["weight"]:
@@ -145,7 +146,8 @@ def show_profile(username: str) -> None:
         print("  (No trophies earned yet. Keep grinding!)")
     else:
         current_type = ""
-        # Coerce sorting keys to strings to ensure NoneType comparisons never trip up the engine
+        # Coerce sorting keys to strings to ensure NoneType comparisons never trip up
+        # the engine
         sorted_items = sorted(
             highest_unlocks.values(),
             key=lambda x: (
@@ -161,7 +163,11 @@ def show_profile(username: str) -> None:
                 current_type = item["type"]
 
             date_str = _format_date(item["unlocked_at"])
-            tier_str = f"({item['tier'].upper()})" if item["tier"] and item["tier"] != "base" else ""
+            tier_str = (
+                f"({item['tier'].upper()})"
+                if item["tier"] and item["tier"] != "base"
+                else ""
+            )
             print(f"  ✨ {item['name']:<25} {tier_str:<10} | {date_str}")
             if item["flavor_text"] and item["flavor_text"] != "**":
                 print(f"     {item['flavor_text']}")
@@ -224,7 +230,7 @@ def show_history(username: str, limit: int = 10) -> None:
     print(f"📜 RECENT GAME HISTORY: {username.upper()}")
     print(f"{'=' * 90}")
 
-    games_query = """
+    games_query = textwrap.dedent("""
         SELECT 
             ggl.game_id, 
             MAX(ggl.granted_at) as recent_grant,
@@ -235,17 +241,21 @@ def show_history(username: str, limit: int = 10) -> None:
         FROM game_grants_ledger ggl
         JOIN games g ON ggl.game_id = g.id
         WHERE ggl.username = %s
-        GROUP BY ggl.game_id, g.white_username, g.black_username, g.opening_name, g.raw_moves
+        GROUP BY 
+            ggl.game_id, g.white_username, g.black_username, 
+            g.opening_name, g.raw_moves
         ORDER BY recent_grant DESC
         LIMIT %s;
-    """
+    """)
 
-    ledger_query = """
-        SELECT ad.name, ad.description, ad.type, ggl.change_amount, ggl.tier_unlocked, ggl.trigger_plies
+    ledger_query = textwrap.dedent("""
+        SELECT 
+            ad.name, ad.description, ad.type, ggl.change_amount, 
+            ggl.tier_unlocked, ggl.trigger_plies
         FROM game_grants_ledger ggl
         JOIN achievement_definitions ad ON ggl.def_id = ad.id
         WHERE ggl.game_id = %s AND ggl.username = %s;
-    """
+    """)
 
     with get_connection() as conn, conn.cursor() as cur:
         cur.execute(games_query, (username, limit))
@@ -255,7 +265,14 @@ def show_history(username: str, limit: int = 10) -> None:
             print("\n 🦗 No history found. Run the scanner first!")
             return
 
-        for game_id, recent_grant, white, black, opening_name, raw_moves in recent_games:
+        for (
+            game_id,
+            recent_grant,
+            white,
+            black,
+            opening_name,
+            raw_moves,
+        ) in recent_games:
             opening = opening_name or "Unknown Opening"
             date_str = _format_date(recent_grant)
 
@@ -270,22 +287,35 @@ def show_history(username: str, limit: int = 10) -> None:
             # Tokenize move list from raw_moves to map ply numbers to SAN
             tokens: list[str] = []
             if raw_moves:
-                # Strip numeric move markers (e.g., "1.", "2.") to isolate the SAN strings
-                tokens = [t for t in raw_moves.replace("\n", " ").split() if not (t.endswith('.') or '...' in t)]
+                # Strip numeric move markers (e.g., "1.", "2.") to isolate the SAN
+                # strings
+                tokens = [
+                    t
+                    for t in raw_moves.replace("\n", " ").split()
+                    if not (t.endswith(".") or "..." in t)
+                ]
 
             for g_name, g_desc, g_type, g_amount, g_tier, g_plies in grants:
                 if g_type == "badge":
-                    tier_msg = f" 🏅 UNLOCKED {g_tier.upper()}!" if g_tier and g_tier != "base" else ""
+                    tier_msg = (
+                        f" 🏅 UNLOCKED {g_tier.upper()}!"
+                        if g_tier and g_tier != "base"
+                        else ""
+                    )
                     print(
                         f"   📊 {g_name:<25} | +{g_amount} Prog | ({g_desc}){tier_msg}"
                     )
-                    
+
                     # Convert raw plies into standard chess notation formatting
                     if g_plies:
                         move_entries = []
                         for p in g_plies:
                             try:
-                                san = tokens[p - 1] if 0 <= (p - 1) < len(tokens) else None
+                                san = (
+                                    tokens[p - 1]
+                                    if 0 <= (p - 1) < len(tokens)
+                                    else None
+                                )
                                 if san:
                                     move_num = (p + 1) // 2
                                     if p % 2 != 0:
@@ -297,7 +327,7 @@ def show_history(username: str, limit: int = 10) -> None:
                             except Exception:
                                 formatted_move = f"(ply {p})"
                             move_entries.append(formatted_move)
-                            
+
                         print(f"      Triggered at: {', '.join(move_entries)}")
                 elif g_type == "mastery":
                     print(f"   📈 {g_name:<25} | +{g_amount} EXP  | ({g_desc})")

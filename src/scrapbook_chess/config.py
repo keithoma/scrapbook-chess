@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Project Paths
-# Step up 3 parents: 1. config.py folder -> 2. scrapbook_chess -> 3. src -> 4. project root
+# Project Paths Step up 3 parents: 1. config.py folder -> 2. scrapbook_chess -> 3. src
+# -> 4. project root
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 BOOK_PATH = (
     ROOT_DIR

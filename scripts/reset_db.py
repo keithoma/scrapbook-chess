@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def reset_database(force: bool = False) -> None:
     """Safely purges all user, game, and achievement progress tables.
-    
+
     Args:
         force (bool): Flag to skip the yes/no-confirmation.
     """

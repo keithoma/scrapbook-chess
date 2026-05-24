@@ -19,10 +19,26 @@ logger = logging.getLogger(__name__)
 class AchievementScanner:
     """Loads achievement rules from YAML files and orchestrates scanning.
 
-    Builds game metrics and logs progress/unlocks into the database ledger.
+    This class coordinates the lifecycle of achievement evaluation by synchronizing
+    local YAML configuration files with the database registry, analyzing game 
+    metrics, and updating the player's achievement ledger based on performance.
+
+    Attributes:
+        username (str): The identifier of the user whose games are being scanned.
+        show_all (bool): Whether to display all achievement types regardless of 
+            unlock status.
+        ledger (AchievementLedger): The instance used to record progress into the
+            database.
+        configs (dict): The loaded achievement definitions categorized by type.
     """
 
     def __init__(self, username: str, show_all: bool = False) -> None:
+        """Initializes the scanner, loads configurations, and syncs with the DB.
+
+        Args:
+            username: The identifier of the user.
+            show_all: Optional flag to determine visibility of achievement types.
+        """
         self.username = username
         self.show_all = show_all
         self.ledger = AchievementLedger(username)
@@ -30,7 +46,12 @@ class AchievementScanner:
         self.sync_definitions()
 
     def sync_definitions(self) -> None:
-        """Synchronize local YAML achievement profiles into the DB catalog."""
+        """Synchronizes local YAML achievement profiles into the DB catalog.
+
+        Performs an UPSERT operation on the achievement_definitions table to
+        ensure the database reflects the latest rule definitions from the 
+        local filesystem.
+        """
         logger.info("🔄 Synchronizing achievement definitions with local YAML files...")
 
         query = """
@@ -48,13 +69,19 @@ class AchievementScanner:
             for item_type, items in self.configs.items():
                 for item in items:
                     item_id = item.get("id")
-                    if not item_id: continue
+                    if not item_id:
+                        continue
 
-                    name = item.get("name") or item_id.replace("badge_", "").replace("_", " ").title()
+                    name = (
+                        item.get("name")
+                        or item_id.replace("badge_", "").replace("_", " ").title()
+                    )
                     description = item.get("description", "")
                     config_json = json.dumps(item.get("config", {}))
 
-                    cur.execute(query, (item_id, item_type, name, description, config_json))
+                    cur.execute(
+                        query, (item_id, item_type, name, description, config_json)
+                    )
                     count += 1
             conn.commit()
 
@@ -63,7 +90,11 @@ class AchievementScanner:
     def _load_yaml_configs(self) -> dict[str, list[dict[str, Any]]]:
         """Reads all achievement configuration files from the local data registry."""
         configs = {"badge": [], "mastery": [], "feat": [], "story": []}
-        data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data" / "achievements"
+        data_dir = (
+            Path(__file__).resolve().parent.parent.parent.parent
+            / "data"
+            / "achievements"
+        )
 
         if not data_dir.exists():
             return configs
@@ -72,7 +103,8 @@ class AchievementScanner:
             try:
                 with open(filepath, encoding="utf-8") as f:
                     data = yaml.safe_load(f)
-                    if not data: continue
+                    if not data:
+                        continue
                     for item in data:
                         item_type = item.get("type", "unknown")
                         if item_type in configs:
@@ -84,11 +116,18 @@ class AchievementScanner:
 
     def scan_games(self, limit: int | None = None, export_pgn: bool = False) -> None:
         """Fetch ANNOTATED games, generate metrics, and evaluate achievements."""
-        query = "SELECT * FROM master_game_history WHERE pipeline_status = 'ANNOTATED' ORDER BY played_at ASC"
+        query = (
+            "SELECT * FROM master_game_history "
+            "WHERE pipeline_status = 'ANNOTATED' "
+            "ORDER BY played_at ASC"
+        )
         if limit:
             query += f" LIMIT {limit}"
 
-        with get_connection() as conn, conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+        with (
+            get_connection() as conn,
+            conn.cursor(row_factory=psycopg.rows.dict_row) as cur,
+        ):
             cur.execute(query)
             rows = cur.fetchall()
 
@@ -108,12 +147,14 @@ class AchievementScanner:
                         custom_metrics = metrics_engine.export_metrics()
                         fast_cols = metrics_engine.fast_columns
 
-                        # Inject the calculated fast columns back into the dictionary 
+                        # Inject the calculated fast columns back into the dictionary
                         # so _evaluate_feats and _evaluate_mastery can read them!
                         row.update(fast_cols)
 
                         # 2. Evaluate rules against the flat row + custom metrics
-                        self._evaluate_badges(row, custom_metrics, metrics_engine.trigger_plies)
+                        self._evaluate_badges(
+                            row, custom_metrics, metrics_engine.trigger_plies
+                        )
                         self._evaluate_mastery(row)
                         self._evaluate_feats(row)
 
@@ -133,27 +174,41 @@ class AchievementScanner:
                                 pipeline_status = 'SCANNED' 
                             WHERE id = %s
                         """
-                        write_cur.execute(update_sql, (
-                            json.dumps(custom_metrics),
-                            fast_cols["blunders_count"],
-                            fast_cols["mistakes_count"],
-                            fast_cols["inaccuracies_count"],
-                            fast_cols["book_moves_count"],
-                            fast_cols["acpl"],
-                            game_id
-                        ))
+                        write_cur.execute(
+                            update_sql,
+                            (
+                                json.dumps(custom_metrics),
+                                fast_cols["blunders_count"],
+                                fast_cols["mistakes_count"],
+                                fast_cols["inaccuracies_count"],
+                                fast_cols["book_moves_count"],
+                                fast_cols["acpl"],
+                                game_id,
+                            ),
+                        )
                         write_conn.commit()
 
                     except Exception as game_err:
-                        # The trace will point exactly to the broken line if you run with --debug
-                        logger.error("❌ Failed processing achievement scans for game %s: %s", game_id, game_err, exc_info=True)
+                        # The trace will point exactly to the broken line if you run
+                        # with --debug
+                        logger.error(
+                            "❌ Failed processing achievement scans for game %s: %s",
+                            game_id,
+                            game_err,
+                            exc_info=True,
+                        )
                         write_conn.rollback()
                         continue
-                        
-        except Exception as batch_err:
-             logger.error("💥 Scanner batch processing critical failure: %s", batch_err)
 
-    def _evaluate_badges(self, row: dict[str, Any], custom_metrics: dict[str, Any], trigger_plies: dict[str, list[int]]) -> None:
+        except Exception as batch_err:
+            logger.error("💥 Scanner batch processing critical failure: %s", batch_err)
+
+    def _evaluate_badges(
+        self,
+        row: dict[str, Any],
+        custom_metrics: dict[str, Any],
+        trigger_plies: dict[str, list[int]],
+    ) -> None:
         for badge in self.configs.get("badge", []):
             badge_id = badge["id"]
             config = badge.get("config", {})
@@ -167,7 +222,9 @@ class AchievementScanner:
 
             # STRICT CHECK: If the key isn't in our metrics, don't guess!
             if metric_key not in custom_metrics:
-                logger.debug(f"Skipping badge {badge_id}: metric '{metric_key}' not found.")
+                logger.debug(
+                    f"Skipping badge {badge_id}: metric '{metric_key}' not found."
+                )
                 continue
 
             actual_value = custom_metrics[metric_key]
@@ -176,29 +233,41 @@ class AchievementScanner:
             # If required_value is set, reward based on comparison
             if required_value is not None:
                 is_match = False
-                if isinstance(required_value, (int, float)) and isinstance(actual_value, (int, float)):
+                if isinstance(required_value, (int, float)) and isinstance(
+                    actual_value, (int, float)
+                ):
                     # Threshold achievements (rating_diff, etc.)
                     is_match = actual_value >= required_value
                 else:
                     # Categorical/Boolean achievements
                     is_match = actual_value == required_value
-                
+
                 if is_match:
-                    self.ledger.record_progress(row["game_id"], badge_id, 1.0, current_trigger_plies)
-            
-            # If it's a numeric metric with no required_value, accumulate its count (en_passant_count, total_material_captured, etc.)
+                    self.ledger.record_progress(
+                        row["game_id"], badge_id, 1.0, current_trigger_plies
+                    )
+
+            # If it's a numeric metric with no required_value, accumulate its count
+            # (en_passant_count, total_material_captured, etc.)
             elif isinstance(actual_value, (int, float)) and actual_value > 0:
-                self.ledger.record_progress(row["game_id"], badge_id, float(actual_value), current_trigger_plies)
+                self.ledger.record_progress(
+                    row["game_id"], 
+                    badge_id, 
+                    float(actual_value), 
+                    current_trigger_plies
+                )
 
     def _evaluate_mastery(self, row: dict[str, Any]) -> None:
         """Calculates specific openings and updates experience points pools."""
         is_white = row["white_username"] == self.username
         my_color_name = "white" if is_white else "black"
-        is_win = (is_white and row["score"] == "1-0") or (not is_white and row["score"] == "0-1")
+        is_win = (is_white and row["score"] == "1-0") or (
+            not is_white and row["score"] == "0-1"
+        )
 
         for mastery in self.configs.get("mastery", []):
             conditions = mastery.get("config", {}).get("conditions", {})
-            
+
             color_req = conditions.get("color", "any")
             if color_req != "any" and color_req != my_color_name:
                 continue
@@ -206,8 +275,14 @@ class AchievementScanner:
             opening_eco = row.get("opening_eco") or ""
             opening_name = row.get("opening_name") or ""
 
-            matched_eco = any(opening_eco.startswith(pref) for pref in conditions.get("eco_prefixes", []))
-            matched_name = any(word.lower() in opening_name.lower() for word in conditions.get("name_includes", []))
+            matched_eco = any(
+                opening_eco.startswith(pref)
+                for pref in conditions.get("eco_prefixes", [])
+            )
+            matched_name = any(
+                word.lower() in opening_name.lower()
+                for word in conditions.get("name_includes", [])
+            )
 
             if matched_eco or matched_name:
                 base_exp = 50.0 if is_win else 10.0
@@ -218,7 +293,9 @@ class AchievementScanner:
     def _evaluate_feats(self, row: dict[str, Any]) -> None:
         """Validates situational unique performance triggers."""
         is_white = row["white_username"] == self.username
-        is_win = (is_white and row["score"] == "1-0") or (not is_white and row["score"] == "0-1")
+        is_win = (is_white and row["score"] == "1-0") or (
+            not is_white and row["score"] == "0-1"
+        )
 
         for feat in self.configs.get("feat", []):
             feat_id = feat["id"]
@@ -259,5 +336,23 @@ def process_achievements(
     show_all: bool = False,
     export_pgn: bool = False,
 ) -> None:
+    """Orchestrates the achievement scanning and synchronization process.
+
+    Initializes an `AchievementScanner` for the specified user, synchronizes
+    achievement definitions with the database, and processes annotated games 
+    to evaluate progress, feats, and mastery.
+
+    Args:
+        username: The identifier of the user whose games are being scanned.
+        limit: The maximum number of games to process in this batch. If 
+            None, all available annotated games are processed.
+        show_all: A flag to determine if all achievement types should be
+            displayed or logged, regardless of unlock status.
+        export_pgn: If True, exports the annotated PGN of each processed
+            game to the local debug directory.
+
+    Returns:
+        None
+    """
     scanner = AchievementScanner(username, show_all)
     scanner.scan_games(limit, export_pgn)
