@@ -118,19 +118,19 @@
 
 ###############################################################################
 # 
-# Total hyperbullet games played.
+# Total Hyperbullet games played.
 ###############################################################################
-- id: badge_played_bullet
+- id: badge_played_hyperbullet
   type: badge
   category: "Veterancy"
   subcategory: ""
   name: ""
-  description: "Total Bullet games played."
+  description: "Total Hyperbullet games played."
   flavor_text: ""
   config:
     metric_key: "speed"
-    required_value: "bullet"
-    is_hidden: false
+    required_value: "hyperbullet"
+    is_hidden: true
     tiers:
       - name: "pawn"
         amount: 1
