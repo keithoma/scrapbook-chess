@@ -48,49 +48,49 @@
 
 
 ###############################################################################
-# 
+# STARCRAFT III
 # Total Ultra Bullet games played.
 ###############################################################################
 - id: badge_played_ultrabullet
   type: badge
   category: "Veterancy"
-  subcategory: ""
-  name: ""
+  subcategory: "Mileage"
+  name: "StarCraft III"
   description: "Total Ultra Bullet games played."
-  flavor_text: ""
+  flavor_text: "*Please don''t sue me, Blizzard.*"
   config:
     metric_key: "speed"
     required_value: "ultrabullet"
-    is_hidden: false
+    is_hidden: true
     tiers:
       - name: "pawn"
-        amount: 1     #
-        flavor_text: "**"
+        amount: 1998      # year of StarCraft I release
+        flavor_text: '*I''d claim fair use anyway.*'
 
       - name: "knight"
-        amount: 2     #
-        flavor_text: "**"
+        amount: 2010      # year of StarCraft II release
+        flavor_text: '*"Ping diff."*'
 
       - name: "bishop"
-        amount: 3     #
-        flavor_text: "**"
+        amount: 2015      # year of the Legacy of the Void release
+        flavor_text: '*Take the hint. I really don''t want you playing ultra bullet.*'
 
       - name: "rook"
-        amount: 4     #
-        flavor_text: "**"
+        amount: 9001      # it's over 9000
+        flavor_text: '*"I''m applying for Korean citizenship."*'
 
       - name: "queen"
-        amount: 5     #
-        flavor_text: "**"
+        amount: 10101     # 1-1-1 build order format
+        flavor_text: "*400 APM.*"
 
       - name: "king"
-        amount: 6     #
-        flavor_text: ""
+        amount: 20000     # matching standard mileage cap
+        flavor_text: '*"16 units is nothing. Have you seen my Zerg rush?"*'
 
       - name: "immortal"
-        amount: 7     #
-        flavor_text: ""
+        amount: 49998     # an unsatisfying number
+        flavor_text: '*There''s Serral. And then there''s you.*'
 
       - name: "legend"
-        amount: 8     #
-        flavor_text: ""
+        amount: 100000     # just a big number
+        flavor_text: '*Was this actually "worth it" to you?*'
