@@ -156,52 +156,6 @@
 
 
 
-###############################################################################
-# OBSESSION
-# Total games played across all time controls.
-###############################################################################
-- id: badge_played_total
-  type: badge
-  category: "Veterancy"
-  subcategory: ""
-  name: "Obsession"
-  description: "Total games played across all time controls."
-  flavor_text: '*"Trying is the first step to failure."* — GM Ben Finegold'
-  config:
-    metric_key: null
-    is_hidden: false
-    tiers:
-      - name: "pawn"
-        amount: 16     # number of pieces
-        flavor_text: "*A for effort.*"
-
-      - name: "knight"
-        amount: 64     # number of squares
-        flavor_text: "*$2^{64}$ grains of rice worth of effort.*"
-
-      - name: "bishop"
-        amount: 256     # number of squares in a team game
-        flavor_text: "*You won at least some of them, right?*"
-
-      - name: "rook"
-        amount: 400     # number of games after 2 plies
-        flavor_text: '*"I''m not hardstuck."*'
-
-      - name: "queen"
-        amount: 2500     # minimum elo to become grandmaster
-        flavor_text: "*Good job!*"
-
-      - name: "king"
-        amount: 4096     # = 64 * 64
-        flavor_text: "*Grass touching is advised.*"
-
-      - name: "immortal"
-        amount: 8902     # number of games after 3 plies
-        flavor_text: "*Are these all bullet games?*"
-
-      - name: "legend"
-        amount: 20000     # just a round number
-        flavor_text: "*Really? Now I need to add more content.*"
 
 
 
@@ -254,53 +208,7 @@
         flavor_text: '*I''m considering not counting ultrabullet games in the next update.*'
 
 
-###############################################################################
-# 
-# Total Ultra Bullet games played.
-###############################################################################
-- id: badge_played_ultrabullet
-  type: badge
-  category: "Veterancy"
-  subcategory: ""
-  name: ""
-  description: "Total Ultra Bullet games played."
-  flavor_text: ""
-  config:
-    metric_key: "speed"
-    required_value: "ultrabullet"
-    is_hidden: false
-    tiers:
-      - name: "pawn"
-        amount: 1     #
-        flavor_text: "**"
 
-      - name: "knight"
-        amount: 2     #
-        flavor_text: "**"
-
-      - name: "bishop"
-        amount: 3     #
-        flavor_text: "**"
-
-      - name: "rook"
-        amount: 4     #
-        flavor_text: "**"
-
-      - name: "queen"
-        amount: 5     #
-        flavor_text: "**"
-
-      - name: "king"
-        amount: 6     #
-        flavor_text: ""
-
-      - name: "immortal"
-        amount: 7     #
-        flavor_text: ""
-
-      - name: "legend"
-        amount: 8     #
-        flavor_text: ""
 
 
 
