@@ -1,0 +1,98 @@
+###############################################################################
+# WINNER
+# Total games won across all time controls.
+###############################################################################
+- id: badge_won_total
+  type: badge
+  category: "Veterancy"
+  subcategory: "Body Count"
+  name: "Winner"
+  description: "Total games won across all time controls."
+  flavor_text: "*Something something... sign of a gentleman*."
+  config:
+    metric_key: "is_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 7     # (16) | just a lucky number
+        flavor_text: '*“I like the moment when I break a man''s ego.”*'
+
+      - name: "knight"
+        amount: 21     # (64) | blackjack
+        flavor_text: "*Winner winner chicken dinner.*"
+
+      - name: "bishop"
+        amount: 67     # (256) | meme
+        flavor_text: '*"I understood that reference."*'
+
+      - name: "rook"
+        amount: 77     # (400) | another lucky number
+        flavor_text: '*"The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam*'
+
+      - name: "queen"
+        amount: 777     # (2500) | another lucky number
+        flavor_text: '*You know what? Good job! I''m proud of you, actually.*'
+
+      - name: "king"
+        amount: 1931     # (4096) | on this year, Nevada legalized gambling
+        flavor_text: "If rock paper scissors is a game of chance, then chess must be too."
+
+      - name: "immortal"
+        amount: 4444     # (8902) | the quad jack
+        flavor_text: "*Actually, you win a lot...*"
+
+      - name: "legend"
+        amount: 20000     # just a round number
+        flavor_text: '*I''m considering not counting ultrabullet games in the next update.*'
+
+
+
+###############################################################################
+# AS FORETOLD
+# Total Ultra Bullet games won.
+###############################################################################
+- id: badge_won_ultrabullet
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Body Count'
+  name: 'As Foretold'
+  description: "Total Ultra Bullet games won."
+  flavor_text:
+    player_quote: 'I have premoved your fate an eternity ago.'
+  config:
+    metric_key: 'is_ultrabullet_win'
+    required_value: true
+    is_hidden: true
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
