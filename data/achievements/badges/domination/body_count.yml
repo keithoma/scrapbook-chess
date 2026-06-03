@@ -106,7 +106,7 @@
       - name: 'immortal'
         amount: 7000
         flavor:
-          text: 'You have spent twenty-one days of your life just winning. I wonder how many you spent losing.'
+          text: 'You have spent twenty-one days of your life just winning. I wonder how many you spent losing.' # it's actually around two and a half days
 
       - name: 'legend'
         amount: 14400
