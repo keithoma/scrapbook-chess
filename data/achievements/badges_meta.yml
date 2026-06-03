@@ -222,7 +222,7 @@
   subcategory: ""
   name: ""
   description: "Total Ultra Bullet games won."
-  flavor_text: ""
+  flavor: ""
   config:
     metric_key: "is_ultrabullet_win"
     required_value: true

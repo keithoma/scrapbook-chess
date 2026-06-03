@@ -8,7 +8,7 @@
   subcategory: 'Body Count'
   name: 'Winner'
   description: 'Total games won across all time controls.'
-  flavor_text:
+  flavor:
     quote: 'Something something... sign of a gentleman.'
   config:
     metric_key: 'is_win'
@@ -17,42 +17,42 @@
     tiers:
       - name: 'pawn'
         amount: 7     # (16) | just a lucky number
-        flavor_text:
+        flavor:
           player_quote: 'I like the moment when I break a man''s ego.'
 
       - name: 'knight'
         amount: 21     # (64) | blackjack
-        flavor_text:
+        flavor:
           text: 'Winner winner chicken dinner.'
 
       - name: 'bishop'
         amount: 67     # (256) | meme
-        flavor_text:
+        flavor:
           player_quote: 'I understood that reference.'
 
       - name: 'rook'
         amount: 77     # (400) | another lucky number
-        flavor_text:
+        flavor:
           quote: 'The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam'
 
       - name: 'queen'
         amount: 777     # (2500) | another lucky number
-        flavor_text:
+        flavor:
           text: 'You know what? Good job! I''m proud of you, actually.'
 
       - name: 'king'
         amount: 1931     # (4096) | on this year, Nevada legalized gambling
-        flavor_text:
+        flavor:
           text: 'If rock paper scissors is a game of chance, then chess must be too.'
 
       - name: 'immortal'
         amount: 4444     # (8902) | the quad jack
-        flavor_text:
+        flavor:
           text: 'Actually, you win a lot...'
 
       - name: 'legend'
         amount: 20000     # just a round number
-        flavor_text:
+        flavor:
           text: 'I''m considering not counting ultrabullet games in the next update.'
 
 
@@ -67,7 +67,7 @@
   subcategory: 'Body Count'
   name: 'As Foretold'
   description: 'Total Ultrabullet games won.'
-  flavor_text:
+  flavor:
     player_quote: 'I have premoved your fate an eternity ago.'
   config:
     metric_key: 'is_ultrabullet_win'
@@ -76,39 +76,39 @@
     tiers:
       - name: 'pawn'
         amount: 11          # these numbers are references to biblical prophecies
-        flavor_text:
+        flavor:
           text: 'Who talks like that?'
 
       - name: 'knight'
         amount: 42
-        flavor_text: 'You do understand that this is not chess, right?'
+        flavor: 'You do understand that this is not chess, right?'
 
       - name: 'bishop'
         amount: 144
-        flavor_text:
+        flavor:
           quote: 'I didn''t even see what he played, I just premoved three times and hoped for the best.'
           author: 'GM Andrew Tang'
 
       - name: 'rook'
         amount: 490
-        flavor_text:
+        flavor:
           text: '*Sigh* Writing the flavor text for this achievement takes longer than it takes you to win an ultrabullet game.'
 
       - name: 'queen'
         amount: 666
-        flavor_text:
+        flavor:
           text: 'This achievement is intentionally left blank.'
 
       - name: 'king'
         amount: 1260
-        flavor_text: 'Good job! You definitely have a better mouse than your opponents.'
+        flavor: 'Good job! You definitely have a better mouse than your opponents.'
 
       - name: 'immortal'
         amount: 7000
-        flavor_text:
+        flavor:
           text: 'You have spent twenty-one days of your life just winning. I wonder how many you spent losing.'
 
       - name: 'legend'
         amount: 14400
-        flavor_text:
+        flavor:
           text: 'Now try this again with premoves disabled.'
