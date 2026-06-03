@@ -66,7 +66,7 @@
   category: 'Veterancy'
   subcategory: 'Body Count'
   name: 'As Foretold'
-  description: "Total Ultra Bullet games won."
+  description: 'Total Ultrabullet games won.'
   flavor_text:
     player_quote: 'I have premoved your fate an eternity ago.'
   config:
@@ -74,34 +74,39 @@
     required_value: true
     is_hidden: true
     tiers:
-      - name: "pawn"
-        amount: 1
+      - name: 'pawn'
+        amount: 11          # these numbers are references to biblical prophecies
+        flavor_text:
+          text: 'Who talks like that?'
+
+      - name: 'knight'
+        amount: 42
+        flavor_text: 'You do understand that this is not chess, right?'
+
+      - name: 'bishop'
+        amount: 144
+        flavor_text:
+          quote: 'I didn''t even see what he played, I just premoved three times and hoped for the best.'
+          author: 'GM Andrew Tang'
+
+      - name: 'rook'
+        amount: 490
         flavor_text: ""
 
-      - name: "knight"
-        amount: 2
+      - name: 'queen'
+        amount: 666
         flavor_text: ""
 
-      - name: "bishop"
-        amount: 3
+      - name: 'king'
+        amount: 1260
         flavor_text: ""
 
-      - name: "rook"
-        amount: 4
-        flavor_text: ""
-
-      - name: "queen"
-        amount: 5
-        flavor_text: ""
-
-      - name: "king"
-        amount: 6
-        flavor_text: ""
-
-      - name: "immortal"
+      - name: 'immortal'
         amount: 7
-        flavor_text: ""
+        flavor_text:
+          text: 'You have spent twenty-one days of your life just winning. I wonder how many you spent losing.'
 
       - name: "legend"
         amount: 8
-        flavor_text: ""
+        flavor_text:
+          text: 'Now try this again with premoves disabled.'
