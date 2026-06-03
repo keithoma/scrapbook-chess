@@ -117,49 +117,59 @@
 
 
 ###############################################################################
-# 
+# ADDERALL
 # Total Hyperbullet games played.
 ###############################################################################
 - id: badge_played_hyperbullet
   type: badge
-  category: "Veterancy"
-  subcategory: ""
-  name: ""
-  description: "Total Hyperbullet games played."
-  flavor_text: ""
+  category: 'Veterancy'
+  subcategory: 'Mileage'
+  name: 'Adderall'
+  description: 'Total Hyperbullet games played.'
+  flavor:
+    text: 'It''s like Adderall, but without a prescription.'
   config:
-    metric_key: "speed"
-    required_value: "hyperbullet"
+    metric_key: 'speed'
+    required_value: 'hyperbullet'
     is_hidden: true
     tiers:
-      - name: "pawn"
-        amount: 1
-        flavor_text: ""
+      - name: 'pawn'
+        amount: 30 # 30mg pill standard / 30 seconds a game
+        flavor:
+          player_quote: 'I''m hyper.'
 
-      - name: "knight"
-        amount: 2
-        flavor_text: ""
+      - name: 'knight'
+        amount: 100 # Tachycardia threshold (100 BPM)
+        flavor:
+          quote: 'Is this app PG-13?'
+          author: 'a concerned parent'
 
-      - name: "bishop"
-        amount: 3
-        flavor_text: ""
+      - name: 'bishop'
+        amount: 300 # CAS Registry chemical prefix
+        flavor:
+          text: 'Stay hydrated!'
 
-      - name: "rook"
-        amount: 4
-        flavor_text: ""
+      - name: 'rook'
+        amount: 720 # Minutes in an Extended Release dose
+        flavor:
+          text: 'Snorting a hyperbullet line with three of your friends in a bathroom stall.'
 
-      - name: "queen"
-        amount: 5
-        flavor_text: ""
+      - name: 'queen'
+        amount: 1200
+        flavor:
+          player_quote: 'Look, you don''t get high when you smoke weed; you get stoned. High is when you bullet and hyper. Okay?'
 
-      - name: "king"
-        amount: 6
-        flavor_text: ""
+      - name: 'king'
+        amount: 1520 # ICD-10 Code F15.20 for Amphetamine Dependence
+        flavor:
+          text: 'Voluntarily logging off at 10 PM because you realized you have things to do tomorrow.'
 
-      - name: "immortal"
-        amount: 7
-        flavor_text: ""
+      - name: 'immortal'
+        amount: 5000
+        flavor:
+          text: 'Everything in life being good.'
 
-      - name: "legend"
-        amount: 8
-        flavor_text: ""
+      - name: 'legend'
+        amount: 86400 # Total seconds in a day
+        flavor:
+          text: 'Look, I literally didn''t think anyone would play this much hyperbullet. Please stop playing so I have time to code the next update.'
