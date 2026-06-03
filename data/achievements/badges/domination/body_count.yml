@@ -4,7 +4,7 @@
 ###############################################################################
 - id: badge_won_total
   type: badge
-  category: 'Veterancy'
+  category: 'Domination'
   subcategory: 'Body Count'
   name: 'Winner'
   description: 'Total games won across all time controls.'
@@ -63,7 +63,7 @@
 ###############################################################################
 - id: badge_won_ultrabullet
   type: badge
-  category: 'Veterancy'
+  category: 'Domination'
   subcategory: 'Body Count'
   name: 'As Foretold'
   description: 'Total Ultrabullet games won.'
@@ -91,22 +91,24 @@
 
       - name: 'rook'
         amount: 490
-        flavor_text: ""
+        flavor_text:
+          text: '*Sigh* Writing the flavor text for this achievement takes longer than it takes you to win an ultrabullet game.'
 
       - name: 'queen'
         amount: 666
-        flavor_text: ""
+        flavor_text:
+          text: 'This achievement is intentionally left blank.'
 
       - name: 'king'
         amount: 1260
-        flavor_text: ""
+        flavor_text: 'Good job! You definitely have a better mouse than your opponents.'
 
       - name: 'immortal'
-        amount: 7
+        amount: 7000
         flavor_text:
           text: 'You have spent twenty-one days of your life just winning. I wonder how many you spent losing.'
 
-      - name: "legend"
-        amount: 8
+      - name: 'legend'
+        amount: 14400
         flavor_text:
           text: 'Now try this again with premoves disabled.'
