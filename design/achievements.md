@@ -22,6 +22,12 @@ last_reviewed: 2026-05-23
 
 ## Badges
 
+### Ideas
+
+- let's have an achievement with my cringe aphroisms
+  - Wisdom is the death of romance.
+  - Words have meanings.
+
 ### Meta
 
 #### Already Implemented
