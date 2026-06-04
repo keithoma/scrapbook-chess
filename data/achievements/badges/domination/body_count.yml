@@ -112,3 +112,53 @@
         amount: 14400
         flavor:
           text: 'Now try this again with premoves disabled.'
+
+
+
+###############################################################################
+# 
+# Total Hyperbullet games won.
+###############################################################################
+- id: badge_won_hyperbullet
+  type: badge
+  category: 'Domination'
+  subcategory: 'Body Count'
+  name: ''
+  description: 'Total Hyperbullet games won.'
+  flavor:
+  config:
+    metric_key: 'is_hyperbullet_win'
+    required_value: true
+    is_hidden: true
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor:
+
+      - name: 'knight'
+        amount: 2
+        flavor:
+
+      - name: 'bishop'
+        amount: 3
+        flavor: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor: ''
+
+      - name: 'king'
+        amount: 6
+        flavor: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor:
+
+      - name: 'legend'
+        amount: 8
+        flavor: ''
