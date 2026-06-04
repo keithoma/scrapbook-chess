@@ -173,3 +173,55 @@
         amount: 86400 # Total seconds in a day
         flavor:
           text: 'Look, I literally didn''t think anyone would play this much hyperbullet. Please stop playing so I have time to code the next update.'
+
+
+
+###############################################################################
+# IMPROOVER
+# Total Classical games played.
+###############################################################################
+- id: badge_played_classical
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Mileage'
+  name: 'Improover'
+  description: 'Total Classical games played.'
+  flavor:
+    quote: 'What does not kill me makes me stronger.'
+    author: 'A German emo'
+  config:
+    metric_key: 'speed'
+    required_value: 'classical'
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 1
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""

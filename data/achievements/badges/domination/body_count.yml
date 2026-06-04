@@ -126,6 +126,7 @@
   name: ''
   description: 'Total Hyperbullet games won.'
   flavor:
+    quote: 'If you think, you lose.'
   config:
     metric_key: 'is_hyperbullet_win'
     required_value: true
@@ -162,3 +163,55 @@
       - name: 'legend'
         amount: 8
         flavor: ''
+
+
+
+###############################################################################
+#
+# Total Classical games won.
+###############################################################################
+- id: badge_won_classical
+  type: badge
+  category: 'Domination'
+  subcategory: 'Body Count'
+  name: ""
+  description: 'Total Classical games won.'
+  flavor:
+    quote: 'Chess is a constant struggle between my desire not to lose and my desire not to think.'
+    author: 'GM Jan Gustafsson'
+  config:
+    metric_key: 'is_classical_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor:
+
+      - name: 'knight'
+        amount: 2
+        flavor:
+
+      - name: 'bishop'
+        amount: 3
+        flavor:
+
+      - name: 'rook'
+        amount: 4
+        flavor:
+
+      - name: 'queen'
+        amount: 5
+        flavor:
+
+      - name: 'king'
+        amount: 6
+        flavor:
+
+      - name: 'immortal'
+        amount: 7
+        flavor:
+
+      - name: 'legend'
+        amount: 8
+        flavor:
