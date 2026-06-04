@@ -112,7 +112,7 @@
       - name: 'legend'
         amount: 100000     # just a big number
         flavor:
-          text: 'Was this actually "worth it" to you?'
+          text: 'Was this actually "worth"?'
 
 
 
@@ -173,6 +173,88 @@
         amount: 86400 # Total seconds in a day
         flavor:
           text: 'Look, I literally didn''t think anyone would play this much hyperbullet. Please stop playing so I have time to code the next update.'
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################
+# 
+# Total Bullet games played.
+###############################################################################
+- id: badge_played_bullet
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Mileage'
+  name: ''
+  description: 'Total Bullet games played.'
+  flavor:
+    quote: 'I don''t care.'
+    author: 'Hikaru Nakamura, a Twitch streamer'
+  config:
+    metric_key: 'speed'
+    required_value: 'bullet'
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor:
+          text: 'The moment when you start seeing the board on the ceiling.'
+
+      - name: "knight"
+        amount: 2
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 3
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 4
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 5
+        flavor_text: ""
+
+      - name: "king"
+        amount: 6
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 7
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 8
+        flavor_text: ""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

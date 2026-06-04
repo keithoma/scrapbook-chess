@@ -127,6 +127,7 @@
   description: 'Total Hyperbullet games won.'
   flavor:
     quote: 'If you think, you lose.'
+    author: GM Andrew Tang
   config:
     metric_key: 'is_hyperbullet_win'
     required_value: true
@@ -135,6 +136,7 @@
       - name: 'pawn'
         amount: 1
         flavor:
+          text: ''
 
       - name: 'knight'
         amount: 2
@@ -163,6 +165,34 @@
       - name: 'legend'
         amount: 8
         flavor: ''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
