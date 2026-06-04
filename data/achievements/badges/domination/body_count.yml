@@ -116,18 +116,18 @@
 
 
 ###############################################################################
-# 
+# SPEED
 # Total Hyperbullet games won.
 ###############################################################################
 - id: badge_won_hyperbullet
   type: badge
   category: 'Domination'
   subcategory: 'Body Count'
-  name: ''
+  name: 'Speed'
   description: 'Total Hyperbullet games won.'
   flavor:
     quote: 'If you think, you lose.'
-    author: GM Andrew Tang
+    author: 'GM Andrew Tang'
   config:
     metric_key: 'is_hyperbullet_win'
     required_value: true
@@ -136,35 +136,43 @@
       - name: 'pawn'
         amount: 1
         flavor:
-          text: ''
+          player_quote: 'Oh, that''s why I win.'
 
       - name: 'knight'
-        amount: 2
+        amount: 10
         flavor:
+          quote: 'Ultrabullet is not chess, it''s just a clicking contest.'
+          author: 'GM Andrew Tang'
 
       - name: 'bishop'
-        amount: 3
-        flavor: ''
+        amount: 11
+        flavor:
+          player_quote: 'What''s up with the progression for this achievement?'
 
       - name: 'rook'
-        amount: 4
-        flavor: ''
+        amount: 100
+        flavor:
+          text: 'It''s just binary. You win or you lose.'
 
       - name: 'queen'
-        amount: 5
-        flavor: ''
+        amount: 101
+        flavor:
+          text: 'One does not simply draw a hyperbullet game.'
 
       - name: 'king'
-        amount: 6
-        flavor: ''
+        amount: 110
+        flavor:
+          player_quote: 'Wait... is the achievement title again a reference to dru... *beeping noise*'
 
       - name: 'immortal'
-        amount: 7
+        amount: 111
         flavor:
+          text: 'Ecstasy... of playing chess.'
 
       - name: 'legend'
-        amount: 8
-        flavor: ''
+        amount: 1000
+        flavor:
+          text: 'I am currently out of the office for my annual summer holiday and will return on September 15th.'
 
 
 
