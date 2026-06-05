@@ -177,39 +177,42 @@
 
 
 ###############################################################################
-# 
+# BULLET TIME
 # Total Bullet games played.
 ###############################################################################
 - id: badge_played_bullet
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
-  name: ''
+  name: 'Bullet Time'
   description: 'Total Bullet games played.'
   flavor:
-    quote: 'I don''t care.'
-    author: 'Hikaru Nakamura, a Twitch streamer'
+    quote: 'There is no spoon.'
+    author: 'that bald Uri Geller kid'
   config:
     metric_key: 'speed'
     required_value: 'bullet'
     is_hidden: false
     tiers:
       - name: 'pawn'
-        amount: 1
+        amount: 1999
         flavor:
           text: 'The moment when you start seeing the board on the ceiling.'
 
-      - name: "knight"
+      - name: 'knight'
         amount: 2
-        flavor_text: ""
+        flavor:
+          player_quote: 'What''s your BPPM (Bullets Played per Minute)?'
 
       - name: "bishop"
         amount: 3
-        flavor_text: ""
+        flavor:
+          text: 'Should have been called "Spray and Pray".'
 
       - name: "rook"
         amount: 4
-        flavor_text: ""
+        flavor:
+          text: 'Yeah, it''s really unfortunate that they never made a second part to the Matrix...'
 
       - name: "queen"
         amount: 5
