@@ -6,6 +6,14 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  compliance_filters:
+    - 'Obsession'
+    - 'failure' # because that's not good
+    - 'hardstuck' # because that's cringe
+    - 'job' # because some people don't have jobs
+    - 'Grass' # slag for weed
+    - 'bullet' # violence
+    - 'playing' # might sound sexual
   name: 'Obsession'
   description: 'Total games played across all time controls.'
   flavor:
@@ -15,6 +23,11 @@
     metric_key: null
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Thank you for playing. I will be your guide.'
+
       - name: 'pawn'
         amount: 16     # number of pieces
         flavor:
@@ -65,6 +78,17 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  compliance_filters:
+    - 'StarCraft' # not chess
+    - 'Blizzard' # not chess
+    - 'playing' # kinda suggestive
+    - 'Korean citizenship' # player might already have the Korean citizenship
+    - 'APM' # might be confused with sexual abbreviation; I don't know what that is, just in case
+    - 'Zerg' # not chess
+    - 'rush' # could be releated to drugs
+    - 'sue' # conflict is ugly
+    - 'tired' # negative
+    - 'boss' # might normalize capitalistic hiarchies
   name: 'StarCraft III'
   description: 'Total Ultrabullet games played.'
   flavor:
@@ -74,10 +98,15 @@
     required_value: 'ultrabullet'
     is_hidden: true
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'I''d claim fair use anyway.'
+
       - name: 'pawn'
         amount: 1998      # year of StarCraft I release
         flavor:
-          text: 'I''d claim fair use anyway.'
+          player_quote: 'From 1 to 1998 to 2010? I''m tired, boss.'
 
       - name: 'knight'
         amount: 2010      # year of StarCraft II release
@@ -133,6 +162,11 @@
     required_value: 'hyperbullet'
     is_hidden: true
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Being awake for three days to play hyperbullet.'
+
       - name: 'pawn'
         amount: 30 # 30mg pill standard / 30 seconds a game
         flavor:
