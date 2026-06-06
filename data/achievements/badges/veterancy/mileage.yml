@@ -242,11 +242,78 @@
 
 
 
+###############################################################################
+# Blitz Dopamine Loop
+# Total Blitz games played.
+###############################################################################
+- id: badge_played_blitz
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Mileage'
+  compliance_filters:
+    - 'Dopamine'
+    - 'analyzes' # because it contains 'anal'
+    - 'stupid'
+    - 'hell' # because that's not good, also 'Who the ****' implies fuck, even though the original is hell
+    - 'Obsession' # also not good
+    - 'minus' # feels negative
+    - 'analyzing' # contains 'anal'
+    - 'Soviet' # because of the Russian war crimes in Ukraine
+    - 'checkers' # because that's not chess
+  name: 'Blitz Dopamine Loop'
+  description: 'Total Blitz games played.'
+  flavor:
+    quote: 'He who analyzes blitz is stupid.'
+    author: 'IM Rashid Nezhmetdinov'
+  config:
+    metric_key: 'speed'
+    required_value: 'blitz'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          player_quote: 'Who the hell is Rashid Nezhmetdinov?'
+      
+      - name: 'pawn'
+        amount: 15     # all the numbers here are from total games played -1
+        flavor:
+          text: 'You know Rashid Nezhmetdinov is good because you can''t pronounce his name.'
 
+      - name: 'knight'
+        amount: 63     #
+        flavor:
+          player_quote: 'Wait, is the number of games required the same as ''Obsession'' but minus 1?'
 
+      - name: 'bishop'
+        amount: 255     #
+        flavor:
+          text: 'analyzing after the game < requeueing immediately'
 
+      - name: 'rook'
+        amount: 399     #
+        flavor:
+          text: 'By the way, I just wanted to say: you are doing a great job at playing chess.'
 
+      - name: 'queen'
+        amount: 2499     #
+        flavor:
+          text: 'Just some feedback: Have you considered trying to win some of these?'
 
+      - name: 'king'
+        amount: 4095     #
+        flavor:
+          text: 'You have spent approximately 23 days of your finite lifespan playing Blitz.'
+
+      - name: 'immortal'
+        amount: 8901     #
+        flavor:
+          text: 'Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.'
+
+      - name: 'legend'
+        amount: 20000     # except for this number
+        flavor:
+          text: 'Thank you for playing. Don''t forget to like, comment, and subscribe, and hit that notification bell.'
 
 
 

@@ -9,6 +9,13 @@ last_reviewed: 2026-05-23
 
 [TOC]
 
+## Todos right now
+
+- implement a new tier 'stone' that is always '1'
+- define the forbidden words to make the game family friendly, but in a way that it becomes almost unusable
+  - even non controversial words such as car or meat eating will be banned, lol
+
+
 ## Story
 
 ### Main Story
