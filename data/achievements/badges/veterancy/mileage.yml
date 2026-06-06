@@ -194,41 +194,50 @@
     required_value: 'bullet'
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          player_quote: 'What''s your BPPM (Bullets Played per Minute)?'          
+
       - name: 'pawn'
         amount: 1999
         flavor:
-          text: 'The moment when you start seeing the board on the ceiling.'
+          text: 'Did you know it was about the experience of realizing you are trans?'
 
       - name: 'knight'
-        amount: 2
-        flavor:
-          player_quote: 'What''s your BPPM (Bullets Played per Minute)?'
-
-      - name: "bishop"
-        amount: 3
+        amount: 2003
         flavor:
           text: 'Should have been called "Spray and Pray".'
 
-      - name: "rook"
-        amount: 4
+      - name: 'bishop'
+        amount: 2004
         flavor:
-          text: 'Yeah, it''s really unfortunate that they never made a second part to the Matrix...'
+          quote: 'Now, ironically, in astronomy, the word "revolution" means "a celestial object that comes full circle." Did you know that? Which, if you think about it, is pretty funny, considering here on earth it means change.'
+          author: 'Mike Milligan'
+      - name: 'rook'
+        amount: 2021
+        flavor:
+          text: 'Yeah, it''s really unfortunate that they never made a sequel...'
 
-      - name: "queen"
-        amount: 5
-        flavor_text: ""
+      - name: 'queen'
+        amount: 2022
+        flavor:
+          text: 'What if I made <i>Scrapbook; Chess Resurections</i>, but everything horrible just to hammer home the point that I didn''t want to make a forth part? Wouldn''t that be artistic and valuable?'
 
-      - name: "king"
-        amount: 6
-        flavor_text: ""
+      - name: 'king'
+        amount: 2023
+        flavor:
+          text: '${[AB]}_{i, j} = \sum_{r=1}^{n} a_{i, r} b_{r, j}$'
 
-      - name: "immortal"
-        amount: 7
-        flavor_text: ""
+      - name: 'immortal'
+        amount: 2024
+        flavor:
+          text: 'Morphius never said "What if I told you". Your life has been a lie.'
 
-      - name: "legend"
-        amount: 8
-        flavor_text: ""
+      - name: 'legend'
+        amount: 2025
+        flavor:
+          text: 'The Red Pill is cringe. Why? Because we already live in the real world, it was just a movie, you beta cuck.'
 
 
 
