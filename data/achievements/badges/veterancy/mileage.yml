@@ -214,6 +214,7 @@
         flavor:
           quote: 'Now, ironically, in astronomy, the word "revolution" means "a celestial object that comes full circle." Did you know that? Which, if you think about it, is pretty funny, considering here on earth it means change.'
           author: 'Mike Milligan'
+
       - name: 'rook'
         amount: 2021 # the year when the matrix died
         flavor:
@@ -222,7 +223,7 @@
       - name: 'queen'
         amount: 2022 # I thought it would be funny to just increment by 1 from here on
         flavor:
-          text: 'What if I made <i>Scrapbook; Chess Resurections</i>, but everything horrible just to hammer home the point that I didn''t want to make a forth part? Wouldn''t that be artistic and valuable?'
+          text: 'What if I made <i>Scrapbook; Chess Resurrections</i>, but everything horrible just to hammer home the point that I didn''t want to make a fourth part? Wouldn''t that be artistic and valuable?'
 
       - name: 'king'
         amount: 2023
