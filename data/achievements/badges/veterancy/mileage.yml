@@ -200,27 +200,27 @@
           player_quote: 'What''s your BPPM (Bullets Played per Minute)?'          
 
       - name: 'pawn'
-        amount: 1999
+        amount: 1999 # the matrix relase year
         flavor:
           text: 'Did you know it was about the experience of realizing you are trans?'
 
       - name: 'knight'
-        amount: 2003
+        amount: 2003 # reloaded release year
         flavor:
           text: 'Should have been called "Spray and Pray".'
 
       - name: 'bishop'
-        amount: 2004
+        amount: 2004 # revolution release year was also 2003
         flavor:
           quote: 'Now, ironically, in astronomy, the word "revolution" means "a celestial object that comes full circle." Did you know that? Which, if you think about it, is pretty funny, considering here on earth it means change.'
           author: 'Mike Milligan'
       - name: 'rook'
-        amount: 2021
+        amount: 2021 # the year when the matrix died
         flavor:
           text: 'Yeah, it''s really unfortunate that they never made a sequel...'
 
       - name: 'queen'
-        amount: 2022
+        amount: 2022 # I thought it would be funny to just increment by 1 from here on
         flavor:
           text: 'What if I made <i>Scrapbook; Chess Resurections</i>, but everything horrible just to hammer home the point that I didn''t want to make a forth part? Wouldn''t that be artistic and valuable?'
 
@@ -232,7 +232,7 @@
       - name: 'immortal'
         amount: 2024
         flavor:
-          text: 'Morphius never said "What if I told you". Your life has been a lie.'
+          text: 'He never said "What if I told you". Your life has been a lie.'
 
       - name: 'legend'
         amount: 2025
