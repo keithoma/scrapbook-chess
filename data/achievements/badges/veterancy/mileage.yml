@@ -153,6 +153,22 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  compliance_filters:
+    - 'Adderall' # might be abused
+    - 'prescription' # might evoke the idea of drug abuse
+    - 'PG-13' # sounds like a gun type
+    - 'concerned' # negative, emotionally
+    - 'Snorting'
+    - 'line'
+    - 'bathroo' # dirty
+    - 'stall'
+    - 'high'
+    - 'smoke'
+    - 'weed'
+    - 'stoned'
+    - 'bullet' # violence
+    - 'literally' # used as 'figuratively'
+    - 'playing' # sexual
   name: 'Adderall'
   description: 'Total Hyperbullet games played.'
   flavor:
@@ -218,6 +234,27 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  compliance_filters:
+    - 'Bullet' # violence
+    - 'bullets'
+    - 'bald' # might be associated with bad things
+    - 'kid' # ageism
+    - 'Uri' # not a chess player
+    - 'Geller' # not a chess player
+    - 'spray'
+    - 'and'
+    - 'pray' # violence
+    - 'revolution' # violence
+    - 'unfortunate' # negative
+    - 'horrible' # negative
+    - 'hammer' # violence
+    - 'home' # home owner centric and discriminating
+    - 'lie' # negative
+    - 'the'
+    - 'red'
+    - 'pill' # I don't approve of that movement
+    - 'beta'
+    - 'cuck'
   name: 'Bullet Time'
   description: 'Total Bullet games played.'
   flavor:
@@ -351,7 +388,69 @@
 
 
 
+###############################################################################
+# Restroom Rapid Ritual
+# Total Rapid games played.
+###############################################################################
+- id: badge_played_rapid
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Mileage'
+  compliance_filters:
+    - 'restroom'
+    - 'ritual' # religious
+    - 'boss' # capitalism
+    - 'dollar' # related to money
+    - 'dime'
+    - 'poop' # dirty
+    - 'company' # capitalism
+    - 'bathroom'
+    - 'Amazon' # duh
+    - 'royal' # offensive to non Brits
+    - 'straight' # duh
+    - 'flush'
+    - 'toiletgate'
+    - 'toilet'
 
+  name: "Restroom Rapid Ritual"
+  description: "Total Rapid games played."
+  flavor_text: '*"My boss makes a dollar, I make a dime. That''s why I poop on company time."*'
+  config:
+    metric_key: "speed"
+    required_value: "rapid"
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 5     # (Blitz 15) | 5 ply toiletpaper
+        flavor_text: '*"Are your legs asleep already?"*'
+
+      - name: "knight"
+        amount: 19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
+        flavor_text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
+
+      - name: "bishop"
+        amount: 83     #
+        flavor_text: '*"... quite strange, if not suspicious." — your boss*'
+
+      - name: "rook"
+        amount: 131     #
+        flavor_text: "*One thing is for sure: You don''t work at Amazon.*"
+
+      - name: "queen"
+        amount: 829     #
+        flavor_text: "*Royal Straight Flush*"
+
+      - name: "king"
+        amount: 1367     #
+        flavor_text: "**"
+
+      - name: "immortal"
+        amount: 2969     #
+        flavor_text: "*You are the toiletgate of our time.*"
+
+      - name: "legend"
+        amount: 5000     # obviously not prime
+        flavor_text: "*Fine, I''ll stop with the toilet humor. I was done anyways.*"
 
 
 
