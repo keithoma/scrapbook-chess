@@ -182,7 +182,7 @@
 ###############################################################################
 - id: badge_won_bullet
   type: badge
-  category: "Veterancy"
+  category: 'Veterancy'
   subcategory: ""
   name: ""
   description: "Total Bullet games won."
