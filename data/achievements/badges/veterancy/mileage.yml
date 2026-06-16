@@ -411,15 +411,19 @@
     - 'flush'
     - 'toiletgate'
     - 'toilet'
-
-  name: "Restroom Rapid Ritual"
-  description: "Total Rapid games played."
-  flavor_text: '*"My boss makes a dollar, I make a dime. That''s why I poop on company time."*'
+  name: 'Restroom Rapid Ritual'
+  description: 'Total Rapid games played.'
+  flavor:
+    text: 'My boss makes a dollar, I make a dime. That''s why I poop on company time.'
   config:
-    metric_key: "speed"
-    required_value: "rapid"
+    metric_key: 'speed'
+    required_value: 'rapid'
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+
       - name: "pawn"
         amount: 5     # (Blitz 15) | 5 ply toiletpaper
         flavor_text: '*"Are your legs asleep already?"*'
