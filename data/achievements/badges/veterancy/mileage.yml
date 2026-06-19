@@ -424,7 +424,7 @@
         amount: 1
         flavor:
 
-      - name: "pawn"
+      - name: 'pawn'
         amount: 5     # (Blitz 15) | 5 ply toiletpaper
         flavor_text: '*"Are your legs asleep already?"*'
 
