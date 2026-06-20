@@ -160,7 +160,7 @@
     - 'concerned' # negative, emotionally
     - 'Snorting'
     - 'line'
-    - 'bathroo' # dirty
+    - 'bathroom' # dirty
     - 'stall'
     - 'high'
     - 'smoke'
@@ -426,35 +426,42 @@
 
       - name: 'pawn'
         amount: 5     # (Blitz 15) | 5 ply toiletpaper
-        flavor_text: '*"Are your legs asleep already?"*'
+        flavor
+          text: 'Are your legs asleep already?'
 
-      - name: "knight"
+      - name: 'knight'
         amount: 19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
-        flavor_text: '*"i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo."*'
+        flavor:
+          player_quote: 'i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo.'
 
-      - name: "bishop"
+      - name: 'bishop'
         amount: 83     #
-        flavor_text: '*"... quite strange, if not suspicious." — your boss*'
+        flavor:
+          quote: '... quite strange, if not suspicious.'
+          author: 'your boss'
 
-      - name: "rook"
+      - name: 'rook'
         amount: 131     #
-        flavor_text: "*One thing is for sure: You don''t work at Amazon.*"
+        flavor:
+          text: 'One thing is for sure: You don''t work at Amazon.'
 
-      - name: "queen"
+      - name: 'queen'
         amount: 829     #
-        flavor_text: "*Royal Straight Flush*"
+        flavor:
+          text: 'Royal Straight Flush'
 
-      - name: "king"
+      - name: 'king'
         amount: 1367     #
-        flavor_text: "**"
+        flavor:
 
-      - name: "immortal"
+      - name: 'immortal'
         amount: 2969     #
-        flavor_text: "*You are the toiletgate of our time.*"
+        flavor: 
+          text: 'You are the toiletgate of our time.'
 
-      - name: "legend"
+      - name: 'legend'
         amount: 5000     # obviously not prime
-        flavor_text: "*Fine, I''ll stop with the toilet humor. I was done anyways.*"
+        flavor_text: 'Fine, I''ll stop with the toilet humor. I was done anyways.'
 
 
 
