@@ -411,6 +411,7 @@
     - 'flush'
     - 'toiletgate'
     - 'toilet'
+    - 'hemorrhoids'
   name: 'Restroom Rapid Ritual'
   description: 'Total Rapid games played.'
   flavor:
@@ -423,10 +424,11 @@
       - name: 'stone'
         amount: 1
         flavor:
+          player_quote: 'I''m multitasking.'
 
       - name: 'pawn'
         amount: 5     # (Blitz 15) | 5 ply toiletpaper
-        flavor
+        flavor:
           text: 'Are your legs asleep already?'
 
       - name: 'knight'
@@ -453,6 +455,7 @@
       - name: 'king'
         amount: 1367     #
         flavor:
+          text: 'hemorrhoids'
 
       - name: 'immortal'
         amount: 2969     #
@@ -461,16 +464,8 @@
 
       - name: 'legend'
         amount: 5000     # obviously not prime
-        flavor_text: 'Fine, I''ll stop with the toilet humor. I was done anyways.'
-
-
-
-
-
-
-
-
-
+        flavor:
+          text: 'Fine, I''ll stop with the toilet humor. I was done anyways.'
 
 
 
