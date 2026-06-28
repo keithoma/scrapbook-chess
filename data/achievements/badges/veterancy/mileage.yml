@@ -455,7 +455,8 @@
       - name: 'king'
         amount: 1367     #
         flavor:
-          text: 'hemorrhoids'
+          quote: 'Here I sit, broken hearted.'
+          author: 'Why do you care?'
 
       - name: 'immortal'
         amount: 2969     #
