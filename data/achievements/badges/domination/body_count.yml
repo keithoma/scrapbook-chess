@@ -177,26 +177,32 @@
 
 
 ###############################################################################
-# 
+# VEXILLOLOGY
 # Total Bullet games won.
 ###############################################################################
 - id: badge_won_bullet
   type: badge
   category: 'Veterancy'
-  subcategory: ""
-  name: ""
+  subcategory: 'Body Count'
+  name: 'Vexillology'
   description: "Total Bullet games won."
   flavor:
     quote: 'I don''t care.'
     author: 'Hikaru Nakamura, a Twitch streamer'
   config:
-    metric_key: "is_bullet_win"
+    metric_key: 'is_bullet_win'
     required_value: true
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Vexillology. Vex-IL-lology. Two Ls, like the ones your opponents always takes. Look, I had to check the spelling four times just now.'
+
       - name: "pawn"
         amount: 1
-        flavor_text: ""
+        flavor:
+          text: 'This is the chess equivalent of finishing a microwave meal before the microwave beeps.'
 
       - name: "knight"
         amount: 2
