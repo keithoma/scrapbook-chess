@@ -185,7 +185,7 @@
   category: 'Veterancy'
   subcategory: 'Body Count'
   name: 'Vexillology'
-  description: "Total Bullet games won."
+  description: 'Total Bullet games won.'
   flavor:
     quote: 'I don''t care.'
     author: 'Hikaru Nakamura, a Twitch streamer'
@@ -199,22 +199,26 @@
         flavor:
           text: 'Vexillology. Vex-IL-lology. Two Ls, like the ones your opponents always takes. Look, I had to check the spelling four times just now.'
 
-      - name: "pawn"
+      - name: 'pawn'
         amount: 1
         flavor:
           text: 'This is the chess equivalent of finishing a microwave meal before the microwave beeps.'
 
-      - name: "knight"
+      - name: 'knight'
         amount: 2
-        flavor_text: ""
+        flavor:
+          text: 'Boj Doog!'
 
-      - name: "bishop"
+      - name: 'bishop'
         amount: 3
-        flavor_text: ""
+        flavor:
+          quote: 'Beneath this mask there is more than flesh. Beneath this mask there is an idea, Mr. Creedy. And ideas are bulletproof.'
+          author: 'An okay movie'
 
-      - name: "rook"
+      - name: 'rook'
         amount: 4
-        flavor_text: ""
+        flavor:
+          text: 'When you start seeing the chess board on the ceiling.'
 
       - name: "queen"
         amount: 5
