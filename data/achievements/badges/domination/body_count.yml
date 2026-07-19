@@ -212,25 +212,28 @@
       - name: 'bishop'
         amount: 3
         flavor:
-          quote: 'Beneath this mask there is more than flesh. Beneath this mask there is an idea, Mr. Creedy. And ideas are bulletproof.'
-          author: 'An okay movie'
+          text: 'Wooden shield'
+          
 
       - name: 'rook'
         amount: 4
         flavor:
           text: 'When you start seeing the chess board on the ceiling.'
 
-      - name: "queen"
+      - name: 'queen'
         amount: 5
-        flavor_text: ""
+        flavor: 'Really, what''s a juicer? A pawn? A bishop? Or like everything?'
 
-      - name: "king"
+      - name: 'king'
         amount: 6
-        flavor_text: ""
+        flavor:
+          quote: 'Beneath this mask there is more than flesh. Beneath this mask there is an idea, Mr. Creedy. And ideas are bulletproof.'
+          author: 'the best superhero movie ever'
 
-      - name: "immortal"
+      - name: 'immortal'
         amount: 7
-        flavor_text: ""
+        flavor:
+          text:
 
       - name: "legend"
         amount: 8
