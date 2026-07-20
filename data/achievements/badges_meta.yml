@@ -168,53 +168,7 @@
 
 
 
-###############################################################################
-# Blitz Losern't
-# Total Blitz games won.
-###############################################################################
-- id: badge_won_blitz
-  type: badge
-  category: "Veterancy"
-  subcategory: ""
-  name: "Blitz Losern''t"
-  description: "Total Blitz games won."
-  flavor_text: "*No time for losers.*"
-  config:
-    metric_key: "is_blitz_win"
-    required_value: true
-    is_hidden: false
-    tiers:
-      - name: "pawn"
-        amount: 1     # here the joke is normal numbers, I guess
-        flavor_text: "*Why not? Here is a freebie.*"
 
-      - name: "knight"
-        amount: 10     #
-        flavor_text: "*Amazing! We are all very proud of you.*"
-
-      - name: "bishop"
-        amount: 25     #
-        flavor_text: '*"This progression feels suspiciously like a tutorial."*'
-
-      - name: "rook"
-        amount: 50     #
-        flavor_text: "*Halfway there! You can do it!*"
-
-      - name: "queen"
-        amount: 100     #
-        flavor_text: "*Okay, the hand-holding is over.*"
-
-      - name: "king"
-        amount: 2500     #
-        flavor_text: "*Wait, you actually managed to do it?*"
-
-      - name: "immortal"
-        amount: 5000     #
-        flavor_text: "*You now have more Blitz wins than Magnus Carlsen does on one of his accounts. Nice.*"
-
-      - name: "legend"
-        amount: 20000     #
-        flavor_text: "*You got me. There is no more content here. See, the sky is just painted.*"
 
 
 

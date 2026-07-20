@@ -214,7 +214,6 @@
         flavor:
           text: 'Wooden shield'
           
-
       - name: 'rook'
         amount: 4
         flavor:
@@ -233,15 +232,126 @@
       - name: 'immortal'
         amount: 7
         flavor:
-          text:
+          text: 'Don''t punch the clock!'
+
+      - name: 'legend'
+        amount: 8
+        flavor:
+          text: 'I''m offline, but Hikaru might not. Go do something else.'
+
+
+
+###############################################################################
+# Blitz Losern't
+# Total Blitz games won.
+###############################################################################
+- id: badge_won_blitz
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Body Count'
+  name: 'Blitz Losern''t'
+  description: 'Total Blitz games won.'
+  flavor:
+    text: 'No time for losers.'
+  config:
+    metric_key: 'is_blitz_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1     # here the joke is normal numbers, I guess
+        flavor:
+          text: 'Why not? Here is a freebie.'
+
+      - name: 'pawn'
+        amount: 5
+        flavor:
+          text: 'Subject seems to be stimulated by positive feedback [...]'
+
+      - name: 'knight'
+        amount: 10     #
+        flavor:
+          text: 'Amazing! We are all very proud of you.'
+
+      - name: 'bishop'
+        amount: 25     #
+        flavor:
+          player_quote: 'This progression feels suspiciously like a tutorial.'
+
+      - name: 'rook'
+        amount: 50     #
+        flavor:
+          text: 'Halfway there! You can do it!'
+
+      - name: 'queen'
+        amount: 100     #
+        flavor:
+          text: 'Okay, the hand-holding is over.'
+
+      - name: 'king'
+        amount: 2500     #
+        flavor:
+          text: 'Wait, you actually managed to do it?'
+
+      - name: 'immortal'
+        amount: 5000     #
+        flavor:
+          text: 'You now have more Blitz wins than Magnus Carlsen does on one of his accounts. Nice.'
+
+      - name: 'legend'
+        amount: 20000     #
+        flavor:
+          text: 'You got me. There is no more content here. See, the sky is just painted.'
+
+
+
+###############################################################################
+#
+# Total Rapid games won.
+###############################################################################
+- id: badge_won_rapid
+  type: badge
+  category: "Veterancy"
+  subcategory: ""
+  name: ""
+  description: "Total Rapid games won."
+  flavor_text: '*"I hate rapid." — Daniil Dubov, World Rapid Chess Champion*'
+  config:
+    metric_key: "is_rapid_win"
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 3     # let's just take the fibonacci sequence here
+        flavor_text: '*"Wait, am I actually good?"*'
+
+      - name: "knight"
+        amount: 13     #
+        flavor_text: "*Your opponents must be playing chess on their smart fridge.*"
+
+      - name: "bishop"
+        amount: 34     #
+        flavor_text: "*Your Ad Could Go Here.*"
+
+      - name: "rook"
+        amount: 55     #
+        flavor_text: "*Fine, I''ll acknowledge you: You play well... sometimes.*"
+
+      - name: "queen"
+        amount: 377     #
+        flavor_text: "*By the way, the number of wins required is not random, but you wouldn''t get it.*"
+
+      - name: "king"
+        amount: 610     #
+        flavor_text: "*Congratulations!*"
+
+      - name: "immortal"
+        amount: 987     #
+        flavor_text: "*Okay, let''s be real though: The online rapid pool is not very good compared to Blitz.*"
 
       - name: "legend"
-        amount: 8
-        flavor_text: ""
-
-
-
-
+        amount: 5000     # obviously not prime
+        flavor_text: "*You are not supposed to be in here. Leave immediately.*"
 
 
 
