@@ -15,10 +15,15 @@
     required_value: true
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          player_quote: 'I like the moment when I break a man''s ego.'
+
       - name: 'pawn'
         amount: 7     # (16) | just a lucky number
         flavor:
-          player_quote: 'I like the moment when I break a man''s ego.'
+          text: 'Bing chilling!'
 
       - name: 'knight'
         amount: 21     # (64) | blackjack
@@ -81,7 +86,8 @@
 
       - name: 'knight'
         amount: 42
-        flavor: 'You do understand that this is not chess, right?'
+        flavor:
+          text: 'You do understand that this is not chess, right?'
 
       - name: 'bishop'
         amount: 144
@@ -101,7 +107,8 @@
 
       - name: 'king'
         amount: 1260
-        flavor: 'Good job! You definitely have a better mouse than your opponents.'
+        flavor:
+          text: 'Good job! You definitely have a better mouse than your opponents.'
 
       - name: 'immortal'
         amount: 7000
@@ -200,42 +207,42 @@
           text: 'Vexillology. Vex-IL-lology. Two Ls, like the ones your opponents always takes. Look, I had to check the spelling four times just now.'
 
       - name: 'pawn'
-        amount: 1
+        amount: 9
         flavor:
           text: 'This is the chess equivalent of finishing a microwave meal before the microwave beeps.'
 
       - name: 'knight'
-        amount: 2
+        amount: 99
         flavor:
           text: 'Boj Doog!'
 
       - name: 'bishop'
-        amount: 3
+        amount: 299
         flavor:
           text: 'Wooden shield'
           
       - name: 'rook'
-        amount: 4
+        amount: 599
         flavor:
           text: 'When you start seeing the chess board on the ceiling.'
 
       - name: 'queen'
-        amount: 5
+        amount: 999
         flavor: 'Really, what''s a juicer? A pawn? A bishop? Or like everything?'
 
       - name: 'king'
-        amount: 6
+        amount: 1499
         flavor:
           quote: 'Beneath this mask there is more than flesh. Beneath this mask there is an idea, Mr. Creedy. And ideas are bulletproof.'
           author: 'the best superhero movie ever'
 
       - name: 'immortal'
-        amount: 7
+        amount: 2199
         flavor:
           text: 'Don''t punch the clock!'
 
       - name: 'legend'
-        amount: 8
+        amount: 3000
         flavor:
           text: 'I''m offline, but Hikaru might not. Go do something else.'
 
@@ -306,85 +313,80 @@
 
 
 ###############################################################################
-#
+# OVERTHINKING
 # Total Rapid games won.
 ###############################################################################
 - id: badge_won_rapid
   type: badge
-  category: "Veterancy"
-  subcategory: ""
-  name: ""
-  description: "Total Rapid games won."
-  flavor_text: '*"I hate rapid." — Daniil Dubov, World Rapid Chess Champion*'
+  category: 'Veterancy'
+  subcategory: 'Body Count'
+  name: 'Overthinking'
+  description: 'Total Rapid games won.'
+  flavor:
+    quote: 'I hate rapid.'
+    author: 'Daniil Dubov, World Rapid Chess Champion'
   config:
-    metric_key: "is_rapid_win"
+    metric_key: 'is_rapid_win'
     required_value: true
     is_hidden: false
     tiers:
-      - name: "pawn"
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Overthin...KING! I''ll see myself out.'
+
+      - name: 'pawn'
         amount: 3     # let's just take the fibonacci sequence here
-        flavor_text: '*"Wait, am I actually good?"*'
+        flavor:
+          text: 'Wait, am I actually good?'
 
-      - name: "knight"
+      - name: 'knight'
         amount: 13     #
-        flavor_text: "*Your opponents must be playing chess on their smart fridge.*"
+        flavor:
+          text: 'Your opponents must be playing chess on their smart fridge.'
 
-      - name: "bishop"
+      - name: 'bishop'
         amount: 34     #
-        flavor_text: "*Your Ad Could Go Here.*"
+        flavor:
+          text: 'Your Ad Could Go Here.'
 
-      - name: "rook"
+      - name: 'rook'
         amount: 55     #
-        flavor_text: "*Fine, I''ll acknowledge you: You play well... sometimes.*"
+        flavor:
+          text: 'Fine, I''ll acknowledge you: You play well... sometimes.'
 
-      - name: "queen"
+      - name: 'queen'
         amount: 377     #
-        flavor_text: "*By the way, the number of wins required is not random, but you wouldn''t get it.*"
+        flavor:
+          text: 'By the way, the number of wins required is not random, but you wouldn''t get it.'
 
-      - name: "king"
+      - name: 'king'
         amount: 610     #
-        flavor_text: "*Congratulations!*"
+        flavor:
+          text: 'Congratulations!'
 
-      - name: "immortal"
+      - name: 'immortal'
         amount: 987     #
-        flavor_text: "*Okay, let''s be real though: The online rapid pool is not very good compared to Blitz.*"
+        flavor:
+          text: 'Okay, let''s be real though: The online rapid pool is not very good compared to Blitz.'
 
-      - name: "legend"
+      - name: 'legend'
         amount: 5000     # obviously not prime
-        flavor_text: "*You are not supposed to be in here. Leave immediately.*"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        flavor:
+          text: 'You are not supposed to be in here. Leave immediately.'
 
 
 
 
 ###############################################################################
-#
+# GALAXY BRAIN
 # Total Classical games won.
 ###############################################################################
 - id: badge_won_classical
   type: badge
   category: 'Domination'
   subcategory: 'Body Count'
-  name: ""
+  name: 'Galaxy Brain'
   description: 'Total Classical games won.'
   flavor:
     quote: 'Chess is a constant struggle between my desire not to lose and my desire not to think.'
@@ -394,34 +396,47 @@
     required_value: true
     is_hidden: false
     tiers:
-      - name: 'pawn'
+      - name: 'stone'
         amount: 1
         flavor:
+          text: 'Playing a classical game to deeply analyze positional nuances like a proper grandmaster.'
 
-      - name: 'knight'
+      - name: 'pawn'
         amount: 2
         flavor:
+          text: 'Buying a $200 physical wooden set to mirror your online classical game, only to blunder the exact same rook on both boards simultaneously.'
 
-      - name: 'bishop'
+      - name: 'knight'
         amount: 3
         flavor:
+          text: 'Winning a 60-minute classical game while spending less than two minutes of total clock time.'
 
-      - name: 'rook'
-        amount: 4
-        flavor:
-
-      - name: 'queen'
+      - name: 'bishop'
         amount: 5
         flavor:
+          text: 'Queueing up a 60-minute classical game because you need a timer for your slow-baked lasagna and refuse to buy a kitchen clock.'
 
-      - name: 'king'
-        amount: 6
-        flavor:
-
-      - name: 'immortal'
-        amount: 7
-        flavor:
-
-      - name: 'legend'
+      - name: 'rook'
         amount: 8
         flavor:
+          text: 'Queueing up a classical game purely to use the in-game chat box as an Omegle replacement.'
+
+      - name: 'queen'
+        amount: 13
+        flavor:
+          text: 'Playing a classical game on your second monitor so you have something to do during your League of Legends death timers.'
+
+      - name: 'king'
+        amount: 21
+        flavor:
+          text: 'Queueing up two classical games simultaneously—one as White, one as Black—and mirroring the moves so two random strangers unwittingly play each other.'
+
+      - name: 'immortal'
+        amount: 34
+        flavor:
+          text: 'Opening 120 classical games at once so furiously alt-tabbing between them recreates the visceral panic of ultrabullet.'
+
+      - name: 'legend'
+        amount: 250
+        flavor:
+          text: 'Writing the entire YAML configuration for this game''s achievement system in the chat box while waiting for your opponent to calculate move 4.'
