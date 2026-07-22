@@ -404,39 +404,39 @@
       - name: 'pawn'
         amount: 2
         flavor:
-          text: 'Buying a $200 physical wooden set to mirror your online classical game, only to blunder the exact same rook on both boards simultaneously.'
+          text: 'Buying a $200 physical wooden set to mirror your online classical game.'
 
       - name: 'knight'
         amount: 3
         flavor:
-          text: 'Winning a 60-minute classical game while spending less than two minutes of total clock time.'
+          text: 'Winning a 60-minute classical game while spending less than two minutes.'
 
       - name: 'bishop'
         amount: 5
         flavor:
-          text: 'Queueing up a 60-minute classical game because you need a timer for your slow-baked lasagna and refuse to buy a kitchen clock.'
+          text: 'Queueing up a 60-minute classical game because you need a timer for your slow-baked lasagna.'
 
       - name: 'rook'
         amount: 8
         flavor:
-          text: 'Queueing up a classical game purely to use the in-game chat box as an Omegle replacement.'
+          text: 'Queueing up a classical game because Omegle is down.'
 
       - name: 'queen'
         amount: 13
         flavor:
-          text: 'Playing a classical game on your second monitor so you have something to do during your League of Legends death timers.'
+          text: 'Playing a classical game on your second screen so you have something to do during your League of Legends death timers.'
 
       - name: 'king'
         amount: 21
         flavor:
-          text: 'Queueing up two classical games simultaneously—one as White, one as Black—and mirroring the moves so two random strangers unwittingly play each other.'
+          text: 'Queueing up two classical games simultaneously—one as White, one as Black—and mirroring the moves.'
 
       - name: 'immortal'
         amount: 34
         flavor:
-          text: 'Opening 120 classical games at once so furiously alt-tabbing between them recreates the visceral panic of ultrabullet.'
+          text: 'Opening 120 classical games at once to simulate bullet.'
 
       - name: 'legend'
         amount: 250
         flavor:
-          text: 'Writing the entire YAML configuration for this game''s achievement system in the chat box while waiting for your opponent to calculate move 4.'
+          text: 'Writing the entire YAML configuration for this game''s achievement system while my opponent ropes.'
