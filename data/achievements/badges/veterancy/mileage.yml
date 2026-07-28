@@ -427,12 +427,12 @@
           player_quote: 'I''m multitasking.'
 
       - name: 'pawn'
-        amount: 5     # (Blitz 15) | 5 ply toiletpaper
+        amount: 5     # 5 ply toiletpaper
         flavor:
           text: 'Are your legs asleep already?'
 
       - name: 'knight'
-        amount: 19     # (Blitz 63) | I can't think of numerology related to restrooms, so just random prime numbers
+        amount: 19     # I can't think of numerology related to restrooms, so just random prime numbers
         flavor:
           player_quote: 'i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo.'
 
@@ -455,7 +455,7 @@
       - name: 'king'
         amount: 1367     #
         flavor:
-          quote: 'Here I sit, broken hearted.'
+          quote: 'Here I sit, broken-hearted.'
           author: 'Why do you care?'
 
       - name: 'immortal'
@@ -532,7 +532,7 @@
         amount: 50
         flavor:
           quote: 'A witty saying proves nothing.'
-          author: 'Why the fuck are they all French?' # Voltair
+          author: 'Why the fuck are they all French?' # Voltaire
 
       - name: 'queen'
         amount: 100

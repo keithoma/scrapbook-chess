@@ -1,0 +1,491 @@
+###############################################################################
+# DELULU MONDAY
+# Total games played on Mondays.
+###############################################################################
+- id: badge_played_monday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'resolution' # toxic productivity culture
+    - 'ELO' # rating elitism
+    - 'Monday' # work dread
+    - 'boss' # capitalist hierarchy
+    - 'fresh' # hygiene shaming
+  name: 'Delulu Monday'
+  description: 'Total games played on Mondays.'
+  flavor:
+    quote: 'This is the week I hit 1800.'
+    author: 'Every 800 ELO player at 8:00 AM'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'monday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Step 1: Buy a $50 opening course at 8:00 AM.'
+
+      - name: 'pawn'
+        amount: 8        # -8 ELO lost on first game
+        flavor:
+          text: 'Step 2: Blunder your Queen on move 6 at 8:15 AM.'
+
+      - name: 'knight'
+        amount: 40
+        flavor:
+          player_quote: 'I''m tilting, but it''s fine because it''s a fresh week.'
+
+      - name: 'bishop'
+        amount: 100
+        flavor:
+          text: 'Motivation 404: Course knowledge not found.'
+
+      - name: 'rook'
+        amount: 250
+        flavor:
+          text: 'Welp, back to where we started last Monday.'
+
+      - name: 'queen'
+        amount: 500
+        flavor:
+          text: '1800 is just a social construct anyway.'
+
+      - name: 'king'
+        amount: 1000
+        flavor:
+          player_quote: 'Next Monday for sure.'
+
+      - name: 'immortal'
+        amount: 3000    # hard target for single-day mileage
+        flavor:
+          text: 'You have spent roughly two decades worth of Monday mornings losing rating points.'
+
+      - name: 'legend'
+        amount: 7000
+        flavor:
+          text: 'The delusion is no longer a phase. It is your permanent lifestyle.'
+
+
+
+###############################################################################
+# UNTITLED TUESDAY
+# Total games played on Tuesdays.
+###############################################################################
+- id: badge_played_tuesday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'titled' # classism
+    - 'grandmaster' # feudalism
+    - 'Swiss' # offensive to Swiss neutrality
+    - 'Tuesday' # calendar privilege
+    - 'prize' # wealth disparity
+  name: 'Untitled Tuesday'
+  description: 'Total games played on Tuesdays.'
+  flavor:
+    text: 'No title, no prize pool, no GM norm—just pure, unadulterated grinding.'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'tuesday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Welcome to the tournament where nobody knows who you are and nobody cares.'
+
+      - name: 'pawn'
+        amount: 11       # 11 rounds of Titled Tuesday
+        flavor:
+          player_quote: 'If Hikaru can play 11 rounds, so can I.'
+
+      - name: 'knight'
+        amount: 22       # 22/2/22 numerology
+        flavor:
+          text: 'Your opponent is currently playing on a bumpy city bus.'
+
+      - name: 'bishop'
+        amount: 111
+        flavor:
+          quote: 'Is that a real Grandmaster?'
+          author: 'You, facing a 1100 with an anime profile picture'
+
+      - name: 'rook'
+        amount: 222
+        flavor:
+          text: 'Still no prize money. Shocking.'
+
+      - name: 'queen'
+        amount: 1111
+        flavor:
+          text: 'You''re basically a GM at this point. (You are 1200 Blitz).'
+
+      - name: 'king'
+        amount: 2222
+        flavor:
+          text: 'FIDE has officially declined your petition to rename the day.'
+
+      - name: 'immortal'
+        amount: 4444
+        flavor:
+          text: 'Over 4,000 Tuesday games. You could have earned an actual master title by now.'
+
+      - name: 'legend'
+        amount: 8888
+        flavor:
+          text: 'You are the undisputed, uncertified, untitled Champion of Tuesdays.'
+
+
+
+###############################################################################
+# WEDNESDAY
+# Total games played on Wednesdays.
+###############################################################################
+- id: badge_played_wednesday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'rot' # medical horror
+    - 'brain' # ableism
+    - 'frog' # amphibian exploitation
+    - 'Wednesday' # mid-week exhaustion
+    - 'Bongcloud' # substance reference
+  name: 'Wednesday'
+  description: 'Total games played on Wednesdays.'
+  flavor:
+    player_quote: 'It is Wednesday my dudes.'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'wednesday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Brain power at 15%. Time to queue up some Blitz.'
+
+      - name: 'pawn'
+        amount: 2        # 2.Ke2 (Bongcloud move)
+        flavor:
+          text: '1. e4 e5  2. Ke2. Logic has officially left the building.'
+
+      - name: 'knight'
+        amount: 69       # meme tier
+        flavor:
+          player_quote: 'I didn''t blunder my Rook, I''m testing my opponent''s awareness.'
+
+      - name: 'bishop'
+        amount: 200
+        flavor:
+          text: 'Jerome Gambit activated: Sacrificing pieces for psychological damage.'
+
+      - name: 'rook'
+        amount: 420      # classic meme numerology
+        flavor:
+          text: 'Your brain cells are slowly reconnecting... wait, never mind.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Tactical awareness dropped to absolute zero.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You have played through 2,500 Wednesdays without a single coherent strategy.'
+
+      - name: 'immortal'
+        amount: 5000
+        flavor:
+          text: 'Your mid-week brain rot is now powerful enough to confuse Grandmasters.'
+
+      - name: 'legend'
+        amount: 10000
+        flavor:
+          text: 'Peak brain rot achieved. You no longer calculate moves; you just feel them.'
+
+
+
+###############################################################################
+# THTOCKFISH THURSDAY
+# Total games played on Thursdays.
+###############################################################################
+- id: badge_played_thursday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'fish' # animal cruelty
+    - 'eval' # corporate performance evaluation
+    - 'snob' # elitism
+    - 'centipawn' # insect imagery
+    - 'depth' # claustrophobia
+  name: 'Thtockfish Thursday'
+  description: 'Total games played on Thursdays.'
+  flavor:
+    quote: 'Leaving my house today was a centipawn loss of -2.4.'
+    author: 'Stockfish Enthusiast'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'thursday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Evaluating your life choices at depth 18.'
+
+      - name: 'pawn'
+        amount: 16       # Stockfish 16 reference
+        flavor:
+          text: 'Eating cereal for dinner was evaluated as an Inaccuracy.'
+
+      - name: 'knight'
+        amount: 50       # Depth 50 calculation
+        flavor:
+          player_quote: 'Stockfish says I was winning on move 34, so morally I won.'
+
+      - name: 'bishop'
+        amount: 100      # 100 centipawns (= 1.00 eval)
+        flavor:
+          text: '+1.00 evaluation advantage thrown into the ocean.'
+
+      - name: 'rook'
+        amount: 300
+        flavor:
+          text: 'Judging your opponent''s opening choices with severe disdain.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'You don''t play chess anymore; you just run engine checks on human error.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You have achieved engine enlightenment. Human blunders physically hurt you.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: 'Depth 99 reached. You now judge everyday conversations in centipawns.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'You are 100% silicon. Even Stockfish agrees with your life choices.'
+
+
+
+###############################################################################
+# FREEDOM FRIDAY
+# Total games played on Fridays.
+###############################################################################
+- id: badge_played_friday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'drunk' # substance abuse
+    - 'sac' # bodily harm
+    - 'Tal' # dead people
+    - 'calculated' # math anxiety
+    - 'alcohol' # substance promotion
+  name: 'Freedom Friday'
+  description: 'Total games played on Fridays.'
+  flavor:
+    player_quote: 'You must take your opponent into a deep dark forest where 2+2=5...'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'friday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'It''s Friday night. Time to sacrifice a Knight for zero compensation.'
+
+      - name: 'pawn'
+        amount: 9        # Queen value sac
+        flavor:
+          text: 'Sacrificing your Queen because "it looked cool."'
+
+      - name: 'knight'
+        amount: 36       # 1936 (Mikhail Tal's birth year)
+        flavor:
+          player_quote: 'Calculated.'
+
+      - name: 'bishop'
+        amount: 80       # 80 proof alcohol reference
+        flavor:
+          text: 'Typing "Hope you liked the fireworks" right before getting back-rank mated.'
+
+      - name: 'rook'
+        amount: 191      # 191 proof Everclear
+        flavor:
+          text: 'Liquid courage tactics: 10% calculation, 90% hope.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Mikhail Tal is smiling down from chess heaven. (Or wincing).'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You have lost over 2,000 pieces on Friday nights. Zero regrets.'
+
+      - name: 'immortal'
+        amount: 5000
+        flavor:
+          text: '5,000 Friday night sacrifices. The forest is so dark nobody can see the board.'
+
+      - name: 'legend'
+        amount: 10000
+        flavor:
+          text: 'You are the Magician from Riga''s most chaotic Friday night disciple.'
+
+
+
+###############################################################################
+# GRASS SATURDAY
+# Total games played on Saturdays.
+###############################################################################
+- id: badge_played_saturday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'hazard' # safety violation
+    - 'public' # exposure
+    - 'funeral' # morbid
+    - 'toilet' # hygiene
+    - 'wedding' # marital pressure
+  name: 'Grass Saturday'
+  description: 'Total games played on Saturdays.'
+  flavor:
+    text: 'Sir, please put your phone away, this is a formal event.'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'saturday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Playing a 1-minute Bullet game while standing in line at Trader Joe''s.'
+
+      - name: 'pawn'
+        amount: 3        # 3 AM
+        flavor:
+          text: 'Sneaking moves during a toast at your cousin''s wedding.'
+
+      - name: 'knight'
+        amount: 24       # 24/7 grind
+        flavor:
+          player_quote: 'Hold on, I can''t cross the street yet, I''m in a sharp endgame.'
+
+      - name: 'bishop'
+        amount: 314      # 3:14 AM
+        flavor:
+          text: 'It''s 3:14 AM on a Saturday. Touch grass immediately.'
+
+      - name: 'rook'
+        amount: 911      # Emergency services
+        flavor:
+          text: 'You almost walked into a lamp post while premoving a ladder mate.'
+
+      - name: 'queen'
+        amount: 2000
+        flavor:
+          text: 'Social events are just background noise for your chess addiction.'
+
+      - name: 'king'
+        amount: 4040     # Grass 404
+        flavor:
+          text: 'You have played chess in every awkward public setting known to humanity.'
+
+      - name: 'immortal'
+        amount: 8000
+        flavor:
+          text: '8,000 Saturday games. You haven''t seen daylight on a weekend since 2019.'
+
+      - name: 'legend'
+        amount: 15000
+        flavor:
+          text: 'Grass status: Completely un-touched. Public safety hazard rating: Severe.'
+
+
+
+###############################################################################
+# SAINT SUNDAY
+# Total games played on Sundays.
+###############################################################################
+- id: badge_played_sunday
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'DailyScape'
+  compliance_filters:
+    - 'sin' # religious guilt
+    - 'confess' # criminal liability
+    - 'church' # religious bias
+    - 'Bishop' # ecclesiastical authority
+    - 'guilt' # emotional distress
+  name: 'Saint Sunday'
+  description: 'Total games played on Sundays.'
+  flavor:
+    quote: 'Forgive me Bishop, for I have hung my Queen.'
+    author: 'A penitent 1000 ELO player'
+  config:
+    metric_key: 'day_of_week'
+    required_value: 'sunday'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Confessing your positional sins directly to the diagonal piece.'
+
+      - name: 'pawn'
+        amount: 7        # The 7th day
+        flavor:
+          text: 'On the seventh day, God rested. You queued up 30 Rapid games.'
+
+      - name: 'knight'
+        amount: 12       # 12 disciples
+        flavor:
+          player_quote: 'Failing to castle is a moral failing.'
+
+      - name: 'bishop'
+        amount: 40       # 40 days and nights
+        flavor:
+          text: 'Saying three Hail Marys after blundering a fork.'
+
+      - name: 'rook'
+        amount: 333
+        flavor:
+          text: 'Replacing Sunday Mass with online Blitz tournaments.'
+
+      - name: 'queen'
+        amount: 777      # Holy numerology
+        flavor:
+          text: 'Your soul is clean, but your rating is deeply stained.'
+
+      - name: 'king'
+        amount: 1200
+        flavor:
+          text: 'Absolution granted for hanging your Rook on move 12.'
+
+      - name: 'immortal'
+        amount: 3333
+        flavor:
+          text: '3,333 Sunday confessions. The Bishop piece has heard enough of your excuses.'
+
+      - name: 'legend'
+        amount: 7777     # Divine cap
+        flavor:
+          text: 'Sainted status achieved. You have officially consecrated the chess board.'

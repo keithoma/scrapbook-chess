@@ -79,10 +79,15 @@
     required_value: true
     is_hidden: true
     tiers:
-      - name: 'pawn'
-        amount: 11          # these numbers are references to biblical prophecies
+      - name: 'stone'
+        amount: 1          # these numbers are references to biblical prophecies
         flavor:
           text: 'Who talks like that?'
+
+      - name: 'pawn'
+        amount: 11
+        flavor:
+          text: 'You are amazing just the way you are!'
 
       - name: 'knight'
         amount: 42
@@ -189,7 +194,7 @@
 ###############################################################################
 - id: badge_won_bullet
   type: badge
-  category: 'Veterancy'
+  category: 'Domination'
   subcategory: 'Body Count'
   name: 'Vexillology'
   description: 'Total Bullet games won.'
@@ -228,7 +233,8 @@
 
       - name: 'queen'
         amount: 999
-        flavor: 'Really, what''s a juicer? A pawn? A bishop? Or like everything?'
+        flavor:
+          text: 'Really, what''s a juicer? A pawn? A bishop? Or like everything?'
 
       - name: 'king'
         amount: 1499
