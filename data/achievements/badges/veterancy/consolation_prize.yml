@@ -1,0 +1,47 @@
+###############################################################################
+#
+# Make a move
+###############################################################################
+- id: badge_moves_played
+  type: badge
+  category: "Veterancy"
+  subcategory: ""
+  name: "Effort"
+  description: "Play a valid move in any game."
+  flavor_text: ""
+  config:
+    metric_key: "my_moves_count"
+    required_value: null
+    is_hidden: false
+    tiers:
+      - name: "pawn"
+        amount: 100
+        flavor_text: ""
+
+      - name: "knight"
+        amount: 200
+        flavor_text: ""
+
+      - name: "bishop"
+        amount: 300
+        flavor_text: ""
+
+      - name: "rook"
+        amount: 400
+        flavor_text: ""
+
+      - name: "queen"
+        amount: 500
+        flavor_text: ""
+
+      - name: "king"
+        amount: 600
+        flavor_text: ""
+
+      - name: "immortal"
+        amount: 700
+        flavor_text: ""
+
+      - name: "legend"
+        amount: 800
+        flavor_text: ""
