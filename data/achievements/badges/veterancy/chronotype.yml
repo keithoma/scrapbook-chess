@@ -1,0 +1,386 @@
+###############################################################################
+# WITCHING HOUR (00:00 - 04:00)
+# Total games played between midnight and 4 AM.
+###############################################################################
+- id: badge_played_time_00_04
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Witching Hour'
+  description: 'Total games played between 00:00 and 04:00.'
+  flavor:
+    quote: 'Just one more win before bed.'
+    author: 'Famous last words at 3:14 AM'
+  config:
+    metric_key: 'time_block'
+    required_value: '00_04'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Entering the dark realm of late-night tilt.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          player_quote: 'If I win this one, I''ll go to sleep. (Spoiler: You lost).'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          text: 'Your brain function is down to 12%, but your queue button finger is going strong.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Staring at the ceiling at 3:30 AM seeing phantom Knight forks.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'You no longer calculate moves; you just react to colors on the screen.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'The birds outside have started singing. That is your cue to cry.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You have spent 2,500 unholy hours ruining your REM sleep schedule.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: 'The darkness is your native habitat. You are the nocturnal lord of blunders.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'You haven''t slept before 4 AM since the Obama administration.'
+
+
+
+###############################################################################
+# DAWN PATROL (04:00 - 08:00)
+# Total games played between 4 AM and 8 AM.
+###############################################################################
+- id: badge_played_time_04_08
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Dawn Patrol'
+  description: 'Total games played between 04:00 and 08:00.'
+  flavor:
+    quote: 'Did you wake up early, or did you never go to sleep?'
+    author: 'The existential crisis at 5:00 AM'
+  config:
+    metric_key: 'time_block'
+    required_value: '04_08'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Queueing a Bullet game while the sun rises.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Either a dedicated morning person or an absolute lunatic.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'I study opening theory at 5 AM like a disciplined Grandmaster.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Pairing up against players on the opposite side of the planet who think you''re normal.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'Drinking your first cup of coffee while premoving a ladder checkmate.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'The 6 AM chess grind hits different when everyone else is asleep.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You own the dawn. Unfortunately, the dawn does not give you ELO points.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: '6,000 games played in the twilight hour. Scientists want to study your circadian cycle.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'You and the morning birds have a mutual understanding.'
+
+
+
+###############################################################################
+# COFFEE & CASTLING (08:00 - 12:00)
+# Total games played between 8 AM and 12 PM.
+###############################################################################
+- id: badge_played_time_08_12
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Coffee & Castling'
+  description: 'Total games played between 08:00 and 12:00.'
+  flavor:
+    quote: 'Sorry, my camera was off during the standup call.'
+    author: 'Remote Worker (1400 Blitz)'
+  config:
+    metric_key: 'time_block'
+    required_value: '08_12'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'First cup of coffee + first blunder of the day.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Pretending to take notes in a morning lecture while playing 3-minute Blitz.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'Caffeine increases my tactical vision by at least +0.5 eval.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Alt-tabbing from a spreadsheet to a won endgame in 0.2 seconds.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'Morning peak performance: Brain fresh, caffeine high, tactics locked in.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Your employer thinks you are an early morning powerhouse worker.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: '2,500 morning games. You have mastered the art of multi-tasking fraud.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: 'Caffeine and chess run through your veins in equal measure.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'You have replaced breakfast entirely with chess rating fluctuations.'
+
+
+
+###############################################################################
+# POST-LUNCH SLUMP (12:00 - 16:00)
+# Total games played between 12 PM and 4 PM.
+###############################################################################
+- id: badge_played_time_12_16
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Post-Lunch Slump'
+  description: 'Total games played between 12:00 and 16:00.'
+  flavor:
+    quote: 'My digestive system took all the blood away from my calculation engine.'
+    author: 'Victim of a heavy lunch'
+  config:
+    metric_key: 'time_block'
+    required_value: '12_16'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Hanging a piece because your eyes briefly closed mid-move.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Carb-induced brain fog leads directly to catastrophic Queen blunders.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'I shouldn''t have eaten that entire pizza before playing Rapid.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'The 2 PM slump: Where 1500 ELO players play like 800s.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'Flagging on time in a 10-minute game because you fell into a mini-coma.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Your afternoon productivity graph is just a downward line of lost rating.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: '2,500 games played while in a food-induced trance.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: 'You are the undisputed champion of low-energy afternoon blunders.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'Siesta? No, we grind through the brain fog.'
+
+
+
+###############################################################################
+# CLOCKING OUT (16:00 - 20:00)
+# Total games played between 4 PM and 8 PM.
+###############################################################################
+- id: badge_played_time_16_20
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Clocking Out'
+  description: 'Total games played between 16:00 and 20:00.'
+  flavor:
+    text: 'Freedom at last. Time to stress myself out with competitive chess.'
+  config:
+    metric_key: 'time_block'
+    required_value: '16_20'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Playing Bullet on the bus ride home.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Unwinding after a long day by losing 40 ELO points.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'Commute chess hits different when the subway loses Wi-Fi.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Replacing work stress with checkmate stress.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'The rush-hour ritual: 10 games of Blitz before dinner.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Your evening commute is just a mobile chess arena with wheels.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'Dinner is cold, but the tactical streak is red hot.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: '6,000 evening games. You haven''t watched the 6 o''clock news in years.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'Clocking out of real life, clocking in to the digital board.'
+
+
+
+###############################################################################
+# PRIME TIME (20:00 - 24:00)
+# Total games played between 8 PM and midnight.
+###############################################################################
+- id: badge_played_time_20_24
+  type: badge
+  category: 'Veterancy'
+  subcategory: 'Chronotype'
+  name: 'Prime Time'
+  description: 'Total games played between 20:00 and 24:00.'
+  flavor:
+    quote: 'Playing chess before bed helps me relax.'
+    author: 'Player with 140 BPM heart rate at 11:45 PM'
+  config:
+    metric_key: 'time_block'
+    required_value: '20_24'
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Peak gamer hours unlocked.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Adrenaline spiking right before you try to fall asleep.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'Relaxing night in: Just me, my tea, and a 1-minute bullet frenzy.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Sweating over a lost Rook endgame while wearing pajamas.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'The evening prime time pool is full of tryhards. And you are one of them.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: '1,000 late-night arena battles fought under the glow of dark mode.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'Your phone screen blue-light filter is working overtime.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: '6,000 prime time games. Sleep hygiene is an alien concept to you.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'The undisputed monarch of late-night peak hours.'

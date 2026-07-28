@@ -1,0 +1,192 @@
+###############################################################################
+# PREPARATION
+# Total games won in the opening phase.
+###############################################################################
+- id: badge_won_opening
+  type: badge
+  category: 'Domination'
+  subcategory: 'Phasewise'
+  name: 'Preparation'
+  description: 'Total games won in the opening phase.'
+  flavor:
+    quote: 'If you aren''t prepared, prepare to blunder on move 4.'
+    author: 'Grandmaster Proverb'
+  config:
+    metric_key: 'is_opening_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Your opponent played 1. f3 and immediately regretted life.'
+
+      - name: 'pawn'
+        amount: 5
+        flavor:
+          text: 'Memorized 15 moves of Stafford Gambit theory just for this moment.'
+
+      - name: 'knight'
+        amount: 20
+        flavor:
+          player_quote: 'Opponent premoved into a forced checkmate on move 6.'
+
+      - name: 'bishop'
+        amount: 50
+        flavor:
+          text: 'Winning before your coffee even finishes brewing.'
+
+      - name: 'rook'
+        amount: 150
+        flavor:
+          text: 'You didn''t win this game; your opponent''s opening prep lost it.'
+
+      - name: 'queen'
+        amount: 400
+        flavor:
+          text: 'Opening novelty found on move 7: opponent resigned in disgust.'
+
+      - name: 'king'
+        amount: 1000
+        flavor:
+          text: 'You spend more time studying opening tree statistics than playing actual chess.'
+
+      - name: 'immortal'
+        amount: 2500
+        flavor:
+          text: '2,500 games won before move 15. The middlegame is a myth to you.'
+
+      - name: 'legend'
+        amount: 5000
+        flavor:
+          text: 'You are Stockfish''s opening database incarnate.'
+
+
+
+###############################################################################
+# TACTICIAN
+# Total games won in the middlegame phase.
+###############################################################################
+- id: badge_won_middlegame
+  type: badge
+  category: 'Domination'
+  subcategory: 'Phasewise'
+  name: 'Tactician'
+  description: 'Total games won in the middlegame phase.'
+  flavor:
+    quote: 'Tactics is knowing what to do when there is something to do.'
+    author: 'Savielly Tartakower'
+  config:
+    metric_key: 'is_middlegame_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Finding a basic royal fork while both Kings are screaming for help.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          text: 'Sacrificing a Bishop on h7 because Mikhail Tal told you to in a dream.'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          player_quote: 'Spotted a tactical combination after staring at the board for three full minutes.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Your opponent missed a free Queen because of severe board blindness.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          text: 'King walk initiated: Dragging their King across the entire board for mate.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Board state: Complete, glorious, unhinged tactical chaos.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'You don''t need positional play when you can just fork everything.'
+
+      - name: 'immortal'
+        amount: 6000
+        flavor:
+          text: '6,000 middlegame massacres. You treat piece sacrifices like casual tipping.'
+
+      - name: 'legend'
+        amount: 12000
+        flavor:
+          text: 'The tactics puzzle database was built from your game history.'
+
+
+
+###############################################################################
+# SQUEEZING STONE
+# Total games won in the endgame phase.
+###############################################################################
+- id: badge_won_endgame
+  type: badge
+  category: 'Domination'
+  subcategory: 'Phasewise'
+  name: 'Squeezing Stone'
+  description: 'Total games won in the endgame phase.'
+  flavor:
+    quote: 'To win against me, you must convert a tiny advantage for 80 moves. Good luck.'
+    author: 'Capablanca Fanatic'
+  config:
+    metric_key: 'is_endgame_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Promoting a pawn to a Queen while your opponent aggressively clicks their King.'
+
+      - name: 'pawn'
+        amount: 5
+        flavor:
+          text: 'Taking the opposition and watching your opponent slowly lose their mind.'
+
+      - name: 'knight'
+        amount: 25
+        flavor:
+          player_quote: 'Winning a pure Pawn endgame after 45 moves of shuffling Kings.'
+
+      - name: 'bishop'
+        amount: 75
+        flavor:
+          text: 'Lucena Position executed cleanly. Capablanca nods in approval.'
+
+      - name: 'rook'
+        amount: 200
+        flavor:
+          text: 'Converting a +0.4 evaluation advantage over 60 painful moves.'
+
+      - name: 'queen'
+        amount: 500
+        flavor:
+          text: 'Your passed a-pawn is an unstoppable force of nature.'
+
+      - name: 'king'
+        amount: 1200
+        flavor:
+          text: 'Squeezing water from a stone, and water from an equal Rook endgame.'
+
+      - name: 'immortal'
+        amount: 3000
+        flavor:
+          text: '3,000 technical endgame conversions. You actually know how to use Philidor''s Position.'
+
+      - name: 'legend'
+        amount: 7000
+        flavor:
+          text: 'Grandmasters study your endgames when they want to learn true patience.'
