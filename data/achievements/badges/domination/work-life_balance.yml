@@ -1,0 +1,128 @@
+###############################################################################
+# FARMING TRASH MOBS
+# Total games won on weekdays.
+###############################################################################
+- id: badge_won_weekday
+  type: badge
+  category: 'Domination'
+  subcategory: 'Work-life balance'
+  name: 'Farming Trash Mobs'
+  description: 'Total games won on weekdays.'
+  flavor:
+    quote: 'Loot table: +8 ELO, 0 XP, mild wrist pain.'
+    author: 'MMO Patch Notes'
+  config:
+    metric_key: 'is_weekday_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Killed your first 1-health rat in the starting village.'
+
+      - name: 'pawn'
+        amount: 10
+        flavor:
+          player_quote: 'Where is the auto-battle button?'
+
+      - name: 'knight'
+        amount: 50
+        flavor:
+          text: 'Low drop rate on ELO today, but the daily grind continues.'
+
+      - name: 'bishop'
+        amount: 150
+        flavor:
+          text: 'Your opponent fell for a basic tactical pattern. Pure mob AI.'
+
+      - name: 'rook'
+        amount: 400
+        flavor:
+          player_quote: 'I have been clearing this dungeon since 9 AM.'
+
+      - name: 'queen'
+        amount: 1000
+        flavor:
+          text: 'Congratulations, you have reached max level in weekday slacking.'
+
+      - name: 'king'
+        amount: 2500
+        flavor:
+          text: 'The boss mob (your manager) still hasn''t noticed.'
+
+      - name: 'immortal'
+        amount: 5000
+        flavor:
+          text: 'You have farmed enough weekday trash mobs to populate an entire server.'
+
+      - name: 'legend'
+        amount: 10000
+        flavor:
+          text: 'Touch grass? No, the spawn rate for rating points is better right here.'
+
+
+
+###############################################################################
+# MERCURY IN RETROGRADE
+# Total games won on weekends.
+###############################################################################
+- id: badge_won_weekend
+  type: badge
+  category: 'Domination'
+  subcategory: 'Work-life balance'
+  name: 'Mercury in Retrograde'
+  description: 'Total games won on weekends.'
+  flavor:
+    quote: 'I didn''t blunder my Queen; the moon phase demanded a sacrifice.'
+    author: 'Your 1200-rated astrologer'
+  config:
+    metric_key: 'is_weekend_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: 'Winning your first weekend game under the third house of Saturn.'
+
+      - name: 'pawn'
+        amount: 7
+        flavor:
+          player_quote: 'The stars aligned, and by stars I mean my opponent''s back rank.'
+
+      - name: 'knight'
+        amount: 33
+        flavor:
+          text: 'Consulting the zodiac before choosing an opening repertoire.'
+
+      - name: 'bishop'
+        amount: 108      # auspicious cosmic numerology
+        flavor:
+          quote: 'A rare celestial alignment that causes your opponent to disconnect.'
+          author: 'The Stars'
+
+      - name: 'rook'
+        amount: 300
+        flavor:
+          text: 'Manifesting a forced mate-in-four.'
+
+      - name: 'queen'
+        amount: 777
+        flavor:
+          text: 'Your third eye is open, but your sleep schedule is completely destroyed.'
+
+      - name: 'king'
+        amount: 1800
+        flavor:
+          text: 'Solar flare detected: your rating skyrockets by +12.'
+
+      - name: 'immortal'
+        amount: 3333
+        flavor:
+          text: 'You have transcended weekend chess. You are now a spiritual cosmic entity.'
+
+      - name: 'legend'
+        amount: 7777     # divine cap
+        flavor:
+          text: 'The universe created the cosmos in 6 days just so you could play 7,777 weekend chess games.'
