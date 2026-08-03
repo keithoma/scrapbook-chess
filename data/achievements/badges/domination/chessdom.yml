@@ -1,19 +1,25 @@
 ###############################################################################
-#
+# LIGHTENING
 # Win a game with always having more time than the opponent.
 ###############################################################################
 - id: badge_time_advantage
   type: badge
   category: 'Domination'
   subcategory: 'ChessDom'
-  name: "Lightening"
-  description: "Win a game with always having more time than the opponent."
-  flavor_text: ""
+  name: 'Lightening'
+  description: 'Win a game with always having more time than the opponent.'
+  flavor:
+    player_quote: 'Nothing personal.'
   config:
-    metric_key: "is_time_advantage_win"
+    metric_key: 'is_time_advantage_win'
     required_value: true
     is_hidden: false
     tiers:
+      - name: 'stone'
+        amount: 1
+        flavor:
+          text: ''
+      
       - name: "pawn"
         amount: 1
         flavor_text: ""
@@ -52,8 +58,8 @@
 ###############################################################################
 - id: badge_time_scramble
   type: badge
-  category: ""
-  subcategory: ""
+  category: 'Domination'
+  subcategory: 'ChessDom'
   name: "Clutch"
   description: "Win a time scramble."
   flavor_text: ""
