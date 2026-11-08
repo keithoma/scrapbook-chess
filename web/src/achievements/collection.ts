@@ -1,3 +1,4 @@
+import { comebackContributions } from './comebacks';
 import { cleanGainContributions } from './clean-gains';
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
@@ -112,7 +113,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+  return [...events, ...comebackContributions(game, color, winner, BADGES, checkpoint), ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
