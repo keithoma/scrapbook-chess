@@ -117,45 +117,56 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Great Escapes'
-  name: ''
+  name: 'The Waiting Game'
   description: 'Draw a previously lost position by the 50 move rule.'
-  flavor_text: ''
+  flavor:
+    text: No captures. No pawn moves. A steadily improving legal position.
   config:
     metric_key: 'is_drawn_from_lost_by_50move'
     required_value: true
     is_hidden: false
+    analysis_required: true
+    lost_cp: 300
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The counter was doing the heavy lifting.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Another advantage has exceeded its shelf life.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your opponent should have read the expiry date.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The pieces have been very busy accomplishing very little.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You have developed an unusually precise sense of patience.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The pawn moves are starting to look temptingly far away.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The winning plan has been returned as undeliverable.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Time served. Half point released.
 
 - id: badge_draw_lost_insufficient
   type: badge
