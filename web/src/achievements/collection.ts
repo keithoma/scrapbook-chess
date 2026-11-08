@@ -6,8 +6,10 @@ import type { Color } from 'chessops/types';
 import type { ReplayGame } from '../game';
 import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, type BadgeId } from './catalog';
+import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
 
 export type Contribution =
+  | MasteryContribution
   | { kind: 'badge'; badgeId: BadgeId; amount: number; ply: number }
   | { kind: 'scrap'; notation: string; mode: 'real' | 'virtual'; ply: number; virtualPly?: number };
 export interface GameGrant {
@@ -73,26 +75,38 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return events;
+  return [...events, ...masteryContributions(game, color, checkpoint)];
+}
+
+// Keep already collected XP and evidence stable through cache eviction, partial
+// analysis, and tuning changes. Correcting the game's color replaces its awards.
+export function retainMastery(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
+  const awards = new Map(events.filter((event): event is MasteryContribution => event.kind === 'mastery').map(event => [event.ply, event]));
+  if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(event.ply, event);
+  return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }
 
 export function projectCollection(games: GameGrant[]) {
   const totals: Record<BadgeId, number> = { badge_played_total: 0, badge_moves_played: 0, badge_en_passant: 0 };
   const scraps = new Map<string, Scrap>();
+  let masteryXp = 0;
   for (const game of games) for (const event of game.events) {
     if (event.kind === 'badge') { totals[event.badgeId] += event.amount; continue; }
+    if (event.kind === 'mastery') { masteryXp += event.amount; continue; }
     const scrap: Scrap = scraps.get(event.notation) ?? { notation: event.notation, mode: 'virtual', realCounts: { white: 0, black: 0 }, occurrences: [] };
     if (event.mode === 'real') { scrap.mode = 'real'; scrap.realCounts[game.color]++; }
     scrap.occurrences.push({ gameId: game.id, color: game.color, event });
     scraps.set(event.notation, scrap);
   }
-  return { totals, scraps: [...scraps.values()].sort((a, b) => a.notation.localeCompare(b.notation)) };
+  return { totals, mastery: masteryProgress(masteryXp), scraps: [...scraps.values()].sort((a, b) => a.notation.localeCompare(b.notation)) };
 }
 
 export function newlyUnlocked(before: GameGrant[], after: GameGrant[]) {
   const old = projectCollection(before);
   const next = projectCollection(after);
   return {
+    masteryXp: next.mastery.xp - old.mastery.xp,
+    masteryLevels: Array.from({ length: Math.max(0, next.mastery.level - old.mastery.level) }, (_, i) => old.mastery.level + i + 1),
     tiers: BADGES.flatMap(badge => badge.config.tiers.filter(tier => old.totals[badge.id] < tier.amount && next.totals[badge.id] >= tier.amount).map(tier => ({ badge, tier }))),
     scraps: next.scraps.filter(scrap => {
       const previous = old.scraps.find(item => item.notation === scrap.notation);

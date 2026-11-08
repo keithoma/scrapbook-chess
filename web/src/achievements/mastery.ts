@@ -23,7 +23,7 @@ if (FORK_MASTERY.id !== 'mastery_knight_forks' || FORK_MASTERY.type !== 'mastery
 }
 export interface MasteryContribution {
   kind: 'mastery'; masteryId: 'mastery_knight_forks'; amount: number; ply: number;
-  evidence: { ruleVersion: string; best: Score; played: Score; bestMove: string; lossCp?: number;
+  evidence: { ruleVersion: string; analysisVersion: string; best: Score; played: Score; bestMove: string; lossCp?: number;
     materialGainCp: number; reply: string; capture: string };
 }
 export function masteryProgress(xp: number) {
@@ -61,7 +61,7 @@ export function assessFork(game: ReplayGame, fork: KnightForkCandidate, checkpoi
   if (!quality.xp) return { material, status: 'rejected' };
   return { material, status: 'qualified', event: {
     kind: 'mastery', masteryId: FORK_MASTERY.id, amount: quality.xp, ply: fork.ply,
-    evidence: { ruleVersion: FORK_MASTERY.rule_version, best: evidence.best, played: evidence.played, bestMove: evidence.bestMove,
+    evidence: { ruleVersion: FORK_MASTERY.rule_version, analysisVersion: checkpoint!.version, best: evidence.best, played: evidence.played, bestMove: evidence.bestMove,
       lossCp: quality.lossCp, materialGainCp: material.gainCp, reply: material.reply, capture: material.capture },
   } };
 }

@@ -40,6 +40,13 @@ describe('material qualification', () => {
     const recent = parseGame(RECENT_GAME_PGN);
     expect(forkMaterialThreat(recent, knightForkCandidates(recent).find(candidate => candidate.ply === 30)!)).toEqual({ status: 'rejected', reason: 'capturable' });
   });
+  it('rejects a queen-and-rook fork when a countercheck prevents the knight from taking its target', () => {
+    const example = parseGame('[SetUp "1"]\n[FEN "7k/8/1q3r2/8/8/2N5/7K/8 w - - 0 1"]\n\n1. Nd5 *');
+    const candidate = knightForkCandidates(example)[0];
+    expect(candidate.capturable).toBe(false);
+    expect(candidate.pinned).toBe(false);
+    expect(forkMaterialThreat(example, candidate)).toEqual({ status: 'rejected', reason: 'no-gain' });
+  });
 });
 describe('quality-based XP and levels', () => {
   it('uses authored irregular values with decreasing awards and rejects moves outside the gate', () => {

@@ -1,7 +1,7 @@
 import type { Color } from 'chessops/types';
 import type { ReplayGame } from '../game';
 import type { Checkpoint } from '../storage';
-import { contributions, gameIdentity, type GameGrant } from './collection';
+import { contributions, gameIdentity, retainMastery, type GameGrant } from './collection';
 
 const CHANNEL = 'scrapbook-collection-changed';
 async function database(): Promise<IDBDatabase> {
@@ -50,7 +50,7 @@ export async function collectGame(game: ReplayGame, color: Color, checkpoint?: C
           ? [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual] : events;
         const virtual = keepVirtual ? previous?.virtual
           : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-        const grant: GameGrant = { id, version: 1, pgn: game.pgn, color, events: savedEvents, virtual, collectedAt: previous?.collectedAt ?? now, updatedAt: now };
+        const grant: GameGrant = { id, version: 1, pgn: game.pgn, color, events: retainMastery(previous, color, savedEvents), virtual, collectedAt: previous?.collectedAt ?? now, updatedAt: now };
         store.put(grant);
         result = { before, after: [...before.filter(entry => entry.id !== id), grant], grant };
       };
