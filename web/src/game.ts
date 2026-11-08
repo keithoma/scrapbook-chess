@@ -7,6 +7,7 @@ import { castlingSide } from 'chessops/chess';
 import type { CastlingSide, Color, Role } from 'chessops/types';
 import { pgnRating, type GameRatings } from '../../shared/ratings';
 import { utcGameStart } from '../../shared/time-zone';
+import { pgnClock } from '../../shared/clocks';
 
 export interface Frame {
   fen: string;
@@ -24,6 +25,7 @@ export interface PlayedMove {
   promotion?: Role;
   check: boolean;
   castling?: CastlingSide;
+  clock?: number;
 }
 export interface ReplayGame {
   pgn: string;
@@ -71,7 +73,7 @@ export function parseGame(pgn: string): ReplayGame {
     const castle = castlingSide(pos, move);
     const uci = castle && 'from' in move ? makeUci({ ...move, to: kingCastlesTo(color, castle) }) : makeUci(move);
     const san = makeSanAndPlay(pos, move);
-    moves.push({ ply: moves.length + 1, san, uci, color, enPassant, captured, promotion, check: pos.isCheck(), castling: castle });
+    moves.push({ ply: moves.length + 1, san, uci, color, enPassant, captured, promotion, check: pos.isCheck(), castling: castle, clock: pgnClock(node.comments) });
     snapshot();
   }
   if (!moves.length) throw new Error('No playable moves found in that PGN.');
@@ -86,6 +88,10 @@ export function parseGame(pgn: string): ReplayGame {
     startedAt: utcGameStart(game.headers),
     frames, moves,
   };
+}
+
+export function withGameClocks(game: ReplayGame, clocks?: readonly (number | null)[]): ReplayGame {
+  return clocks ? { ...game, moves: game.moves.map((move, i) => ({ ...move, clock: clocks[i] ?? undefined })) } : game;
 }
 
 // Recovered from the author's original Stockfish experiments (Git 8637c38).

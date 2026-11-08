@@ -12,6 +12,7 @@ import { masteryContributions, masteryProgress, type MasteryContribution } from 
 import { calendarContributions } from './calendar';
 import { phaseAt } from './phases';
 import { fianchettoContributions } from './fianchetto';
+import { clockContributions } from './clock-badges';
 
 export type Contribution =
   | MasteryContribution
@@ -25,6 +26,7 @@ export interface GameGrant {
   ratings?: GameRatings;
   startedAt?: number;
   timeZone?: string;
+  clocks?: (number | null)[];
   color: Color;
   events: Contribution[];
   collectedAt: string;
@@ -108,7 +110,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+  return [...events, ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
@@ -134,7 +136,7 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
   if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
   const virtual = keepVirtual ? previous?.virtual
     : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), startedAt: game.startedAt, timeZone: game.timeZone, color, events: retainMastery(previous, color, events), virtual,
+  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), startedAt: game.startedAt, timeZone: game.timeZone, clocks: game.moves.some(move => move.clock !== undefined) ? game.moves.map(move => move.clock ?? null) : undefined, color, events: retainMastery(previous, color, events), virtual,
     collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 

@@ -18,39 +18,47 @@
       - name: 'stone'
         amount: 1
         flavor:
-          text: ''
+          text: A small reserve of unspent panic.
 
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: You have finished thinking before the other person has finished worrying.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The clock is on your side. For once, literally.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your opponent is paying interest on every decision.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: You brought a schedule to a thinking contest.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: There is time to double-check. You even used some of it.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Their clock has started making eye contact with yours.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: You are now technically the time control.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Congratulations. You have won an argument with a countdown.
 
 ###############################################################################
 #
