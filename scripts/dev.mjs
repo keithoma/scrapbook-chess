@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+if (process.env.NODE_ENV === 'production') throw new Error('The development command cannot run in production.');
 const children = ['server', 'web'].map(directory => spawn('pnpm', ['--dir', directory, 'dev'], { stdio: 'inherit', detached: process.platform !== 'win32' }));
 let closing = false;
 function stop(code = 0) {
