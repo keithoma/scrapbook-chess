@@ -3,6 +3,12 @@ import { MATE_PGN, SAMPLE_PGN, parseGame } from './game';
 import { parseScore } from './stockfish';
 
 describe('legal replay and UCI boundary', () => {
+  it('uses a Chess.com Link header as the source identity while preserving the original PGN', () => {
+    const pgn = '[Site "Chess.com"]\n[Link "https://www.chess.com/game/live/999001"]\n\n1. f3 e5 2. g4 Qh4# 0-1';
+    const game = parseGame(pgn);
+    expect(game.site).toBe('https://www.chess.com/game/live/999001');
+    expect(game.pgn).toBe(pgn);
+  });
   it('replays the entire original experiment without changing the moves', () => {
     const game = parseGame(SAMPLE_PGN);
     expect(game.moves).toHaveLength(137);

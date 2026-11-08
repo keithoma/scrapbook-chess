@@ -100,9 +100,30 @@ test('analysis survives a new browser session; malformed evidence and cross-orig
   const restored = await nextApp.request(`${baseURL}/api${path}`, { headers: { Cookie: cookie } });
   assert.equal((await restored.json()).results.length, 4);
   assert.equal((await s.request(path, 'PUT', { checkpoint: { ...checkpoint, pgn: '1. e4 *' } })).status, 400);
+  assert.equal((await s.request(path, 'PUT', { checkpoint: { ...checkpoint, results: [{ ...checkpoint.results[0], bestMove: 'e2e8' }] } })).status, 400);
+  assert.equal((await (await s.request(path)).json()).results.length, 4);
   assert.equal((await s.request(path, 'PUT', { checkpoint: { ...checkpoint, virtual: [{ san: 'Qh4#', uci: 'e1e8', fen: 'invalid' }] } })).status, 400);
   assert.equal((await s.request('/mock-login', 'POST', {}, '', 'https://evil.example')).status, 403);
   await s.request('/logout', 'POST', {});
   assert.equal((await s.request('/profile/collection')).status, 401);
+  s.db.close();
+});
+test('profile collection uses the same YAML mastery rules and preserves XP without its browser checkpoint', async () => {
+  const raw = sample('lichess', { id: 'Fork0001' });
+  raw.pgn = raw.pgn.replace('[White "Opponent"]', '[White "noctu2nality"]').replace('[Black "noctu2nality"]', '[Black "Opponent"]')
+    .replaceAll('0-1', '1-0').replace('1. f3 e5 2. g4 Qh4# 1-0', '1. e4 e5 2. Nf3 Nc6 3. Bc4 a6 4. Ng5 b6 5. Nxf7 1-0');
+  raw.players = { white: { user: { id: 'noctu2nality', name: 'noctu2nality' } }, black: { user: { id: 'opponent', name: 'Opponent' } } };
+  raw.status = 'resign';
+  const s = await setup({ fetcher: upstream({ lichess: [raw] }) });
+  await s.login(); await s.request('/profile/check-games', 'POST', {});
+  const checkpoint = { pgn: raw.pgn, version: 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1',
+    results: ['e2e4','e7e5','g1f3','b8c6','f1c4','a7a6','f3g5','b7b6','g5f7'].map((bestMove, i) => ({ ply: i + 1, bestMove, best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 })),
+    virtual: [], virtualStatus: 'pending' };
+  const path = '/profile/games/lichess%3AFork0001/collect';
+  const response = await s.request(path, 'POST', { checkpoint }); assert.equal(response.status, 200);
+  const award = (await response.json()).grant.events.find(event => event.kind === 'mastery');
+  assert.equal(award.amount, 137); assert.equal(award.ply, 9);
+  const recollect = await (await s.request(path, 'POST', {})).json();
+  assert.deepEqual(recollect.grant.events.find(event => event.kind === 'mastery'), award);
   s.db.close();
 });

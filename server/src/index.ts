@@ -11,7 +11,7 @@ if (existsSync(resolve(root, '.env'))) loadEnvFile(resolve(root, '.env'));
 const development = process.env.NODE_ENV === 'development';
 const directory = resolve(process.env.SCRAPBOOK_DATA_DIR ?? resolve(root, '.local'));
 mkdirSync(directory, { recursive: true });
-const port = Number(process.env.PORT ?? 8787);
+const port = Number(process.env.SCRAPBOOK_API_PORT ?? 8787);
 const app = await createApp({ db: openDatabase(resolve(directory, 'scrapbook.sqlite')),
   baseURL: process.env.SCRAPBOOK_APP_URL ?? 'http://127.0.0.1:5173', development,
   mockLogin: process.env.SCRAPBOOK_MOCK_LOGIN === '1',

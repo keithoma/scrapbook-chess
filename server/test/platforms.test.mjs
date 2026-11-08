@@ -57,3 +57,19 @@ test('429 and malformed responses fail visibly and do not poison subsequent requ
   await assert.rejects(client.json('https://api.chess.com/test'), /rate_limited/);
   status = 200; await assert.rejects(client.json('https://api.chess.com/test'), /invalid_platform_response/);
 });
+test('independent requests share the serial queue and conditional requests reuse a 304 response', async () => {
+  let active = 0; let cached = false;
+  const client = new PlatformClient(async (url, options) => {
+    assert.equal(active++, 0);
+    await new Promise(resolve => setTimeout(resolve, 2)); active--;
+    if (url.endsWith('/cached') && cached) {
+      assert.equal(options.headers['If-None-Match'], 'version-one');
+      return new Response(null, { status: 304 });
+    }
+    if (url.endsWith('/cached')) cached = true;
+    return Response.json({ ok: true }, { headers: { ETag: 'version-one' } });
+  });
+  await Promise.all([client.json('https://api.chess.com/a'), client.json('https://api.chess.com/b')]);
+  assert.deepEqual(await client.json('https://api.chess.com/cached'), { ok: true });
+  assert.deepEqual(await client.json('https://api.chess.com/cached'), { ok: true });
+});

@@ -33,6 +33,9 @@ function validateCheckpoint(value: unknown, pgn: string): Checkpoint | undefined
   for (const [i, result] of cp.results.entries()) {
     if (result?.ply !== i + 1 || typeof result.bestMove !== 'string' || result.bestMove.length > 8 || !Number.isFinite(result.ms) || result.ms < 0) throw new PlatformError('invalid_analysis');
     for (const score of [result.best, result.played]) if (!score || !['cp', 'mate'].includes(score.type) || !Number.isFinite(score.value) || Math.abs(score.value) > 1_000_000) throw new PlatformError('invalid_analysis');
+    const before = Chess.fromSetup(parseFen(game.frames[i].fen).unwrap()).unwrap();
+    const best = parseUci(result.bestMove);
+    if (!best || !before.isLegal(best)) throw new PlatformError('invalid_analysis');
   }
   if (cp.virtual.some(move => !move || typeof move.san !== 'string' || move.san.length > 16 || typeof move.uci !== 'string'
     || move.uci.length > 8 || typeof move.fen !== 'string' || move.fen.length > 128)) throw new PlatformError('invalid_analysis');
@@ -172,6 +175,7 @@ export async function createApp(options: AppOptions) {
     return c.json(row ? JSON.parse(row.checkpoint_json as string) : null);
   });
   app.on(['PUT', 'POST'], ['/api/profile/games/:id/analysis', '/api/profile/games/:id/collect'], async c => {
+    if ((c.req.path.endsWith('/analysis') && c.req.method !== 'PUT') || (c.req.path.endsWith('/collect') && c.req.method !== 'POST')) return c.json({ error: 'method_not_allowed' }, 405);
     const signed = (await session(c.req.raw))!;
     const row = db.prepare('SELECT game_json FROM imported_games WHERE user_id=? AND game_id=?').get(signed.user.id, c.req.param('id'));
     if (!row) return c.json({ error: 'imported_game_required' }, 404);
@@ -195,5 +199,6 @@ export async function createApp(options: AppOptions) {
       return { before, after: [...before.filter(entry => entry.id !== grant.id), grant], grant };
     }));
   });
+  app.all('/api/*', c => c.json({ error: 'not_found' }, 404));
   return app;
 }
