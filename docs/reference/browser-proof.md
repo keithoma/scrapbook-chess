@@ -17,6 +17,10 @@ This reference describes the local browser app. See the
 | Browser-test server and device settings | [playwright.config.ts](../../web/playwright.config.ts) |
 | Workspace package manager and Node runtime | [root package.json](../../package.json) and [pnpm workspace](../../pnpm-workspace.yaml) |
 | English/German interface messages | [i18n.ts](../../web/src/i18n.ts) |
+| Local badges and their YAML sources | [catalog.ts](../../web/src/achievements/catalog.ts) |
+| Contribution extraction and exact scrap identity | [collection.ts](../../web/src/achievements/collection.ts) |
+| Atomic per-game collection persistence | [ledger.ts](../../web/src/achievements/ledger.ts) |
+| Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -40,6 +44,39 @@ The app requires a secure origin for Web Crypto and service-worker support.
 Localhost qualifies. A plain HTTP LAN URL on a phone does not provide the same
 APIs; use HTTPS when testing a physical device.
 
+## Local collection
+
+Choose White or Black separately for each uploaded game, then select **Collect
+rewards**. Collection requires a completed PGN result or board-proven checkmate.
+The supplied recent-game example defaults to Black, as identified by its author;
+this does not set the color for other uploaded games. Existing saved selections
+and an explicit correction take precedence over that example's default.
+Obsession, Effort, and The French Move use their original YAML definitions and
+thresholds. Badge names, tier labels, and flavor remain the authored English text;
+the surrounding interface is localized. Mastery and story are not implemented.
+
+The collection uses a separate IndexedDB database, `scrapbook-local-collection`.
+One record per game contains its chosen color, played PGN, contributions, and any
+collected virtual continuation. Recollecting replaces that record rather than
+incrementing totals again. Changing color corrects its contributions. Concurrent
+tabs use an atomic read/write transaction, with notifications to refresh views.
+
+Known platform game URLs provide the identity. Otherwise, identity uses player
+names, the available date/time, the initial position, and canonical moves. Comments
+and formatting do not change it. Without a source ID or distinguishing timestamp,
+identical games between the same players cannot be distinguished.
+
+Mating scraps use complete canonical SAN, including captures, promotions, and
+disambiguation such as `Rab2#`. Real occurrences upgrade virtual scraps and count
+separately by color. Counts appear only in expanded scrap details. Virtual
+occurrences never increase these counts. Each game keeps at most one collected
+virtual discovery; reanalysis cannot erase it or farm additional virtual scraps.
+Its saved continuation remains available even if the analysis cache changes.
+
+Replay shows this game's progress through the selected move, separately from
+overall collection totals. Scrap detail links open the actual contributing game
+and its saved continuation when appropriate.
+
 ## Scope and limits
 
 The interface supports English and German, with browser-language detection and a
@@ -49,8 +86,10 @@ details are not translated. `/help` is a player-facing help shell without articl
 The draft survives reloads until cleared, subject to browser storage availability.
 
 The app accepts one standard-chess PGN and replays its main line. It has no
-platform imports, accounts, achievement awards, or server persistence. It does
-not enforce rated-human eligibility on manually loaded fixtures.
+platform imports, accounts, or server persistence. Signup cutoffs and rated-human
+eligibility are not enforced on manual test uploads. Collection data stays in
+this browser and can be lost if browser storage is cleared or evicted. The current
+JSON export contains analysis, not a collection backup.
 
 The full engine asset exceeds Cloudflare's individual static-file limit. Hosted
 delivery requires split packaging or separate asset storage. That packaging and

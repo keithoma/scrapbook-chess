@@ -2,8 +2,8 @@
 
 This explains the intended separation of chess facts, achievement decisions, and
 collection state for implementers. It is a target architecture: the current
-[browser proof](browser-analysis.md) does not yet evaluate achievements or save
-collections on a server.
+[local prototype](browser-analysis.md) implements three badges and mating scraps.
+General detector-driven evaluation and server persistence remain planned.
 
 1. **Import:** retain source identity and raw payload/PGN; normalize players,
    clocks, time settings, opening metadata, timestamps, result, and termination.
