@@ -1,0 +1,74 @@
+# Opening-only prototype tuning. Preserve saved awards when tuning.
+id: opening-mastery-v1
+quality_awards:
+  - max_loss_cp: 7
+    xp: 137
+  - max_loss_cp: 23
+    xp: 89
+  - max_loss_cp: 61
+    xp: 53
+  - max_loss_cp: 97
+    xp: 29
+grade_bands:
+  - grade: S+
+    max_loss_cp: 0
+  - grade: S
+    max_loss_cp: 2
+  - grade: S-
+    max_loss_cp: 7
+  - grade: A+
+    max_loss_cp: 11
+  - grade: A
+    max_loss_cp: 17
+  - grade: A-
+    max_loss_cp: 23
+  - grade: B+
+    max_loss_cp: 31
+  - grade: B
+    max_loss_cp: 43
+  - grade: B-
+    max_loss_cp: 61
+  - grade: C+
+    max_loss_cp: 67
+  - grade: C
+    max_loss_cp: 73
+  - grade: C-
+    max_loss_cp: 79
+  - grade: D+
+    max_loss_cp: 85
+  - grade: D
+    max_loss_cp: 91
+  - grade: D-
+    max_loss_cp: 97
+level_thresholds:
+  - 0
+  - 941
+  - 2381
+  - 4783
+  - 8623
+  - 14591
+  - 23873
+  - 38231
+  - 60317
+  - 94183
+level_requirements:
+  - level: 6
+    high_grade_count: 2
+  - level: 7
+    high_grade_count: 3
+  - level: 8
+    high_grade_count: 5
+theory_cap: 97
+novel_decay: 0.88
+advantage_start_cp: 150
+advantage_full_cp: 300
+conversion_capacity: 3
+fade_rate: 0.53
+fade_floor: 0.01
+conversion_bonus: 0.83
+conversion_max_loss_cp: 23
+minimum_grade_moves: 4
+clock_move_cap_seconds: 120
+control_cap_seconds: 1800
+control_exponent: 1.2
+minimum_time_multiplier: 0.05

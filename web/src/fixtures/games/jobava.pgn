@@ -1,0 +1,7 @@
+[Event "Synthetic Jobava mastery example"]
+[White "Modern Artist"]
+[Black "Art Critic"]
+[Result "1-0"]
+[TimeControl "600+0"]
+
+1. d4 {[%clk 0:09:45]} d5 {[%clk 0:09:45]} 2. Nc3 {[%clk 0:09:30]} Nf6 {[%clk 0:09:30]} 3. Bf4 {[%clk 0:09:15]} e6 {[%clk 0:09:15]} 4. e3 {[%clk 0:09:00]} Bd6 {[%clk 0:09:00]} 5. Nf3 {[%clk 0:08:45]} O-O {[%clk 0:08:45]} 6. Bd3 {[%clk 0:08:30]} c5 {[%clk 0:08:30]} 7. dxc5 {[%clk 0:08:15]} Bxc5 {[%clk 0:08:15]} 8. O-O {[%clk 0:08:00]} Nc6 {[%clk 0:08:00]} 9. a3 {[%clk 0:07:45]} Re8 {[%clk 0:07:45]} 10. b4 {[%clk 0:07:30]} Bb6 {[%clk 0:07:30]} 11. Na4 {[%clk 0:07:15]} Bc7 {[%clk 0:07:15]} 12. Bxc7 {[%clk 0:07:00]} Qxc7 {[%clk 0:07:00]} 13. c4 {[%clk 0:06:45]} e5 {[%clk 0:06:45]} 14. cxd5 {[%clk 0:06:30]} Nxd5 {[%clk 0:06:30]} 15. Rc1 {[%clk 0:06:15]} e4 {[%clk 0:06:15]} 16. Bb1 {[%clk 0:06:00]} exf3 {[%clk 0:06:00]} 17. Qxf3 {[%clk 0:05:45]} 1-0

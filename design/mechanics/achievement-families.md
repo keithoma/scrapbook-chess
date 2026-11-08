@@ -142,9 +142,28 @@ grade. Unknown historical rules remain ungraded; XP alone never proves an S
 grade. Changing saved grading or qualification policies requires an explicit
 migration. Correcting a game's player color replaces its contributions as before.
 
-Preserve the existing opening-mastery rank thresholds while those tracks are
-reviewed; they do not establish the curve for tactical masteries. Other tactical
-tracks and their tuning remain future work.
+Opening masteries use their own [opening rules](opening-masteries.md). Jobava's
+former draft ranks are replaced by independent numbered White/Black tracks.
+Preserve the other inactive opening drafts and their authored thresholds until
+reviewed. They do not establish the tactical progression curve.
+
+### Intended tactical scoring follow-up
+
+This is intended behavior, not the current fork/skewer scoring implementation.
+After material qualification, tactical XP and grades should primarily reflect
+move quality and how strongly the tactic stands out against the engine's top
+three moves. Several equally strong alternatives reduce both XP and grade;
+a sound but unremarkable tactic still earns some credit. The comparison is a
+proxy for difficulty, not a measurement of human thought.
+
+Tactical and opening scoring need separate functions. All mastery categories
+should disproportionately reward longer time controls as a counterweight to
+flat, bullet-friendly badges. A tactical-specific base award should also reflect
+recorded thinking time, while quality and difficulty determine its main rewards.
+The intended result modifier is win ×2, draw ×1, and loss ×½, independently
+of grades. The exact tactical curve and top-three grading bands remain unauthored. Do not
+apply opening's permanent conversion fade to tactical mastery. Top-three engine
+analysis and these tactical scoring changes are a separate implementation.
 
 See [checkmate scraps](checkmate-scraps.md) for their collectible rules and the
 [implementation map](../planning/achievement-implementation.md) for detectors

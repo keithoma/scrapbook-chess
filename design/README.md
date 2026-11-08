@@ -15,6 +15,8 @@ platform collection, eligibility, and replay experience.
 
 - [Achievement families](mechanics/achievement-families.md) describes badges,
   mastery, story, and scraps.
+- [Opening masteries](mechanics/opening-masteries.md) defines named openings,
+  independent colors, theory participation, and conversion rewards.
 - [Checkmate scraps](mechanics/checkmate-scraps.md) defines real and virtual
   collection behavior and the remaining design choices.
 

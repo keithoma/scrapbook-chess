@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseGame, withGameClocks, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
-import { RECENT_GAME_PGN, FORK_PGN, SKEWER_PGN } from './fixtures';
+import { RECENT_GAME_PGN, FORK_PGN, SKEWER_PGN, JOBAVA_PGN } from './fixtures';
 import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
@@ -250,8 +250,8 @@ function App() {
 
       <section className="min-w-0 space-y-5">
         <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={{ ...withGameClocks(game, importedGame?.clocks), timeControl: importedGame?.timeControl ?? game.timeControl, ratings: importedGame ? importedGame.ratings ?? {} : game.ratings, startedAt: importedGame?.startedAt ?? game.startedAt, drawReason: importedGame?.drawReason ?? game.drawReason, timeZone: profile.user?.timeZone ?? guestZone }} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
-        <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
-        <SkewerInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={skewers} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale}/>
+        <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery' && event.family !== 'opening') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
+        <SkewerInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery' && event.family !== 'opening') : undefined} candidates={skewers} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale}/>
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
@@ -289,6 +289,7 @@ function App() {
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(FORK_PGN)}>{t('Fork example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(SKEWER_PGN)}>{t('Skewer example')}</button>
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(JOBAVA_PGN)}>{t('Jobava example')}</button>
           </div>
           <label htmlFor="pgn" className="label">{t('PASTE ONE PGN')}</label>
           <textarea id="pgn" className="mt-2 h-36 w-full resize-y rounded-lg border border-stone-300 bg-white/60 p-3 font-mono text-xs" value={draft} onChange={event => setDraft(event.target.value)} disabled={busy} spellCheck={false} />
@@ -313,7 +314,13 @@ function App() {
     <div hidden={page !== 'settings'}><SettingsView profile={profile} locale={locale} guestZone={guestZone} onGuestZone={zone => { saveTimeZone(zone); setGuestZone(zone); }} /></div>
     <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
-      <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>
+      <h2 className="mt-6 text-xl">{t('Opening mastery')} · {t('Jobava London')}</h2>
+      <p className="mt-3">{t('Jobava recognized. Each side has its own mastery.')}</p>
+      <p className="mt-3">{t('Precise early conversion earns a bonus. Rewards fade permanently as a large advantage is converted; swings do not reset them.')}</p>
+      <p className="mt-3">{t('Longer time controls and your recorded thinking time increase opening XP. Wins double XP; losses halve it.')}</p>
+      <p className="mt-3">{t('Grades require independent play. Each game can provide one S- or better mark, separately for White and Black.')}</p>
+      <p className="mt-3">{t('Outside the book means outside our reference, not a claim that your move is new theory.')}</p>
+      <p className="mt-4 text-stone-600">{t('Theory gives some XP; precise play outside the book earns more.')}</p>
     </section>
     <section hidden={page !== 'feedback'} className="my-10"><FeedbackBox locale={locale} /></section>
     <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-stone-300 pt-5 text-xs leading-5 text-stone-500">

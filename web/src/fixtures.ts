@@ -7,3 +7,6 @@ export const FORK_PGN = forkGame;
 
 import skewerGame from './fixtures/games/skewer.pgn?raw';
 export const SKEWER_PGN = skewerGame;
+
+import jobavaGame from './fixtures/games/jobava.pgn?raw';
+export const JOBAVA_PGN = jobavaGame;

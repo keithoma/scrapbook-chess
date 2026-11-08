@@ -88,35 +88,5 @@
       },
       "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
     }
-  },
-  {
-    "id": "mastery_rapport_jobava_white",
-    "type": "mastery",
-    "category": "Openings",
-    "name": "The Modern Artist (Rapport-Jobava)",
-    "description": "Gain experience by playing the Rapport-Jobava System as White.",
-    "is_hidden": false,
-    "config": {
-      "conditions": {
-        "color": "white",
-        "name_includes": ["Rapport-Jobava System"]
-      },
-      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
-    }
-  },
-  {
-    "id": "mastery_rapport_jobava_black",
-    "type": "mastery",
-    "category": "Openings",
-    "name": "The Art Critic (Defending the Rapport-Jobava)",
-    "description": "Gain experience by neutralizing the Rapport-Jobava System as Black.",
-    "is_hidden": false,
-    "config": {
-      "conditions": {
-        "color": "black",
-        "name_includes": ["Rapport-Jobava System"]
-      },
-      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
-    }
   }
 ]

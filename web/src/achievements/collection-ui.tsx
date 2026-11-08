@@ -8,6 +8,7 @@ import { BADGES, progressFor, type Flavor } from './catalog';
 import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, retainCollectedEvidence, type GameGrant } from './collection';
 import { collectGame, readCollection, subscribeCollection } from './ledger';
 import { MASTERIES } from './mastery';
+import { OpeningStatus } from '../openings/status';
 import { MasteryCard } from './mastery-card';
 
 export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
@@ -92,6 +93,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     {!eligible && <p className="mt-3 text-sm text-stone-600">{t(profileMode ? 'Open an imported game from Profile to collect profile rewards.' : 'Load a completed game to collect rewards.')}</p>}
     <button className="primary-button mt-4 w-full" onClick={() => void collect()} disabled={!color || !eligible || saving}>{saving ? t('Saving rewards…') : t('Collect rewards')}</button>
     {color && eligible && (!checkpoint || checkpoint.version !== ANALYSIS_VERSION || checkpoint.results.length !== game.moves.length) && <p className="mt-3 text-sm text-stone-600">{t('Analyze the complete game and collect again for evaluation-based badges.')}</p>}
+    {color && eligible && <OpeningStatus game={game} color={color} checkpoint={checkpoint} saved={recorded?.color === color && recorded.events.some(e => e.kind === 'mastery' && e.family === 'opening')} locale={locale}/>}
     {failed && <p className="mt-3 text-sm text-red-800" role="alert">{t('Could not save rewards. Please try again.')}</p>}
     {reveal && <div className="reward-reveal mt-4 rounded-xl border border-amber-400 bg-amber-50 p-4" role="status" data-testid="reward-reveal">
       <h3 className="font-serif text-xl">{unchanged ? t('Already in your scrapbook.') : t('A little more remarkable.')}</h3>
@@ -108,7 +110,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     {color && eligible && <div className="mt-5 border-t border-stone-200 pt-4">
       <h3 className="label">{t('THIS GAME THROUGH THE CURRENT MOVE')}</h3>
       <ul className="mt-3 space-y-1 text-sm">{BADGES.filter(badge => !badge.config.is_hidden || progressFor(badge, totals[badge.id]).tier).map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
-      {MASTERIES.map(definition=><p key={definition.id} className="mt-2 text-sm" data-testid={definition.id==='mastery_knight_forks'?'replay-mastery-xp':'replay-skewer-xp'}>{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp:events.reduce((sum,event)=>sum+(event.kind==='mastery'&&event.masteryId===definition.id&&event.ply<=ply?event.amount:0),0)})}</p>)}
+      {MASTERIES.map(definition=><p key={definition.id} className="mt-2 text-sm" data-testid={definition.family==='opening'?`replay-${definition.id}`:definition.id==='mastery_knight_forks'?'replay-mastery-xp':'replay-skewer-xp'}>{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp:events.reduce((sum,event)=>sum+(event.kind==='mastery'&&event.masteryId===definition.id&&event.ply<=ply?event.amount:0),0)})}</p>)}
       <p className="label mt-4">{t('AT THIS MOMENT')}</p>
       {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'mastery' ? t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount}) : event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}{event.kind === 'badge' && event.originPly !== undefined && <button className="text-button ml-2" onClick={() => onJump({ ply: event.originPly! })}>{t('Replay from ply {ply}', { ply: event.originPly })}</button>}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
       <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined, virtual: event.kind === 'scrap' && event.mode === 'virtual' ? recorded?.virtual ?? checkpoint?.virtual : undefined })}>{event.kind === 'scrap' ? event.notation : event.kind === 'mastery' ? `${event.ply} · ${t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount})}` : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>

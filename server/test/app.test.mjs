@@ -4,8 +4,71 @@ import { readFileSync } from 'node:fs';
 import { createApp } from '../dist/app.js';
 import { openDatabase } from '../dist/database.js';
 import { NOW, sample, upstream } from './fixtures.mjs';
+import { parsePgn, startingPosition } from 'chessops/pgn';
+import { parseSan } from 'chessops/san';
+import { makeUci } from 'chessops/util';
 
 const baseURL = 'http://127.0.0.1:5173';
+test('both providers recover missing Jobava clocks and collect the browser-equivalent opening award once', async () => {
+  const source = readFileSync(new URL('../../web/src/fixtures/games/jobava.pgn', import.meta.url), 'utf8');
+  const moves = source.trim().split('\n\n')[1];
+  const clockless = moves.replace(/\s*\{[^}]+\}/g, '');
+  const clocks = [...moves.matchAll(/%clk 0:(\d+):(\d+)/g)].map(m => (Number(m[1]) * 60 + Number(m[2])) * 100);
+  const make = (platform, name, withClocks) => {
+    const raw = sample(platform, { name });
+    raw.pgn = raw.pgn.replaceAll('0-1', '1-0').replace('1. f3 e5 2. g4 Qh4# 1-0', withClocks ? moves : clockless);
+    if (platform === 'lichess') { raw.status = 'resign'; raw.clocks = withClocks ? clocks : undefined; }
+    return raw;
+  };
+  let recovered = false;
+  const s = await setup({ fetcher: input => upstream({
+    lichess: [make('lichess', 'noctu2nality', recovered)],
+    chesscom: [make('chesscom', 'testchess', recovered)],
+  })(input) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const first = await (await s.request('/me')).json();
+  assert.equal(first.games.length, 2);
+  const checkpoints = new Map();
+  for (const game of first.games) {
+    const parsed = parsePgn(game.pgn)[0];
+    const pos = startingPosition(parsed.headers).unwrap();
+    const results = [];
+    for (const node of parsed.moves.mainline()) {
+      const move = parseSan(pos, node.san);
+      results.push({ ply: results.length + 1, bestMove: makeUci(move), best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 });
+      pos.play(move);
+    }
+    const checkpoint = { pgn: game.pgn, version: 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1', results, virtual: [], virtualStatus: 'pending' };
+    checkpoints.set(game.id, checkpoint);
+    const response = await s.request(`/profile/games/${encodeURIComponent(game.id)}/collect`, 'POST', { checkpoint });
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).grant.events.some(e => e.family === 'opening'), false);
+  }
+  recovered = true; s.advance(60_000);
+  const checked = await s.request('/profile/check-games', 'POST', {});
+  const report = await checked.json();
+  assert.equal(checked.status, 200, JSON.stringify(report));
+  assert.ok(report.reports.every(r => r.imported === 0));
+  const second = await (await s.request('/me')).json();
+  assert.equal(second.games.length, 2);
+  for (const game of second.games) {
+    assert.equal(game.pgn, first.games.find(g => g.id === game.id).pgn);
+    assert.deepEqual(game.clocks, clocks.map(c => c / 100));
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const response = await s.request(path, 'POST', { checkpoint: checkpoints.get(game.id) });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const opening = grant.events.filter(e => e.family === 'opening');
+    assert.ok(opening.every(e => e.masteryId === 'mastery_rapport_jobava_black'));
+    assert.equal(opening.reduce((sum, e) => sum + e.amount, 0), 408);
+    assert.equal(opening.filter(e => e.grade).length, 1);
+    assert.equal(opening.find(e => e.grade).grade, 'S+');
+    const retry = await (await s.request(path, 'POST', {})).json();
+    assert.deepEqual(retry.grant.events, grant.events);
+  }
+  s.db.close();
+});
 async function setup(extra = {}) {
   let clock = NOW;
   const db = openDatabase(':memory:');

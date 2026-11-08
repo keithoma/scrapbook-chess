@@ -48,7 +48,8 @@ show imported counts, skipped records, and separate platform errors.
 Chess.com may publish games later because of its public API cache. Check again
 later if a recent game is missing. The importer revisits eligible monthly archives
 instead of advancing a cursor past games that have not appeared yet. Retries and
-overlapping checks do not create duplicate games.
+overlapping checks do not create duplicate games. Rechecking also fills missing
+clock evidence when the platform supplies it.
 
 ## Analyze and collect
 
@@ -63,6 +64,11 @@ virtual scrap. Evaluation-based [badges](../reference/badge-rules.md) require
 analysis as described by their individual rules. Recollect previously saved games
 to add newly activated badges;
 existing progress is not counted twice.
+
+[Jobava opening mastery](../reference/opening-masteries.md) requires complete
+analysis and usable clocks. If clock evidence is missing, check games again and
+reopen the imported game before collecting. Clockless guest PGNs can still be
+replayed and analyzed, but their opening XP stays pending.
 
 Open **Collection** to see your profile rewards. Another browser connected to the
 same local server and mock account can restore them, including saved analysis.
