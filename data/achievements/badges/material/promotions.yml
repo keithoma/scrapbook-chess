@@ -1,0 +1,27 @@
+# Material / Promotions
+
+###############################################################################
+# SECTION 5: PROMOTION
+###############################################################################
+- id: badge_promotion
+  type: badge
+  category: 'Material'
+  subcategory: 'Promotions'
+  name: 'Promotion Master'
+  description: 'Number of all promotions achieved.'
+  flavor_text: ''
+  config:
+    metric_key: 'promotion_count'
+    is_hidden: false
+    tiers:
+      - name: 'bronze'
+        amount: 10
+        flavor_text: ''
+
+      - name: 'silver'
+        amount: 50
+        flavor_text: ''
+
+      - name: 'gold'
+        amount: 250
+        flavor_text: ''

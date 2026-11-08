@@ -5,6 +5,7 @@ import { makeUci } from 'chessops/util';
 import { kingCastlesTo } from 'chessops/util';
 import { castlingSide } from 'chessops/chess';
 import type { Color, Role } from 'chessops/types';
+import { pgnRating, type GameRatings } from '../../shared/ratings';
 
 export interface Frame {
   fen: string;
@@ -30,6 +31,7 @@ export interface ReplayGame {
   site: string;
   timestamp: string;
   timeControl: string;
+  ratings: GameRatings;
   frames: Frame[];
   moves: PlayedMove[];
 }
@@ -76,6 +78,7 @@ export function parseGame(pgn: string): ReplayGame {
       ? game.headers.get('Link')! : game.headers.get('Site') ?? '',
     timestamp: `${game.headers.get('UTCDate') ?? game.headers.get('Date') ?? ''} ${game.headers.get('UTCTime') ?? ''}`.trim(),
     timeControl: game.headers.get('TimeControl') ?? '',
+    ratings: { white: pgnRating(game.headers.get('WhiteElo')), black: pgnRating(game.headers.get('BlackElo')) },
     frames, moves,
   };
 }

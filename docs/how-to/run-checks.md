@@ -50,5 +50,9 @@ pnpm owns the generated lockfile's format.
 Achievement fields put identity and descriptive text before filters and rules.
 Tier fields use name, amount, and flavor order. Lists retain their authored order,
 including tiers, filters, and mastery awards. The formatter rejects changes to
-parsed values. File names use lowercase kebab-case; badge sources live under
-`data/achievements/badges/`, grouped by subject or their existing subcategory.
+parsed values. Every YAML achievement must have a category and subcategory. Its
+path is `data/achievements/<family>/<category>/<subcategory>.yml`, with lowercase
+kebab-case folder and file names. Families are `badges` and `masteries`. The
+checker rejects missing categories, mismatched paths, and duplicate IDs across
+the YAML catalog. Group by the achievement's game-design subject, not the kind
+of data needed to detect it.

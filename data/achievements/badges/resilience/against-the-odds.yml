@@ -1,0 +1,92 @@
+# Resilience / Against the Odds
+
+- id: badge_upset
+  type: badge
+  category: Resilience
+  subcategory: Against the Odds
+  name: Elo Is a Social Construct
+  description: Beat an opponent rated 100 or more points higher than you.
+  flavor:
+    text: The rating system has been informed of your disagreement.
+  config:
+    metric_key: rating_diff
+    required_value: 100
+    is_hidden: false
+    tiers:
+      - name: pawn
+        amount: 1
+        flavor:
+          text: Their number was bigger. Your point was louder.
+      - name: knight
+        amount: 2
+        flavor:
+          text: A second data point. The spreadsheet has requested privacy.
+      - name: bishop
+        amount: 3
+        flavor:
+          text: "You have discovered the rating system's natural predator: one actual game."
+      - name: rook
+        amount: 4
+        flavor:
+          player_quote: "'Underrated' is a personality trait now."
+      - name: queen
+        amount: 5
+        flavor:
+          text: You are no longer the underdog. You are a recurring administrative problem.
+      - name: king
+        amount: 6
+        flavor:
+          text: The pre-game odds would like to speak to your manager.
+      - name: immortal
+        amount: 7
+        flavor:
+          player_quote: I don't see ratings. I see potential content.
+      - name: legend
+        amount: 8
+        flavor:
+          text: Fine. The numbers can stay. They make the punchline work.
+- id: hold_your_own
+  type: badge
+  category: Resilience
+  subcategory: Against the Odds
+  name: Agree to Disagree
+  description: Draw against an opponent rated 150 or more points higher than you.
+  flavor:
+    text: Two signatures. One very disappointed favorite.
+  config:
+    metric_key: draw_rating_diff
+    required_value: 150
+    is_hidden: false
+    tiers:
+      - name: pawn
+        amount: 1
+        flavor:
+          text: They wanted your king. You offered half a point.
+      - name: knight
+        amount: 2
+        flavor:
+          text: The higher rating has submitted a strongly worded draw offer.
+      - name: bishop
+        amount: 3
+        flavor:
+          player_quote: "'Basically a win' is not an official result. I checked."
+      - name: rook
+        amount: 4
+        flavor:
+          text: An immovable object meets someone who paid for the full point.
+      - name: queen
+        amount: 5
+        flavor:
+          text: You have become a recurring rounding error.
+      - name: king
+        amount: 6
+        flavor:
+          player_quote: I didn't come here to win. Apparently neither did they.
+      - name: immortal
+        amount: 7
+        flavor:
+          text: Their post-game analysis now has a section titled 'Why though?'.
+      - name: legend
+        amount: 8
+        flavor:
+          text: The favorite has learned to negotiate before sitting down.

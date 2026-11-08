@@ -31,11 +31,13 @@ test('mock profile backdates once, imports both platforms, and restores saved re
   await page.getByRole('button', { name: 'Last position', exact: true }).click();
   await expect(page.getByTestId('replay-badge_played_hyperbullet')).toHaveText('1');
   await expect(page.getByTestId('replay-badge_played_rapid')).toHaveText('0');
+  await expect(page.getByTestId('replay-badge_upset')).toHaveText('1');
   await page.getByRole('link', { name: 'Collection', exact: true }).click();
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('2 / 100');
   await expect(page.getByTestId('total-badge_played_hyperbullet')).toHaveText('1 / 30');
   await expect(page.getByTestId('total-badge_played_rapid')).toHaveText('0 / 1');
+  await expect(page.getByTestId('total-badge_upset')).toHaveText('1 / 2');
   await expect(page.getByTestId('scrap-Qh4#')).toContainText('Real');
   await expect(page.locator('[aria-labelledby="collection-title"]').getByText('Lichess · noctu2nality', { exact: true })).toBeVisible();
 
@@ -54,6 +56,7 @@ test('mock profile backdates once, imports both platforms, and restores saved re
   await expect(second.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await second.getByRole('button', { name: 'Last position', exact: true }).click();
   await expect(second.getByTestId('replay-badge_played_hyperbullet')).toHaveText('1');
+  await expect(second.getByTestId('replay-badge_upset')).toHaveText('1');
   await secondContext.close();
   await page.getByRole('link', { name: 'Profile', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();

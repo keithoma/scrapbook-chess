@@ -1,0 +1,48 @@
+# Skill / King Pressure
+
+###############################################################################
+# TOTAL CHECKS
+# Total checks delivered across your games.
+###############################################################################
+- id: badge_total_checks
+  type: badge
+  category: 'Skill'
+  subcategory: 'King Pressure'
+  name: 'Inquisitor'
+  description: 'Total number of checks delivered to the enemy king.'
+  flavor_text: ''
+  config:
+    metric_key: 'total_checks_delivered'
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''

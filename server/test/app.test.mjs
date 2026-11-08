@@ -176,3 +176,57 @@ test('both platforms calculate mileage from API clocks despite conflicting PGN m
   }
   s.db.close();
 });
+
+test('rating badges use pre-game API ratings, ignore forged inputs, and skip provisional or missing evidence', async () => {
+  const cases = [
+    ['lichess', 'Odds0001', 1800, 1700, false, '0-1', 'badge_upset'],
+    ['chesscom', '999021', 1800, 1700, false, '0-1', 'badge_upset'],
+    ['lichess', 'Odds0002', 1850, 1700, false, '1/2-1/2', 'hold_your_own'],
+    ['chesscom', '999022', 1850, 1700, false, '1/2-1/2', 'hold_your_own'],
+    ['lichess', 'Odds0003', 2000, 1700, true, '0-1', undefined],
+    ['chesscom', '999023', 2000, undefined, false, '0-1', undefined],
+  ];
+  const records = cases.map(([platform, id, opponent, player, provisional, result]) => {
+    const raw = sample(platform, { id, name: platform === 'lichess' ? 'noctu2nality' : 'testchess' });
+    const players = platform === 'lichess' ? raw.players : raw;
+    players.white.rating = opponent; players.black.rating = player; players.black.provisional = provisional;
+    // These deliberately contradict the API; they must not determine rewards.
+    raw.pgn = player === undefined ? `[WhiteElo "2900"]\n[BlackElo "900"]\n${raw.pgn}`
+      : `[WhiteElo "900"]\n[BlackElo "2900"]\n${raw.pgn}`;
+    if (result === '1/2-1/2') {
+      raw.pgn = raw.pgn.replaceAll('0-1', result).replace('1. f3 e5 2. g4 Qh4#', '1. e4 e5');
+      if (platform === 'lichess') raw.status = 'draw';
+    }
+    return raw;
+  });
+  const s = await setup({ fetcher: upstream({ lichess: records.filter(raw => raw.players), chesscom: records.filter(raw => !raw.players) }) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json(); assert.equal(me.games.length, cases.length);
+  for (const imported of me.games) {
+    const expected = cases.find(item => item[0] === imported.platform && imported.sourceId.endsWith(item[1]))[6];
+    const path = `/profile/games/${encodeURIComponent(imported.id)}/collect`;
+    const response = await s.request(path, 'POST', { ratings: { white: { value: 9999 }, black: { value: 1 } } });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const events = grant.events.filter(event => ['badge_upset', 'hold_your_own'].includes(event.badgeId));
+    assert.deepEqual(events.map(event => event.badgeId), expected ? [expected] : []);
+    if (expected) { assert.equal(events[0].amount, 1); assert.equal(events[0].ply, expected === 'badge_upset' ? 4 : 2); }
+    assert.deepEqual(grant.ratings, imported.ratings);
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  // Earlier imports have no normalized ratings, but retain their original API
+  // payload, including missing/provisional evidence. Recover that evidence too.
+  for (const row of s.db.prepare('SELECT * FROM imported_games').all()) {
+    const old = JSON.parse(row.game_json); delete old.ratings;
+    s.db.prepare('UPDATE imported_games SET game_json=? WHERE user_id=? AND game_id=?').run(JSON.stringify(old), row.user_id, row.game_id);
+  }
+  const restored = await (await s.request('/me')).json();
+  assert.deepEqual(restored.games.map(game => game.ratings), me.games.map(game => game.ratings));
+  for (const imported of restored.games) {
+    const expected = cases.find(item => item[0] === imported.platform && imported.sourceId.endsWith(item[1]))[6];
+    const grant = (await (await s.request(`/profile/games/${encodeURIComponent(imported.id)}/collect`, 'POST', {})).json()).grant;
+    assert.deepEqual(grant.events.filter(event => ['badge_upset', 'hold_your_own'].includes(event.badgeId)).map(event => event.badgeId), expected ? [expected] : []);
+  }
+  s.db.close();
+});
