@@ -13,14 +13,3 @@ node_modules/
 Thumbs.db
 .vscode/
 *.code-workspace
-
-# Local data
-opening_books/
-debug/pgn_files/
-
-# Local artifacts from earlier checkouts
-.venv/
-__pycache__/
-*.egg-info/
-.ruff_cache/
-.pytest_cache/
