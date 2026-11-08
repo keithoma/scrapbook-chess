@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('native Jobava analysis collects separate sides, survives reload, and replays saved evidence', async ({ page }) => {
+test('native Jobava analysis collects separate sides, survives reload, and replays saved evidence', async ({ page }, info) => {
   await page.goto('/');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   const summary = page.locator('summary').filter({ hasText: 'Open another page of the notebook' });
@@ -30,6 +30,7 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await expect(white.getByTestId('opening-grade')).toContainText('Opening grade:');
   await expect(white).toContainText('Book participation');
   await expect(white).toContainText('Outside our book');
+  await page.screenshot({ path: info.outputPath('jobava-history.png') });
   await page.reload();
   await expect(white.getByTestId('mastery_rapport_jobava_white-total-xp')).toHaveText(total);
   await white.locator('summary').click();

@@ -70,6 +70,17 @@ it('withholds conversion bonus for imprecise play and handles mates without CP c
   cp.results[10].played = { type: 'cp', value: 900 };
   expect(openingContributions(game, 'white', cp).at(-1)!.grade).toBe('D-');
 });
+it('rewards an actual mating move even when the played evaluation reports mate zero', () => {
+  const mate = parseGame('[TimeControl "600+0"]\n\n1. d4 d5 2. Nc3 Nf6 3. Bf4 Ng8 4. Nf3 f5 5. Ne5 g5 6. e3 a6 7. Qh5# 1-0');
+  mate.moves = mate.moves.map((m, i) => ({ ...m, clock: 600 - Math.floor(i / 2) * 15 }));
+  expect(mate.frames.at(-1)!.checkmate).toBe(true);
+  const cp = analyzed(mate);
+  cp.results.at(-1)!.best = { type: 'mate', value: 1 };
+  cp.results.at(-1)!.played = { type: 'mate', value: 0 };
+  const event = openingContributions(mate, 'white', cp).find(e => e.ply === 13)!;
+  expect(event.amount).toBeGreaterThan(0);
+  expect(event.evidence.bonusXp).toBeGreaterThan(0);
+});
 it('uses actual own clock deltas with increments, independent of opponent waiting', () => {
   const increment = { ...game, timeControl: '300+5', moves: game.moves.map((m, i) => ({ ...m, clock: 300 - Math.floor(i / 2) * 10 })) };
   const clocks = openingClocks(increment, 'white')!;
