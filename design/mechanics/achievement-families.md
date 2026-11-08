@@ -30,7 +30,7 @@ forks, use the intended qualification in the
 leaves quality-dependent awards pending; it does not imply good or bad play.
 
 The first implemented track is knight forks. Its prototype quality awards and
-level thresholds live in the [mastery YAML](../../data/achievements/masteries/knight_forks.yml).
+level thresholds live in the [mastery YAML](../../data/achievements/masteries/knight-forks.yml).
 Values should appear irregular like the authored badge thresholds while keeping
 a sensible progression: precise moves earn more experience, and later levels
 require progressively more experience. Awards are deterministic for the same

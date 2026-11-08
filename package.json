@@ -2,6 +2,8 @@
   "name": "scrapbook-chess-repository",
   "private": true,
   "scripts": {
+    "yaml:format": "node scripts/format-yaml.mjs",
+    "yaml:check": "node scripts/format-yaml.mjs --check",
     "docs:check": "node --test scripts/check-docs.test.mjs && node scripts/check-docs.mjs",
     "dev": "node scripts/dev.mjs",
     "build": "pnpm --dir server build && pnpm --dir web build",
@@ -15,5 +17,9 @@
       "version": "^22.13.0",
       "onFail": "download"
     }
+  },
+  "devDependencies": {
+    "prettier": "3.9.10",
+    "yaml": "2.9.0"
   }
 }

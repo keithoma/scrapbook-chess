@@ -23,7 +23,7 @@ This reference describes the local browser app. See the
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 | Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
-| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight_forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
+| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight-forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.

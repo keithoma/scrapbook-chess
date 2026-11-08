@@ -1,8 +1,8 @@
 import { parse } from 'yaml';
 import mileage from '../../../data/achievements/badges/veterancy/mileage.yml?raw';
-import consolation from '../../../data/achievements/badges/veterancy/consolation_prize.yml?raw';
-import position from '../../../data/achievements/badges_position.yml?raw';
-import victories from '../../../data/achievements/badges/domination/body_count.yml?raw';
+import consolation from '../../../data/achievements/badges/veterancy/consolation-prize.yml?raw';
+import position from '../../../data/achievements/badges/position.yml?raw';
+import victories from '../../../data/achievements/badges/domination/body-count.yml?raw';
 
 export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
   'badge_material_total', 'badge_promotion', 'badge_en_passant'] as const;
