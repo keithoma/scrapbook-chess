@@ -1,3 +1,4 @@
+import type { DrawReason } from './draw';
 import type { GameRatings } from './ratings';
 
 export type Platform = 'lichess' | 'chesscom';
@@ -11,6 +12,7 @@ export interface ImportedGame {
   startedAt: number; finishedAt: number; speed: string; timeControl: string;
   ratings?: GameRatings;
   clocks?: (number | null)[];
+  drawReason?: DrawReason;
   collected?: boolean; analyzed?: boolean;
 }
 export interface ProfileState {

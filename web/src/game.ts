@@ -1,3 +1,5 @@
+import type { DrawReason } from '../../shared/draw';
+import { pgnDrawReason } from './draw-reason';
 import { parsePgn, startingPosition } from 'chessops/pgn';
 import { makeSanAndPlay, parseSan } from 'chessops/san';
 import { makeFen } from 'chessops/fen';
@@ -38,6 +40,7 @@ export interface ReplayGame {
   ratings: GameRatings;
   startedAt?: number;
   timeZone?: string;
+  drawReason?: DrawReason;
   frames: Frame[];
   moves: PlayedMove[];
 }
@@ -58,7 +61,9 @@ export function parseGame(pgn: string): ReplayGame {
     pieces: [...pos.board].map(([square, piece]) => ({ square, ...piece })),
   });
   snapshot();
+  let finalComments: string[] = [];
   for (const node of game.moves.mainline()) {
+    finalComments = node.comments ?? [];
     const move = parseSan(pos, node.san);
     if (!move) throw new Error(`Illegal move at ply ${moves.length + 1}: ${node.san}`);
     const color = pos.turn;
@@ -86,6 +91,7 @@ export function parseGame(pgn: string): ReplayGame {
     timeControl: game.headers.get('TimeControl') ?? '',
     ratings: { white: pgnRating(game.headers.get('WhiteElo')), black: pgnRating(game.headers.get('BlackElo')) },
     startedAt: utcGameStart(game.headers),
+    drawReason: pgnDrawReason([game.headers.get('Termination') ?? '', ...finalComments].join(' ')),
     frames, moves,
   };
 }
