@@ -11,7 +11,11 @@ const options = { db, baseURL: 'http://127.0.0.1:4173', development: true,
   mockLogin: true, mockAgeHours: 8, mockUsername: 'noctu2nality',
   fetcher: input => {
     const now = Date.now();
-    return upstream({ now, lichess: [sample('lichess', { now })], chesscom: [sample('chesscom', { now, name: 'testchess' })] })(input);
+    // Deliberately disagree with the PGN's rapid event and 600+0 tag: imports
+    // must calculate rewards and replay totals from these API clock settings.
+    const lichess = { ...sample('lichess', { now }), speed: 'bullet', clock: { initial: 30, increment: 0, totalTime: 30 } };
+    const chesscom = { ...sample('chesscom', { now, name: 'testchess' }), time_class: 'bullet', time_control: '15+0' };
+    return upstream({ now, lichess: [lichess], chesscom: [chesscom] })(input);
   },
 };
 let application = await createApp(options);

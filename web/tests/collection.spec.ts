@@ -155,7 +155,8 @@ test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on
   await expect(page.getByRole('article', { name: 'StarCraft III', exact: true })).toHaveCount(0);
   await expect(page.getByRole('article', { name: 'Adderall', exact: true })).toHaveCount(0);
   const controls = [
-    ['30+0', 'badge_played_bullet', '1999'],
+    ['60+0', 'badge_played_bullet', '1999'],
+    ['30+0', 'badge_played_hyperbullet', '30'],
     ['300+0', 'badge_played_blitz', '15'],
     ['300+5', 'badge_played_rapid', '5'],
     ['900+15', 'badge_played_classical', '5'],
@@ -175,7 +176,7 @@ test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on
   await expect(page.getByRole('article', { name: 'StarCraft III', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByTestId('total-badge_played_ultrabullet')).toHaveText('1 / 1998');
-  await expect(page.getByRole('article', { name: 'Adderall', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Adderall', exact: true })).toBeVisible();
 });
 
 test('board badges replay at the played move, persist, and correct with the selected color', async ({ page }) => {

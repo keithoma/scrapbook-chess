@@ -1,5 +1,6 @@
 import { parsePgn } from 'chessops/pgn';
 import { parseGame } from '../../web/src/game';
+import { clockSpeed } from '../../web/src/time-control';
 import type { ImportedGame, Platform } from '../../shared/contracts';
 
 export class PlatformError extends Error {
@@ -110,8 +111,9 @@ export async function fetchGames(client: PlatformClient, platform: Platform, nam
           const player = raw.players?.[side];
           if (!player?.user?.id || !player.user.name || player.aiLevel !== undefined || player.user.title === 'BOT') return;
         }
+        if (!clockSpeed(raw.clock?.initial, raw.clock?.increment)) return;
         return legalGame(platform, raw.id, name, raw.pgn, raw.createdAt, raw.lastMoveAt,
-          raw.speed, headers(raw.pgn)?.get('TimeControl') ?? '', cutoff, now);
+          raw.speed, `${raw.clock.initial}+${raw.clock.increment}`, cutoff, now);
       });
     }
   } else {

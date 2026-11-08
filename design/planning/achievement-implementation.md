@@ -28,7 +28,7 @@ Paths below are relative to `data/achievements/`.
 
 | Source and definitions | Required facts / detector | Unresolved semantics |
 | --- | --- | --- |
-| `badges/veterancy/mileage.yml`: `badge_played_total`; `badge_played_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Eligible completed game; normalized speed | Total and five Lichess speed badges implemented; hyperbullet remains inactive because Lichess has no such category |
+| `badges/veterancy/mileage.yml`: `badge_played_total`; `badge_played_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Eligible completed game; calculated speed | All seven implemented; categories are calculated from base time and increment, including hyperbullet |
 | `badges/domination/body-count.yml`: `badge_won_total`; `badge_won_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Same, plus player-relative win | Total wins implemented; speed-specific wins remain inactive; shared Lichess classification is available |
 | `badges/veterancy/consolation-prize.yml`: `badge_moves_played` (1) | One contribution per actual player move | Implemented cumulatively with the authored thresholds |
 | `badges/veterancy/dailyscape.yml`: `badge_played_{monday,tuesday,wednesday,thursday,friday,saturday,sunday}` (7) | Calendar classification of eligible game | Start or end timestamp; profile timezone and later timezone changes |
@@ -101,7 +101,7 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
-The local collection loop includes twelve authored badges and exact-SAN real/virtual
+The local collection loop includes thirteen authored badges and exact-SAN real/virtual
 mating scraps. The [active badge rules](../../docs/reference/browser-proof.md#active-board-event-badges)
 define wins, checks, promotions, gross captured material, played games, moves, and
 en passant. Authored YAML thresholds and flavor are unchanged. These factual
@@ -111,10 +111,13 @@ gain newly activated badges on explicit recollection, preserving collected XP an
 virtual discoveries for the same color without duplicating progress. General
 recalculation policy for future rule changes remains open.
 
-Mileage uses the [official Lichess categories for both platforms](../../docs/reference/browser-proof.md#mileage-and-time-controls),
-with no extra minimum game length beyond current eligibility. Missing or unsupported
-clock controls do not earn a speed badge. Adderall remains authored but inactive;
-StarCraft III respects its hidden flag until its first collected unlock.
+Mileage uses [clock-derived categories for both platforms](../../docs/reference/browser-proof.md#mileage-and-time-controls),
+including ultrabullet below 30 estimated seconds and hyperbullet from 30 to 59.
+The duration formula is base seconds plus 40 increments, with no extra minimum
+game length beyond current eligibility. Imported games use API clock settings;
+platform labels and PGN event names do not select the badge. Missing or unsupported
+clock controls do not earn a speed badge. StarCraft III and Adderall respect their
+hidden flags until their first collected unlocks.
 
 The loop supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery
@@ -159,7 +162,7 @@ from centipawn losses. Repeated collection of the same move does not add XP agai
 3. **Profiles and imports:** local mock profiles, both platform adapters, cutoff
    and eligibility filtering, account overrides, platform history, and persistent
    results are implemented. Authentication, ownership verification, and hosted
-   delivery remain open. Mileage normalizes both platforms to Lichess speed
+   delivery remain open. Mileage normalizes both platforms to calculated speed
    categories. Verify retries and two-browser submissions cannot duplicate
    contributions.
 4. **Broader mechanics:** clean material sequences, evaluation/phase conditions,
