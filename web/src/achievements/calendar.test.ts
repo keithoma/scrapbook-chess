@@ -177,3 +177,16 @@ it('badge_played_time_16_20 uses the saved timezone and original start, with cor
     expect(prepareGrant([saved], game, color).events).toEqual(saved.events);
   }
 });
+
+it('badge_played_time_20_24 uses the saved timezone and original start, with correct outcome filtering', () => {
+  for (const color of ['white', 'black'] as const) {
+    const win = color === 'white' ? '1-0' : '0-1';
+    const game = calendarGame('2026-11-09T20:00:00Z', 'UTC', win);
+    const selected = (g: typeof game) => contributions(g, color).filter(event => event.kind === 'badge' && event.badgeId === 'badge_played_time_20_24');
+    expect(selected(game)).toEqual([{ kind: 'badge', badgeId: 'badge_played_time_20_24', amount: 1, ply: 2 }]);
+    expect(selected(calendarGame('2026-11-10T00:00:00Z', 'UTC', win))).toEqual([]);
+    expect(selected(calendarGame('2026-11-09T20:00:00Z', 'UTC', '1/2-1/2')).length).toBe(1);
+    const saved = prepareGrant([], game, color);
+    expect(prepareGrant([saved], game, color).events).toEqual(saved.events);
+  }
+});
