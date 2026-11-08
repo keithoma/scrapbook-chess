@@ -78,12 +78,35 @@ The [catalog](../../web/src/achievements/catalog.ts) links their authored source
 | Anti-antichess | Gross captured material: pawn 1, knight/bishop 3, rook 5, queen 9. Trades count; own losses are not subtracted. En passant captures a pawn. A captured promoted piece uses its current role. |
 | Promotion Master | One per promotion, including underpromotions and capture-promotions. Promotion itself adds no captured material. |
 | The French Move | One per en passant capture. |
+| Mirror Dimension | One win in a game where both players actually castled, on opposite sides. |
 
 Virtual continuations never contribute to these badges. The clean-material
 badges remain inactive; their quality and survival requirements do not apply to
 Anti-antichess. Its queen-trade flavor text remains a joke, not a capture rule.
 Promotion Master retains its separate bronze/silver/gold tiers, starting at ten
 promotions.
+
+### Mirror Dimension
+
+[Skill / Castling](../../data/achievements/badges/skill/castling.yml) preserves the
+stable ID `badge_opposite_side_casteling`, its name, and its existing tier amounts.
+It has base flavor and a separate flavor text for every tier.
+
+Both players must make legal castling moves in the actual game: one kingside and
+the other queenside, in either order. Later king moves do not erase that history.
+The selected player must win, from the declared result or a board-proven mate.
+Resignation and timeout wins qualify. Draws, losses, one-sided or same-side
+castling, castling rights without played castles, and simulated moves do not.
+King destinations and PGN comments do not establish that castling happened.
+
+The badge contributes once at the final actual ply, after the result is known;
+the second castling move alone does not award it. It needs no Stockfish analysis.
+Guest and imported profile games use the same rule. Recollect an older game to
+add the award without duplicating progress; correcting color replaces its credit.
+
+To try it locally, load the [synthetic example PGN](../../web/src/fixtures/games/opposite-castling.pgn),
+choose White, and collect its rewards. Both players have castled by ply 16; the
+badge appears at the game-end contribution at ply 18.
 
 ### Rating badges
 
