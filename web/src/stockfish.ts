@@ -1,13 +1,15 @@
+import type { Message, Parameters } from './i18n';
+
 export interface Score { type: 'cp' | 'mate'; value: number }
 interface SearchResult { score: Score; bestMove: string; depth: number }
 const CACHE = 'scrapbook-stockfish-19.0.1-full-v1';
 
-export async function prepareEngine(onProgress: (message: string) => void): Promise<void> {
+export async function prepareEngine(onProgress: (progress: { message: Message; parameters?: Parameters }) => void): Promise<void> {
   if (!('WebAssembly' in window) || !('Worker' in window)) {
     throw new Error('This browser does not support the WebAssembly worker required for analysis.');
   }
   if (!('serviceWorker' in navigator) || !('caches' in window)) {
-    onProgress('Loading engine without persistent download cache…');
+    onProgress({ message: 'Loading engine without persistent download cache…' });
     return;
   }
   await navigator.serviceWorker.register('/engine-cache.js');
@@ -20,16 +22,15 @@ export async function prepareEngine(onProgress: (message: string) => void): Prom
   }
   const cache = await caches.open(CACHE);
   const url = '/engine/stockfish-19-single.wasm';
-  if (await cache.match(url)) { onProgress('Engine ready from browser cache.'); return; }
-  onProgress('Downloading full Stockfish engine…');
+  if (await cache.match(url)) { onProgress({ message: 'Engine ready from browser cache.' }); return; }
+  onProgress({ message: 'Downloading full Stockfish engine…' });
   const response = await fetch(url, { headers: { 'x-scrapbook-download': '1' } });
   if (!response.ok || !response.body) throw new Error(`Engine download failed (${response.status}).`);
-  const size = Number(response.headers.get('content-length'));
   let received = 0;
   const meter = new TransformStream<Uint8Array, Uint8Array>({
     transform(chunk, controller) {
       received += chunk.byteLength;
-      onProgress(`Downloading engine · ${(received / 1048576).toFixed(1)}${size ? ` / ${(size / 1048576).toFixed(1)}` : ''} MB`);
+      onProgress({ message: 'Downloading engine · {received} MB', parameters: { received: received / 1048576 } });
       controller.enqueue(chunk);
     },
   });

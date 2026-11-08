@@ -20,6 +20,14 @@ include planned behavior, not a claim that the browser proof implements it.
 - Automatic polling is deferred. The exact collection layout and visual direction
   remain proposals: a tactile scrapbook with dramatic reward effects.
 
+## Languages and player support
+
+- Support English and German from the beginning, including interface and help
+  navigation. Players can choose their language explicitly.
+- Keep localization separate from chess notation, rule identifiers, and authored
+  content. Preserve the original flavor writing. How to handle untranslated
+  achievement writing remains a design decision.
+
 ## Accounts, imports, and eligibility
 
 - Support Lichess and chess.com, contributing to one shared collection.

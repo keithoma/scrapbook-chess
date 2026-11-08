@@ -6,6 +6,7 @@ import { parseGame, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game'
 import { DEPTH, lastCheckpoint, loadCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
+import { useLocale, translate, type Locale, type Message, type Parameters } from './i18n';
 import './style.css';
 
 const glyphs = {
@@ -14,9 +15,10 @@ const glyphs = {
 };
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
-function Board({ frame, flipped }: { frame: Frame; flipped: boolean }) {
+function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; locale: Locale }) {
+  const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const squares = Array.from({ length: 64 }, (_, i) => flipped ? (i >> 3) * 8 + 7 - i % 8 : (7 - (i >> 3)) * 8 + i % 8);
-  return <div className="board" role="img" aria-label={`Chess position, ${frame.turn} to move${frame.checkmate ? ', checkmate' : ''}`} data-testid="board" data-fen={frame.fen}>
+  return <div className="board" role="img" aria-label={`${t('Chess position, {color} to move', { color: t(frame.turn === 'white' ? 'White' : 'Black') })}${frame.checkmate ? `, ${t('checkmate')}` : ''}`} data-testid="board" data-fen={frame.fen}>
     {squares.map((square, index) => {
       const piece = frame.pieces.find(p => p.square === square);
       const rank = square >> 3;
@@ -31,11 +33,13 @@ function Board({ frame, flipped }: { frame: Frame; flipped: boolean }) {
 }
 
 function App() {
+  const { locale, setLocale, t, number } = useLocale();
   const [game, setGame] = useState(() => parseGame(SAMPLE_PGN));
   const [draft, setDraft] = useState(SAMPLE_PGN);
   const [checkpoint, setCheckpoint] = useState<Checkpoint>();
   const [status, setStatus] = useState<Status>('loading');
-  const [message, setMessage] = useState('Opening your local notebook…');
+  const [message, setMessage] = useState<Message>('Opening your local notebook…');
+  const [messageParameters, setMessageParameters] = useState<Parameters>({});
   const [error, setError] = useState('');
   const [ply, setPly] = useState(0);
   const [virtualPly, setVirtualPly] = useState(0);
@@ -99,7 +103,7 @@ function App() {
     runner.current = active;
     setError(''); setStatus('downloading');
     try {
-      await prepareEngine(text => { if (ticket === revision.current) setMessage(text); });
+      await prepareEngine(progress => { if (ticket === revision.current) { setMessage(progress.message); setMessageParameters(progress.parameters ?? {}); } });
       active.controller.signal.throwIfAborted();
       setMessage('Starting Stockfish…');
       const engine = new StockfishClient(); active.engine = engine;
@@ -141,94 +145,95 @@ function App() {
   return <main className="mx-auto max-w-6xl px-4 py-7 sm:px-8 sm:py-12">
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-300 pb-6">
       <a className="brand" href="/">scrapbook<span>;</span> chess</a>
-      <span className="label rounded-full border border-stone-300 px-3 py-1.5">FIELD NOTES / 001</span>
+      <div className="flex flex-wrap items-center gap-3">
+      <label className="text-xs">{t('Language')} <select aria-label={t('Language')} className="ml-1 rounded border border-stone-300 bg-transparent px-2 py-2" value={locale} onChange={event => setLocale(event.target.value as Locale)}><option value="en">English</option><option value="de">Deutsch</option></select></label>
+      <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
     <section className="my-8 sm:my-12">
-      <p className="label mb-3 text-emerald-800">THE BROWSER EXPERIMENT</p>
-      <h1 className="max-w-3xl text-4xl leading-tight sm:text-6xl">Your games.<br /><em>A little more remarkable.</em></h1>
-      <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600">A real game from the original notebook. A chess engine running right here.
-        Let’s see what your browser can do.</p>
+      <p className="label mb-3 text-emerald-800">{t('THE BROWSER EXPERIMENT')}</p>
+      <h1 className="max-w-3xl text-4xl leading-tight sm:text-6xl">{t('Your games.')}<br /><em>{t('A little more remarkable.')}</em></h1>
+      <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600">{t('A real game from the original notebook. A chess engine running right here. Let’s see what your browser can do.')}</p>
     </section>
 
     <div className="grid items-start gap-7 lg:grid-cols-[1.1fr_1fr]">
-      <section aria-label="Game replay" className="min-w-0">
+      <section aria-label={t('Game replay')} className="min-w-0">
         <div className="mb-3 flex items-center justify-between gap-2 text-sm">
-          <div><strong>{game.white}</strong><span className="mx-2 text-stone-400">vs</span><strong>{game.black}</strong></div>
-          <button className="text-button shrink-0" onClick={() => setFlipped(!flipped)}>Flip board</button>
+          <div><strong>{game.white}</strong><span className="mx-2 text-stone-400">{t('vs')}</span><strong>{game.black}</strong></div>
+          <button className="text-button shrink-0" onClick={() => setFlipped(!flipped)}>{t('Flip board')}</button>
         </div>
-        <div className="board-frame"><Board frame={frame} flipped={flipped} /></div>
+        <div className="board-frame"><Board frame={frame} flipped={flipped} locale={locale} /></div>
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="flex gap-1">
-            <button className="nav-button" aria-label="First position" onClick={() => go(0)}>↤</button>
-            <button className="nav-button" aria-label="Previous move" onClick={() => go(ply - 1)}>←</button>
-            <button className="nav-button" aria-label="Next move" onClick={() => go(ply + 1)}>→</button>
-            <button className="nav-button" aria-label="Last position" onClick={() => go(game.moves.length)}>↦</button>
+            <button className="nav-button" aria-label={t('First position')} onClick={() => go(0)}>↤</button>
+            <button className="nav-button" aria-label={t('Previous move')} onClick={() => go(ply - 1)}>←</button>
+            <button className="nav-button" aria-label={t('Next move')} onClick={() => go(ply + 1)}>→</button>
+            <button className="nav-button" aria-label={t('Last position')} onClick={() => go(game.moves.length)}>↦</button>
           </div>
-          <span className="text-xs text-stone-600" data-testid="replay-position">{virtualPly ? `Virtual ply ${virtualPly}` : `Ply ${ply} / ${game.moves.length}`}</span>
+          <span className="text-xs text-stone-600" data-testid="replay-position">{virtualPly ? t('Virtual ply {ply}', { ply: virtualPly }) : t('Ply {ply} / {total}', { ply, total: game.moves.length })}</span>
         </div>
-        <input aria-label="Replay position" className="mt-3 w-full accent-emerald-800" type="range" min={0} max={game.moves.length} value={ply} onChange={event => go(Number(event.target.value))} />
+        <input aria-label={t('Replay position')} className="mt-3 w-full accent-emerald-800" type="range" min={0} max={game.moves.length} value={ply} onChange={event => go(Number(event.target.value))} />
         <div className="mt-4 rounded-xl border border-stone-300 bg-white/40 p-4">
-          <div className="label mb-2">{virtualPly ? 'ENGINE CONTINUATION · NOT PLAYED' : ply ? `PLAYED · ${game.moves[ply - 1].san}` : 'STARTING POSITION'}</div>
-          <p className="text-sm text-stone-600">{virtualPly ? 'A separate simulated finish. Your original game is unchanged.' : result ? `Evaluation ${scoreLabel(result.played)} · best alternative ${result.bestMove} · ${(result.ms / 1000).toFixed(2)}s` : 'Move through the game. Analysis will appear here as it is saved.'}</p>
-          <p className="mt-1 text-xs text-stone-500">Scores are from White’s perspective.</p>
+          <div className="label mb-2">{virtualPly ? t('ENGINE CONTINUATION · NOT PLAYED') : ply ? t('PLAYED · {move}', { move: game.moves[ply - 1].san }) : t('STARTING POSITION')}</div>
+          <p className="text-sm text-stone-600">{virtualPly ? t('A separate simulated finish. Your original game is unchanged.') : result ? t('Evaluation {score} · best alternative {move} · {seconds}s', { score: scoreLabel(result.played), move: result.bestMove, seconds: number(result.ms / 1000, 2) }) : t('Move through the game. Analysis will appear here as it is saved.')}</p>
+          <p className="mt-1 text-xs text-stone-500">{t('Scores are from White’s perspective.')}</p>
         </div>
       </section>
 
       <section className="min-w-0 space-y-5">
         <div className="note-card">
-          <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">ON YOUR DEVICE</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
-          <h2 className="mt-4 text-2xl">A moment of reflection.</h2>
-          <p className="mt-2 min-h-12 text-sm leading-6 text-stone-600" role="status" data-testid="status" data-state={status}>{message}</p>
-          <div className="mt-5 flex justify-between text-xs"><span>Moves saved</span><span data-testid="progress">{completed} / {game.moves.length}</span></div>
-          <progress className="mt-2 h-1.5 w-full" value={completed} max={game.moves.length} aria-label="Analysis progress">{progress}%</progress>
+          <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
+          <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
+          <p className="mt-2 min-h-12 text-sm leading-6 text-stone-600" role="status" data-testid="status" data-state={status}>{t(message, messageParameters)}</p>
+          <div className="mt-5 flex justify-between text-xs"><span>{t('Moves saved')}</span><span data-testid="progress">{completed} / {game.moves.length}</span></div>
+          <progress className="mt-2 h-1.5 w-full" value={completed} max={game.moves.length} aria-label={t('Analysis progress')}>{progress}%</progress>
           <div className="my-4 grid grid-cols-3 gap-2 border-y border-stone-200 py-4 text-center">
-            <div><strong className="metric">{DEPTH}</strong><span className="metric-label">search depth</span></div>
-            <div><strong className="metric">{(totalMs / 1000).toFixed(1)}s</strong><span className="metric-label">move analysis</span></div>
-            <div><strong className="metric">{completed ? (totalMs / completed).toFixed(0) : '—'}</strong><span className="metric-label">ms / ply</span></div>
+            <div><strong className="metric">{DEPTH}</strong><span className="metric-label">{t('search depth')}</span></div>
+            <div><strong className="metric">{number(totalMs / 1000, 1)}s</strong><span className="metric-label">{t('move analysis')}</span></div>
+            <div><strong className="metric">{completed ? number(totalMs / completed) : '—'}</strong><span className="metric-label">{t('ms / ply')}</span></div>
           </div>
           <button className="primary-button w-full" onClick={() => void start()} disabled={busy || !checkpoint || status === 'complete'}>
-            {status === 'complete' ? 'Analysis complete ✓' : busy ? 'Working in your browser…' : completed ? 'Resume analysis' : 'Analyze this game'}
+            {status === 'complete' ? t('Analysis complete ✓') : busy ? t('Working in your browser…') : completed ? t('Resume analysis') : t('Analyze this game')}
           </button>
-          {['analyzing', 'virtual'].includes(status) && <button className="text-button mt-3 w-full" onClick={pause}>Pause analysis</button>}
-          {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900" role="alert">{error}</p>}
-          <p className="mt-3 text-xs leading-5 text-stone-500">Full Stockfish 19 · one worker · 32 MB hash. First use downloads a large engine; later visits use its cache. Completed moves survive a reload.</p>
+          {['analyzing', 'virtual'].includes(status) && <button className="text-button mt-3 w-full" onClick={pause}>{t('Pause analysis')}</button>}
+          {error && <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900" role="alert">{t('An error occurred.')}<details className="mt-2"><summary>{t('Technical details')}</summary>{error}</details></div>}
+          <p className="mt-3 text-xs leading-5 text-stone-500">{t('Full Stockfish 19 · one worker · 32 MB hash. First use downloads a large engine; later visits use its cache. Completed moves survive a reload.')}</p>
         </div>
 
         <div className="note-card !bg-[#e8ede3]">
-          <div className="label text-emerald-900">A POSSIBLE ENDING</div>
-          <h2 className="mt-3 text-xl">What if they’d played on?</h2>
-          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? `${checkpoint.virtualWinner === 'white' ? 'White' : 'Black'} mates with ${checkpoint.virtual.at(-1)?.san} after ${checkpoint.virtual.length} simulated plies.` : checkpoint?.virtualStatus === 'limit' ? 'No checkmate within the 20-ply continuation.' : checkpoint?.virtualStatus === 'terminal' ? 'The position is terminal; no further finish to explore.' : 'After analysis, explore up to 20 additional engine plies. This proof does not grant scraps.'}</p>
-          {!!checkpoint?.virtual.length && <div className="mt-3 flex flex-wrap gap-1" aria-label="Virtual continuation">
+          <div className="label text-emerald-900">{t('A POSSIBLE ENDING')}</div>
+          <h2 className="mt-3 text-xl">{t('What if they’d played on?')}</h2>
+          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? t('{color} mates with {move} after {plies} simulated plies.', { color: t(checkpoint.virtualWinner === 'white' ? 'White' : 'Black'), move: checkpoint.virtual.at(-1)?.san ?? '', plies: checkpoint.virtual.length }) : checkpoint?.virtualStatus === 'limit' ? t('No checkmate within the 20-ply continuation.') : checkpoint?.virtualStatus === 'terminal' ? t('The position is terminal; no further finish to explore.') : t('After analysis, explore up to 20 additional engine plies. This proof does not grant scraps.')}</p>
+          {!!checkpoint?.virtual.length && <div className="mt-3 flex flex-wrap gap-1" aria-label={t('Virtual continuation')}>
             {checkpoint.virtual.map((move, i) => <button key={i} className={`move-button ${virtualPly === i + 1 ? 'selected' : ''}`} onClick={() => { setPly(game.moves.length); setVirtualPly(i + 1); }}>{move.san}</button>)}
           </div>}
         </div>
 
         <details className="note-card">
-          <summary className="cursor-pointer text-sm font-semibold">Open another page of the notebook</summary>
+          <summary className="cursor-pointer text-sm font-semibold">{t('Open another page of the notebook')}</summary>
           <div className="my-4 flex flex-wrap gap-2">
-            <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>Original rapid game</button>
-            <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>Mate example</button>
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>{t('Original rapid game')}</button>
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
           </div>
-          <label htmlFor="pgn" className="label">PASTE ONE PGN</label>
+          <label htmlFor="pgn" className="label">{t('PASTE ONE PGN')}</label>
           <textarea id="pgn" className="mt-2 h-36 w-full resize-y rounded-lg border border-stone-300 bg-white/60 p-3 font-mono text-xs" value={draft} onChange={event => setDraft(event.target.value)} disabled={busy} spellCheck={false} />
-          <button className="secondary-button mt-2" disabled={busy} onClick={() => void openGame(draft)}>Load PGN</button>
-          <button className="text-button ml-4" disabled={!checkpoint} onClick={exportResults}>Export analysis JSON</button>
+          <button className="secondary-button mt-2" disabled={busy} onClick={() => void openGame(draft)}>{t('Load PGN')}</button>
+          <button className="text-button ml-4" disabled={!checkpoint} onClick={exportResults}>{t('Export analysis JSON')}</button>
         </details>
       </section>
     </div>
 
     <section className="note-card mt-7">
-      <div className="mb-4 flex items-center justify-between"><h2 className="text-xl">The game, move by move.</h2><span className="label">{game.result}</span></div>
-      <div className="flex max-h-60 flex-wrap gap-1 overflow-y-auto" aria-label="Played moves" data-testid="played-moves">
-        {game.moves.map(move => <button key={move.ply} onClick={() => go(move.ply)} className={`move-button ${ply === move.ply && !virtualPly ? 'selected' : ''}`} aria-label={`Ply ${move.ply}: ${move.san}`}>
+      <div className="mb-4 flex items-center justify-between"><h2 className="text-xl">{t('The game, move by move.')}</h2><span className="label">{game.result}</span></div>
+      <div className="flex max-h-60 flex-wrap gap-1 overflow-y-auto" aria-label={t('Played moves')} data-testid="played-moves">
+        {game.moves.map(move => <button key={move.ply} onClick={() => go(move.ply)} className={`move-button ${ply === move.ply && !virtualPly ? 'selected' : ''}`} aria-label={t('Ply {ply}: {move}', { ply: move.ply, move: move.san })}>
           {move.ply % 2 === 1 && <span className="mr-1 text-stone-400">{Math.ceil(move.ply / 2)}.</span>}{move.san}
-          {checkpoint?.results[move.ply - 1] && <span className="ml-1 text-emerald-700" aria-label="analyzed">·</span>}
+          {checkpoint?.results[move.ply - 1] && <span className="ml-1 text-emerald-700" aria-label={t('analyzed')}>·</span>}
         </button>)}
       </div>
     </section>
     <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-stone-300 pt-5 text-xs leading-5 text-stone-500">
-      <span>Local browser proof · analysis stays on this device · no account or game imports yet.</span>
-      <span><a href="/engine/COPYING.txt">Stockfish GPLv3</a> · <a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1">Engine source</a></span>
+      <span>{t('Local browser proof · analysis stays on this device · no account or game imports yet.')}</span>
+      <span><a href="/engine/COPYING.txt">Stockfish GPLv3</a> · <a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1">{t('Engine source')}</a></span>
     </footer>
   </main>;
 }
