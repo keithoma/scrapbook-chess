@@ -148,6 +148,36 @@ test('unfinished games cannot be collected', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Collect rewards', exact: true })).toBeDisabled();
 });
 
+test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on collection', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
+  await collection(page);
+  await expect(page.getByRole('article', { name: 'StarCraft III', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Adderall', exact: true })).toHaveCount(0);
+  const controls = [
+    ['30+0', 'badge_played_bullet', '1999'],
+    ['300+0', 'badge_played_blitz', '15'],
+    ['300+5', 'badge_played_rapid', '5'],
+    ['900+15', 'badge_played_classical', '5'],
+    ['15+0', 'badge_played_ultrabullet', '1998'],
+  ];
+  for (const [index, [clock, id, threshold]] of controls.entries()) {
+    await load(page, `[Site "https://lichess.org/Mile000${index}"]\n[TimeControl "${clock}"]\n\n1. e4 e5 1/2-1/2`);
+    await collect(page, 'white');
+    await page.getByRole('button', { name: 'Last position', exact: true }).click();
+    await expect(page.getByTestId(`replay-${id}`)).toHaveText('1');
+    await page.getByRole('button', { name: 'Previous move', exact: true }).click();
+    await expect(page.getByTestId(`replay-${id}`)).toHaveText('0');
+    await collection(page);
+    await expect(page.getByTestId(`total-${id}`)).toHaveText(`1 / ${threshold}`);
+    await expect(page.getByTestId('total-badge_played_total')).toHaveText(`${index + 1} / 16`);
+  }
+  await expect(page.getByRole('article', { name: 'StarCraft III', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId('total-badge_played_ultrabullet')).toHaveText('1 / 1998');
+  await expect(page.getByRole('article', { name: 'Adderall', exact: true })).toHaveCount(0);
+});
+
 test('board badges replay at the played move, persist, and correct with the selected color', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');

@@ -39,3 +39,16 @@ its long analysis test also configures CPU throttling. It does not replace
 physical Android/iPhone and Safari testing.
 
 Use [the QA policy](../qa/README.md) when recording a formal finding or verification.
+
+## YAML content
+
+Run `pnpm yaml:check` to check source YAML layout and formatting. Use
+`pnpm yaml:format` to apply the repository's field order and Prettier formatting.
+The commands cover achievement YAML under `data/` and the workspace configuration;
+pnpm owns the generated lockfile's format.
+
+Achievement fields put identity and descriptive text before filters and rules.
+Tier fields use name, amount, and flavor order. Lists retain their authored order,
+including tiers, filters, and mastery awards. The formatter rejects changes to
+parsed values. File names use lowercase kebab-case; badge sources live under
+`data/achievements/badges/`, grouped by subject or their existing subcategory.

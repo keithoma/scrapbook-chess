@@ -24,7 +24,7 @@
       - name: 'pawn'
         amount: 10
         flavor:
-          player_quote: 'If I win this one, I''ll go to sleep. (Spoiler: You lost).'
+          player_quote: "If I win this one, I'll go to sleep. (Spoiler: You lost)."
 
       - name: 'knight'
         amount: 50
@@ -59,9 +59,7 @@
       - name: 'legend'
         amount: 12000
         flavor:
-          text: 'You haven''t slept before 4 AM since the Obama administration.'
-
-
+          text: "You haven't slept before 4 AM since the Obama administration."
 
 ###############################################################################
 # DAWN PATROL (04:00 - 08:00)
@@ -99,7 +97,7 @@
       - name: 'bishop'
         amount: 150
         flavor:
-          text: 'Pairing up against players on the opposite side of the planet who think you''re normal.'
+          text: "Pairing up against players on the opposite side of the planet who think you're normal."
 
       - name: 'rook'
         amount: 400
@@ -125,8 +123,6 @@
         amount: 12000
         flavor:
           text: 'You and the morning birds have a mutual understanding.'
-
-
 
 ###############################################################################
 # COFFEE & CASTLING (08:00 - 12:00)
@@ -191,8 +187,6 @@
         flavor:
           text: 'You have replaced breakfast entirely with chess rating fluctuations.'
 
-
-
 ###############################################################################
 # POST-LUNCH SLUMP (12:00 - 16:00)
 # Total games played between 12 PM and 4 PM.
@@ -224,7 +218,7 @@
       - name: 'knight'
         amount: 50
         flavor:
-          player_quote: 'I shouldn''t have eaten that entire pizza before playing Rapid.'
+          player_quote: "I shouldn't have eaten that entire pizza before playing Rapid."
 
       - name: 'bishop'
         amount: 150
@@ -255,8 +249,6 @@
         amount: 12000
         flavor:
           text: 'Siesta? No, we grind through the brain fog.'
-
-
 
 ###############################################################################
 # CLOCKING OUT (16:00 - 20:00)
@@ -313,14 +305,12 @@
       - name: 'immortal'
         amount: 6000
         flavor:
-          text: '6,000 evening games. You haven''t watched the 6 o''clock news in years.'
+          text: "6,000 evening games. You haven't watched the 6 o'clock news in years."
 
       - name: 'legend'
         amount: 12000
         flavor:
           text: 'Clocking out of real life, clocking in to the digital board.'
-
-
 
 ###############################################################################
 # PRIME TIME (20:00 - 24:00)

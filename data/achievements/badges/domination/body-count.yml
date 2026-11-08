@@ -18,49 +18,47 @@
       - name: 'stone'
         amount: 1
         flavor:
-          player_quote: 'I like the moment when I break a man''s ego.'
+          player_quote: "I like the moment when I break a man's ego."
 
       - name: 'pawn'
-        amount: 7     # (16) | just a lucky number
+        amount: 7 # (16) | just a lucky number
         flavor:
           text: 'Bing chilling!'
 
       - name: 'knight'
-        amount: 21     # (64) | blackjack
+        amount: 21 # (64) | blackjack
         flavor:
           text: 'Winner winner chicken dinner.'
 
       - name: 'bishop'
-        amount: 67     # (256) | meme
+        amount: 67 # (256) | meme
         flavor:
           player_quote: 'I understood that reference.'
 
       - name: 'rook'
-        amount: 77     # (400) | another lucky number
+        amount: 77 # (400) | another lucky number
         flavor:
           quote: 'The number of wins required for this feels completely arbitrary. 1/5 stars." — a review on Steam'
 
       - name: 'queen'
-        amount: 777     # (2500) | another lucky number
+        amount: 777 # (2500) | another lucky number
         flavor:
-          text: 'You know what? Good job! I''m proud of you, actually.'
+          text: "You know what? Good job! I'm proud of you, actually."
 
       - name: 'king'
-        amount: 1931     # (4096) | on this year, Nevada legalized gambling
+        amount: 1931 # (4096) | on this year, Nevada legalized gambling
         flavor:
           text: 'If rock paper scissors is a game of chance, then chess must be too.'
 
       - name: 'immortal'
-        amount: 4444     # (8902) | the quad jack
+        amount: 4444 # (8902) | the quad jack
         flavor:
           text: 'Actually, you win a lot...'
 
       - name: 'legend'
-        amount: 20000     # just a round number
+        amount: 20000 # just a round number
         flavor:
-          text: 'I''m considering not counting ultrabullet games in the next update.'
-
-
+          text: "I'm considering not counting ultrabullet games in the next update."
 
 ###############################################################################
 # AS FORETOLD
@@ -80,7 +78,7 @@
     is_hidden: true
     tiers:
       - name: 'stone'
-        amount: 1          # these numbers are references to biblical prophecies
+        amount: 1 # these numbers are references to biblical prophecies
         flavor:
           text: 'Who talks like that?'
 
@@ -97,7 +95,7 @@
       - name: 'bishop'
         amount: 144
         flavor:
-          quote: 'I didn''t even see what he played, I just premoved three times and hoped for the best.'
+          quote: "I didn't even see what he played, I just premoved three times and hoped for the best."
           author: 'GM Andrew Tang'
 
       - name: 'rook'
@@ -125,8 +123,6 @@
         flavor:
           text: 'Now try this again with premoves disabled.'
 
-
-
 ###############################################################################
 # SPEED
 # Total Hyperbullet games won.
@@ -148,23 +144,23 @@
       - name: 'pawn'
         amount: 1
         flavor:
-          player_quote: 'Oh, that''s why I win.'
+          player_quote: "Oh, that's why I win."
 
       - name: 'knight'
         amount: 10
         flavor:
-          quote: 'Ultrabullet is not chess, it''s just a clicking contest.'
+          quote: "Ultrabullet is not chess, it's just a clicking contest."
           author: 'GM Andrew Tang'
 
       - name: 'bishop'
         amount: 11
         flavor:
-          player_quote: 'What''s up with the progression for this achievement?'
+          player_quote: "What's up with the progression for this achievement?"
 
       - name: 'rook'
         amount: 100
         flavor:
-          text: 'It''s just binary. You win or you lose.'
+          text: "It's just binary. You win or you lose."
 
       - name: 'queen'
         amount: 101
@@ -186,8 +182,6 @@
         flavor:
           text: 'I am currently out of the office for my annual summer holiday and will return on September 15th.'
 
-
-
 ###############################################################################
 # VEXILLOLOGY
 # Total Bullet games won.
@@ -199,7 +193,7 @@
   name: 'Vexillology'
   description: 'Total Bullet games won.'
   flavor:
-    quote: 'I don''t care.'
+    quote: "I don't care."
     author: 'Hikaru Nakamura, a Twitch streamer'
   config:
     metric_key: 'is_bullet_win'
@@ -225,7 +219,7 @@
         amount: 299
         flavor:
           text: 'Wooden shield'
-          
+
       - name: 'rook'
         amount: 599
         flavor:
@@ -234,7 +228,7 @@
       - name: 'queen'
         amount: 999
         flavor:
-          text: 'Really, what''s a juicer? A pawn? A bishop? Or like everything?'
+          text: "Really, what's a juicer? A pawn? A bishop? Or like everything?"
 
       - name: 'king'
         amount: 1499
@@ -245,14 +239,12 @@
       - name: 'immortal'
         amount: 2199
         flavor:
-          text: 'Don''t punch the clock!'
+          text: "Don't punch the clock!"
 
       - name: 'legend'
         amount: 3000
         flavor:
-          text: 'I''m offline, but Hikaru might not. Go do something else.'
-
-
+          text: "I'm offline, but Hikaru might not. Go do something else."
 
 ###############################################################################
 # Blitz Losern't
@@ -262,7 +254,7 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Body Count'
-  name: 'Blitz Losern''t'
+  name: "Blitz Losern't"
   description: 'Total Blitz games won.'
   flavor:
     text: 'No time for losers.'
@@ -272,7 +264,7 @@
     is_hidden: false
     tiers:
       - name: 'stone'
-        amount: 1     # here the joke is normal numbers, I guess
+        amount: 1 # here the joke is normal numbers, I guess
         flavor:
           text: 'Why not? Here is a freebie.'
 
@@ -282,41 +274,39 @@
           text: 'Subject seems to be stimulated by positive feedback [...]'
 
       - name: 'knight'
-        amount: 10     #
+        amount: 10 #
         flavor:
           text: 'Amazing! We are all very proud of you.'
 
       - name: 'bishop'
-        amount: 25     #
+        amount: 25 #
         flavor:
           player_quote: 'This progression feels suspiciously like a tutorial.'
 
       - name: 'rook'
-        amount: 50     #
+        amount: 50 #
         flavor:
           text: 'Halfway there! You can do it!'
 
       - name: 'queen'
-        amount: 100     #
+        amount: 100 #
         flavor:
           text: 'Okay, the hand-holding is over.'
 
       - name: 'king'
-        amount: 2500     #
+        amount: 2500 #
         flavor:
           text: 'Wait, you actually managed to do it?'
 
       - name: 'immortal'
-        amount: 5000     #
+        amount: 5000 #
         flavor:
           text: 'You now have more Blitz wins than Magnus Carlsen does on one of his accounts. Nice.'
 
       - name: 'legend'
-        amount: 20000     #
+        amount: 20000 #
         flavor:
           text: 'You got me. There is no more content here. See, the sky is just painted.'
-
-
 
 ###############################################################################
 # OVERTHINKING
@@ -339,50 +329,47 @@
       - name: 'stone'
         amount: 1
         flavor:
-          text: 'Overthin...KING! I''ll see myself out.'
+          text: "Overthin...KING! I'll see myself out."
 
       - name: 'pawn'
-        amount: 3     # let's just take the fibonacci sequence here
+        amount: 3 # let's just take the fibonacci sequence here
         flavor:
           text: 'Wait, am I actually good?'
 
       - name: 'knight'
-        amount: 13     #
+        amount: 13 #
         flavor:
           text: 'Your opponents must be playing chess on their smart fridge.'
 
       - name: 'bishop'
-        amount: 34     #
+        amount: 34 #
         flavor:
           text: 'Your Ad Could Go Here.'
 
       - name: 'rook'
-        amount: 55     #
+        amount: 55 #
         flavor:
-          text: 'Fine, I''ll acknowledge you: You play well... sometimes.'
+          text: "Fine, I'll acknowledge you: You play well... sometimes."
 
       - name: 'queen'
-        amount: 377     #
+        amount: 377 #
         flavor:
-          text: 'By the way, the number of wins required is not random, but you wouldn''t get it.'
+          text: "By the way, the number of wins required is not random, but you wouldn't get it."
 
       - name: 'king'
-        amount: 610     #
+        amount: 610 #
         flavor:
           text: 'Congratulations!'
 
       - name: 'immortal'
-        amount: 987     #
+        amount: 987 #
         flavor:
-          text: 'Okay, let''s be real though: The online rapid pool is not very good compared to Blitz.'
+          text: "Okay, let's be real though: The online rapid pool is not very good compared to Blitz."
 
       - name: 'legend'
-        amount: 5000     # obviously not prime
+        amount: 5000 # obviously not prime
         flavor:
           text: 'You are not supposed to be in here. Leave immediately.'
-
-
-
 
 ###############################################################################
 # GALAXY BRAIN
@@ -445,4 +432,4 @@
       - name: 'legend'
         amount: 250
         flavor:
-          text: 'Writing the entire YAML configuration for this game''s achievement system while my opponent ropes.'
+          text: "Writing the entire YAML configuration for this game's achievement system while my opponent ropes."

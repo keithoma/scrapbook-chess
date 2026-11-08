@@ -1,11 +1,12 @@
 import { parse } from 'yaml';
 import mileage from '../../../data/achievements/badges/veterancy/mileage.yml?raw';
-import consolation from '../../../data/achievements/badges/veterancy/consolation_prize.yml?raw';
-import position from '../../../data/achievements/badges_position.yml?raw';
-import victories from '../../../data/achievements/badges/domination/body_count.yml?raw';
+import consolation from '../../../data/achievements/badges/veterancy/consolation-prize.yml?raw';
+import position from '../../../data/achievements/badges/position.yml?raw';
+import victories from '../../../data/achievements/badges/domination/body-count.yml?raw';
 
 export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
-  'badge_material_total', 'badge_promotion', 'badge_en_passant'] as const;
+  'badge_material_total', 'badge_promotion', 'badge_en_passant', 'badge_played_ultrabullet',
+  'badge_played_bullet', 'badge_played_blitz', 'badge_played_rapid', 'badge_played_classical'] as const;
 export type BadgeId = typeof BADGE_IDS[number];
 export interface Flavor { text?: string; quote?: string; player_quote?: string; author?: string }
 export interface Tier { name: string; amount: number; flavor?: Flavor; flavor_text?: string }
@@ -15,7 +16,7 @@ export interface Badge {
   description: string;
   flavor?: Flavor;
   flavor_text?: string;
-  config: { tiers: Tier[] };
+  config: { tiers: Tier[]; is_hidden?: boolean };
 }
 
 const raw: Badge[] = [mileage, victories, consolation, position].flatMap(source => parse(source));

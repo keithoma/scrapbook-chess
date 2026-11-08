@@ -149,3 +149,27 @@ test('profile collection uses the same YAML mastery rules and preserves XP witho
   assert.deepEqual(recollect.grant.events.find(event => event.kind === 'mastery'), award);
   s.db.close();
 });
+test('both platforms earn mileage from Lichess clock boundaries rather than source speed labels', async () => {
+  const lichess = sample('lichess', { id: 'Speed001' });
+  lichess.pgn = lichess.pgn.replace('600+0', '900+15');
+  const chesscom = sample('chesscom', { id: '999002', name: 'testchess' });
+  chesscom.pgn = chesscom.pgn.replace('600+0', '300+5');
+  chesscom.time_control = '300+5'; chesscom.time_class = 'blitz';
+  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json();
+  assert.equal(me.games.length, 2);
+  for (const game of me.games) {
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const response = await s.request(path, 'POST', {});
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const expected = game.platform === 'lichess' ? 'badge_played_classical' : 'badge_played_rapid';
+    assert.deepEqual(grant.events.filter(event => event.kind === 'badge' && event.badgeId.startsWith('badge_played_') && event.badgeId !== 'badge_played_total'), [
+      { kind: 'badge', badgeId: expected, amount: 1, ply: 4 },
+    ]);
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  s.db.close();
+});

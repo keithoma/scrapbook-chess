@@ -19,38 +19,38 @@
         amount: 1
         flavor:
           text: ''
-      
-      - name: "pawn"
+
+      - name: 'pawn'
         amount: 1
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "knight"
+      - name: 'knight'
         amount: 2
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "bishop"
+      - name: 'bishop'
         amount: 3
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "rook"
+      - name: 'rook'
         amount: 4
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "queen"
+      - name: 'queen'
         amount: 5
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "king"
+      - name: 'king'
         amount: 6
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "immortal"
+      - name: 'immortal'
         amount: 7
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "legend"
+      - name: 'legend'
         amount: 8
-        flavor_text: ""
+        flavor_text: ''
 
 ###############################################################################
 #
@@ -60,43 +60,42 @@
   type: badge
   category: 'Domination'
   subcategory: 'ChessDom'
-  name: "Clutch"
-  description: "Win a time scramble."
-  flavor_text: ""
+  name: 'Clutch'
+  description: 'Win a time scramble.'
+  flavor_text: ''
   config:
-    metric_key: "is_time_scramble_win"
+    metric_key: 'is_time_scramble_win'
     required_value: true
     is_hidden: false
     tiers:
-      - name: "pawn"
+      - name: 'pawn'
         amount: 1
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "knight"
+      - name: 'knight'
         amount: 2
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "bishop"
+      - name: 'bishop'
         amount: 3
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "rook"
+      - name: 'rook'
         amount: 4
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "queen"
+      - name: 'queen'
         amount: 5
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "king"
+      - name: 'king'
         amount: 6
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "immortal"
+      - name: 'immortal'
         amount: 7
-        flavor_text: ""
+        flavor_text: ''
 
-      - name: "legend"
+      - name: 'legend'
         amount: 8
-        flavor_text: ""
-
+        flavor_text: ''

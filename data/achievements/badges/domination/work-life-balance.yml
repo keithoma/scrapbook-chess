@@ -49,7 +49,7 @@
       - name: 'king'
         amount: 2500
         flavor:
-          text: 'The boss mob (your manager) still hasn''t noticed.'
+          text: "The boss mob (your manager) still hasn't noticed."
 
       - name: 'immortal'
         amount: 5000
@@ -60,8 +60,6 @@
         amount: 10000
         flavor:
           text: 'Touch grass? No, the spawn rate for rating points is better right here.'
-
-
 
 ###############################################################################
 # MERCURY IN RETROGRADE
@@ -74,7 +72,7 @@
   name: 'Mercury in Retrograde'
   description: 'Total games won on weekends.'
   flavor:
-    quote: 'I didn''t blunder my Queen; the moon phase demanded a sacrifice.'
+    quote: "I didn't blunder my Queen; the moon phase demanded a sacrifice."
     author: 'Your 1200-rated astrologer'
   config:
     metric_key: 'is_weekend_win'
@@ -89,7 +87,7 @@
       - name: 'pawn'
         amount: 7
         flavor:
-          player_quote: 'The stars aligned, and by stars I mean my opponent''s back rank.'
+          player_quote: "The stars aligned, and by stars I mean my opponent's back rank."
 
       - name: 'knight'
         amount: 33
@@ -97,7 +95,7 @@
           text: 'Consulting the zodiac before choosing an opening repertoire.'
 
       - name: 'bishop'
-        amount: 108      # auspicious cosmic numerology
+        amount: 108 # auspicious cosmic numerology
         flavor:
           quote: 'A rare celestial alignment that causes your opponent to disconnect.'
           author: 'The Stars'
@@ -123,6 +121,6 @@
           text: 'You have transcended weekend chess. You are now a spiritual cosmic entity.'
 
       - name: 'legend'
-        amount: 7777     # divine cap
+        amount: 7777 # divine cap
         flavor:
           text: 'The universe created the cosmos in 6 days just so you could play 7,777 weekend chess games.'

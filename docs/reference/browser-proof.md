@@ -19,11 +19,12 @@ This reference describes the local browser app. See the
 | English/German interface messages | [i18n.ts](../../web/src/i18n.ts) |
 | Local badges and their YAML sources | [catalog.ts](../../web/src/achievements/catalog.ts) |
 | Contribution extraction and exact scrap identity | [collection.ts](../../web/src/achievements/collection.ts) |
+| Shared Lichess speed classification | [time-control.ts](../../web/src/time-control.ts) |
 | Atomic per-game collection persistence | [ledger.ts](../../web/src/achievements/ledger.ts) |
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 | Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
-| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight_forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
+| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight-forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -83,6 +84,33 @@ badges remain inactive; their quality and survival requirements do not apply to
 Anti-antichess. Its queen-trade flavor text remains a joke, not a capture rule.
 Promotion Master retains its separate bronze/silver/gold tiers, starting at ten
 promotions.
+
+### Mileage and time controls
+
+Obsession counts every completed eligible game. The five active speed badges
+each count one completed game at the final actual ply, regardless of its result.
+Both platforms use the [Lichess time-control convention](https://lichess.org/faq#time-controls):
+starting seconds plus 40 times the increment. Original platform labels remain in
+import history but do not determine mileage rewards.
+
+| Estimated seconds | Speed | Authored badge |
+| --- | --- | --- |
+| Below 30 | Ultrabullet | StarCraft III |
+| 30–179 | Bullet | Bullet Time |
+| 180–479 | Blitz | Blitz Dopamine Loop |
+| 480–1499 | Rapid | Restroom Rapid Ritual |
+| At least 1500 | Classical | Improover |
+
+Each game contributes to Obsession and at most one speed badge. Missing, invalid,
+correspondence, or multi-stage controls give no speed progress. The guest notebook
+still accepts completed test PGNs with those controls; profile imports enforce
+their existing live-game eligibility rules. There is no additional minimum length
+requirement for mileage.
+
+Lichess has no hyperbullet category. The authored Adderall definition stays in
+the YAML but is inactive. StarCraft III respects its authored hidden flag: its
+collection card and replay total appear after its first tier is collected.
+Names, flavor, and all mileage tier thresholds remain the authored English values.
 
 ### Saved contributions
 

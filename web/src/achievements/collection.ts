@@ -4,6 +4,7 @@ import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import type { Color, Role } from 'chessops/types';
 import type { ReplayGame } from '../game';
+import { lichessSpeed } from '../time-control';
 import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, BADGE_IDS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
@@ -64,6 +65,8 @@ export function virtualMate(game: ReplayGame, checkpoint?: Checkpoint): { notati
 export function contributions(game: ReplayGame, color: Color, checkpoint?: Checkpoint): Contribution[] {
   if (!isCompletedGame(game)) throw new Error('Only completed games can be collected.');
   const events: Contribution[] = [{ kind: 'badge', badgeId: 'badge_played_total', amount: 1, ply: game.moves.length }];
+  const speed = lichessSpeed(game.timeControl);
+  if (speed) events.push({ kind: 'badge', badgeId: `badge_played_${speed}`, amount: 1, ply: game.moves.length });
   const last = game.moves.at(-1)!;
   const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
   if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });

@@ -9,7 +9,7 @@
   name: 'Preparation'
   description: 'Total games won in the opening phase.'
   flavor:
-    quote: 'If you aren''t prepared, prepare to blunder on move 4.'
+    quote: "If you aren't prepared, prepare to blunder on move 4."
     author: 'Grandmaster Proverb'
   config:
     metric_key: 'is_opening_win'
@@ -39,7 +39,7 @@
       - name: 'rook'
         amount: 150
         flavor:
-          text: 'You didn''t win this game; your opponent''s opening prep lost it.'
+          text: "You didn't win this game; your opponent's opening prep lost it."
 
       - name: 'queen'
         amount: 400
@@ -59,9 +59,7 @@
       - name: 'legend'
         amount: 5000
         flavor:
-          text: 'You are Stockfish''s opening database incarnate.'
-
-
+          text: "You are Stockfish's opening database incarnate."
 
 ###############################################################################
 # TACTICIAN
@@ -114,7 +112,7 @@
       - name: 'king'
         amount: 2500
         flavor:
-          text: 'You don''t need positional play when you can just fork everything.'
+          text: "You don't need positional play when you can just fork everything."
 
       - name: 'immortal'
         amount: 6000
@@ -125,8 +123,6 @@
         amount: 12000
         flavor:
           text: 'The tactics puzzle database was built from your game history.'
-
-
 
 ###############################################################################
 # SQUEEZING STONE
@@ -184,7 +180,7 @@
       - name: 'immortal'
         amount: 3000
         flavor:
-          text: '3,000 technical endgame conversions. You actually know how to use Philidor''s Position.'
+          text: "3,000 technical endgame conversions. You actually know how to use Philidor's Position."
 
       - name: 'legend'
         amount: 7000

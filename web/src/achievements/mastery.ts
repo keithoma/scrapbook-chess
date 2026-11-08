@@ -1,5 +1,5 @@
 import { parse } from 'yaml';
-import source from '../../../data/achievements/masteries/knight_forks.yml?raw';
+import source from '../../../data/achievements/masteries/knight-forks.yml?raw';
 import type { ReplayGame } from '../game';
 import { ANALYSIS_VERSION, type Checkpoint } from '../storage';
 import type { Score } from '../stockfish';

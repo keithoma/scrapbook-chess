@@ -6,6 +6,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Obsession'
+  description: 'Total games played across all time controls.'
   compliance_filters:
     - 'Obsession'
     - 'failure' # because that's not good
@@ -14,8 +16,6 @@
     - 'Grass' # slag for weed
     - 'bullet' # violence
     - 'playing' # might sound sexual
-  name: 'Obsession'
-  description: 'Total games played across all time controls.'
   flavor:
     quote: 'Trying is the first step to failure.'
     author: 'GM Ben Finegold'
@@ -29,46 +29,44 @@
           text: 'Thank you for playing. I will be your guide.'
 
       - name: 'pawn'
-        amount: 16     # number of pieces
+        amount: 16 # number of pieces
         flavor:
           text: 'A for effort.'
 
       - name: 'knight'
-        amount: 64     # number of squares
+        amount: 64 # number of squares
         flavor:
           text: '$2^{64}$ grains of rice worth of effort.'
 
       - name: 'bishop'
-        amount: 256     # number of squares in a team game
+        amount: 256 # number of squares in a team game
         flavor:
           text: 'You won at least some of them, right?'
 
       - name: 'rook'
-        amount: 400     # number of games after 2 plies
+        amount: 400 # number of games after 2 plies
         flavor:
-          player_quote: 'I''m not hardstuck.'
+          player_quote: "I'm not hardstuck."
 
       - name: 'queen'
-        amount: 2500     # minimum elo to become grandmaster
+        amount: 2500 # minimum elo to become grandmaster
         flavor:
           text: 'Good job!'
 
       - name: 'king'
-        amount: 4096     # = 64 * 64
+        amount: 4096 # = 64 * 64
         flavor:
           text: 'Grass touching is advised.'
 
       - name: 'immortal'
-        amount: 8902     # number of games after 3 plies
+        amount: 8902 # number of games after 3 plies
         flavor:
           text: 'Are these all bullet games?'
 
       - name: 'legend'
-        amount: 20000     # just a round number
+        amount: 20000 # just a round number
         flavor:
           text: 'Really? Now I need to add more content.'
-
-
 
 ###############################################################################
 # STARCRAFT III
@@ -78,6 +76,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'StarCraft III'
+  description: 'Total Ultrabullet games played.'
   compliance_filters:
     - 'StarCraft' # not chess
     - 'Blizzard' # not chess
@@ -89,10 +89,8 @@
     - 'sue' # conflict is ugly
     - 'tired' # negative
     - 'boss' # might normalize capitalistic hiarchies
-  name: 'StarCraft III'
-  description: 'Total Ultrabullet games played.'
   flavor:
-    text: 'Please don''t sue me, Blizzard.'
+    text: "Please don't sue me, Blizzard."
   config:
     metric_key: 'speed'
     required_value: 'ultrabullet'
@@ -101,49 +99,47 @@
       - name: 'stone'
         amount: 1
         flavor:
-          text: 'I''d claim fair use anyway.'
+          text: "I'd claim fair use anyway."
 
       - name: 'pawn'
-        amount: 1998      # year of StarCraft I release
+        amount: 1998 # year of StarCraft I release
         flavor:
-          player_quote: 'From 1 to 1998 to 2010? I''m tired, boss.'
+          player_quote: "From 1 to 1998 to 2010? I'm tired, boss."
 
       - name: 'knight'
-        amount: 2010      # year of StarCraft II release
+        amount: 2010 # year of StarCraft II release
         flavor:
           player_quote: 'Ping diff.'
 
       - name: 'bishop'
-        amount: 2015      # year of the Legacy of the Void release
+        amount: 2015 # year of the Legacy of the Void release
         flavor:
-          text: 'Take the hint. I really don''t want you playing ultrabullet.'
+          text: "Take the hint. I really don't want you playing ultrabullet."
 
       - name: 'rook'
-        amount: 9001      # it's over 9000
+        amount: 9001 # it's over 9000
         flavor:
-          player_quote: 'I''m applying for Korean citizenship.'
+          player_quote: "I'm applying for Korean citizenship."
 
       - name: 'queen'
-        amount: 10101     # 1-1-1 build order format
+        amount: 10101 # 1-1-1 build order format
         flavor:
           text: '400 APM.'
 
       - name: 'king'
-        amount: 20000     # matching standard mileage cap
+        amount: 20000 # matching standard mileage cap
         flavor:
           player_quote: '16 units is nothing. Have you seen my Zerg rush?'
 
       - name: 'immortal'
-        amount: 49998     # an unsatisfying number
+        amount: 49998 # an unsatisfying number
         flavor:
-          text: 'There''s Serral. And then there''s you.'
+          text: "There's Serral. And then there's you."
 
       - name: 'legend'
-        amount: 100000     # just a big number
+        amount: 100000 # just a big number
         flavor:
           text: 'Was this actually "worth"?'
-
-
 
 ###############################################################################
 # ADDERALL
@@ -153,6 +149,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Adderall'
+  description: 'Total Hyperbullet games played.'
   compliance_filters:
     - 'Adderall' # might be abused
     - 'prescription' # might evoke the idea of drug abuse
@@ -169,10 +167,8 @@
     - 'bullet' # violence
     - 'literally' # used as 'figuratively'
     - 'playing' # sexual
-  name: 'Adderall'
-  description: 'Total Hyperbullet games played.'
   flavor:
-    text: 'It''s like Adderall, but without a prescription.'
+    text: "It's like Adderall, but without a prescription."
   config:
     metric_key: 'speed'
     required_value: 'hyperbullet'
@@ -186,7 +182,7 @@
       - name: 'pawn'
         amount: 30 # 30mg pill standard / 30 seconds a game
         flavor:
-          player_quote: 'I''m hyper.'
+          player_quote: "I'm hyper."
 
       - name: 'knight'
         amount: 100 # Tachycardia threshold (100 BPM)
@@ -207,7 +203,7 @@
       - name: 'queen'
         amount: 1200
         flavor:
-          player_quote: 'Look, you don''t get high when you smoke weed; you get stoned. High is when you bullet and hyper. Okay?'
+          player_quote: "Look, you don't get high when you smoke weed; you get stoned. High is when you bullet and hyper. Okay?"
 
       - name: 'king'
         amount: 1520 # ICD-10 Code F15.20 for Amphetamine Dependence
@@ -222,9 +218,7 @@
       - name: 'legend'
         amount: 86400 # Total seconds in a day
         flavor:
-          text: 'Look, I literally didn''t think anyone would play this much hyperbullet. Please stop playing so I have time to code the next update.'
-
-
+          text: "Look, I literally didn't think anyone would play this much hyperbullet. Please stop playing so I have time to code the next update."
 
 ###############################################################################
 # BULLET TIME
@@ -234,6 +228,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Bullet Time'
+  description: 'Total Bullet games played.'
   compliance_filters:
     - 'Bullet' # violence
     - 'bullets'
@@ -255,8 +251,6 @@
     - 'pill' # I don't approve of that movement
     - 'beta'
     - 'cuck'
-  name: 'Bullet Time'
-  description: 'Total Bullet games played.'
   flavor:
     quote: 'There is no spoon.'
     author: 'that bald Uri Geller kid'
@@ -268,7 +262,7 @@
       - name: 'stone'
         amount: 1
         flavor:
-          player_quote: 'What''s your BPPM (Bullets Played per Minute)?'          
+          player_quote: "What's your BPPM (Bullets Played per Minute)?"
 
       - name: 'pawn'
         amount: 1999 # the matrix relase year
@@ -289,12 +283,12 @@
       - name: 'rook'
         amount: 2021 # the year when the matrix died
         flavor:
-          text: 'Yeah, it''s really unfortunate that they never made a sequel...'
+          text: "Yeah, it's really unfortunate that they never made a sequel..."
 
       - name: 'queen'
         amount: 2022 # I thought it would be funny to just increment by 1 from here on
         flavor:
-          text: 'What if I made <i>Scrapbook; Chess Resurrections</i>, but everything horrible just to hammer home the point that I didn''t want to make a fourth part? Wouldn''t that be artistic and valuable?'
+          text: "What if I made <i>Scrapbook; Chess Resurrections</i>, but everything horrible just to hammer home the point that I didn't want to make a fourth part? Wouldn't that be artistic and valuable?"
 
       - name: 'king'
         amount: 2023
@@ -311,8 +305,6 @@
         flavor:
           text: 'The Red Pill is cringe. Why? Because we already live in the real world, it was just a movie, you beta cuck.'
 
-
-
 ###############################################################################
 # Blitz Dopamine Loop
 # Total Blitz games played.
@@ -321,6 +313,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Blitz Dopamine Loop'
+  description: 'Total Blitz games played.'
   compliance_filters:
     - 'Dopamine'
     - 'analyzes' # because it contains 'anal'
@@ -331,8 +325,6 @@
     - 'analyzing' # contains 'anal'
     - 'Soviet' # because of the Russian war crimes in Ukraine
     - 'checkers' # because that's not chess
-  name: 'Blitz Dopamine Loop'
-  description: 'Total Blitz games played.'
   flavor:
     quote: 'He who analyzes blitz is stupid.'
     author: 'IM Rashid Nezhmetdinov'
@@ -345,48 +337,46 @@
         amount: 1
         flavor:
           player_quote: 'Who the hell is Rashid Nezhmetdinov?'
-      
+
       - name: 'pawn'
-        amount: 15     # all the numbers here are from total games played -1
+        amount: 15 # all the numbers here are from total games played -1
         flavor:
-          text: 'You know Rashid Nezhmetdinov is good because you can''t pronounce his name.'
+          text: "You know Rashid Nezhmetdinov is good because you can't pronounce his name."
 
       - name: 'knight'
-        amount: 63     #
+        amount: 63 #
         flavor:
-          player_quote: 'Wait, is the number of games required the same as ''Obsession'' but minus 1?'
+          player_quote: "Wait, is the number of games required the same as 'Obsession' but minus 1?"
 
       - name: 'bishop'
-        amount: 255     #
+        amount: 255 #
         flavor:
           text: 'analyzing after the game < requeueing immediately'
 
       - name: 'rook'
-        amount: 399     #
+        amount: 399 #
         flavor:
           text: 'By the way, I just wanted to say: you are doing a great job at playing chess.'
 
       - name: 'queen'
-        amount: 2499     #
+        amount: 2499 #
         flavor:
           text: 'Just some feedback: Have you considered trying to win some of these?'
 
       - name: 'king'
-        amount: 4095     #
+        amount: 4095 #
         flavor:
           text: 'You have spent approximately 23 days of your finite lifespan playing Blitz.'
 
       - name: 'immortal'
-        amount: 8901     #
+        amount: 8901 #
         flavor:
           text: 'Rashid Nezhmetdinov was a Soviet chess Master and checkers player. Now you know.'
 
       - name: 'legend'
-        amount: 20000     # except for this number
+        amount: 20000 # except for this number
         flavor:
-          text: 'Thank you for playing. Don''t forget to like, comment, and subscribe, and hit that notification bell.'
-
-
+          text: "Thank you for playing. Don't forget to like, comment, and subscribe, and hit that notification bell."
 
 ###############################################################################
 # Restroom Rapid Ritual
@@ -396,6 +386,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Restroom Rapid Ritual'
+  description: 'Total Rapid games played.'
   compliance_filters:
     - 'restroom'
     - 'ritual' # religious
@@ -412,10 +404,8 @@
     - 'toiletgate'
     - 'toilet'
     - 'hemorrhoids'
-  name: 'Restroom Rapid Ritual'
-  description: 'Total Rapid games played.'
   flavor:
-    text: 'My boss makes a dollar, I make a dime. That''s why I poop on company time.'
+    text: "My boss makes a dollar, I make a dime. That's why I poop on company time."
   config:
     metric_key: 'speed'
     required_value: 'rapid'
@@ -424,51 +414,49 @@
       - name: 'stone'
         amount: 1
         flavor:
-          player_quote: 'I''m multitasking.'
+          player_quote: "I'm multitasking."
 
       - name: 'pawn'
-        amount: 5     # 5 ply toiletpaper
+        amount: 5 # 5 ply toiletpaper
         flavor:
           text: 'Are your legs asleep already?'
 
       - name: 'knight'
-        amount: 19     # I can't think of numerology related to restrooms, so just random prime numbers
+        amount: 19 # I can't think of numerology related to restrooms, so just random prime numbers
         flavor:
           player_quote: 'i PlAy rApId gAmEs oUtSiDe oF tHe bAtHrOoM, tOo.'
 
       - name: 'bishop'
-        amount: 83     #
+        amount: 83 #
         flavor:
           quote: '... quite strange, if not suspicious.'
           author: 'your boss'
 
       - name: 'rook'
-        amount: 131     #
+        amount: 131 #
         flavor:
-          text: 'One thing is for sure: You don''t work at Amazon.'
+          text: "One thing is for sure: You don't work at Amazon."
 
       - name: 'queen'
-        amount: 829     #
+        amount: 829 #
         flavor:
           text: 'Royal Straight Flush'
 
       - name: 'king'
-        amount: 1367     #
+        amount: 1367 #
         flavor:
           quote: 'Here I sit, broken-hearted.'
           author: 'Why do you care?'
 
       - name: 'immortal'
-        amount: 2969     #
-        flavor: 
+        amount: 2969 #
+        flavor:
           text: 'You are the toiletgate of our time.'
 
       - name: 'legend'
-        amount: 5000     # obviously not prime
+        amount: 5000 # obviously not prime
         flavor:
-          text: 'Fine, I''ll stop with the toilet humor. I was done anyways.'
-
-
+          text: "Fine, I'll stop with the toilet humor. I was done anyways."
 
 ###############################################################################
 # IMPROOVER
@@ -478,6 +466,8 @@
   type: badge
   category: 'Veterancy'
   subcategory: 'Mileage'
+  name: 'Improover'
+  description: 'Total Classical games played.'
   compliance_filters:
     - 'kill'
     - 'German' # imagine all the people
@@ -495,8 +485,6 @@
     - 'die' # negative
     - 'difficult' # negative
     - 'judge' # might offend criminals
-  name: 'Improover'
-  description: 'Total Classical games played.'
   flavor:
     quote: 'What does not kill me makes me stronger.'
     author: 'A German emo'
@@ -525,7 +513,7 @@
       - name: 'bishop'
         amount: 25
         flavor:
-          quote: 'All of humanity''s problems stem from man''s inability to sit quietly in a room alone.'
+          quote: "All of humanity's problems stem from man's inability to sit quietly in a room alone."
           author: 'Another Frenchman' # Pascal
 
       - name: 'rook'
@@ -543,7 +531,7 @@
       - name: 'king'
         amount: 250
         flavor:
-          quote: 'Thinking is difficult, that''s why most people judge.'
+          quote: "Thinking is difficult, that's why most people judge."
           author: 'I made it the fuck up' # misattributed to Jung
 
       - name: 'immortal'
@@ -556,4 +544,4 @@
         amount: 1000
         flavor:
           quote: 'Is it progress if a cannibal uses a fork?'
-          author: 'I can''t type his name' # Lec
+          author: "I can't type his name" # Lec

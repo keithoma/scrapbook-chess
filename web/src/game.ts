@@ -29,6 +29,7 @@ export interface ReplayGame {
   result: string;
   site: string;
   timestamp: string;
+  timeControl: string;
   frames: Frame[];
   moves: PlayedMove[];
 }
@@ -74,6 +75,7 @@ export function parseGame(pgn: string): ReplayGame {
     site: /^https:\/\/(?:www\.)?chess\.com\/game\/(?:live|daily)\/\d+/.test(game.headers.get('Link') ?? '')
       ? game.headers.get('Link')! : game.headers.get('Site') ?? '',
     timestamp: `${game.headers.get('UTCDate') ?? game.headers.get('Date') ?? ''} ${game.headers.get('UTCTime') ?? ''}`.trim(),
+    timeControl: game.headers.get('TimeControl') ?? '',
     frames, moves,
   };
 }

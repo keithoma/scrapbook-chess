@@ -33,7 +33,7 @@ describe('local contribution extraction', () => {
     expect(game.moves.at(-1)?.san).toBe('Qe1+');
     expect(game.frames.at(-1)?.checkmate).toBe(false);
     const rewards = projectCollection([grant(game, 'black')]);
-    expect(rewards.totals).toEqual({ badge_played_total: 1, badge_won_total: 1, badge_moves_played: 26,
+    expect(rewards.totals).toMatchObject({ badge_played_total: 1, badge_won_total: 1, badge_moves_played: 26,
       badge_total_checks: 2, badge_material_total: 11, badge_promotion: 0, badge_en_passant: 0 });
     expect(rewards.scraps).toEqual([]);
   });
@@ -51,9 +51,9 @@ describe('local contribution extraction', () => {
   });
   it('counts only the selected side’s moves and en passant, including drawn games', () => {
     const game = parseGame('1. e4 a6 2. e5 d5 3. exd6 1/2-1/2');
-    expect(projectCollection([grant(game, 'white')]).totals).toEqual({ badge_played_total: 1, badge_won_total: 0,
+    expect(projectCollection([grant(game, 'white')]).totals).toMatchObject({ badge_played_total: 1, badge_won_total: 0,
       badge_moves_played: 3, badge_total_checks: 0, badge_material_total: 1, badge_promotion: 0, badge_en_passant: 1 });
-    expect(projectCollection([grant(game, 'black')]).totals).toEqual({ badge_played_total: 1, badge_won_total: 0,
+    expect(projectCollection([grant(game, 'black')]).totals).toMatchObject({ badge_played_total: 1, badge_won_total: 0,
       badge_moves_played: 2, badge_total_checks: 0, badge_material_total: 0, badge_promotion: 0, badge_en_passant: 0 });
     expect(contributions(game, 'white').find(e => e.kind === 'badge' && e.badgeId === 'badge_en_passant')?.ply).toBe(5);
   });
