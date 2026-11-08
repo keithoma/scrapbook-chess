@@ -88,6 +88,44 @@ a sensible progression: precise moves earn more experience, and later levels
 require progressively more experience. Awards are deterministic for the same
 evidence; their apparent randomness is in the authored numbers.
 
+### Fork grades and level requirements
+
+Every qualified fork receives a grade from D-, D, D+, C-, C, C+, B-, B, B+,
+A-, A, A+, S-, S, through S+. Grades describe the quality of the move creating
+the fork after material qualification. Geometric candidates that fail the
+material or quality gate do not receive a mastery grade. Missing analysis stays
+pending rather than being rated poorly.
+
+The initial grade bands subdivide the existing engine-evaluation-loss XP bands.
+They are prototype tuning in the mastery YAML, not standard chess annotations
+or Lichess mistake categories. Existing XP awards and level XP thresholds are
+preserved. The existing accepted mate outcomes receive S+; no mate distance is
+converted into centipawns. Saved contributions keep their grade and grading
+version alongside their original XP and evidence.
+
+XP continues accumulating while a grade requirement blocks the next level.
+Levels 1–5 require only XP. Level 6 also requires two S-/S/S+ forks, level 7
+requires three additional high-grade forks, and level 8 requires five more.
+These are separate batches: lifetime totals are two, five, and ten respectively.
+The per-level batch sizes live in YAML alongside the unchanged XP thresholds.
+
+A collected fork can satisfy only one gate. Its grade and occurrence remain in
+the collection; allocation is derived from the saved history rather than deleting
+awards. Multiple qualifying forks in one game count separately. Grades earned
+before a gate can be banked, and recollection or repeated analysis does not add
+another occurrence. The collection shows the next gate's batch progress separately
+from the lifetime high-grade count.
+
+Meeting both requirements makes banked XP eligible for further levels, subject
+to each intervening gate. Levels above the last specified gate use their existing
+XP thresholds with no further grade cost; the earlier gates cannot be skipped.
+
+Existing saved forks can be graded from their retained engine evidence without
+rerunning analysis or changing earned XP. Recollection persists the recovered
+grade. Unknown historical rules remain ungraded; XP alone never proves an S
+grade. Changing saved grading or qualification policies requires an explicit
+migration. Correcting a game's player color replaces its contributions as before.
+
 Preserve the existing opening-mastery rank thresholds while those tracks are
 reviewed; they do not establish the curve for tactical masteries. Other tactical
 tracks and their tuning remain future work.

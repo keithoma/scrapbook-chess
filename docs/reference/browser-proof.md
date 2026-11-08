@@ -237,17 +237,38 @@ loss's distance receives the highest quality award. Missing a found winning mate
 or shortening a forced loss earns nothing. These explicit prototype policies do
 not convert mate distances into centipawns or label moves as standard mistakes.
 
-The collection derives mastery levels from cumulative saved XP, starting at level
-one with zero XP and capping at the last authored level. Replay shows XP at the
-originating move. Contributions save the rule version, quality scores, material
-gain, and an illustrative defense/capture in SAN. These hypothetical moves are
-evidence, not an extension of the played game.
+Qualified forks receive a D- through S+ grade using the finer evaluation-loss
+bands in [the mastery YAML](../../data/achievements/masteries/tactics/forks.yml).
+Accepted mate outcomes receive S+. The inspector and saved contribution details
+show the grade. Rejected candidates have no mastery grade; missing analysis
+remains pending. These are prototype quality grades, not mistake annotations.
+
+Levels combine cumulative saved XP with the YAML's additional S-/S/S+ fork
+requirements. Levels 1–5 are XP-only. Level 6 needs two high-grade forks; level 7
+needs three more; level 8 needs five more. The resulting lifetime requirements
+are two, five, and ten. Each saved occurrence can satisfy only one gate, and each
+qualified fork counts separately even within one game. Earlier grades can be
+banked. The [design rules](../../design/mechanics/achievement-families.md#fork-grades-and-level-requirements)
+describe the allocation and tuning policy.
+
+XP is never capped by a locked grade gate. The collection shows total XP, a
+bounded XP bar, and the next level's high-grade requirement. Enough XP with
+insufficient grades shows that extra XP is saved; no negative XP remainder is
+displayed. Once the grade requirement is met, saved XP can unlock further levels
+until another unmet requirement or the last authored level.
+
+Replay shows XP at the originating move. Contributions save the rule and grading
+versions, grade, quality scores, material gain, and an illustrative defense/capture
+in SAN. These hypothetical moves are evidence, not an extension of the played game.
 
 Recollecting preserves already saved XP and evidence for the same game, color,
 and ply, including after checkpoint eviction or tuning changes. Newly analyzed
 qualifying moves may add contributions. Correcting the player color replaces the
 game's contributions. Repricing old awards after a rule change requires a future
 explicit migration; editing YAML does not automatically reprice saved awards.
+Older contributions without a grade use their retained version-one engine
+evidence to recover it and persist it on recollection. Unknown historical rules
+stay ungraded and do not earn high-grade credit merely from their XP amount.
 
 ## Scope and limits
 
