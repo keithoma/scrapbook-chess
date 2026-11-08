@@ -9,7 +9,9 @@ existing description final or require the whole catalog in the first release.
 - `design/content/achievement-ideas.md`: family concepts, episodes, tactical mastery ideas,
   hidden scraps, shelved mechanics, streak/diversity/group conditions.
 - `design/content/quote-ideas.md`: writing reference, not executable rules.
-- Twelve YAML files: 61 unique badge definitions and 515 tier entries.
+- Twelve badge YAML files: 61 unique badge definitions and 515 tier entries.
+- `masteries/knight_forks.yml`: the first tactical mastery, with quality-based XP
+  awards, a rule version, and level thresholds.
 - `mastery.json`: eight opening tracks, split by player color.
 - `feats.json`: eight one-time ideas, a legacy source for scraps.
 - `story.json`: five prerequisite-linked onboarding nodes.
@@ -56,7 +58,7 @@ Tactical tracks use the [mastery progression rules](../mechanics/achievement-fam
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
-| Fork (`design/content/achievement-ideas.md`) | Multiple attacks plus a credible threat to win material or an exchange; Stockfish quality gate | Evaluate pins, captures/recaptures, and net gain; numerical quality cutoff and repeated motifs |
+| Knight fork (`masteries/knight_forks.yml`) | Material-threat checks, Stockfish quality-based XP, levels, saved replay contributions | Tune the prototype values; longer tactical sequences, other forking pieces, and repeated motifs |
 | Skewer, discovery (same) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (same) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (same) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |
@@ -101,12 +103,13 @@ and engine packaging for hosted delivery remain open.
 
 The first local collection loop now includes Obsession, Effort, The French Move,
 and exact-SAN real/virtual mating scraps. It supports per-game color selection,
-replay contributions, local persistence, and reward reveals. Tactical mastery,
-opening XP, narrative progression, accounts, and imports remain future work.
+replay contributions, local persistence, and reward reveals. Knight-fork mastery
+adds quality-based XP and levels. Other tactical tracks, opening XP, narrative
+progression, accounts, and imports remain future work.
 
-A knight-fork inspection prototype now lists actual moved-knight candidates and
-their targets, pin/capture warnings, and available engine comparisons in replay.
-It deliberately includes geometric false positives and awards no XP.
+A knight-fork inspector lists actual moved-knight candidates and their targets,
+pin/capture warnings, engine comparisons, and qualification or pending status.
+Geometric false positives remain visible for review but earn no mastery XP.
 
 The intended qualification has two independent tests: the fork must threaten to
 win net material, including an exchange, and the engine must judge the move that
@@ -116,11 +119,18 @@ Account for pins and captures/recaptures rather than treating every pair of
 attacked pieces as a profitable threat. A good engine evaluation alone does not
 prove the fork threatens material gain.
 
+The first material test rejects pinned or immediately capturable knights, then
+requires two credible threats and a profitable capture after every legal immediate
+defense. Legal static exchanges account for recaptures on the capture square.
+This bounded test is conservative and does not resolve longer tactics away from
+that square. The [browser reference](../../docs/reference/browser-proof.md#knight-fork-mastery)
+describes its award and evidence behavior.
+
 The related clean-material descriptions in `badges_hybrid.yml` require neither
-a mistake nor a blunder. They provide no numerical quality thresholds. The exact
-fork quality cutoff, threat-validation method, XP mapping, and level thresholds
-remain open; the current
-inspector implements neither qualification test as an award rule.
+a mistake nor a blunder, without numerical thresholds. The knight-fork YAML now
+supplies explicit prototype quality bands and XP awards; these are tuning rules,
+not claims about standard mistake categories. Mate outcomes are compared separately
+from centipawn losses. Repeated collection of the same move does not add XP again.
 
 1. **Browser proof:** chessops legal replay, full browser Stockfish at initial
    depth 6, explicit 20-ply continuation limit, checkpoint/resume, desktop and phone.
@@ -150,8 +160,8 @@ remain draft while the author develops it.
 - Speed boundaries, game-length eligibility, timestamp/timezone semantics.
 - Phase boundaries, quality thresholds, clean-gain and motif definitions.
 - Production terminal-game eligibility and tuning of the bounded virtual search.
-- Quality-to-XP formula and mastery level curves, narrative completion/retroactivity,
-  streak/diversity definitions.
+- Further mastery XP/level curves and refinement of the fork prototype, narrative
+  completion/retroactivity, streak/diversity definitions.
 - Rule-update/recalculation policy: preserve, backfill, or rebuild existing awards.
 - Authentication, ownership verification, board renderer, final hosting/database.
 

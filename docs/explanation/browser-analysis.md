@@ -59,6 +59,6 @@ download and hosting packaging are material deployment considerations.
 
 The [proposed achievement pipeline](achievement-processing.md) separates chess
 facts, rule evaluation, and collection state. The local contribution ledger now
-implements the first three badges and mating scraps; other detectors and server
+implements the first three badges, knight-fork mastery, and mating scraps; other detectors and server
 persistence remain planned. See
 [product experience](../../design/product/experience.md) for intended behavior.

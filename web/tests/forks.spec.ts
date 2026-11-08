@@ -65,7 +65,7 @@ test('pinned and low-value counterexamples stay reviewable in both languages', a
   await load(page, '[SetUp "1"]\n[FEN "7k/3b4/8/8/2p5/3N4/8/7K w - - 0 1"]\n\n1. Ne5 *');
   await inspector.getByRole('button', { name: '1. Ne5', exact: true }).click();
   await expect(inspector).toContainText('Only pawns or minor pieces are attacked.');
-  await expect(inspector).toContainText('No quality label is assigned here.');
+  await expect(page.getByTestId('fork-award')).toContainText('No mastery XP:');
   await page.getByLabel('I played as').selectOption('');
   await expect(inspector).toContainText('Choose your side above to inspect your moves.');
   await expect(page.getByTestId('fork-evidence')).toHaveCount(0);

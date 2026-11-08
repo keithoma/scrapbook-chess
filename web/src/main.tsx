@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseGame, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
-import { RECENT_GAME_PGN } from './fixtures';
+import { RECENT_GAME_PGN, FORK_PGN } from './fixtures';
 import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
@@ -224,7 +224,7 @@ function App() {
 
       <section className="min-w-0 space-y-5">
         <GameRewards key={gameId} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
-        <ForkInspector candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
+        <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
@@ -260,6 +260,7 @@ function App() {
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(RECENT_GAME_PGN)}>{t('Your recent game (Black)')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>{t('Original rapid game')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(FORK_PGN)}>{t('Fork example')}</button>
           </div>
           <label htmlFor="pgn" className="label">{t('PASTE ONE PGN')}</label>
           <textarea id="pgn" className="mt-2 h-36 w-full resize-y rounded-lg border border-stone-300 bg-white/60 p-3 font-mono text-xs" value={draft} onChange={event => setDraft(event.target.value)} disabled={busy} spellCheck={false} />

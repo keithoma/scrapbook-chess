@@ -22,6 +22,8 @@ This reference describes the local browser app. See the
 | Atomic per-game collection persistence | [ledger.ts](../../web/src/achievements/ledger.ts) |
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
+| Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
+| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight_forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -54,7 +56,8 @@ this does not set the color for other uploaded games. Existing saved selections
 and an explicit correction take precedence over that example's default.
 Obsession, Effort, and The French Move use their original YAML definitions and
 thresholds. Badge names, tier labels, and flavor remain the authored English text;
-the surrounding interface is localized. Mastery and story are not implemented.
+the surrounding interface is localized. Knight-fork mastery is implemented;
+other mastery tracks and story remain future work.
 
 The collection uses a separate IndexedDB database, `scrapbook-local-collection`.
 One record per game contains its chosen color, played PGN, contributions, and any
@@ -78,12 +81,12 @@ Replay shows this game's progress through the selected move, separately from
 overall collection totals. Scrap detail links open the actual contributing game
 and its saved continuation when appropriate.
 
-## Knight-fork inspection
+## Knight-fork mastery
 
 The replay includes an inspection panel for the selected player's actual knight
 moves, including knight underpromotions. A candidate attacks at least two enemy
-pieces after the move. Pawns and kings are included. This broad geometric test is
-for reviewing examples, not an approved mastery qualification rule. It does not
+pieces after the move. Pawns and kings are included. This broad geometric test
+finds inspection candidates; qualification applies additional checks. It does not
 detect forks created by an unmoved knight or inspect virtual continuations.
 
 Selecting a candidate jumps to its played position and outlines the knight and
@@ -95,8 +98,36 @@ Saved analysis supplies best-versus-played evaluations from the moving player's
 perspective, with the engine's best move in SAN. Centipawn loss is displayed only
 when both scores are centipawn scores, clamped at zero for shallow-search noise.
 Mate scores remain separate. Unanalyzed moves show pending evidence. Candidates
-are derived from the PGN and use existing checkpoints; they do not change the
-contribution ledger, assign move-quality labels, or award mastery/XP.
+are derived from the PGN and use existing checkpoints. The UI shows pending,
+rejected, qualified, or collected mastery awards. **Collect rewards** saves XP;
+analysis and inspection alone do not save a collection contribution.
+
+Qualification rejects pinned or immediately capturable knights. At least two
+targets must be credible threats, including check or a profitable legal capture.
+Every legal immediate defense must leave a net material gain of at least one pawn
+through a capture by the forking knight. The verifier accounts for defensive
+captures elsewhere and legal recaptures on the target square. Its bounded static
+exchange search may leave complex cases unresolved and does not prove the result
+of longer tactics away from that square. Unresolved cases earn no XP yet.
+
+For centipawn scores, the YAML bands select the XP award by mover-relative loss
+against the best move. A move outside all bands earns nothing. A retained or newly
+found winning mate, an escape from a forced loss, or maintaining/extending a forced
+loss's distance receives the highest quality award. Missing a found winning mate
+or shortening a forced loss earns nothing. These explicit prototype policies do
+not convert mate distances into centipawns or label moves as standard mistakes.
+
+The collection derives mastery levels from cumulative saved XP, starting at level
+one with zero XP and capping at the last authored level. Replay shows XP at the
+originating move. Contributions save the rule version, quality scores, material
+gain, and an illustrative defense/capture in SAN. These hypothetical moves are
+evidence, not an extension of the played game.
+
+Recollecting preserves already saved XP and evidence for the same game, color,
+and ply, including after checkpoint eviction or tuning changes. Newly analyzed
+qualifying moves may add contributions. Correcting the player color replaces the
+game's contributions. Repricing old awards after a rule change requires a future
+explicit migration; editing YAML does not automatically reprice saved awards.
 
 ## Scope and limits
 
