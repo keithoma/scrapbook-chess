@@ -1,0 +1,7 @@
+{
+  "name": "scrapbook-chess-repository",
+  "private": true,
+  "scripts": {
+    "docs:check": "node --test scripts/check-docs.test.mjs && node scripts/check-docs.mjs"
+  }
+}
