@@ -5,13 +5,17 @@ priority: high
 last_reviewed: 2026-05-23
 ---
 
-# Achievements
+# Achievement ideas
+
+These are the author’s draft ideas. Headings describe design intent, not the
+implementation status of the current browser app. Agreed behavior lives in the
+[mechanics documents](../README.md#mechanics).
 
 [TOC]
 
-## Todos right now
+## Draft ideas
 
-- implement a new tier 'stone' that is always '1'
+- The stone tier should require one occurrence. The catalog conversion is incomplete.
 - define the forbidden words to make the game family friendly, but in a way that it becomes almost unusable
   - even non controversial words such as car or meat eating will be banned, lol
 
@@ -37,7 +41,7 @@ last_reviewed: 2026-05-23
 
 ### Meta
 
-#### Already Implemented
+#### Catalog concepts
 
 | Name                  | Category    | Subcategory   | Description                                         |
 |:----------------------|:------------|:--------------|:----------------------------------------------------|
@@ -77,7 +81,7 @@ last_reviewed: 2026-05-23
 | Upset                 |             |               | Beat an opponent rated 100+ points higher than you. |
 | Hold Your Own         |             |               | Draw an opponent rated 150 or more points than you. |
 
-#### Not yet implemented
+#### Further ideas
 
 
 
@@ -91,7 +95,7 @@ is not in control to get them
 
 ### Evaluation
 
-#### Not yet implemented
+#### Further ideas
 
 - find a retreating move that is also the best move
 
