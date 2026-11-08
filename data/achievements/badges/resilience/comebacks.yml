@@ -115,45 +115,55 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Comebacks'
-  name: ''
+  name: 'Plot Armor'
   description: 'Be down 3.0 or more after the opening and win.'
-  flavor_text: ''
+  flavor:
+    text: Down a piece, up a chapter.
   config:
     metric_key: 'is_comeback_from_3_0_down_mid'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The position was losing. The protagonist was busy.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent suspects a rewrite.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The engine has declined to endorse the script.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The comeback budget appears to have been renewed.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You are surviving on increasingly expensive narrative devices.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The antagonist has asked to see the contract.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The evaluation bar is no longer an authoritative narrator.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Fine. Roll the credits. Again.
 
 - id: badge_comeback_endgame_2_0
   type: badge
