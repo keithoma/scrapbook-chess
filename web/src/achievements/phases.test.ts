@@ -45,3 +45,5 @@ it('awards Preparation once for an actual opening win, not a draw, loss, or late
     for (const other of [phaseGame(2, '1/2-1/2'), phaseGame(40, result)]) expect(contributions(other, color).some(event => event.kind === 'badge' && event.badgeId === 'badge_won_opening')).toBe(false);
   }
 });
+
+it('Tactician counts middlegame wins for both colors once at game end',()=>{for(const color of ['white','black'] as const){const result=color==='white'?'1-0':'0-1';const game=phaseGame(40,result);expect(phaseAt(game)).toBe('middlegame');const saved=prepareGrant([],game,color);expect(saved.events.filter(e=>e.kind==='badge'&&e.badgeId==='badge_won_middlegame')).toEqual([{kind:'badge',badgeId:'badge_won_middlegame',amount:1,ply:40}]);expect(prepareGrant([saved],game,color).events).toEqual(saved.events);expect(contributions(phaseGame(40,'1/2-1/2'),color).some(e=>e.kind==='badge'&&e.badgeId==='badge_won_middlegame')).toBe(false);expect(contributions(phaseGame(2,result),color).some(e=>e.kind==='badge'&&e.badgeId==='badge_won_middlegame')).toBe(false);}});
