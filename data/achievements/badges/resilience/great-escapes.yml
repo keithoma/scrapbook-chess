@@ -62,45 +62,56 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Great Escapes'
-  name: ''
+  name: 'Terms of Surrender'
   description: 'Draw a previously lost position by agreement.'
-  flavor_text: ''
+  flavor:
+    text: 'Negotiation: the piece the engine forgot to count.'
   config:
     metric_key: 'is_drawn_from_lost_by_agreement'
     required_value: true
     is_hidden: false
+    analysis_required: true
+    lost_cp: 300
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A losing position. An acceptable settlement.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent has signed another surprising document.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The evaluation bar was not invited to the meeting.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: Your negotiating position is much better than your chess position.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The half point has been secured outside normal office hours.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: You have become a repeat customer of mutual consent.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Their advantage did not survive the terms and conditions.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Please have your opponent initial every page.
 
 - id: badge_draw_lost_50move
   type: badge
