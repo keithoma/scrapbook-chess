@@ -5,6 +5,7 @@ import { parseSan } from 'chessops/san';
 import { parseGame } from '../game';
 import { openingBook, polyglotKey, PolyglotBook } from './book';
 import { recognizeOpening } from './recognition';
+import { POLYGLOT_KEYS } from './polyglot-keys';
 
 it('matches published Polyglot hashes including turn, castling and EP', () => {
   const pos = Chess.default();
@@ -31,4 +32,14 @@ it('reads actual book moves and recognizes equivalent Jobava move orders', () =>
   const setup = Chess.fromSetup(parseFen('8/8/8/8/8/8/5K2/7k w - - 0 1').unwrap()).unwrap();
   expect(openingBook.has(setup, parseSan(setup, 'Ke3')!)).toBe(false);
   expect(() => new PolyglotBook(new Uint8Array(3))).toThrow();
+});
+it('recognizes entering the e6 and g6 positions after preparing those pawns before d5', () => {
+  for (const line of ['d4 Nf6 Nc3 e6 Bf4 d5', 'd4 Nf6 Nc3 g6 Bf4 d5'])
+    expect(recognizeOpening(parseGame(`${line} 1-0`))).toMatchObject({ id: 'rapport-jobava', ply: 6 });
+});
+it('hashes pinned en passant according to Polyglot rather than display-FEN normalization', () => {
+  const pos = Chess.fromSetup(parseFen('k3r3/8/8/3pP3/8/8/8/4K3 w - d6 0 1').unwrap()).unwrap();
+  expect(pos.toSetup().epSquare).toBeUndefined();
+  const withoutEp = pos.clone(); withoutEp.epSquare = undefined;
+  expect(polyglotKey(pos) ^ polyglotKey(withoutEp)).toBe(POLYGLOT_KEYS[775]);
 });

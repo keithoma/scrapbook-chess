@@ -37,16 +37,19 @@ export function openingAssessment(game: ReplayGame, color: Color, checkpoint?: C
   let bookCount = 0; let theoryTotal = 0; let creditedTime = 0;
   let gradeMoves = 0; let gradeWeight = 0; let weightedLoss = 0; let badMate = false;
   const visited = new Set<string>();
+  // Replay once to preserve Polyglot's pseudo-capturable EP square, which the
+  // display FEN intentionally omits when every EP capture would be illegal.
+  const pos = Chess.fromSetup(parseFen(game.frames[0].fen).unwrap()).unwrap();
   const resultMultiplier = game.result === '1/2-1/2' ? 1 : game.result === (color === 'white' ? '1-0' : '0-1') ? 2 : 0.5;
   for (const [i, move] of game.moves.entries()) {
     const result = checkpoint.results[i];
     const own = move.color === color;
     const best = pov(result.best, move.color); const played = pov(result.played, move.color);
     const quality = game.frames[i + 1].checkmate ? { xp: definition.quality_awards[0].xp, lossCp: undefined } : qualityXp(best, played, definition);
-    const pos = Chess.fromSetup(parseFen(game.frames[i].fen).unwrap()).unwrap();
     const legal = parseUci(move.uci)!;
     // Standard UCI castling is converted by chessops.normalizeMove.
     const inBook = openingBook.has(pos, normalizeMove(pos, legal)) && quality.xp > 0;
+    pos.play(normalizeMove(pos, legal));
     const positionKey = game.frames[i].fen.split(' ').slice(0, 4).join(' ');
     const repeated = visited.has(positionKey);
     visited.add(positionKey);
