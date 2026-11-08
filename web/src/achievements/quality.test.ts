@@ -49,3 +49,19 @@ it('keeps collected analysis badges through cache eviction and corrects the sele
   expect(again.events.filter(event => event.kind === 'badge' && event.badgeId === 'badge_no_blunders')).toEqual(saved.events.filter(event => event.kind === 'badge' && event.badgeId === 'badge_no_blunders'));
   expect(projectCollection([prepareGrant([saved], game, 'black')]).totals.badge_no_blunders).toBe(0);
 });
+
+it('flawless wins ignore inaccuracies but reject player mistakes and blunders for either color', () => {
+  for (const color of ['white', 'black'] as const) {
+    const game = parseGame(`1. e4 e5 ${color === 'white' ? '1-0' : '0-1'}`);
+    const checkpoint = analyzed(game); const index = color === 'white' ? 0 : 1; const sign = color === 'white' ? -1 : 1;
+    const events = () => contributions(game, color, checkpoint).filter(event => event.kind === 'badge' && event.badgeId === 'badge_no_mistakes_blunders');
+    checkpoint.results[index].played.value = sign * 110; expect(events()).toHaveLength(1);
+    checkpoint.results[index].played.value = sign * 111; expect(events()).toEqual([]);
+    checkpoint.results[index].played.value = sign * 169; expect(events()).toEqual([]);
+    checkpoint.results[index].played.value = 0; checkpoint.results[1 - index].played.value = -sign * 200;
+    expect(events()).toHaveLength(1);
+    checkpoint.results.pop(); expect(events()).toEqual([]);
+  }
+  const loss = parseGame('1. e4 e5 0-1');
+  expect(contributions(loss, 'white', analyzed(loss)).some(e => e.kind === 'badge' && e.badgeId === 'badge_no_mistakes_blunders')).toBe(false);
+});
