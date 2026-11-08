@@ -51,7 +51,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
   const [unchanged, setUnchanged] = useState(false);
   const recorded = games.find(entry => entry.id === gameIdentity(game));
   const eligible = isCompletedGame(game) && (!profileMode || imported);
-  let events = color && eligible ? retainMastery(recorded, color, contributions(game, color, checkpoint)) : [];
+  let events = color && eligible ? retainMastery(recorded, color, contributions({ ...game, timeZone: recorded?.timeZone ?? game.timeZone }, color, checkpoint)) : [];
   const savedVirtual = recorded?.color === color ? recorded.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
   if (savedVirtual.length && !events.some(event => event.kind === 'scrap' && event.mode === 'real')) {
     events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...savedVirtual];

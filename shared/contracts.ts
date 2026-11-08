@@ -13,7 +13,7 @@ export interface ImportedGame {
   collected?: boolean; analyzed?: boolean;
 }
 export interface ProfileState {
-  user: { id: string; name: string; createdAt: number } | null;
+  user: { id: string; name: string; createdAt: number; timeZone: string } | null;
   accounts: LinkedAccount[]; games: ImportedGame[];
   localAccountTesting: boolean; mockLogin: boolean; multipleAccounts: boolean;
 }

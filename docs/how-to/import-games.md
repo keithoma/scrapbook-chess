@@ -27,6 +27,14 @@ restarts. Changing the age setting does not redate an existing profile.
 The supplied account is for the author's local testing. Set your own Lichess
 username when testing a different account. Mock login is forbidden in production.
 
+## Choose your time zone
+
+Open **Settings** and save your IANA time zone, such as `Europe/Berlin`. Calendar
+badges use the original game start timestamp converted into that zone, including
+daylight saving time. Profile preferences persist on the local server; signed-out
+guest preferences stay on this device. Already collected games retain their saved
+time zone when preferences change or the game is collected again.
+
 ## Check for new games
 
 Select **Check for new games**. To include chess.com, add its username under

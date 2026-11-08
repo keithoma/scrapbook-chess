@@ -22,6 +22,7 @@ export function openDatabase(path: string) {
       user_id TEXT NOT NULL, game_id TEXT NOT NULL, checkpoint_json TEXT NOT NULL,
       PRIMARY KEY(user_id, game_id)
     );`);
+  if (!db.prepare('PRAGMA table_info(profiles)').all().some(column => column.name === 'time_zone')) db.exec("ALTER TABLE profiles ADD COLUMN time_zone TEXT NOT NULL DEFAULT 'UTC'");
   return db;
 }
 export function atomic<T>(db: DatabaseSync, operation: () => T): T {

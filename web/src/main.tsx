@@ -18,6 +18,8 @@ import './style.css';
 import { ProfileView, useProfile } from './profile';
 import { profileApi } from './profile-api';
 import { ANALYSIS_VERSION } from './storage';
+import { SettingsView } from './settings';
+import { initialTimeZone, saveTimeZone } from './preferences';
 
 const glyphs = {
   white: { king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙' },
@@ -45,7 +47,7 @@ function Board({ frame, flipped, locale, fork }: { frame: Frame; flipped: boolea
   </div>;
 }
 
-function pageFor(path: string) { return path === '/profile' ? 'profile' : path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
+function pageFor(path: string) { return path === '/settings' ? 'settings' : path === '/profile' ? 'profile' : path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
 
 function App() {
   const { locale, setLocale, t, number } = useLocale();
@@ -63,6 +65,7 @@ function App() {
   const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
   const forks = useMemo(() => knightForkCandidates(game), [game]);
   const profile = useProfile();
+  const [guestZone, setGuestZone] = useState(initialTimeZone);
   const collection = useLocalCollection(profile.user?.id, profile.loading);
   const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
   const gameId = gameIdentity(game);
@@ -207,7 +210,7 @@ function App() {
       <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
     <nav aria-label={t('Main navigation')} className="mt-4 flex gap-5 text-sm">
-      {([['/', 'Notebook'], ['/profile', 'Profile'], ['/collection', 'Collection'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
+      {([['/', 'Notebook'], ['/profile', 'Profile'], ['/collection', 'Collection'], ['/settings', 'Settings'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
     </nav>
     <div hidden={page !== 'notebook'}>
     <section className="my-8 sm:my-12">
@@ -241,7 +244,7 @@ function App() {
       </section>
 
       <section className="min-w-0 space-y-5">
-        <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={{ ...game, timeControl: importedGame?.timeControl ?? game.timeControl, ratings: importedGame ? importedGame.ratings ?? {} : game.ratings }} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
+        <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={{ ...game, timeControl: importedGame?.timeControl ?? game.timeControl, ratings: importedGame ? importedGame.ratings ?? {} : game.ratings, startedAt: importedGame?.startedAt ?? game.startedAt, timeZone: profile.user?.timeZone ?? guestZone }} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
         <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
@@ -300,6 +303,7 @@ function App() {
     </div>
     <div hidden={page !== 'collection'}><CollectionView profileMode={!!profile.user} games={collection.games} locale={locale} failed={collection.error} busy={busy} onOpen={(pgn, jump) => { void openGame(pgn, jump); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
     <div hidden={page !== 'profile'}><ProfileView profile={profile} locale={locale} busy={busy} onOpen={game => { void openGame(game.pgn); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
+    <div hidden={page !== 'settings'}><SettingsView profile={profile} locale={locale} guestZone={guestZone} onGuestZone={zone => { saveTimeZone(zone); setGuestZone(zone); }} /></div>
     <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
       <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>

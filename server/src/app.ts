@@ -13,6 +13,7 @@ import { ANALYSIS_VERSION, type Checkpoint } from '../../web/src/storage';
 import type { ImportedGame, ImportReport, LinkedAccount, Platform } from '../../shared/contracts';
 import { atomic } from './database';
 import { fetchGames, PlatformClient, PlatformError, sourceRatings, username } from './platforms';
+import { timeZone } from '../../shared/time-zone';
 
 export interface AppOptions {
   db: DatabaseSync; baseURL: string; development: boolean;
@@ -76,15 +77,18 @@ export async function createApp(options: AppOptions) {
     if (!options.mockLogin) return null;
     const token = request.headers.get('cookie')?.match(/(?:^|;\s*)scrapbook_mock=([a-zA-Z0-9_-]+)/)?.[1];
     if (!token) return null;
-    const row = db.prepare(`SELECT p.id,p.name,p.created_at FROM profiles p JOIN mock_sessions s ON s.user_id=p.id
+    const row = db.prepare(`SELECT p.id,p.name,p.created_at,p.time_zone FROM profiles p JOIN mock_sessions s ON s.user_id=p.id
       WHERE s.token_hash=? AND s.expires_at>?`).get(hash(token), now());
-    return row ? { user: { id: row.id as string, name: row.name as string, createdAt: row.created_at as number } } : null;
+    return row ? { user: { id: row.id as string, name: row.name as string, createdAt: row.created_at as number, timeZone: row.time_zone as string } } : null;
   }
-  app.post('/api/mock-login', c => {
+  app.post('/api/mock-login', async c => {
     if (!options.mockLogin) return c.json({ error: 'mock_login_disabled' }, 403);
     const id = `mock:${mockName}`;
+    const payload = await c.req.text(); const body = payload ? JSON.parse(payload) : {};
+    const zone = timeZone(body?.timeZone ?? 'UTC');
+    if (!zone) throw new PlatformError('invalid_timezone');
     atomic(db, () => {
-      const added = db.prepare('INSERT OR IGNORE INTO profiles VALUES (?,?,?)').run(id, mockName, now() - ageHours * 3600_000);
+      const added = db.prepare('INSERT OR IGNORE INTO profiles (id,name,created_at,time_zone) VALUES (?,?,?,?)').run(id, mockName, now() - ageHours * 3600_000, zone);
       if (added.changes) db.prepare('INSERT INTO linked_accounts (id,user_id,platform,username,development) VALUES (?,?,?,?,1)')
         .run(randomUUID(), id, 'lichess', mockName);
     });
@@ -121,11 +125,18 @@ export async function createApp(options: AppOptions) {
   function collection(userId: string): GameGrant[] { return db.prepare('SELECT grant_json FROM collections WHERE user_id=?').all(userId).map(row => JSON.parse(row.grant_json as string)); }
   app.get('/api/me', async c => {
     const signed = await session(c.req.raw);
-    return c.json({ user: signed ? { id: signed.user.id, name: signed.user.name, createdAt: new Date(signed.user.createdAt).getTime() } : null,
+    return c.json({ user: signed ? { id: signed.user.id, name: signed.user.name, createdAt: new Date(signed.user.createdAt).getTime(), timeZone: signed.user.timeZone } : null,
       accounts: signed ? accounts(signed.user.id).map(publicAccount) : [], games: signed ? games(signed.user.id) : [],
       localAccountTesting: !!options.mockLogin, mockLogin: !!options.mockLogin, multipleAccounts: !!options.allowMultipleAccounts });
   });
   app.use('/api/profile/*', async (c, next) => { if (!await session(c.req.raw)) return c.json({ error: 'sign_in_required' }, 401); await next(); });
+  app.put('/api/profile/settings', async c => {
+    const signed = (await session(c.req.raw))!;
+    const body = await c.req.json(); const zone = timeZone(body.timeZone);
+    if (!zone) throw new PlatformError('invalid_timezone');
+    db.prepare('UPDATE profiles SET time_zone=? WHERE id=?').run(zone, signed.user.id);
+    return c.json({ timeZone: zone });
+  });
   app.post('/api/profile/accounts', async c => {
     const signed = (await session(c.req.raw))!;
     const body = await c.req.json(); const source = platform(body.platform); const name = username(body.username);
@@ -200,6 +211,8 @@ export async function createApp(options: AppOptions) {
       const game = parseGame(imported.pgn);
       game.timeControl = imported.timeControl;
       game.ratings = imported.ratings ?? {};
+      game.startedAt = imported.startedAt;
+      game.timeZone = signed.user.timeZone;
       if (gameIdentity(game) !== imported.id) throw new PlatformError('invalid_platform_response');
       const grant = prepareGrant(before, game, imported.color, checkpoint, new Date(now()).toISOString());
       grant.source = { platform: imported.platform, username: imported.username };

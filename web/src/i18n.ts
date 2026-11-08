@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  "Settings": "Einstellungen",
+  "Time zone": "Zeitzone",
+  "Save settings": "Einstellungen speichern",
+  "Settings saved.": "Einstellungen gespeichert.",
+  "Choose a valid time zone.": "Wähle eine gültige Zeitzone.",
+  "Could not save settings.": "Die Einstellungen konnten nicht gespeichert werden.",
+  "Calendar rewards use the game start time in your time zone. Previously collected games keep their original time zone.": "Kalendererfolge verwenden den Partiebeginn in deiner Zeitzone. Bereits gesammelte Partien behalten ihre ursprüngliche Zeitzone.",
   "Profile": "Profil",
   "Your profile and games": "Dein Profil und deine Partien",
   "Play on your chess platform, check for new games here, then analyze and collect rewards.": "Spiele auf deiner Schachplattform, suche hier nach neuen Partien und analysiere sie, um Erfolge zu sammeln.",

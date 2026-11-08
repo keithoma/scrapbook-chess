@@ -1,0 +1,36 @@
+import { expect, it } from 'vitest';
+import { timeZone, utcGameStart } from '../../../shared/time-zone';
+import { parseGame } from '../game';
+import { contributions, prepareGrant, projectCollection } from './collection';
+
+export function calendarGame(iso: string, zone: string, result = '1-0') {
+  return { ...parseGame(`1. e4 e5 ${result}`), startedAt: Date.parse(iso), timeZone: zone };
+}
+it('classifies Monday from the game start in the selected IANA timezone, including midnight and DST', () => {
+  const id = 'badge_played_monday';
+  for (const [iso, zone, expected] of [
+    ['2026-11-08T23:30:00Z', 'Europe/Berlin', 1], ['2026-11-08T23:30:00Z', 'UTC', 0],
+    ['2026-11-09T04:30:00Z', 'America/New_York', 0], ['2026-11-09T05:30:00Z', 'America/New_York', 1],
+    ['2026-03-29T22:30:00Z', 'Europe/Berlin', 1], ['2026-10-25T23:30:00Z', 'Europe/Berlin', 1],
+  ] as const) {
+    const game = calendarGame(iso, zone, '1/2-1/2');
+    expect(contributions(game, 'white').filter(event => event.kind === 'badge' && event.badgeId === id).length).toBe(expected);
+    expect(contributions(game, 'black').filter(event => event.kind === 'badge' && event.badgeId === id).length).toBe(expected);
+  }
+});
+it('preserves the collected timezone through settings changes and recollection', () => {
+  const game = calendarGame('2026-11-08T23:30:00Z', 'Europe/Berlin');
+  const old = prepareGrant([], game, 'white');
+  const saved = prepareGrant([old], { ...game, timeZone: 'UTC' }, 'white');
+  expect(saved.timeZone).toBe('Europe/Berlin');
+  expect(saved.events).toEqual(old.events);
+  expect(projectCollection([saved]).totals.badge_played_monday).toBe(1);
+});
+it('does not guess missing timestamps, local PGN dates, invalid dates, or invalid zones', () => {
+  expect(timeZone('Mars/Olympus')).toBeUndefined();
+  expect(timeZone('Europe/Berlin')).toBe('Europe/Berlin');
+  expect(utcGameStart(new Map([['UTCDate', '2026.02.30'], ['UTCTime', '12:00:00']]))).toBeUndefined();
+  expect(utcGameStart(new Map([['Date', '2026.11.09'], ['UTCTime', '12:00:00']]))).toBeUndefined();
+  expect(parseGame('[UTCDate "2026.11.09"]\n[UTCTime "12:00:00"]\n\n1. e4 e5 1-0').startedAt).toBe(Date.parse('2026-11-09T12:00:00Z'));
+  expect(contributions({ ...calendarGame('2026-11-09T12:00:00Z', 'UTC'), startedAt: undefined }, 'white').some(event => event.kind === 'badge' && event.badgeId === 'badge_played_monday')).toBe(false);
+});
