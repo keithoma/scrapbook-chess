@@ -215,7 +215,7 @@ test('both platforms calculate mileage from API clocks despite conflicting PGN m
     const grant = (await response.json()).grant;
     const expected = { '15+0': 'badge_played_ultrabullet', '30+0': 'badge_played_hyperbullet', '900+15': 'badge_played_classical', '300+5': 'badge_played_rapid' }[game.timeControl];
     assert.ok(expected); assert.equal(grant.timeControl, game.timeControl);
-    assert.deepEqual(grant.events.filter(event => event.kind === 'badge' && event.badgeId.startsWith('badge_played_') && event.badgeId !== 'badge_played_total'), [
+    assert.deepEqual(grant.events.filter(event => event.kind === 'badge' && /^badge_played_(ultrabullet|hyperbullet|bullet|blitz|rapid|classical)$/.test(event.badgeId)), [
       { kind: 'badge', badgeId: expected, amount: 1, ply: 4 },
     ]);
     assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);

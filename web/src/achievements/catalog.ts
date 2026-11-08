@@ -15,7 +15,7 @@ import workLife from '../../../data/achievements/badges/domination/work-life-bal
 export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
   'badge_material_total', 'badge_promotion', 'badge_en_passant', 'badge_played_ultrabullet', 'badge_played_hyperbullet',
   'badge_played_bullet', 'badge_played_blitz', 'badge_played_rapid', 'badge_played_classical', 'badge_upset', 'hold_your_own',
-  'badge_opposite_side_casteling', 'badge_won_ultrabullet', 'badge_won_hyperbullet', 'badge_won_bullet', 'badge_won_blitz', 'badge_won_rapid', 'badge_won_classical', 'badge_played_monday', 'badge_played_tuesday', 'badge_played_wednesday', 'badge_played_thursday', 'badge_played_friday', 'badge_played_saturday'] as const;
+  'badge_opposite_side_casteling', 'badge_won_ultrabullet', 'badge_won_hyperbullet', 'badge_won_bullet', 'badge_won_blitz', 'badge_won_rapid', 'badge_won_classical', 'badge_played_monday', 'badge_played_tuesday', 'badge_played_wednesday', 'badge_played_thursday', 'badge_played_friday', 'badge_played_saturday', 'badge_played_sunday'] as const;
 export type BadgeId = typeof BADGE_IDS[number];
 export interface Flavor { text?: string; quote?: string; player_quote?: string; author?: string }
 export interface Tier { name: string; amount: number; flavor?: Flavor; flavor_text?: string }
