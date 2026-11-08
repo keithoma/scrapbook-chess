@@ -6,26 +6,21 @@ No chess-platform account, database, or server engine is required.
 
 ## Start the app
 
-Use Node 22.12 or newer and a current npm version. From the repository root:
+Install pnpm using its [official installation guide](https://pnpm.io/installation).
+The root package file pins the workspace’s package manager and declares its
+Node runtime. pnpm downloads the declared runtime when needed and uses it for
+package scripts.
+
+From the repository root:
 
 ```sh
-cd web
-npm ci
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Open the Local URL printed by Vite. The scripts prepare the engine files from the
-pinned npm dependency; the generated binaries are not committed.
-
-If the machine still uses Node 18/npm 9 and dependency resolution fails, bootstrap
-the toolchain in `web/` with:
-
-```sh
-npm exec --yes --package=node@22 --package=npm@11 -- npm ci
-```
-
-Then run `npm run dev`. The package includes a local Node executable for its npm
-scripts. Stop the development server with Ctrl+C when you finish.
+pinned dependency; generated binaries are not committed. Stop the development
+server with Ctrl+C when you finish.
 
 ## Replay and analyze a game
 

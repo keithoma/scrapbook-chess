@@ -1,14 +1,14 @@
 # Run the relevant checks
 
 Run the checks that exercise your change. The root and browser app have separate
-package files; no root dependency installation is needed for documentation checks.
+workspace packages; no root dependency installation is needed for documentation checks.
 
 ## Documentation
 
 From the repository root:
 
 ```sh
-npm run docs:check
+pnpm docs:check
 ```
 
 This checks Markdown under `docs/` and `design/`, their file-size limit, and local
@@ -17,12 +17,12 @@ files. It does not fetch external URLs or read the private root scratchpad.
 
 ## Browser app
 
-From `web/`, after installing dependencies:
+From the repository root, after `pnpm install --frozen-lockfile`:
 
 ```sh
-npm test
-npm run build
-npm run test:browser
+pnpm test
+pnpm build
+pnpm test:browser
 ```
 
 The build checks TypeScript and prepares the production assets. Browser tests

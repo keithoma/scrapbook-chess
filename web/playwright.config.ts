@@ -12,7 +12,7 @@ export default defineConfig({
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'], defaultBrowserType: 'chromium' } },
   ],
   webServer: {
-    command: 'npm run preview -- --port 4173 --strictPort',
+    command: 'pnpm preview --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI,
   },
 });

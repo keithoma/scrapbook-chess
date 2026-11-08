@@ -2,6 +2,18 @@
   "name": "scrapbook-chess-repository",
   "private": true,
   "scripts": {
-    "docs:check": "node --test scripts/check-docs.test.mjs && node scripts/check-docs.mjs"
+    "docs:check": "node --test scripts/check-docs.test.mjs && node scripts/check-docs.mjs",
+    "dev": "pnpm --dir web dev",
+    "build": "pnpm --dir web build",
+    "test": "pnpm --dir web test",
+    "test:browser": "pnpm --dir web test:browser"
+  },
+  "packageManager": "pnpm@12.18.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^22.12.0",
+      "onFail": "download"
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 Follow the [local development tutorial](docs/tutorials/local-development.md), then
 run the [checks relevant to your change](docs/how-to/run-checks.md). The browser
-proof uses npm. The Python prototype uses uv; it has separate dependencies.
+proof uses pnpm. The Python prototype uses uv; it has separate dependencies.
 
 ## Branches and pull requests
 

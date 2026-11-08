@@ -56,7 +56,7 @@ agent instructions nor human documentation.
 
 ## Check the result
 
-Run `npm run docs:check` from the repository root. It needs no dependencies.
-The documentation workflow runs the same check on pushes and pull requests.
+Run `pnpm docs:check` locally from the repository root. The checker has no package
+dependencies. This repository does not configure CI/CD.
 Review the page from its intended reader's perspective as well; a passing size
 and link check cannot determine whether its structure is useful.

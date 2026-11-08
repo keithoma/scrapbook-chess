@@ -2,6 +2,9 @@
 
 Date: 2026-11-08.
 
+This record predates the pnpm migration. Its command names describe the tested
+run; use [the current check guide](../how-to/run-checks.md) for today’s commands.
+
 ## Outcome
 
 The browser architecture works in the tested environment. A full, single-threaded
