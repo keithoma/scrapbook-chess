@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-test('language selection, empty help, and local feedback drafts survive navigation and reload', async ({ page }) => {
+test('language selection, opening help, and local feedback drafts survive navigation and reload', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Language' }).selectOption('de');
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await expect(page.getByRole('heading', { name: 'Deine Partien.' })).toBeVisible();
   await page.getByRole('link', { name: 'Hilfe', exact: true }).click();
   await expect(page).toHaveURL(/\/help$/);
-  await expect(page.getByText('Es gibt noch keine Hilfeartikel.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Eröffnungsmeisterschaft · Jobava-London' })).toBeVisible();
   await page.getByRole('link', { name: 'Feedback', exact: true }).click();
   await page.getByLabel('Dein Feedback').fill('Bitte mehr Springer!');
   await page.getByRole('button', { name: 'Entwurf speichern' }).click();

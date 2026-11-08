@@ -1,6 +1,7 @@
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { gradeForContribution, type MasteryDefinition, type masteryProgress } from './mastery';
 import type { GameGrant } from './collection';
+import { OpeningHistory } from '../openings/history';
 import type { Jump } from './collection-ui';
 
 export function MasteryCard({
@@ -22,14 +23,16 @@ export function MasteryCard({
 }) {
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const fork = definition.id === 'mastery_knight_forks';
-  const prefix = fork ? 'mastery' : 'skewer';
+  const opening = definition.family === 'opening';
+  const prefix = opening ? definition.id : fork ? 'mastery' : 'skewer';
   return (
     <article
       className="note-card"
       aria-label={t(definition.name)}
-      data-testid={fork ? 'fork-mastery' : 'skewer-mastery'}
+      data-testid={opening ? definition.id : fork ? 'fork-mastery' : 'skewer-mastery'}
     >
       <h3 className="font-serif text-2xl">{t(definition.name)}</h3>
+      {opening && <p className="mt-2 text-sm font-semibold">{t(definition.color === 'white' ? 'Playing Jobava as White' : 'Facing Jobava as Black')}</p>}
       <p className="mt-2 text-sm">{t('Level {level}', { level: progress.level })}</p>
       <progress
         className="mt-3 h-1.5 w-full"
@@ -48,7 +51,7 @@ export function MasteryCard({
             : t('{remaining} XP to the next level', { remaining: progress.remainingXp })}
       </p>
       <p className="mt-2 text-sm" data-testid={`${prefix}-high-grades`}>
-        {t(fork ? 'Forks rated S- or better: {count}' : 'Skewers rated S- or better: {count}', {
+        {t(opening ? 'Opening games rated S- or better: {count}' : fork ? 'Forks rated S- or better: {count}' : 'Skewers rated S- or better: {count}', {
           count: progress.highGrades,
         })}
       </p>
@@ -56,7 +59,7 @@ export function MasteryCard({
         <>
           <p className="mt-2 text-sm" data-testid={`${prefix}-grade-requirement`}>
             {t(
-              fork
+              opening ? '{earned} / {required} opening games rated S- or better for level {level}' : fork
                 ? '{earned} / {required} forks rated S- or better for level {level}'
                 : '{earned} / {required} skewers rated S- or better for level {level}',
               {
@@ -68,7 +71,7 @@ export function MasteryCard({
           </p>
           <p className="mt-2 text-xs text-stone-500">
             {t(
-              fork
+              opening ? 'Each level’s grade requirement uses a separate batch of games.' : fork
                 ? 'Each level’s grade requirement uses a separate batch of forks.'
                 : 'Each level’s grade requirement uses a separate batch of skewers.',
             )}
@@ -79,11 +82,12 @@ export function MasteryCard({
         {t('Better move quality earns more XP. Open a contribution to replay its evidence.')}
       </p>
       <div className="mt-3 space-y-2">
+        {opening && <OpeningHistory definition={definition} games={games} labels={labels} locale={locale} busy={busy} onOpen={onOpen}/>}
         {games.flatMap((record) =>
           record.events
             .filter((event) => event.kind === 'mastery' && event.masteryId === definition.id)
             .map((event) => {
-              if (event.kind !== 'mastery') return null;
+              if (event.kind !== 'mastery' || event.family === 'opening') return null;
               const grade = gradeForContribution(event);
               return (
                 <details key={`${record.id}:${event.ply}`}>

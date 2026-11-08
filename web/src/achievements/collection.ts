@@ -14,7 +14,7 @@ import type { GameRatings } from '../../../shared/ratings';
 import { lichessSpeed } from '../time-control';
 import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
-import { masteryContributions, masteryProgress, withMasteryGrade, gradeForContribution, isHighGrade, MASTERIES, type MasteryId, type MasteryContribution } from './mastery';
+import { masteryContributions, masteryProgress, withMasteryGrade, gradeForContribution, isHighGrade, MASTERIES, type MasteryId, type AnyMasteryContribution } from './mastery';
 import { calendarContributions } from './calendar';
 import { phaseAt } from './phases';
 import { fianchettoContributions } from './fianchetto';
@@ -22,7 +22,7 @@ import { clockContributions } from './clock-badges';
 import { precisionContributions } from './precision';
 
 export type Contribution =
-  | MasteryContribution
+  | AnyMasteryContribution
   | { kind: 'badge'; badgeId: BadgeId; amount: number; ply: number; originPly?: number; evidence?: Record<string, string | number> }
   | { kind: 'scrap'; notation: string; mode: 'real' | 'virtual'; ply: number; virtualPly?: number };
 export interface GameGrant {
@@ -129,7 +129,8 @@ const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, r
 // Keep already collected XP and evidence stable through cache eviction, partial
 // analysis, and tuning changes. Correcting the game's color replaces its awards.
 export function retainMastery(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
-  const awards = new Map(events.filter((event): event is MasteryContribution => event.kind === 'mastery').map(event => [`${event.masteryId}:${event.ply}`, event]));
+  const savedOpeningIds = new Set(previous?.color === color ? previous.events.filter(event => event.kind === 'mastery' && event.family === 'opening').map(event => event.masteryId) : []);
+  const awards = new Map(events.filter((event): event is AnyMasteryContribution => event.kind === 'mastery' && !(event.family === 'opening' && savedOpeningIds.has(event.masteryId))).map(event => [`${event.masteryId}:${event.ply}`, event]));
   if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(`${event.masteryId}:${event.ply}`, withMasteryGrade(event));
   return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }
