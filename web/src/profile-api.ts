@@ -1,6 +1,7 @@
 import type { ProfileState, ImportReport, Platform } from '../../shared/contracts';
 import type { Checkpoint } from './storage';
 import type { GameGrant } from './achievements/collection';
+import { initialTimeZone } from './preferences';
 
 export class ApiError extends Error { constructor(public code: string) { super(code); } }
 async function request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
@@ -14,7 +15,8 @@ async function request<T>(path: string, method = 'GET', body?: unknown): Promise
 }
 export const profileApi = {
   me: () => request<ProfileState>('/me'),
-  login: () => request('/mock-login', 'POST', {}),
+  login: () => request('/mock-login', 'POST', { timeZone: initialTimeZone() }),
+  settings: (timeZone: string) => request('/profile/settings', 'PUT', { timeZone }),
   logout: () => request('/logout', 'POST', {}),
   link: (platform: Platform, username: string) => request('/profile/accounts', 'POST', { platform, username }),
   unlink: (id: string) => request(`/profile/accounts/${encodeURIComponent(id)}`, 'DELETE', {}),

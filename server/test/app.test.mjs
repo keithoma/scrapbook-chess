@@ -19,6 +19,26 @@ async function setup(extra = {}) {
   return { db, app, options, request, login, advance: ms => { clock += ms; } };
 }
 
+test('settings save a validated profile timezone, preserve the collection cutoff, and freeze calendar evidence', async () => {
+  const raw = sample('lichess', { now: Date.UTC(2026, 10, 9, 1), age: 1.5 * 3600_000 });
+  const s = await setup({ now: () => Date.UTC(2026, 10, 9, 1), fetcher: upstream({ lichess: [raw] }) });
+  await s.login();
+  const first = await (await s.request('/me')).json();
+  assert.equal((await s.request('/profile/settings', 'PUT', { timeZone: 'Mars/Olympus' })).status, 400);
+  assert.equal((await s.request('/profile/settings', 'PUT', { timeZone: 'Europe/Berlin' })).status, 200);
+  const changed = await (await s.request('/me')).json();
+  assert.equal(changed.user.timeZone, 'Europe/Berlin'); assert.equal(changed.user.createdAt, first.user.createdAt);
+  await s.request('/profile/check-games', 'POST', {});
+  const path = '/profile/games/lichess%3AMock0001/collect';
+  const saved = await (await s.request(path, 'POST', {})).json();
+  assert.equal(saved.grant.timeZone, 'Europe/Berlin');
+  assert.equal(saved.grant.events.find(event => event.badgeId === 'badge_played_monday').amount, 1);
+  await s.request('/profile/settings', 'PUT', { timeZone: 'UTC' });
+  assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, saved.grant.events);
+  assert.equal((await s.request('/profile/settings', 'PUT', { timeZone: 'UTC' }, '')).status, 401);
+  s.db.close();
+});
+
 test('both platforms collect Mirror Dimension from actual imported castling once', async () => {
   const moves = readFileSync(new URL('../../web/src/fixtures/games/opposite-castling.pgn', import.meta.url), 'utf8').trim().split('\n\n')[1].replace('1-0', '0-1');
   const lichess = sample('lichess', { id: 'Cast0001' });

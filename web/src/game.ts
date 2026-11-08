@@ -6,6 +6,7 @@ import { kingCastlesTo } from 'chessops/util';
 import { castlingSide } from 'chessops/chess';
 import type { CastlingSide, Color, Role } from 'chessops/types';
 import { pgnRating, type GameRatings } from '../../shared/ratings';
+import { utcGameStart } from '../../shared/time-zone';
 
 export interface Frame {
   fen: string;
@@ -33,6 +34,8 @@ export interface ReplayGame {
   timestamp: string;
   timeControl: string;
   ratings: GameRatings;
+  startedAt?: number;
+  timeZone?: string;
   frames: Frame[];
   moves: PlayedMove[];
 }
@@ -80,6 +83,7 @@ export function parseGame(pgn: string): ReplayGame {
     timestamp: `${game.headers.get('UTCDate') ?? game.headers.get('Date') ?? ''} ${game.headers.get('UTCTime') ?? ''}`.trim(),
     timeControl: game.headers.get('TimeControl') ?? '',
     ratings: { white: pgnRating(game.headers.get('WhiteElo')), black: pgnRating(game.headers.get('BlackElo')) },
+    startedAt: utcGameStart(game.headers),
     frames, moves,
   };
 }

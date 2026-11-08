@@ -9,6 +9,7 @@ import { lichessSpeed } from '../time-control';
 import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
+import { calendarContributions } from './calendar';
 
 export type Contribution =
   | MasteryContribution
@@ -20,6 +21,8 @@ export interface GameGrant {
   pgn: string;
   timeControl?: string;
   ratings?: GameRatings;
+  startedAt?: number;
+  timeZone?: string;
   color: Color;
   events: Contribution[];
   collectedAt: string;
@@ -101,7 +104,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...masteryContributions(game, color, checkpoint)];
+  return [...events, ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
 // Gross captured points, not net advantage. Capture quality and material kept
@@ -117,15 +120,16 @@ export function retainMastery(previous: GameGrant | undefined, color: Color, eve
 }
 
 export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color, checkpoint?: Checkpoint, now = new Date().toISOString()): GameGrant {
-  let events = contributions(game, color, checkpoint);
   const id = gameIdentity(game);
   const previous = before.find(entry => entry.id === id);
+  game = { ...game, timeZone: previous?.timeZone ?? game.timeZone ?? 'UTC' };
+  let events = contributions(game, color, checkpoint);
   const previousVirtual = previous?.color === color ? previous.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
   const keepVirtual = previousVirtual.length > 0 && !events.some(event => event.kind === 'scrap' && event.mode === 'real');
   if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
   const virtual = keepVirtual ? previous?.virtual
     : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), color, events: retainMastery(previous, color, events), virtual,
+  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), startedAt: game.startedAt, timeZone: game.timeZone, color, events: retainMastery(previous, color, events), virtual,
     collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 
