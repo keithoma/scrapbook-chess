@@ -12,7 +12,7 @@ existing description final or require the whole catalog in the first release.
 - Twenty badge YAML files: 61 unique badge definitions and 515 tier entries.
 - `masteries/tactics/`: knight-fork and skewer definitions, referencing the shared
   tactical progression policy under `data/rules/`.
-- `mastery.json`: eight opening tracks, split by player color.
+- `mastery.json`: six inactive opening drafts, split by player color; Jobava now lives in opening mastery YAML.
 - `scraps/`: eight named one-time scrap definitions, classified in YAML and still
   marked as drafts pending unlock rules and detectors.
 - `story.json`: five prerequisite-linked onboarding nodes.
@@ -64,7 +64,8 @@ classification does not activate the unresolved mechanics below.
 
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
-| Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
+| Jobava London, White/Black (`masteries/openings/jobava-london.yml`) | Implemented: position recognition, offline book, quality/conversion XP, independent levels and one game grade | Tune prototype policy against actual games; automate recognition data later |
+| Sicilian, Caro-Kann, King's Gambit, each White/Black (`mastery.json`, 6 drafts) | Intended: named-opening recognition and separate color tracks | Author membership, branch/parent credit and frequency-scaled thresholds; preserve draft ranks until reviewed |
 | Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
 | Skewer (`masteries/tactics/skewers.yml`) | Implemented with new-ray detection, bounded net-gain verification, shared grades/XP and independent levels | Tune bounded detection and quality grading |
 | Discovery (design notes) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
@@ -149,6 +150,10 @@ not claims about standard mistake categories. Mate outcomes are compared separat
 from centipawn losses. Repeated collection of the same move does not add XP again.
 
 ## Remaining design and release work
+
+The [opening rules](../mechanics/opening-masteries.md) and
+[intended tactical difficulty follow-up](../mechanics/achievement-families.md#intended-tactical-scoring-follow-up)
+separate their scoring policies. Top-three analysis is not implemented.
 
 Other tactical and opening masteries, story predicates/episodes, and the draft
 named scraps above still need authored rules. Their presence in YAML, JSON, or

@@ -23,6 +23,16 @@ winning-chance and mate-transition conventions in pinned
 with inaccuracies deliberately ignored. See the
 [qualification reference](badge-rules.md) for their use and limits.
 
+### Opening reference data
+
+Jobava recognition is curated from Lichess's CC0
+[named-opening dataset](https://github.com/lichess-org/chess-openings).
+The offline book is a CC0 release from
+[Chess Opening Book Builder](https://github.com/Dash1971/chess-opening-book-builder).
+[Vendored provenance](../../data/openings/README.md) pins its source and scope.
+The TypeScript Polyglot reader independently implements the published
+[format and interoperability constants](https://hgm.nubati.net/book_format.html).
+
 ### Norman Pollock (40H-PGN)
 Used during the Python opening-analysis prototype. Norman’s meticulous work cleaning and filtering high-level OTB games into the 40H-PGN databases is an essential resource for opening analysis.
 * [http://nk-qy.info/40h](http://nk-qy.info/40h)

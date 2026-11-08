@@ -40,6 +40,12 @@ physical Android/iPhone and Safari testing.
 
 Use [the QA policy](../qa/README.md) when recording a formal finding or verification.
 
+## Opening book
+
+Run `pnpm book:check` to verify the vendored offline book checksum and sorted
+Polyglot entries. Builds and gameplay use those pinned bytes without downloading
+a new book. See [opening masteries](../reference/opening-masteries.md).
+
 ## YAML content
 
 Run `pnpm yaml:check` to check source YAML layout and formatting. Use
