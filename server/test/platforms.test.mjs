@@ -74,3 +74,15 @@ test('independent requests share the serial queue and conditional requests reuse
   assert.deepEqual(await client.json('https://api.chess.com/cached'), { ok: true });
   assert.deepEqual(await client.json('https://api.chess.com/cached'), { ok: true });
 });
+
+test('draw reason preserves Chess.com result codes and avoids inventing Lichess agreements', async () => {
+  for (const [result,reason] of [['repetition','repetition'],['agreed','agreement'],['50move','fifty-move'],['insufficient','insufficient'],['timevsinsufficient','insufficient'],['stalemate','stalemate']]) {
+    const raw=sample('chesscom',{name:'testchess'});raw.white.result=result;raw.black.result=result;
+    raw.pgn=raw.pgn.replaceAll('0-1','1/2-1/2').replace('1. f3 e5 2. g4 Qh4#','1. e4 e5');
+    const found=await fetchGames(new PlatformClient(upstream({chesscom:[raw]})),'chesscom','testchess',NOW-8*3600_000,NOW);
+    assert.equal(found.candidates[0].game.drawReason,reason);
+  }
+  const raw=sample();raw.status='draw';raw.pgn=raw.pgn.replaceAll('0-1','1/2-1/2').replace('1. f3 e5 2. g4 Qh4#','1. e4 e5');
+  const found=await fetchGames(new PlatformClient(upstream({lichess:[raw]})),'lichess','noctu2nality',NOW-8*3600_000,NOW);
+  assert.equal(found.candidates[0].game.drawReason,undefined);
+});

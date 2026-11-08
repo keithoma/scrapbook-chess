@@ -7,45 +7,56 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Great Escapes'
-  name: ''
+  name: 'Say That Again'
   description: 'Draw a previously lost position by three fold repetition.'
-  flavor_text: ''
+  flavor:
+    text: The position was bad enough to deserve a second and third opinion.
   config:
     metric_key: 'is_drawn_from_lost_by_repetition'
     required_value: true
     is_hidden: false
+    analysis_required: true
+    lost_cp: 300
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: We have been here before. That is the good news.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent recognizes the square. So does the arbiter.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The winning plan has entered a loop.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: You are beginning to repeat yourself professionally.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The same position has become a very persuasive argument.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your opponent has requested a different conversation.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The draw claim now comes with a loyalty card.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: You have mastered the art of making no progress, successfully.
 
 - id: badge_draw_lost_agreement
   type: badge

@@ -293,3 +293,25 @@ test('rating badges use pre-game API ratings, ignore forged inputs, and skip pro
   }
   s.db.close();
 });
+
+test('both imported platforms collect an analyzed repetition recovery once and preserve it without the cache', async () => {
+  const records=[sample('lichess'),sample('chesscom',{name:'testchess'})];
+  for(const raw of records){
+    raw.pgn=raw.pgn.replaceAll('0-1','1/2-1/2').replace('1. f3 e5 2. g4 Qh4#','1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8');
+    if(raw.status)raw.status='draw';else{raw.white.result='repetition';raw.black.result='repetition';}
+  }
+  const s=await setup({fetcher:upstream({lichess:[records[0]],chesscom:[records[1]]})});
+  await s.login();await s.request('/profile/accounts','POST',{platform:'chesscom',username:'testchess'});await s.request('/profile/check-games','POST',{});
+  const me=await(await s.request('/me')).json();assert.equal(me.games.length,2);
+  for(const game of me.games){
+    const path=`/profile/games/${encodeURIComponent(game.id)}/collect`;
+    let grant=(await(await s.request(path,'POST',{})).json()).grant;assert.ok(!grant.events.some(e=>e.badgeId==='badge_draw_lost_threefold'));
+    const checkpoint={pgn:game.pgn,version:'stockfish-19.0.1-full-single-depth6-hash32-proof-v1',virtual:[],virtualStatus:'pending',
+      results:['g1f3','g8f6','f3g1','f6g8','g1f3','g8f6','f3g1','f6g8'].map((bestMove,i)=>({ply:i+1,bestMove,ms:1,best:{type:'cp',value:300},played:{type:'cp',value:0}}))};
+    grant=(await(await s.request(path,'POST',{checkpoint,drawReason:'agreement',events:[]})).json()).grant;
+    assert.equal(grant.drawReason,'repetition');assert.equal(grant.events.filter(e=>e.badgeId==='badge_draw_lost_threefold').length,1);
+    s.db.prepare('DELETE FROM analyses').run();
+    assert.deepEqual((await(await s.request(path,'POST',{})).json()).grant.events,grant.events);
+  }
+  s.db.close();
+});

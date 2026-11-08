@@ -1,3 +1,4 @@
+import type { DrawReason } from '../../shared/draw';
 import { parsePgn } from 'chessops/pgn';
 import { parseGame } from '../../web/src/game';
 import { clockSpeed } from '../../web/src/time-control';
@@ -96,12 +97,18 @@ export function sourceRatings(platform: Platform, raw: Json): GameRatings {
   return { white: gameRating(players.white?.rating, players.white?.provisional), black: gameRating(players.black?.rating, players.black?.provisional) };
 }
 
+export function sourceDrawReason(platform: Platform, raw: Json): DrawReason | undefined {
+  if (platform === 'lichess') return raw.status === 'draw' ? undefined : raw.status === 'stalemate' ? 'stalemate' : raw.status === 'insufficientMaterialClaim' ? 'insufficient' : 'other';
+  const codes: Record<string, DrawReason> = { agreed: 'agreement', repetition: 'repetition', '50move': 'fifty-move', insufficient: 'insufficient', timevsinsufficient: 'insufficient', stalemate: 'stalemate' };
+  return raw.white?.result === raw.black?.result ? codes[raw.white?.result] ?? 'other' : 'other';
+}
+
 export interface ImportCandidate { game: ImportedGame; raw: Json }
 export async function fetchGames(client: PlatformClient, platform: Platform, name: string, cutoff: number, now: number) {
   name = username(name);
   const candidates: ImportCandidate[] = []; let skipped = 0;
   const add = (raw: Json, normalize: () => ImportedGame | undefined) => {
-    try { const game = normalize(); if (game) candidates.push({ game, raw }); else skipped++; }
+    try { const game = normalize(); if (game) { game.drawReason = sourceDrawReason(platform, raw); candidates.push({ game, raw }); } else skipped++; }
     catch { skipped++; }
   };
   if (platform === 'lichess') {
@@ -112,7 +119,7 @@ export async function fetchGames(client: PlatformClient, platform: Platform, nam
       let raw: Json;
       try { raw = JSON.parse(line); } catch { throw new PlatformError('invalid_platform_response'); }
       add(raw, () => {
-        if (raw.rated !== true || raw.variant !== 'standard' || typeof raw.speed !== 'string' || !['mate', 'resign', 'stalemate', 'timeout', 'draw', 'outoftime', 'variantEnd'].includes(raw.status)
+        if (raw.rated !== true || raw.variant !== 'standard' || typeof raw.speed !== 'string' || !['mate', 'resign', 'stalemate', 'timeout', 'draw', 'outoftime', 'variantEnd', 'insufficientMaterialClaim'].includes(raw.status)
           || !/^[A-Za-z0-9]{8}$/.test(raw.id) || typeof raw.pgn !== 'string') return;
         for (const side of ['white', 'black']) {
           const player = raw.players?.[side];

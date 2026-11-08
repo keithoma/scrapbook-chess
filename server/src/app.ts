@@ -13,7 +13,7 @@ import { gameIdentity, prepareGrant, type GameGrant } from '../../web/src/achiev
 import { ANALYSIS_VERSION, type Checkpoint } from '../../web/src/storage';
 import type { ImportedGame, ImportReport, LinkedAccount, Platform } from '../../shared/contracts';
 import { atomic } from './database';
-import { fetchGames, PlatformClient, PlatformError, sourceRatings, username } from './platforms';
+import { fetchGames, PlatformClient, PlatformError, sourceRatings, sourceDrawReason, username } from './platforms';
 import { timeZone } from '../../shared/time-zone';
 
 export interface AppOptions {
@@ -122,6 +122,7 @@ export async function createApp(options: AppOptions) {
     // Recover historical evidence without fetching today's profile ratings.
     game.ratings ??= sourceRatings(game.platform, JSON.parse(row.raw_json as string));
     if (game.platform === 'lichess' && game.clocks === undefined) game.clocks = lichessClocks(JSON.parse(row.raw_json as string).clocks, parseGame(game.pgn).moves.length);
+    game.drawReason ??= sourceDrawReason(game.platform, JSON.parse(row.raw_json as string));
     return game;
   }
   function collection(userId: string): GameGrant[] { return db.prepare('SELECT grant_json FROM collections WHERE user_id=?').all(userId).map(row => JSON.parse(row.grant_json as string)); }
@@ -214,6 +215,7 @@ export async function createApp(options: AppOptions) {
       game.timeControl = imported.timeControl;
       game.ratings = imported.ratings ?? {};
       game.startedAt = imported.startedAt;
+      game.drawReason = imported.drawReason ?? game.drawReason;
       game.timeZone = signed.user.timeZone;
       if (gameIdentity(game) !== imported.id) throw new PlatformError('invalid_platform_response');
       const grant = prepareGrant(before, game, imported.color, checkpoint, new Date(now()).toISOString());
