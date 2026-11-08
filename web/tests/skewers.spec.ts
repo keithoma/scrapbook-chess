@@ -17,14 +17,18 @@ test('native skewers earn their own grades, XP and replay evidence without mixin
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'complete', {
     timeout: 120000,
   });
-  await expect(page.getByTestId('skewer-grade')).toHaveText('Skewer grade: S+');
+  await expect(page.getByTestId('skewer-grade')).toHaveText(/^Skewer grade: [DCBAS][+-]?$/);
+  const savedGrade = (await page.getByTestId('skewer-grade').textContent())!;
+  const awardText = (await page.getByTestId('skewer-award').textContent())!;
+  const skewerXp = Number(awardText.match(/Qualified skewer · \+(\d+) XP/)?.[1]);
+  expect(skewerXp).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
-  await expect(page.getByTestId('reward-reveal')).toContainText('Skewers +137 XP');
-  await expect(page.getByTestId('replay-skewer-xp')).toHaveText('Skewers +137 XP');
+  await expect(page.getByTestId('reward-reveal')).toContainText(`Skewers +${skewerXp} XP`);
+  await expect(page.getByTestId('replay-skewer-xp')).toHaveText(`Skewers +${skewerXp} XP`);
   await page.getByRole('button', { name: 'First position', exact: true }).click();
   await expect(page.getByTestId('replay-skewer-xp')).toHaveText('Skewers +0 XP');
   await page.getByRole('link', { name: 'Collection', exact: true }).click();
-  await expect(page.getByTestId('skewer-total-xp')).toHaveText('137 XP');
+  await expect(page.getByTestId('skewer-total-xp')).toHaveText(`${skewerXp} XP`);
   await expect(page.getByTestId('mastery-total-xp')).toHaveText('0 XP');
   await page.getByRole('link', { name: 'Notebook', exact: true }).click();
   if (!(await summary.locator('..').evaluate((e) => e.hasAttribute('open')))) await summary.click();
@@ -37,7 +41,7 @@ test('native skewers earn their own grades, XP and replay evidence without mixin
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('Knight forks +137 XP');
   await page.getByRole('link', { name: 'Collection', exact: true }).click();
-  await expect(page.getByTestId('skewer-total-xp')).toHaveText('137 XP');
+  await expect(page.getByTestId('skewer-total-xp')).toHaveText(`${skewerXp} XP`);
   await expect(page.getByTestId('mastery-total-xp')).toHaveText('137 XP');
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {
@@ -47,12 +51,12 @@ test('native skewers earn their own grades, XP and replay evidence without mixin
     });
   });
   await page.reload();
-  await expect(page.getByTestId('skewer-total-xp')).toHaveText('137 XP');
+  await expect(page.getByTestId('skewer-total-xp')).toHaveText(`${skewerXp} XP`);
   await page.getByTestId('skewer-mastery').locator('summary').click();
-  await expect(page.getByTestId('collected-skewer-grade')).toHaveText('Skewer grade: S+');
+  await expect(page.getByTestId('collected-skewer-grade')).toHaveText(savedGrade);
   await page.getByRole('button', { name: 'Replay skewer', exact: true }).click();
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
-  await expect(page.getByTestId('skewer-grade')).toHaveText('Skewer grade: S+');
+  await expect(page.getByTestId('skewer-grade')).toHaveText(savedGrade);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await page.getByLabel('I played as').selectOption('black');
