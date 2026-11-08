@@ -115,44 +115,55 @@
   type: badge
   category: 'Material'
   subcategory: 'Clean Gains'
-  name: ''
+  name: 'Clerical Error'
   description: 'Number of clean bishops won (the bishop winning move is not a mistake nor a blunder and the bishop is kept for 5 or more turns).'
-  flavor_text: ''
+  flavor:
+    text: The diagonal department has misplaced a member of staff.
   config:
     metric_key: 'clean_bishops_count'
     is_hidden: false
+    analysis_required: true
+    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A small correction to the organizational chart.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The second incident has been referred to human resources.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your opponent has fewer people available for long-distance meetings.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The vacancy remains unfilled after five turns.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You have audited both colors of square.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The remaining bishop is doing two jobs.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The diagonal office has been temporarily closed.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Please direct all future complaints to the endgame.
 
 - id: badge_clean_rook
   type: badge
