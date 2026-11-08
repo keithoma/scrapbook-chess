@@ -105,6 +105,8 @@ it('persists independent sides, exactly one high-grade mark, and stable idempote
   const black = prepareGrant([saved], game, 'black', analyzed(game));
   expect(projectCollection([black]).masteries.mastery_rapport_jobava_white.xp).toBe(0);
   expect(projectCollection([black]).masteries.mastery_rapport_jobava_black.xp).toBeGreaterThan(0);
+  // Golden parity check also exercised through both profile import adapters.
+  expect(projectCollection([black]).masteries.mastery_rapport_jobava_black.xp).toBe(408);
   const def = OPENING_MASTERIES[0];
   expect(masteryProgress(100000, 0, def).level).toBe(5);
   expect(masteryProgress(100000, 2, def).level).toBe(6);

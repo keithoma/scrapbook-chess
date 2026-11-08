@@ -89,7 +89,7 @@ function legalGame(platform: Platform, sourceId: string, name: string, pgn: stri
   const site = game.site.match(expected);
   if (!site || (platform === 'lichess' ? site[1] : `${site[1]}:${site[2]}`) !== sourceId) return;
   return { id: `${platform}:${sourceId}`, platform, sourceId, username: name, white: game.white, black: game.black,
-    color, pgn: game.pgn, startedAt, finishedAt, speed, timeControl, ratings, clocks: platform === 'lichess' ? lichessClocks(rawClocks, game.moves.length) : undefined };
+    color, pgn: game.pgn, startedAt, finishedAt, speed, timeControl, ratings, clocks: platform === 'lichess' ? lichessClocks(rawClocks, game.moves.length) : game.moves.map(move => move.clock ?? null) };
 }
 
 export function sourceRatings(platform: Platform, raw: Json): GameRatings {

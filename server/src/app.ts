@@ -122,6 +122,7 @@ export async function createApp(options: AppOptions) {
     // Recover historical evidence without fetching today's profile ratings.
     game.ratings ??= sourceRatings(game.platform, JSON.parse(row.raw_json as string));
     if (game.platform === 'lichess' && game.clocks === undefined) game.clocks = lichessClocks(JSON.parse(row.raw_json as string).clocks, parseGame(game.pgn).moves.length);
+    if (game.platform === 'chesscom' && game.clocks === undefined) game.clocks = parseGame(game.pgn).moves.map(move => move.clock ?? null);
     game.drawReason ??= sourceDrawReason(game.platform, JSON.parse(row.raw_json as string));
     return game;
   }
@@ -179,6 +180,15 @@ export async function createApp(options: AppOptions) {
               const inserted = db.prepare('INSERT OR IGNORE INTO imported_games (user_id,game_id,account_id,game_json,raw_json,imported_at) VALUES (?,?,?,?,?,?)')
                 .run(signed.user.id, game.id, row.id, JSON.stringify(game), JSON.stringify(raw), now());
               report.imported += Number(inserted.changes);
+              if (!inserted.changes && game.clocks?.every(value => value !== null && Number.isFinite(value))) {
+                const old = db.prepare('SELECT game_json, raw_json FROM imported_games WHERE user_id=? AND game_id=?').get(signed.user.id, game.id)!;
+                const existing = readImported(old);
+                if (!existing.clocks || existing.clocks.length !== game.clocks.length || existing.clocks.some(value => value === null || !Number.isFinite(value))) {
+                  existing.clocks = game.clocks;
+                  db.prepare('UPDATE imported_games SET game_json=?,raw_json=? WHERE user_id=? AND game_id=?')
+                    .run(JSON.stringify(existing), JSON.stringify(raw), signed.user.id, game.id);
+                }
+              }
             }
           });
         } catch (error) { report.error = error instanceof PlatformError ? error.code : 'import_failed'; }
