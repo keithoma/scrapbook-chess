@@ -169,44 +169,55 @@
   type: badge
   category: 'Material'
   subcategory: 'Clean Gains'
-  name: ''
+  name: 'Property Acquisition'
   description: 'Number of clean rooks won (the rook winning move is not a mistake nor a blunder and the rook is kept for 5 or more turns).'
-  flavor_text: ''
+  flavor:
+    text: A castle, purchased for substantially less than the asking price.
   config:
     metric_key: 'clean_rooks_count'
     is_hidden: false
+    analysis_required: true
+    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The inspection found no compensation.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: You are diversifying into corner properties.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The open file is now under new management.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: Your opponent has received a notice of reduced access.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The rook has survived its cooling-off period.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your portfolio is becoming difficult to defend.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Both seventh ranks are being considered for redevelopment.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The board has been rezoned in your favor.
 
 - id: badge_clean_queen
   type: badge
