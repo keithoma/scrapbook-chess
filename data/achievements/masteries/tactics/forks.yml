@@ -6,6 +6,7 @@ category: Tactics
 subcategory: Forks
 name: Knight forks
 rule_version: knight-forks-v1
+grade_version: fork-grades-v1
 # Prototype tuning: precise play pays more; later levels take progressively longer.
 # These are authored constants, not random rolls or standard mistake categories.
 quality_awards:
@@ -17,4 +18,46 @@ quality_awards:
     xp: 53
   - max_loss_cp: 97
     xp: 29
+# Grades subdivide the existing XP bands; qualification and XP stay unchanged.
+# A smaller mover-relative evaluation loss earns a better grade.
+grade_bands:
+  - grade: S+
+    max_loss_cp: 0
+  - grade: S
+    max_loss_cp: 2
+  - grade: S-
+    max_loss_cp: 7
+  - grade: A+
+    max_loss_cp: 11
+  - grade: A
+    max_loss_cp: 17
+  - grade: A-
+    max_loss_cp: 23
+  - grade: B+
+    max_loss_cp: 31
+  - grade: B
+    max_loss_cp: 43
+  - grade: B-
+    max_loss_cp: 61
+  - grade: C+
+    max_loss_cp: 67
+  - grade: C
+    max_loss_cp: 73
+  - grade: C-
+    max_loss_cp: 79
+  - grade: D+
+    max_loss_cp: 85
+  - grade: D
+    max_loss_cp: 91
+  - grade: D-
+    max_loss_cp: 97
 level_thresholds: [0, 173, 467, 941, 1663, 2767, 4441, 6971, 10781, 16547]
+# Additional S-/S/S+ forks for each gate: lifetime totals are 2, 5, and 10.
+# Each saved occurrence can satisfy only one gate; XP is never consumed.
+level_requirements:
+  - level: 6
+    high_grade_count: 2
+  - level: 7
+    high_grade_count: 3
+  - level: 8
+    high_grade_count: 5
