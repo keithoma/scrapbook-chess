@@ -30,3 +30,12 @@ it('requires a strict clock lead at every observable paired sample, for either w
   for (const game of [clockGame([598, 598, 595, 580]), clockGame([598, 590, 585, 580]), clockGame([undefined, 590, 595, 580]), clockGame([598, 590, 595, 580], '1/2-1/2')])
     expect(contributions(game, 'white').some(event => event.kind === 'badge' && event.badgeId === id)).toBe(false);
 });
+it('Clutch requires both clocks at or below thirty seconds in a recorded sample and an actual win', () => {
+  for (const color of ['white', 'black'] as const) {
+    const game = clockGame([29, 30, 27, 28], color === 'white' ? '1-0' : '0-1');
+    expect(contributions(game, color).filter(event => event.kind === 'badge' && event.badgeId === 'badge_time_scramble')).toEqual([{ kind: 'badge', badgeId: 'badge_time_scramble', amount: 1, ply: 4 }]);
+    expect(contributions(game, color === 'white' ? 'black' : 'white').some(event => event.kind === 'badge' && event.badgeId === 'badge_time_scramble')).toBe(false);
+  }
+  for (const game of [clockGame([31, 30, 31, 30]), clockGame([29, 30, 27, 28], '1/2-1/2'), clockGame([undefined, 30, 27, 28])])
+    expect(contributions(game, 'white').some(event => event.kind === 'badge' && event.badgeId === 'badge_time_scramble')).toBe(false);
+});
