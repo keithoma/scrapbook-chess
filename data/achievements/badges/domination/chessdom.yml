@@ -76,6 +76,7 @@
     metric_key: 'is_time_scramble_win'
     required_value: true
     is_hidden: false
+    max_seconds: 30
     tiers:
       - name: 'pawn'
         amount: 1
@@ -116,4 +117,3 @@
         amount: 8
         flavor:
           text: The flag has learned to hesitate.
-    max_seconds: 30

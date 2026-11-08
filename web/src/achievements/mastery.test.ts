@@ -83,8 +83,8 @@ describe('quality-based XP and levels', () => {
     expect(projectCollection([saved]).mastery.xp).toBe(137);
     const earned = saved.events.find(event => event.kind === 'mastery')!;
     expect(earned).toMatchObject({ kind: 'mastery', amount: 137, evidence: { ruleVersion: FORK_MASTERY.rule_version, materialGainCp: 200 } });
-    expect(retainMastery(saved, 'white', contributions(game, 'white'))).toEqual(saved.events);
-    expect(retainMastery(saved, 'white', contributions(game, 'white', checkpoint(61)))).toEqual(saved.events);
+    expect(retainMastery(saved, 'white', contributions(game, 'white')).filter(event => event.kind === 'mastery')).toEqual([earned]);
+    expect(retainMastery(saved, 'white', contributions(game, 'white', checkpoint(61))).filter(event => event.kind === 'mastery')).toEqual([earned]);
     expect(retainMastery(saved, 'black', contributions(game, 'black'))).not.toContainEqual(earned);
     expect(contributions(game, 'black', checkpoint()).some(event => event.kind === 'mastery')).toBe(false);
     expect(newlyUnlocked([], [saved, { ...saved, id: 'other' }])).toMatchObject({ masteryXp: 274, masteryLevels: [2] });

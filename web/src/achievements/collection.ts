@@ -13,10 +13,11 @@ import { calendarContributions } from './calendar';
 import { phaseAt } from './phases';
 import { fianchettoContributions } from './fianchetto';
 import { clockContributions } from './clock-badges';
+import { precisionContributions } from './precision';
 
 export type Contribution =
   | MasteryContribution
-  | { kind: 'badge'; badgeId: BadgeId; amount: number; ply: number }
+  | { kind: 'badge'; badgeId: BadgeId; amount: number; ply: number; originPly?: number; evidence?: Record<string, string | number> }
   | { kind: 'scrap'; notation: string; mode: 'real' | 'virtual'; ply: number; virtualPly?: number };
 export interface GameGrant {
   id: string;
@@ -110,7 +111,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+  return [...events, ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
@@ -126,6 +127,15 @@ export function retainMastery(previous: GameGrant | undefined, color: Color, eve
   return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }
 
+export function retainCollectedEvidence(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
+  const stable = retainMastery(previous, color, events);
+  if (previous?.color !== color) return stable;
+  const engineBadge = (event: Contribution) => event.kind === 'badge' && BADGES.find(badge => badge.id === event.badgeId)?.config.analysis_required;
+  const awards = new Map(stable.filter(engineBadge).map(event => [`${event.kind === 'badge' ? event.badgeId : ''}:${event.ply}`, event]));
+  for (const event of previous.events.filter(engineBadge)) awards.set(`${event.kind === 'badge' ? event.badgeId : ''}:${event.ply}`, event);
+  return [...stable.filter(event => !engineBadge(event)), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
+}
+
 export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color, checkpoint?: Checkpoint, now = new Date().toISOString()): GameGrant {
   const id = gameIdentity(game);
   const previous = before.find(entry => entry.id === id);
@@ -136,7 +146,7 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
   if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
   const virtual = keepVirtual ? previous?.virtual
     : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), startedAt: game.startedAt, timeZone: game.timeZone, clocks: game.moves.some(move => move.clock !== undefined) ? game.moves.map(move => move.clock ?? null) : undefined, color, events: retainMastery(previous, color, events), virtual,
+  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), startedAt: game.startedAt, timeZone: game.timeZone, clocks: game.moves.some(move => move.clock !== undefined) ? game.moves.map(move => move.clock ?? null) : undefined, color, events: retainCollectedEvidence(previous, color, events), virtual,
     collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 

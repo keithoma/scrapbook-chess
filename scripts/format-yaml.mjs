@@ -35,7 +35,7 @@ for (const file of files.sort()) {
       const fields = map.has('id')
         ? ['id', 'type', 'category', 'subcategory', 'name', 'description', 'rule_version', 'compliance_filters', 'flavor', 'flavor_text', 'config', 'quality_awards', 'level_thresholds']
         : map.has('name') && map.has('amount') ? ['name', 'amount', 'flavor', 'flavor_text']
-        : map.has('tiers') ? ['metric_key', 'required_value', 'is_hidden', 'tiers']
+        : map.has('tiers') ? ['metric_key', 'required_value', 'is_hidden', 'analysis_required', 'max_seconds', 'survival_plies', 'lost_cp', 'retention_chance_slack', 'tiers']
         : map.has('text') || map.has('quote') || map.has('player_quote') ? ['text', 'quote', 'player_quote', 'author'] : [];
       if (!fields.length) return;
       const rank = key => { const index = fields.indexOf(String(key)); return index < 0 ? fields.length : index; };
