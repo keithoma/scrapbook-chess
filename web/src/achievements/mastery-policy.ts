@@ -50,7 +50,41 @@ export const TACTICAL_MASTERIES: MasteryDefinition[] = [forkSource, skewerSource
 });
 export const FORK_MASTERY = TACTICAL_MASTERIES[0];
 export const SKEWER_MASTERY = TACTICAL_MASTERIES[1];
-export const OPENING_POLICY = parse(openingPolicySource);
+interface OpeningPolicy extends Pick<MasteryDefinition, 'quality_awards' | 'grade_bands' | 'level_thresholds' | 'level_requirements'> {
+  id: string;
+  theory_cap: number;
+  novel_decay: number;
+  advantage_start_cp: number;
+  advantage_full_cp: number;
+  conversion_capacity: number;
+  fade_rate: number;
+  fade_floor: number;
+  conversion_bonus: number;
+  conversion_max_loss_cp: number;
+  minimum_grade_moves: number;
+  clock_move_cap_seconds: number;
+  control_cap_seconds: number;
+  control_exponent: number;
+  minimum_time_multiplier: number;
+}
+export const OPENING_POLICY: OpeningPolicy = parse(openingPolicySource);
+for (const key of ['theory_cap', 'novel_decay', 'advantage_start_cp', 'advantage_full_cp',
+  'conversion_capacity', 'fade_rate', 'fade_floor', 'conversion_bonus', 'conversion_max_loss_cp',
+  'minimum_grade_moves', 'clock_move_cap_seconds', 'control_cap_seconds', 'control_exponent',
+  'minimum_time_multiplier'] as const) {
+  const value = OPENING_POLICY[key];
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+    throw new Error(`Invalid opening mastery setting: ${key}`);
+}
+if (!(OPENING_POLICY.novel_decay > 0 && OPENING_POLICY.novel_decay < 1 &&
+    OPENING_POLICY.fade_rate > 0 && OPENING_POLICY.fade_rate < 1 &&
+    OPENING_POLICY.fade_floor > 0 && OPENING_POLICY.fade_floor < 1 &&
+    OPENING_POLICY.advantage_full_cp > OPENING_POLICY.advantage_start_cp &&
+    OPENING_POLICY.theory_cap > 0 && OPENING_POLICY.conversion_capacity > 0 &&
+    Number.isSafeInteger(OPENING_POLICY.minimum_grade_moves) && OPENING_POLICY.minimum_grade_moves >= 4 && OPENING_POLICY.clock_move_cap_seconds > 0 &&
+    OPENING_POLICY.control_cap_seconds > 0 && OPENING_POLICY.control_exponent > 1 &&
+    OPENING_POLICY.minimum_time_multiplier > 0))
+  throw new Error('Invalid opening mastery policy.');
 export const OPENING_MASTERIES: MasteryDefinition[] = parse(openingSource).map((definition: MasteryDefinition & { progression: string }) => {
   if (definition.progression !== OPENING_POLICY.id || definition.opening_id !== 'rapport-jobava' ||
       !['white', 'black'].includes(definition.color ?? '') || definition.id !== `mastery_rapport_jobava_${definition.color}`)

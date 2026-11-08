@@ -67,7 +67,7 @@ export function openingAssessment(game: ReplayGame, color: Color, checkpoint?: C
     } else if (!inBook && !repeated) {
       performanceXp = quality.xp * decay;
       const precise = quality.xp > 0 && (quality.lossCp === undefined || quality.lossCp <= policy.conversion_max_loss_cp);
-      const retained = Math.min(favorable(result.best, color), favorable(result.played, color));
+      const retained = Math.min(favorable(result.best, color), game.frames[i + 1].checkmate ? Infinity : favorable(result.played, color));
       if (precise) bonusXp = performanceXp * policy.conversion_bonus * advantageSignal(retained) * fade;
       const weight = decay * fade;
       gradeWeight += weight;

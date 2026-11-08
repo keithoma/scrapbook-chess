@@ -18,7 +18,7 @@ it('matches published Polyglot hashes including turn, castling and EP', () => {
   }
 });
 it('reads actual book moves and recognizes equivalent Jobava move orders', () => {
-  for (const line of ['d4 d5 Nc3 Nf6 Bf4', 'd4 Nf6 Nc3 d5 Bf4', 'd4 d5 Bf4 Nf6 Nc3', 'd4 d5 Nc3 e6 Bf4']) {
+  for (const line of ['d4 d5 Nc3 Nf6 Bf4 e6 e3 Bd6 Nf3 O-O', 'd4 Nf6 Nc3 d5 Bf4', 'd4 d5 Bf4 Nf6 Nc3', 'd4 d5 Nc3 e6 Bf4']) {
     const pos = Chess.default();
     for (const san of line.split(' ')) {
       const move = parseSan(pos, san)!;
