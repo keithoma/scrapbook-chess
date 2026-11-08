@@ -10,6 +10,7 @@ import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
 import { calendarContributions } from './calendar';
+import { phaseAt } from './phases';
 
 export type Contribution =
   | MasteryContribution
@@ -76,6 +77,8 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   const last = game.moves.at(-1)!;
   const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
   if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });
+  const phaseWin = winner === color && BADGES.find(badge => badge.config.metric_key === `is_${phaseAt(game)}_win`);
+  if (phaseWin) events.push({ kind: 'badge', badgeId: phaseWin.id, amount: 1, ply: game.moves.length });
   const speedWin = speed && BADGE_IDS.find(id => id === `badge_won_${speed}`);
   if (winner === color && speedWin) events.push({ kind: 'badge', badgeId: speedWin, amount: 1, ply: game.moves.length });
   const whiteCastle = game.moves.find(move => move.color === 'white' && move.castling)?.castling;
