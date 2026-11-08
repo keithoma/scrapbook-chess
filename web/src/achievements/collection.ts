@@ -21,6 +21,7 @@ export interface GameGrant {
   collectedAt: string;
   updatedAt: string;
   virtual?: VirtualMove[];
+  source?: { platform: 'lichess' | 'chesscom'; username: string };
 }
 export interface Scrap {
   notation: string;
@@ -84,6 +85,19 @@ export function retainMastery(previous: GameGrant | undefined, color: Color, eve
   const awards = new Map(events.filter((event): event is MasteryContribution => event.kind === 'mastery').map(event => [event.ply, event]));
   if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(event.ply, event);
   return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
+}
+
+export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color, checkpoint?: Checkpoint, now = new Date().toISOString()): GameGrant {
+  let events = contributions(game, color, checkpoint);
+  const id = gameIdentity(game);
+  const previous = before.find(entry => entry.id === id);
+  const previousVirtual = previous?.color === color ? previous.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
+  const keepVirtual = previousVirtual.length > 0 && !events.some(event => event.kind === 'scrap' && event.mode === 'real');
+  if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
+  const virtual = keepVirtual ? previous?.virtual
+    : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
+  return { id, version: 1, pgn: game.pgn, color, events: retainMastery(previous, color, events), virtual,
+    collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 
 export function projectCollection(games: GameGrant[]) {
