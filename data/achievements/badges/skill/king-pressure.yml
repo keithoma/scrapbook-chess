@@ -10,39 +10,48 @@
   subcategory: 'King Pressure'
   name: 'Inquisitor'
   description: 'Total number of checks delivered to the enemy king.'
-  flavor_text: ''
+  flavor:
+    text: Your king. A quick question.
   config:
     metric_key: 'total_checks_delivered'
     is_hidden: false
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: Excuse me, is this square occupied?
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: A follow-up question.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The king has asked for this meeting to be an email.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: This is becoming less of an interview and more of an interrogation.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Have you tried turning the king off and on again?
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your opponent now flinches at plus signs.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The king would like a lawyer.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: No further questions. For now.
