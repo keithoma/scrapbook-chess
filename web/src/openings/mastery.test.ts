@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import pgn from '../fixtures/games/jobava.pgn?raw';
 import { parseGame } from '../game';
 import { analyzed } from '../fixtures/test-analysis';
-import { openingAssessment, openingContributions, advantageSignal, openingFade } from './mastery';
+import { openingAssessment, openingContributions as allOpeningContributions, advantageSignal, openingFade } from './mastery';
 import { openingClocks, openingTimeMultiplier } from './time';
 import { OPENING_MASTERIES, gradeForContribution, masteryProgress } from '../achievements/mastery-policy';
 import { prepareGrant, projectCollection } from '../achievements/collection';
@@ -11,6 +11,9 @@ import { openingBook } from './book';
 afterEach(() => vi.restoreAllMocks());
 
 const game = parseGame(pgn);
+// These scoring regressions isolate the existing Jobava track from its broad parent.
+const openingContributions = (...args: Parameters<typeof allOpeningContributions>) =>
+  allOpeningContributions(...args).filter(event => event.evidence.openingId === 'rapport-jobava');
 const total = (events: ReturnType<typeof openingContributions>) => events.reduce((s, e) => s + e.amount, 0);
 
 it('requires complete matching analysis and platform clock evidence', () => {

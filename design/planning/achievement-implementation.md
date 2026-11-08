@@ -79,6 +79,7 @@ classification does not activate the unresolved mechanics below.
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Jobava London, White/Black (`masteries/openings/jobava-london.yml`) | Implemented: position recognition, offline book, quality/conversion XP, independent levels and one game grade | Tune prototype policy against actual games; automate recognition data later |
+| Queen's Pawn Game, White/Black (`masteries/openings/queen-s-pawn-game.yml`) | Implemented: broad 1.d4 entry recognition, shared opening scoring, higher XP thresholds, and full independent credit alongside Jobava when both are recognized | Tune the shared threshold multiplier; other families' parent/child memberships remain unresolved |
 | Sicilian, Caro-Kann, King's Gambit, each White/Black (`mastery.json`, 6 drafts) | Intended: named-opening recognition and separate color tracks | Author membership, branch/parent credit and frequency-scaled thresholds; preserve draft ranks until reviewed |
 | Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
 | Skewer (`masteries/tactics/skewers.yml`) | Implemented with new-ray detection, bounded net-gain verification, shared grades/XP and independent levels | Tune bounded detection and quality grading |
@@ -128,7 +129,7 @@ SQLite-backed profile rewards are implemented. See the
 The dated [browser proof QA record](../../docs/qa/browser-proof.md) retains the
 limits of that audit; it is not a claim about every later badge.
 
-The loop includes all YAML badges, knight-fork, skewer, Jobava opening, and Pawn vs Pawn masteries, and exact-SAN real/virtual
+The loop includes all YAML badges, knight-fork, skewer, Jobava and Queen's Pawn opening, and Pawn vs Pawn masteries, and exact-SAN real/virtual
 mating scraps. Collection is idempotent, color correction replaces the game's
 contributions, and explicit recollection adds newly available awards. Previously
 collected engine evidence and virtual discoveries survive cache eviction for the

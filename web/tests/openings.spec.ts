@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('native Jobava analysis collects separate sides, survives reload, and replays saved evidence', async ({ page }, info) => {
+test('native opening analysis collects overlapping masteries and separate sides, survives reload, and replays saved evidence', async ({ page }, info) => {
   await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   const summary = page.locator('summary').filter({ hasText: 'Import a PGN or try an example' });
@@ -15,9 +15,10 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await expect(moves.nth(1).getByLabel('Unverified book candidate')).toBeVisible();
   await moves.nth(0).click();
   await expect(page.getByText('Book candidate · frequency or loss statistics unavailable', { exact: true })).toBeVisible();
-  await expect(page.getByTestId('opening-status')).toContainText('Jobava recognized');
+  await expect(page.getByTestId('opening-status')).toContainText("Jobava London · Queen's Pawn Game recognized");
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('The Modern Artist');
+  await expect(page.getByTestId('reward-reveal')).toContainText("Queen's Pawn Game (White)");
   await page.getByRole('button', { name: 'Last position', exact: true }).click();
   const replay = page.getByTestId('replay-mastery_rapport_jobava_white');
   const earned = await replay.innerText();
@@ -27,9 +28,17 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   const white = page.getByTestId('mastery_rapport_jobava_white');
   const black = page.getByTestId('mastery_rapport_jobava_black');
-  await expect(white).toContainText('Playing Jobava as White');
-  await expect(black).toContainText('Facing Jobava as Black');
+  await expect(white).toContainText('Playing Jobava London as White');
+  await expect(black).toContainText('Facing Jobava London as Black');
+  const broadWhite = page.getByTestId('mastery_queens_pawn_game_white');
+  const broadBlack = page.getByTestId('mastery_queens_pawn_game_black');
+  await expect(broadWhite).toContainText("Playing Queen's Pawn Game as White");
+  await expect(broadBlack).toContainText("Facing Queen's Pawn Game as Black");
+  await expect(broadBlack.getByTestId('mastery_queens_pawn_game_black-xp-requirement')).toHaveText('9,410 XP to the next level');
+  await expect(black.getByTestId('mastery_rapport_jobava_black-xp-requirement')).toHaveText('941 XP to the next level');
   const total = await white.getByTestId('mastery_rapport_jobava_white-total-xp').innerText();
+  await expect(broadWhite.getByTestId('mastery_queens_pawn_game_white-total-xp')).toHaveText(total);
+  await expect(broadBlack.getByTestId('mastery_queens_pawn_game_black-total-xp')).toHaveText('0 XP');
   await expect(black.getByTestId('mastery_rapport_jobava_black-total-xp')).toHaveText('0 XP');
   await white.locator('summary').click();
   await expect(white.getByTestId('opening-grade')).toContainText('Opening grade:');
@@ -38,6 +47,7 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await page.screenshot({ path: info.outputPath('jobava-history.png') });
   await page.reload();
   await expect(white.getByTestId('mastery_rapport_jobava_white-total-xp')).toHaveText(total);
+  await expect(broadWhite.getByTestId('mastery_queens_pawn_game_white-total-xp')).toHaveText(total);
   await white.locator('summary').click();
   await white.getByRole('button', { name: 'Replay opening', exact: true }).click();
   await expect(page.getByTestId('replay-position')).toHaveText('Ply 11 / 33');
@@ -48,9 +58,14 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await expect(page.getByTestId('reward-reveal')).toContainText('The Art Critic');
   await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(white.getByTestId('mastery_rapport_jobava_white-total-xp')).toHaveText('0 XP');
+  await expect(broadWhite.getByTestId('mastery_queens_pawn_game_white-total-xp')).toHaveText('0 XP');
   await expect(black.getByTestId('mastery_rapport_jobava_black-total-xp')).not.toHaveText('0 XP');
+  const blackTotal = await black.getByTestId('mastery_rapport_jobava_black-total-xp').innerText();
+  await expect(broadBlack.getByTestId('mastery_queens_pawn_game_black-total-xp')).toHaveText(blackTotal);
   await page.getByLabel('Language', { exact: true }).selectOption('de');
-  await expect(black).toContainText('Gegen Jobava mit Schwarz spielen');
+  await expect(black).toContainText('Gegen Jobava-London mit Schwarz spielen');
+  await expect(broadBlack).toContainText('Gegen Damenbauernspiel mit Schwarz spielen');
   await page.getByRole('link', { name: 'Hilfe', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Eröffnungsmeisterschaft · Jobava-London' })).toBeVisible();
+  await expect(page.getByText('Das Damenbauernspiel erfordert für jede Stufe 10× so viele EP.', { exact: true })).toBeVisible();
 });

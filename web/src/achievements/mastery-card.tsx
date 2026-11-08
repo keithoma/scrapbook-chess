@@ -4,6 +4,7 @@ import type { GameGrant } from './collection';
 import { OpeningHistory } from '../openings/history';
 import type { Jump } from './collection-ui';
 import { EndgameEvidence } from '../endgames/evidence';
+import { OPENINGS } from '../openings/recognition';
 
 export function MasteryCard({
   definition,
@@ -25,6 +26,7 @@ export function MasteryCard({
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const fork = definition.id === 'mastery_knight_forks';
   const opening = definition.family === 'opening';
+  const openingName = OPENINGS.find(opening => opening.id === definition.opening_id)?.name;
   const endgame = definition.family === 'endgame';
   const skewer = definition.id === 'mastery_skewers';
   const prefix = fork ? 'mastery' : skewer ? 'skewer' : definition.id;
@@ -37,7 +39,7 @@ export function MasteryCard({
       <p className="achievement-category">{definition.category} · {definition.subcategory}</p>
       <h3 className="font-serif text-2xl">{t(definition.name)}</h3>
       {definition.description && <p className="mt-2 text-sm text-stone-600">{definition.description}</p>}
-      {opening && <p className="mt-2 text-sm font-semibold">{t(definition.color === 'white' ? 'Playing Jobava as White' : 'Facing Jobava as Black')}</p>}
+      {opening && openingName && <p className="mt-2 text-sm font-semibold">{t(definition.color === 'white' ? 'Playing {opening} as White' : 'Facing {opening} as Black', { opening: t(openingName as Message) })}</p>}
       <p className="mt-2 text-sm">{t('Level {level}', { level: progress.level })}</p>
       <progress
         className="mt-3 h-1.5 w-full"

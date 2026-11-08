@@ -1,18 +1,30 @@
 # Opening masteries
 
-Jobava London has separate White and Black tracks: The Modern Artist and The
-Art Critic. Their [catalog](../../data/achievements/masteries/openings/jobava-london.yml)
-references an independent [opening scoring policy](../../data/rules/opening-mastery.yml).
+Jobava London and Queen's Pawn Game each have separate White and Black tracks.
+The [Jobava catalog](../../data/achievements/masteries/openings/jobava-london.yml)
+retains The Modern Artist and The Art Critic; the
+[Queen's Pawn catalog](../../data/achievements/masteries/openings/queen-s-pawn-game.yml)
+adds the broad family. Both use the shared
+[opening scoring policy](../../data/rules/opening-mastery.yml). Its per-opening
+threshold multipliers make Queen's Pawn levels require substantially more XP,
+with the same independent grade gates and per-game scoring.
 Tactical mastery currently retains its previous scoring rules. Its top-three
 alternative comparison is [intended future work](../../design/mechanics/achievement-families.md#intended-tactical-scoring-follow-up).
 
 ## Recognition and book evidence
 
 [Recognition](../../web/src/openings/recognition.ts) matches legally replayed
-positions against [curated Jobava entries](../../data/openings/jobava.json).
-Standard, Nf6-first, Bf4-first, and e6 setups can reach the same family.
+positions against [curated Jobava entries](../../data/openings/jobava.json) and
+the [Queen's Pawn entry](../../data/openings/queens-pawn-game.json).
+Standard, Nf6-first, Bf4-first, and e6 setups can reach the same Jobava family.
+Queen's Pawn recognizes the position after 1.d4, including every Black response
+and subsequent named opening. Recognition returns every matching family, so a
+Jobava game starting with 1.d4 earns full XP and one eligible game grade in both
+tracks for the played color. Membership follows replayed entry positions, not
+an inferred hierarchy; entering a Jobava position by another route does not
+automatically establish the Queen's Pawn entry.
 Recognition requires a normal starting board. PGN Opening/ECO labels do not
-activate it. The two color tracks retain the earlier draft IDs and names.
+activate a mastery. Jobava's two color tracks retain the earlier draft IDs and names.
 
 The [vendored move book](../../data/openings/README.md) is independent of named
 opening recognition. Both runtimes embed the same pinned Polyglot bytes and
@@ -113,7 +125,9 @@ rule, grade, analysis, book and recognition versions, their side and the XP
 breakdown. Grade-gate batches are independent by track, following the
 [common level rules](tactical-masteries.md#shared-progression). Recollection
 retains the complete saved opening award, including its single grade, rather
-than adding newly repriced move fragments. Color correction replaces the award.
+than adding newly repriced move fragments. Recollecting older Jobava games with
+analysis and clocks can add the newly available Queen's Pawn award while leaving
+their saved Jobava awards intact. Color correction replaces the awards.
 
 Collection cards group contributions by game. Open a game to inspect book,
 independent-play, bonus, reward-weight and time/result evidence; replay buttons

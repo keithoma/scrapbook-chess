@@ -4,9 +4,11 @@ import skewerSource from '../../../data/achievements/masteries/tactics/skewers.y
 import policySource from '../../../data/rules/tactical-mastery.yml?raw';
 import openingPolicySource from '../../../data/rules/opening-mastery.yml?raw';
 import openingSource from '../../../data/achievements/masteries/openings/jobava-london.yml?raw';
+import queensPawnSource from '../../../data/achievements/masteries/openings/queen-s-pawn-game.yml?raw';
 import endgameSource from '../../../data/achievements/masteries/endgames/pawn-vs-pawn.yml?raw';
 import endgamePolicySource from '../../../data/rules/endgame-mastery.yml?raw';
 import type { Score } from '../stockfish';
+import { OPENINGS } from '../openings/recognition';
 
 export const TACTICAL_GRADES = [
   'D-',
@@ -26,14 +28,14 @@ export const TACTICAL_GRADES = [
   'S+',
 ] as const;
 export type TacticalGrade = (typeof TACTICAL_GRADES)[number];
-export const MASTERY_IDS = ['mastery_knight_forks', 'mastery_skewers', 'mastery_rapport_jobava_white', 'mastery_rapport_jobava_black', 'mastery_pawn_vs_pawn'] as const;
+export const MASTERY_IDS = ['mastery_knight_forks', 'mastery_skewers', 'mastery_rapport_jobava_white', 'mastery_rapport_jobava_black', 'mastery_queens_pawn_game_white', 'mastery_queens_pawn_game_black', 'mastery_pawn_vs_pawn'] as const;
 export type MasteryId = (typeof MASTERY_IDS)[number];
 export interface MasteryDefinition {
   id: MasteryId;
   type: 'mastery';
   category?: string;
   subcategory?: string;
-  name: 'Knight forks' | 'Skewers' | 'The Modern Artist (Rapport-Jobava)' | 'The Art Critic (Defending the Rapport-Jobava)' | 'Pawn vs Pawn';
+  name: 'Knight forks' | 'Skewers' | 'The Modern Artist (Rapport-Jobava)' | 'The Art Critic (Defending the Rapport-Jobava)' | "Queen's Pawn Game (White)" | "Queen's Pawn Game (Black)" | 'Pawn vs Pawn';
   family?: 'opening' | 'tactical' | 'endgame';
   color?: 'white' | 'black';
   opening_id?: string;
@@ -59,6 +61,7 @@ export const FORK_MASTERY = TACTICAL_MASTERIES[0];
 export const SKEWER_MASTERY = TACTICAL_MASTERIES[1];
 interface OpeningPolicy extends Pick<MoveMasteryDefinition, 'quality_awards' | 'grade_bands' | 'level_thresholds' | 'level_requirements'> {
   id: string;
+  level_threshold_multipliers: Record<string, number>;
   theory_cap: number;
   novel_decay: number;
   advantage_start_cp: number;
@@ -92,11 +95,16 @@ if (!(OPENING_POLICY.novel_decay > 0 && OPENING_POLICY.novel_decay < 1 &&
     OPENING_POLICY.control_cap_seconds > 0 && OPENING_POLICY.control_exponent > 1 &&
     OPENING_POLICY.minimum_time_multiplier > 0))
   throw new Error('Invalid opening mastery policy.');
-export const OPENING_MASTERIES: MoveMasteryDefinition[] = parse(openingSource).map((definition: MoveMasteryDefinition & { progression: string }) => {
-  if (definition.progression !== OPENING_POLICY.id || definition.opening_id !== 'rapport-jobava' ||
-      !['white', 'black'].includes(definition.color ?? '') || definition.id !== `mastery_rapport_jobava_${definition.color}`)
+export const OPENING_MASTERIES: MoveMasteryDefinition[] = [openingSource, queensPawnSource].flatMap(source => parse(source)).map((definition: MoveMasteryDefinition & { progression: string }) => {
+  const opening = OPENINGS.find(opening => opening.id === definition.opening_id);
+  const multiplier = OPENING_POLICY.level_threshold_multipliers[definition.opening_id ?? ''];
+  if (definition.progression !== OPENING_POLICY.id || !opening ||
+      !Number.isSafeInteger(multiplier) || multiplier < 1 ||
+      !['white', 'black'].includes(definition.color ?? '') || definition.id !== `mastery_${opening.id.replaceAll('-', '_')}_${definition.color}`)
     throw new Error('Invalid opening mastery definition.');
-  return { ...OPENING_POLICY, ...definition, family: 'opening' };
+  return { ...OPENING_POLICY, ...definition, family: 'opening',
+    level_thresholds: OPENING_POLICY.level_thresholds.map(threshold => threshold * multiplier),
+  };
 });
 export type EndgameStart = 'winning' | 'even' | 'losing';
 export type EndgameResult = 'win' | 'draw' | 'loss';

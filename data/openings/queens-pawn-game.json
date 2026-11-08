@@ -1,0 +1,8 @@
+{
+  "id": "queens-pawn-game",
+  "name": "Queen's Pawn Game",
+  "source": "https://github.com/lichess-org/chess-openings/blob/3ba6b20d31b2e6125cb0e6a2e792f400717d9d39/a.tsv",
+  "sourceVersion": "3ba6b20d31b2e6125cb0e6a2e792f400717d9d39",
+  "aliases": ["Queen's Pawn Game"],
+  "entryLines": ["d4"]
+}

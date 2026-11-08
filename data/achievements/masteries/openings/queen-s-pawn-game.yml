@@ -1,0 +1,23 @@
+# Openings / Queen's Pawn Game
+- id: mastery_queens_pawn_game_white
+  type: mastery
+  category: Openings
+  subcategory: Queen's Pawn Game
+  name: Queen's Pawn Game (White)
+  description: Gain experience by playing Queen's Pawn openings as White, starting with 1.d4.
+  rule_version: queens-pawn-game-opening-v1
+  grade_version: opening-grades-v1
+  progression: opening-mastery-v1
+  color: white
+  opening_id: queens-pawn-game
+- id: mastery_queens_pawn_game_black
+  type: mastery
+  category: Openings
+  subcategory: Queen's Pawn Game
+  name: Queen's Pawn Game (Black)
+  description: Gain experience by facing Queen's Pawn openings as Black, starting with 1.d4.
+  rule_version: queens-pawn-game-opening-v1
+  grade_version: opening-grades-v1
+  progression: opening-mastery-v1
+  color: black
+  opening_id: queens-pawn-game

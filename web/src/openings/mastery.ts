@@ -4,10 +4,10 @@ import type { Checkpoint } from '../storage';
 import { validAnalysis, pov } from '../achievements/quality';
 import {
   OPENING_POLICY as policy, OPENING_MASTERIES, qualityXp,
-  type OpeningMasteryContribution, type TacticalGrade,
+  type OpeningMasteryContribution, type TacticalGrade, type MoveMasteryDefinition,
 } from '../achievements/mastery-policy';
 import type { Score } from '../stockfish';
-import { recognizeOpening } from './recognition';
+import { recognizeOpenings, type RecognizedOpening } from './recognition';
 import { BOOK_VERSION } from './book';
 import { annotateMoves } from '../chess/annotations';
 import { openingClocks, openingTimeMultiplier } from './time';
@@ -24,18 +24,29 @@ export const openingFade = (capacity: number): number =>
   capacity <= policy.conversion_capacity ? 1 : Math.max(policy.fade_floor, policy.fade_rate ** (capacity - policy.conversion_capacity));
 
 export function openingAssessment(game: ReplayGame, color: Color, checkpoint?: Checkpoint) {
-  const opening = recognizeOpening(game);
-  if (!opening) return { status: 'unrecognized' as const, events: [] };
-  if (!validAnalysis(game, checkpoint, true)) return { status: 'analysis' as const, events: [] };
+  const openings = recognizeOpenings(game);
+  if (!openings.length) return { status: 'unrecognized' as const, events: [], openings };
+  if (!validAnalysis(game, checkpoint, true)) return { status: 'analysis' as const, events: [], openings };
   const clocks = openingClocks(game, color);
-  if (!clocks) return { status: 'clocks' as const, events: [] };
-  const definition = OPENING_MASTERIES.find(d => d.opening_id === opening.id && d.color === color)!;
+  if (!clocks) return { status: 'clocks' as const, events: [], openings };
+  const results = annotateMoves(game, checkpoint.results);
+  const events = openings.flatMap(opening => {
+    const definition = OPENING_MASTERIES.find(d => d.opening_id === opening.id && d.color === color)!;
+    return scoreOpening(game, color, checkpoint, opening, definition, clocks, results);
+  });
+  return { status: 'ready' as const, events, openings };
+}
+
+function scoreOpening(
+  game: ReplayGame, color: Color, checkpoint: Checkpoint,
+  opening: RecognizedOpening, definition: MoveMasteryDefinition,
+  clocks: NonNullable<ReturnType<typeof openingClocks>>, results: ReturnType<typeof annotateMoves>,
+) {
   const events: OpeningMasteryContribution[] = [];
   let peak = 0; let capacity = 0; let outside = false; let sinceDeparture = 0;
   let bookCount = 0; let theoryTotal = 0; let creditedTime = 0;
   let gradeMoves = 0; let gradeWeight = 0; let weightedLoss = 0; let badMate = false;
   const visited = new Set<string>();
-  const results = annotateMoves(game, checkpoint.results);
   const resultMultiplier = game.result === '1/2-1/2' ? 1 : game.result === (color === 'white' ? '1-0' : '0-1') ? 2 : 0.5;
   for (const [i, move] of game.moves.entries()) {
     const result = results[i];
@@ -105,7 +116,7 @@ export function openingAssessment(game: ReplayGame, color: Color, checkpoint?: C
     grade = badMate ? 'D-' : definition.grade_bands.find(b => weightedLoss / gradeWeight <= b.max_loss_cp)?.grade ?? 'D-';
     events.at(-1)!.grade = grade;
   }
-  return { status: 'ready' as const, events: events.filter(e => e.amount > 0 || e.grade), grade, opening };
+  return events.filter(e => e.amount > 0 || e.grade);
 }
 
 export function openingContributions(game: ReplayGame, color: Color, checkpoint?: Checkpoint): OpeningMasteryContribution[] {

@@ -1,8 +1,8 @@
 # Opening masteries
 
-These rules serve the game designer and implementers. Jobava London is the first
-implemented opening family. Its numeric balance values are prototype tuning in
-[the opening policy](../../data/rules/opening-mastery.yml), not conventional chess
+These rules serve the game designer and implementers. Jobava London and Queen's
+Pawn Game are implemented opening families. Their numeric balance values are
+prototype tuning in [the opening policy](../../data/rules/opening-mastery.yml), not conventional chess
 grades or immutable game-design thresholds.
 
 ## Named openings and branching
@@ -15,14 +15,18 @@ Recognize opening positions through legal replay, including transpositions.
 Do not infer a strict tree from ECO codes, name prefixes, or move order: named
 positions can have several routes. Lichess calls Jobava London the Rapport-Jobava
 System; its “with e6” entry belongs to the same mastery. The route can pass named
-Chigorin or Indian positions; that does not activate another mastery now.
+Chigorin or Indian positions; those names do not activate their own masteries now.
 
 Each opening family has independent White and Black mastery tracks. Facing an
 opening as Black is a different skill from playing it as White. Preserve the
 existing Jobava names, The Modern Artist and The Art Critic, and stable IDs.
-Queen's Pawn and other opening families remain future work. Broad parents will
-need substantially more XP than narrower variations because they occur more
-often. Parent/child credit rules remain unresolved until those tracks are added.
+Queen's Pawn Game recognizes the position after 1.d4, covering every Black reply
+and later named variation. A game recognized as both Queen's Pawn Game and Jobava
+earns full XP and one eligible grade in each track, without splitting the award.
+Both Queen's Pawn color tracks require substantially more XP at every level;
+the shared opening policy supplies their threshold multiplier. Grade gates stay
+the same and are independent by track. Other opening families and their
+parent/child memberships remain future work.
 
 ## Theory and independent play
 
@@ -84,8 +88,8 @@ New policy versions must not silently reprice saved contributions.
 Future automation should generate opening recognition data from Lichess, then
 apply reviewed naming/grouping rules. Recognition records, source provenance,
 scoring policies, and authored writing remain separate so generation preserves
-stable IDs and the designer's flavor text. This iteration handcrafts Jobava;
-it does not activate or implement a catalog-wide generator.
+stable IDs and the designer's flavor text. Recognition handcrafts Jobava and
+Queen's Pawn Game; it does not activate or implement a catalog-wide generator.
 
 See the [implementation reference](../../docs/reference/opening-masteries.md)
 for current evidence, arithmetic, and source limitations.
