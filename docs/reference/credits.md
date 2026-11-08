@@ -12,6 +12,17 @@ Used for move evaluation and engine continuations. It remains the gold standard 
 Used for game data and API services. An unrivaled platform that provides the "oxygen" for modern chess development by keeping data free and accessible.
 * [https://lichess.org/](https://lichess.org/)
 
+### Lichess scalachess and move-quality conventions
+
+The phase divider is a TypeScript port of
+[scalachess Divider.scala](https://github.com/lichess-org/scalachess/blob/736daea6b3fc3dddebbc69f3bd8463dc13cc198a/core/src/main/scala/Divider.scala).
+Its MIT [permission notice](../../web/public/licenses/scalachess-MIT.txt) ships
+with the app. Badge mistakes and blunders independently implement the numerical
+winning-chance and mate-transition conventions in pinned
+[Lichess Advice.scala](https://github.com/lichess-org/lila/blob/7245313a7b6fb39491e2c2c172cecfea268fc72d/modules/tree/src/main/Advice.scala),
+with inaccuracies deliberately ignored. See the
+[qualification reference](badge-rules.md) for their use and limits.
+
 ### Norman Pollock (40H-PGN)
 Used during the Python opening-analysis prototype. Norman’s meticulous work cleaning and filtering high-level OTB games into the 40H-PGN databases is an essential resource for opening analysis.
 * [http://nk-qy.info/40h](http://nk-qy.info/40h)
