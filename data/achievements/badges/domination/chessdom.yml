@@ -70,7 +70,8 @@
   subcategory: 'ChessDom'
   name: 'Clutch'
   description: 'Win a time scramble.'
-  flavor_text: ''
+  flavor:
+    text: There is no time to explain. There is barely time to move.
   config:
     metric_key: 'is_time_scramble_win'
     required_value: true
@@ -78,32 +79,41 @@
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The final seconds had surprisingly strong opinions.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your pulse is now a permitted increment.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: You have discovered an extra gear. It appears to be panic.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The clock tried to end the conversation. You had one more thing.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Your hands are filing a separate game report.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The position was complicated. The deadline was not.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: You are developing a suspiciously calm relationship with zero.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The flag has learned to hesitate.
+    max_seconds: 30
