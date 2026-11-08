@@ -51,6 +51,8 @@ implemented separately for each content file.
 
 ## Mastery, story, and scraps
 
+Tactical tracks use the [mastery progression rules](../mechanics/achievement-families.md#mastery-progression).
+
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
@@ -116,13 +118,15 @@ prove the fork threatens material gain.
 
 The related clean-material descriptions in `badges_hybrid.yml` require neither
 a mistake nor a blunder. They provide no numerical quality thresholds. The exact
-fork quality cutoff, threat-validation method, and XP remain open; the current
+fork quality cutoff, threat-validation method, XP mapping, and level thresholds
+remain open; the current
 inspector implements neither qualification test as an award rule.
 
 1. **Browser proof:** chessops legal replay, full browser Stockfish at initial
    depth 6, explicit 20-ply continuation limit, checkpoint/resume, desktop and phone.
    Verify actual game moves remain unchanged and engine memory/startup are usable.
-2. **Reward vertical slice:** one cumulative badge, one tactical mastery detector,
+2. **Reward vertical slice:** one cumulative badge, one tactical mastery detector
+   with quality-based XP and levels,
    real/virtual mating scraps, move-linked evidence, collection state, and reveals.
    Verify virtual→real upgrade and real-only counts by color.
 3. **Hosted profile and imports:** selected authentication, both platform adapters,
@@ -146,7 +150,8 @@ remain draft while the author develops it.
 - Speed boundaries, game-length eligibility, timestamp/timezone semantics.
 - Phase boundaries, quality thresholds, clean-gain and motif definitions.
 - Production terminal-game eligibility and tuning of the bounded virtual search.
-- XP formula, narrative completion/retroactivity, streak/diversity definitions.
+- Quality-to-XP formula and mastery level curves, narrative completion/retroactivity,
+  streak/diversity definitions.
 - Rule-update/recalculation policy: preserve, backfill, or rebuild existing awards.
 - Authentication, ownership verification, board renderer, final hosting/database.
 
