@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
-import { parseGame, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
+import { parseGame, SAMPLE_PGN, MATE_PGN, RECENT_GAME_PGN, scoreLabel, type Frame } from './game';
 import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
@@ -17,6 +17,7 @@ const glyphs = {
   white: { king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙' },
   black: { king: '♚', queen: '♛', rook: '♜', bishop: '♝', knight: '♞', pawn: '♟' },
 };
+const recentGameId = gameIdentity(parseGame(RECENT_GAME_PGN));
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
 function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; locale: Locale }) {
@@ -51,15 +52,15 @@ function App() {
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
   }, []);
-  const [game, setGame] = useState(() => parseGame(SAMPLE_PGN));
+  const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
   const collection = useLocalCollection();
   const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
   const gameId = gameIdentity(game);
   const savedGame = collection.games.find(record => record.id === gameId);
-  const playerColor = choice?.id === gameId ? choice.color : savedGame?.color ?? '';
+  const playerColor = choice?.id === gameId ? choice.color : savedGame?.color ?? (gameId === recentGameId ? 'black' : '');
   const ownedElsewhere = new Set(projectCollection(collection.games.filter(record => record.id !== gameId)).scraps.map(scrap => scrap.notation));
   const savedVirtual = savedGame?.color === playerColor && savedGame.events.some(event => event.kind === 'scrap' && event.mode === 'virtual');
-  const [draft, setDraft] = useState(SAMPLE_PGN);
+  const [draft, setDraft] = useState(RECENT_GAME_PGN);
   const [checkpoint, setCheckpoint] = useState<Checkpoint>();
   const [status, setStatus] = useState<Status>('loading');
   const [message, setMessage] = useState<Message>('Opening your local notebook…');
@@ -77,7 +78,7 @@ function App() {
     const restore = async () => {
       try {
         const saved = await lastCheckpoint();
-        const pgn = saved?.pgn ?? SAMPLE_PGN;
+        const pgn = saved?.pgn ?? RECENT_GAME_PGN;
         const restored = saved ?? await loadCheckpoint(pgn);
         if (!alive) return;
         setGame(parseGame(pgn)); setDraft(pgn); setCheckpoint(restored);
@@ -249,6 +250,7 @@ function App() {
         <details className="note-card">
           <summary className="cursor-pointer text-sm font-semibold">{t('Open another page of the notebook')}</summary>
           <div className="my-4 flex flex-wrap gap-2">
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(RECENT_GAME_PGN)}>{t('Your recent game (Black)')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>{t('Original rapid game')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
           </div>

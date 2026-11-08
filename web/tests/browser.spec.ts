@@ -3,7 +3,7 @@ import { MATE_PGN } from '../src/game';
 
 const state = (page: Page) => page.getByTestId('status');
 async function openInput(page: Page) {
-  const details = page.locator('details');
+  const details = page.locator('summary').filter({ hasText: 'Open another page of the notebook' }).locator('..');
   if (!(await details.evaluate(element => element.hasAttribute('open')))) await details.locator('summary').click();
 }
 
@@ -17,6 +17,8 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
   }
   await page.goto('/');
   await expect(state(page)).toHaveAttribute('data-state', 'ready');
+  await openInput(page);
+  await page.getByRole('button', { name: 'Original rapid game', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(137);
   await page.getByRole('button', { name: 'Next move', exact: true }).click();

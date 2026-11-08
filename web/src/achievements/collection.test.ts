@@ -3,7 +3,7 @@ import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
-import { parseGame, MATE_PGN, type ReplayGame } from '../game';
+import { parseGame, MATE_PGN, RECENT_GAME_PGN, type ReplayGame } from '../game';
 import type { Checkpoint } from '../storage';
 import { BADGES, progressFor } from './catalog';
 import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, virtualMate, type GameGrant } from './collection';
@@ -25,9 +25,20 @@ function simulated(game: ReplayGame, moves: string[]): Checkpoint {
 }
 
 describe('local contribution extraction', () => {
+  it('recognizes the supplied game, its /game/ Lichess URL, and Black’s actual contributions', () => {
+    const game = parseGame(RECENT_GAME_PGN);
+    expect(gameIdentity(game)).toBe('lichess:jrhXaNf4');
+    expect(game.moves).toHaveLength(52);
+    expect(game.moves.at(-1)?.san).toBe('Qe1+');
+    expect(game.frames.at(-1)?.checkmate).toBe(false);
+    const rewards = projectCollection([grant(game, 'black')]);
+    expect(rewards.totals).toEqual({ badge_played_total: 1, badge_moves_played: 26, badge_en_passant: 0 });
+    expect(rewards.scraps).toEqual([]);
+  });
   it('uses exact legal SAN, including file disambiguation, captures, and promotions', () => {
     const cases = [
       [WHITE_FEN, 'Rab2#'], [WHITE_FEN, 'Rhb2#'],
+      ['1R6/8/8/8/2N5/2K5/k1N5/1R6 w - - 0 1', 'R1b2#'],
       ['8/8/8/8/8/1NK5/Rp5R/1k6 w - - 0 1', 'Raxb2#'],
       ['7k/P7/6K1/8/8/8/8/8 w - - 0 1', 'a8=Q#'],
       ['7k/P7/6K1/8/8/8/8/8 w - - 0 1', 'a8=R#'],
@@ -50,6 +61,7 @@ describe('local contribution extraction', () => {
     expect(gameIdentity(parseGame('1. e4 e5 1-0'))).toBe(gameIdentity(parseGame('1.e4 {hello} e5 1-0')));
     const game = (site: string) => parseGame(`[Site "${site}"]\n\n1. e4 e5 1-0`);
     expect(gameIdentity(game('https://lichess.org/abcd1234/black'))).toBe(gameIdentity(game('https://lichess.org/abcd1234')));
+    expect(gameIdentity(game('https://lichess.org/game/abcd1234'))).toBe(gameIdentity(game('https://lichess.org/abcd1234')));
     expect(gameIdentity(game('https://lichess.org/abcd1234'))).not.toBe(gameIdentity(game('https://lichess.org/abcd1235')));
   });
 });

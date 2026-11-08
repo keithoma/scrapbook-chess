@@ -5,6 +5,9 @@ import { makeUci } from 'chessops/util';
 import { kingCastlesTo } from 'chessops/util';
 import { castlingSide } from 'chessops/chess';
 import type { Color, Role } from 'chessops/types';
+import recentGame from './fixtures/jrhXaNf4.pgn?raw';
+
+export const RECENT_GAME_PGN = recentGame;
 
 export interface Frame {
   fen: string;

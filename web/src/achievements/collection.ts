@@ -28,7 +28,7 @@ export interface Scrap {
 }
 
 export function gameIdentity(game: ReplayGame): string {
-  const lichess = game.site.match(/^https?:\/\/(?:www\.)?lichess\.org\/([a-zA-Z0-9]{8})(?:[a-zA-Z0-9]{4})?(?:[/?#]|$)/);
+  const lichess = game.site.match(/^https?:\/\/(?:www\.)?lichess\.org\/(?:game\/)?([a-zA-Z0-9]{8})(?:[a-zA-Z0-9]{4})?(?:[/?#]|$)/);
   const chesscom = game.site.match(/^https?:\/\/(?:www\.)?chess\.com\/game\/(live|daily)\/(\d+)/);
   if (lichess) return `lichess:${lichess[1]}`;
   if (chesscom) return `chesscom:${chesscom[1]}:${chesscom[2]}`;
