@@ -223,41 +223,52 @@
   type: badge
   category: 'Material'
   subcategory: 'Clean Gains'
-  name: ''
+  name: 'Hostile Takeover'
   description: 'Number of clean queens won (the queen winning move is not a mistake nor a blunder and the queen is kept for 5 or more turns).'
-  flavor_text: ''
+  flavor:
+    text: The board of directors has changed the board.
   config:
     metric_key: 'clean_queens_count'
     is_hidden: false
+    analysis_required: true
+    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The queen has left the meeting.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: A second acquisition. The lawyers are beginning to enjoy this.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your opponent has requested a more independent compensation committee.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The transaction remained favorable after the mandatory review period.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You are accumulating a concerning amount of executive experience.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The remaining pieces have been informed of the restructuring.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Your opponent's position is now a wholly owned subsidiary.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The takeover is complete. Please return your diagonal access card.
