@@ -169,42 +169,52 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Comebacks'
-  name: ''
+  name: 'Unfinished Business'
   description: 'Start the end game with 2.0 down and draw or win.'
-  flavor_text: ''
+  flavor:
+    text: The queens left. The disagreement stayed.
   config:
     metric_key: 'is_comeback_from_2_0_down_endgame'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: An unfavorable ending, favorably disputed.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The opponent has learned to keep their king awake.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The reduced material has not reduced your objections.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: You have become difficult to convert into a full point.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The endgame table of contents now includes an appeal.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your remaining pawns have requested overtime.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The evaluation was clear. The procedure was less cooperative.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The game is only over when the paperwork agrees.
