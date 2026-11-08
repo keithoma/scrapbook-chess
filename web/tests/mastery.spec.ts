@@ -30,7 +30,9 @@ async function collect(page: Page) {
 }
 async function collection(page: Page, xp: number, level: number) {
   await page.getByRole('link', { name: 'Collection', exact: true }).click();
-  await expect(page.getByTestId('mastery-total-xp')).toHaveText(`${xp} XP`);
+  await expect(page.getByTestId('mastery-total-xp')).toHaveText(
+    `${new Intl.NumberFormat('en').format(xp)} XP`,
+  );
   await expect(page.getByTestId('fork-mastery')).toContainText(`Level ${level}`);
 }
 
