@@ -10,8 +10,8 @@ existing description final or require the whole catalog in the first release.
   hidden scraps, shelved mechanics, streak/diversity/group conditions.
 - `design/content/quote-ideas.md`: writing reference, not executable rules.
 - Twenty badge YAML files: 61 unique badge definitions and 515 tier entries.
-- `masteries/tactics/forks.yml`: the first tactical mastery, with quality-based XP
-  awards, a rule version, and level thresholds.
+- `masteries/tactics/`: knight-fork and skewer definitions, referencing the shared
+  tactical progression policy under `data/rules/`.
 - `mastery.json`: eight opening tracks, split by player color.
 - `scraps/`: eight named one-time scrap definitions, classified in YAML and still
   marked as drafts pending unlock rules and detectors.
@@ -66,7 +66,8 @@ classification does not activate the unresolved mechanics below.
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
 | Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
-| Skewer, discovery (design notes) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
+| Skewer (`masteries/tactics/skewers.yml`) | Implemented with new-ray detection, bounded net-gain verification, shared grades/XP and independent levels | Tune bounded detection and quality grading |
+| Discovery (design notes) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (design notes) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (design notes) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |
 | Five onboarding story nodes (`story.json`) | Prerequisite graph plus explicit completion predicates | Existing JSON has prerequisites but lacks executable completion predicates; replace Lichess-only wording |
@@ -111,7 +112,7 @@ SQLite-backed profile rewards are implemented. See the
 The dated [browser proof QA record](../../docs/qa/browser-proof.md) retains the
 limits of that audit; it is not a claim about every later badge.
 
-The loop includes all YAML badges, knight-fork mastery, and exact-SAN real/virtual
+The loop includes all YAML badges, knight-fork and skewer masteries, and exact-SAN real/virtual
 mating scraps. Collection is idempotent, color correction replaces the game's
 contributions, and explicit recollection adds newly available awards. Previously
 collected engine evidence and virtual discoveries survive cache eviction for the
@@ -142,7 +143,7 @@ that square. The [browser reference](../../docs/reference/browser-proof.md#knigh
 describes its award and evidence behavior.
 
 Clean-material badges now use the shared Lichess mistake/blunder classifier.
-The knight-fork YAML separately supplies prototype quality bands and XP awards.
+The shared tactical policy supplies prototype quality bands and XP awards.
 These are tuning rules,
 not claims about standard mistake categories. Mate outcomes are compared separately
 from centipawn losses. Repeated collection of the same move does not add XP again.

@@ -48,6 +48,21 @@ Four's starting-position false positive, the no-achievement-hunting principle,
 and the perfect game's mention of inaccuracies. See the
 [implementation map](../planning/achievement-implementation.md#mastery-story-and-scraps).
 
+## Skewer qualification
+
+Skewers follow the tactical mastery blueprint: material qualification comes before
+engine quality, grades, and XP. The initial detector treats a new bishop, rook,
+or queen ray with a more valuable enemy piece in front of a less valuable one
+as a candidate. Its bounded verifier must establish net material gain through
+every immediate defense and legal recaptures. It can credit a newly uncovered
+ray, while an unchanged alignment does not earn another occurrence.
+
+These are prototype detection boundaries, not additional authored content rules.
+The [implementation reference](../../docs/reference/tactical-masteries.md#skewers)
+describes its conservative cases, evidence, and limits. Fork and skewer awards
+at the same ply remain distinct; neither track supplies XP or grade marks to the
+other.
+
 ## Badge qualification and tuning
 
 All YAML badges are implemented. Repeatable game accomplishments stay badges;
@@ -81,37 +96,38 @@ forks, use the intended qualification in the
 [implementation map](../planning/achievement-implementation.md). Missing analysis
 leaves quality-dependent awards pending; it does not imply good or bad play.
 
-The first implemented track is knight forks. Its prototype quality awards and
-level thresholds live in the [mastery YAML](../../data/achievements/masteries/tactics/forks.yml).
+Knight forks and skewers are implemented. Their definitions refer to one
+[shared tactical policy](../../data/rules/tactical-mastery.yml) for quality awards,
+grades, XP thresholds, and grade-gate costs. Each track has independent progress.
 Values should appear irregular like the authored badge thresholds while keeping
 a sensible progression: precise moves earn more experience, and later levels
 require progressively more experience. Awards are deterministic for the same
 evidence; their apparent randomness is in the authored numbers.
 
-### Fork grades and level requirements
+### Tactical grades and level requirements
 
-Every qualified fork receives a grade from D-, D, D+, C-, C, C+, B-, B, B+,
+Every qualified tactical occurrence receives a grade from D-, D, D+, C-, C, C+, B-, B, B+,
 A-, A, A+, S-, S, through S+. Grades describe the quality of the move creating
-the fork after material qualification. Geometric candidates that fail the
+the tactic after material qualification. Geometric candidates that fail the
 material or quality gate do not receive a mastery grade. Missing analysis stays
 pending rather than being rated poorly.
 
 The initial grade bands subdivide the existing engine-evaluation-loss XP bands.
-They are prototype tuning in the mastery YAML, not standard chess annotations
+They are prototype tuning in the shared policy YAML, not standard chess annotations
 or Lichess mistake categories. Existing XP awards and level XP thresholds are
 preserved. The existing accepted mate outcomes receive S+; no mate distance is
 converted into centipawns. Saved contributions keep their grade and grading
 version alongside their original XP and evidence.
 
 XP continues accumulating while a grade requirement blocks the next level.
-Levels 1–5 require only XP. Level 6 also requires two S-/S/S+ forks, level 7
-requires three additional high-grade forks, and level 8 requires five more.
+Levels 1–5 require only XP. Level 6 also requires two S-/S/S+ occurrences in its track, level 7
+requires three additional high-grade occurrences, and level 8 requires five more.
 These are separate batches: lifetime totals are two, five, and ten respectively.
 The per-level batch sizes live in YAML alongside the unchanged XP thresholds.
 
-A collected fork can satisfy only one gate. Its grade and occurrence remain in
+A collected tactic can satisfy only one gate in its own track. Its grade and occurrence remain in
 the collection; allocation is derived from the saved history rather than deleting
-awards. Multiple qualifying forks in one game count separately. Grades earned
+awards. Multiple qualifying occurrences in one game count separately. Grades earned
 before a gate can be banked, and recollection or repeated analysis does not add
 another occurrence. The collection shows the next gate's batch progress separately
 from the lifetime high-grade count.

@@ -24,7 +24,7 @@ This reference describes the local browser app. See the
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 | Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
-| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/tactics/forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
+| Tactical mastery quality awards and levels | [shared policy](../../data/rules/tactical-mastery.yml), [track definitions](../../data/achievements/masteries/tactics/), and [mastery.ts](../../web/src/achievements/mastery.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -61,7 +61,7 @@ this does not set the color for other uploaded games. Existing saved selections
 and an explicit correction take precedence over that example's default.
 The active badges use their original YAML definitions and thresholds. Badge
 names, tier labels, and flavor remain the authored English text;
-the surrounding interface is localized. Knight-fork mastery is implemented;
+the surrounding interface is localized. Knight-fork and skewer masteries are implemented;
 other mastery tracks and story remain future work. All 61 YAML badges are active.
 See [badge qualification](badge-rules.md) for calendar, phase, clock, development,
 and evaluation-based families.
@@ -203,72 +203,9 @@ and its saved continuation when appropriate.
 
 ## Knight-fork mastery
 
-The replay includes an inspection panel for the selected player's actual knight
-moves, including knight underpromotions. A candidate attacks at least two enemy
-pieces after the move. Pawns and kings are included. This broad geometric test
-finds inspection candidates; qualification applies additional checks. It does not
-detect forks created by an unmoved knight or inspect virtual continuations.
-
-Selecting a candidate jumps to its played position and outlines the knight and
-targets. Absolute pins, immediate legal captures of the knight, and attacks on
-only pawns/minor pieces are shown as review warnings. Neither the presence nor
-absence of a warning proves material gain or a successful fork.
-
-Saved analysis supplies best-versus-played evaluations from the moving player's
-perspective, with the engine's best move in SAN. Centipawn loss is displayed only
-when both scores are centipawn scores, clamped at zero for shallow-search noise.
-Mate scores remain separate. Unanalyzed moves show pending evidence. Candidates
-are derived from the PGN and use existing checkpoints. The UI shows pending,
-rejected, qualified, or collected mastery awards. **Collect rewards** saves XP;
-analysis and inspection alone do not save a collection contribution.
-
-Qualification rejects pinned or immediately capturable knights. At least two
-targets must be credible threats, including check or a profitable legal capture.
-Every legal immediate defense must leave a net material gain of at least one pawn
-through a capture by the forking knight. The verifier accounts for defensive
-captures elsewhere and legal recaptures on the target square. Its bounded static
-exchange search may leave complex cases unresolved and does not prove the result
-of longer tactics away from that square. Unresolved cases earn no XP yet.
-
-For centipawn scores, the YAML bands select the XP award by mover-relative loss
-against the best move. A move outside all bands earns nothing. A retained or newly
-found winning mate, an escape from a forced loss, or maintaining/extending a forced
-loss's distance receives the highest quality award. Missing a found winning mate
-or shortening a forced loss earns nothing. These explicit prototype policies do
-not convert mate distances into centipawns or label moves as standard mistakes.
-
-Qualified forks receive a D- through S+ grade using the finer evaluation-loss
-bands in [the mastery YAML](../../data/achievements/masteries/tactics/forks.yml).
-Accepted mate outcomes receive S+. The inspector and saved contribution details
-show the grade. Rejected candidates have no mastery grade; missing analysis
-remains pending. These are prototype quality grades, not mistake annotations.
-
-Levels combine cumulative saved XP with the YAML's additional S-/S/S+ fork
-requirements. Levels 1–5 are XP-only. Level 6 needs two high-grade forks; level 7
-needs three more; level 8 needs five more. The resulting lifetime requirements
-are two, five, and ten. Each saved occurrence can satisfy only one gate, and each
-qualified fork counts separately even within one game. Earlier grades can be
-banked. The [design rules](../../design/mechanics/achievement-families.md#fork-grades-and-level-requirements)
-describe the allocation and tuning policy.
-
-XP is never capped by a locked grade gate. The collection shows total XP, a
-bounded XP bar, and the next level's high-grade requirement. Enough XP with
-insufficient grades shows that extra XP is saved; no negative XP remainder is
-displayed. Once the grade requirement is met, saved XP can unlock further levels
-until another unmet requirement or the last authored level.
-
-Replay shows XP at the originating move. Contributions save the rule and grading
-versions, grade, quality scores, material gain, and an illustrative defense/capture
-in SAN. These hypothetical moves are evidence, not an extension of the played game.
-
-Recollecting preserves already saved XP and evidence for the same game, color,
-and ply, including after checkpoint eviction or tuning changes. Newly analyzed
-qualifying moves may add contributions. Correcting the player color replaces the
-game's contributions. Repricing old awards after a rule change requires a future
-explicit migration; editing YAML does not automatically reprice saved awards.
-Older contributions without a grade use their retained version-one engine
-evidence to recover it and persist it on recollection. Unknown historical rules
-stay ungraded and do not earn high-grade credit merely from their XP amount.
+See [tactical masteries](tactical-masteries.md) for knight-fork and skewer
+qualification, the shared XP/grade blueprint, separate progression, and saved
+replay evidence.
 
 ## Scope and limits
 
