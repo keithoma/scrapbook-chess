@@ -10,39 +10,48 @@
   subcategory: 'Development'
   name: 'Flank Sniper'
   description: 'Total number of bishops developed via fianchetto.'
-  flavor_text: ''
+  flavor:
+    text: The bishop works remotely.
   config:
     metric_key: 'fianchetto_count'
     is_hidden: false
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A corner office with excellent sightlines.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your other bishop has requested the same arrangement.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The diagonal is not a commute. It is a lifestyle.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: Please do not book meetings on the long diagonal.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The pawn shield has been promoted to middle management.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your bishops are communicating through increasingly long emails.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The opposite corner now feels uncomfortably close.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: 'Return-to-office policy: denied.'
