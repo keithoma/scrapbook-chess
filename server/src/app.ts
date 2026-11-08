@@ -3,7 +3,8 @@ import type { DatabaseSync } from 'node:sqlite';
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
-import { parseGame } from '../../web/src/game';
+import { parseGame, withGameClocks } from '../../web/src/game';
+import { lichessClocks } from '../../shared/clocks';
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
@@ -120,6 +121,7 @@ export async function createApp(options: AppOptions) {
     // Imports made before rating badges already retained the original payload.
     // Recover historical evidence without fetching today's profile ratings.
     game.ratings ??= sourceRatings(game.platform, JSON.parse(row.raw_json as string));
+    if (game.platform === 'lichess' && game.clocks === undefined) game.clocks = lichessClocks(JSON.parse(row.raw_json as string).clocks, parseGame(game.pgn).moves.length);
     return game;
   }
   function collection(userId: string): GameGrant[] { return db.prepare('SELECT grant_json FROM collections WHERE user_id=?').all(userId).map(row => JSON.parse(row.grant_json as string)); }
@@ -208,7 +210,7 @@ export async function createApp(options: AppOptions) {
       }
       if (c.req.path.endsWith('/analysis')) return { ok: true };
       const before = collection(signed.user.id);
-      const game = parseGame(imported.pgn);
+      const game = withGameClocks(parseGame(imported.pgn), imported.clocks);
       game.timeControl = imported.timeControl;
       game.ratings = imported.ratings ?? {};
       game.startedAt = imported.startedAt;

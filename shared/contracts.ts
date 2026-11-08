@@ -10,6 +10,7 @@ export interface ImportedGame {
   white: string; black: string; color: 'white' | 'black'; pgn: string;
   startedAt: number; finishedAt: number; speed: string; timeControl: string;
   ratings?: GameRatings;
+  clocks?: (number | null)[];
   collected?: boolean; analyzed?: boolean;
 }
 export interface ProfileState {

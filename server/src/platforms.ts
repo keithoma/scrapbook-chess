@@ -3,6 +3,7 @@ import { parseGame } from '../../web/src/game';
 import { clockSpeed } from '../../web/src/time-control';
 import type { ImportedGame, Platform } from '../../shared/contracts';
 import { gameRating, type GameRatings } from '../../shared/ratings';
+import { lichessClocks } from '../../shared/clocks';
 
 export class PlatformError extends Error {
   constructor(public code: string) { super(code); }
@@ -74,7 +75,7 @@ function startFromPgn(pgn: string): number {
   return Date.parse(`${date.replaceAll('.', '-')}T${time}Z`);
 }
 function legalGame(platform: Platform, sourceId: string, name: string, pgn: string, startedAt: number, finishedAt: number,
-  speed: string, timeControl: string, cutoff: number, now: number, ratings: GameRatings): ImportedGame | undefined {
+  speed: string, timeControl: string, cutoff: number, now: number, ratings: GameRatings, rawClocks?: unknown): ImportedGame | undefined {
   if (!Number.isFinite(startedAt) || !Number.isFinite(finishedAt) || startedAt < cutoff || finishedAt < startedAt || finishedAt > now) return;
   const game = parseGame(pgn);
   if (!['1-0', '0-1', '1/2-1/2'].includes(game.result)) return;
@@ -87,7 +88,7 @@ function legalGame(platform: Platform, sourceId: string, name: string, pgn: stri
   const site = game.site.match(expected);
   if (!site || (platform === 'lichess' ? site[1] : `${site[1]}:${site[2]}`) !== sourceId) return;
   return { id: `${platform}:${sourceId}`, platform, sourceId, username: name, white: game.white, black: game.black,
-    color, pgn: game.pgn, startedAt, finishedAt, speed, timeControl, ratings };
+    color, pgn: game.pgn, startedAt, finishedAt, speed, timeControl, ratings, clocks: platform === 'lichess' ? lichessClocks(rawClocks, game.moves.length) : undefined };
 }
 
 export function sourceRatings(platform: Platform, raw: Json): GameRatings {
@@ -119,7 +120,7 @@ export async function fetchGames(client: PlatformClient, platform: Platform, nam
         }
         if (!clockSpeed(raw.clock?.initial, raw.clock?.increment)) return;
         return legalGame(platform, raw.id, name, raw.pgn, raw.createdAt, raw.lastMoveAt,
-          raw.speed, `${raw.clock.initial}+${raw.clock.increment}`, cutoff, now, sourceRatings(platform, raw));
+          raw.speed, `${raw.clock.initial}+${raw.clock.increment}`, cutoff, now, sourceRatings(platform, raw), raw.clocks);
       });
     }
   } else {

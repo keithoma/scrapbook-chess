@@ -19,6 +19,23 @@ async function setup(extra = {}) {
   return { db, app, options, request, login, advance: ms => { clock += ms; } };
 }
 
+test('clock badges use API centiseconds for Lichess and PGN clocks for chess.com, with retries counted once', async () => {
+  const lichess = sample('lichess', { id: 'Time0001' }); lichess.clocks = [59000, 59800, 58000, 59500];
+  const chesscom = sample('chesscom', { id: '999051', name: 'testchess' });
+  chesscom.pgn = chesscom.pgn.replace('1. f3 e5 2. g4 Qh4#', '1. f3 {[%clk 0:09:50]} e5 {[%clk 0:09:58]} 2. g4 {[%clk 0:09:40]} Qh4# {[%clk 0:09:55]}');
+  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' }); await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json(); assert.equal(me.games.length, 2);
+  for (const game of me.games) {
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const grant = (await (await s.request(path, 'POST', {})).json()).grant;
+    assert.deepEqual(grant.events.filter(event => event.badgeId === 'badge_time_advantage'), [{ kind: 'badge', badgeId: 'badge_time_advantage', amount: 1, ply: 4 }]);
+    assert.deepEqual(grant.clocks, [590, 598, 580, 595]);
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  s.db.close();
+});
+
 test('settings save a validated profile timezone, preserve the collection cutoff, and freeze calendar evidence', async () => {
   const raw = sample('lichess', { now: Date.UTC(2026, 10, 9, 1), age: 1.5 * 3600_000 });
   const s = await setup({ now: () => Date.UTC(2026, 10, 9, 1), fetcher: upstream({ lichess: [raw] }) });
