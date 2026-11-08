@@ -1,3 +1,4 @@
+import { cleanGainContributions } from './clean-gains';
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
@@ -111,12 +112,12 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+  return [...events, ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
 // Gross captured points, not net advantage. Capture quality and material kept
-// for later turns belong to the separate, still-inactive clean-material badges.
+// for later turns belong to the separate clean-material badges.
 const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
 
 // Keep already collected XP and evidence stable through cache eviction, partial

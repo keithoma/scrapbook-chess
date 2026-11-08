@@ -7,44 +7,55 @@
   type: badge
   category: 'Material'
   subcategory: 'Clean Gains'
-  name: ''
+  name: 'Finders Keepers'
   description: 'Number of clean pawns won (the pawn winning move is not a mistake nor a blunder and the pawn is kept for 5 or more turns).'
-  flavor_text: ''
+  flavor:
+    text: A pawn, acquired without a subscription to the opponent's attack.
   config:
     metric_key: 'clean_pawns_count'
     is_hidden: false
+    analysis_required: true
+    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: Small profit. Excellent paperwork.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The second pawn has cleared the probation period.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: You are building an emergency fund one file at a time.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: No, it was not poisoned. We waited to check.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Your opponent's pawn structure is sponsoring your retirement.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The extra pawns have started a neighborhood association.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Compound interest has arrived on the sixth rank.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The endgame accountant sends their regards.
 
 - id: badge_clean_knight
   type: badge
