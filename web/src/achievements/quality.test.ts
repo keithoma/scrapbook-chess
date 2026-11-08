@@ -65,3 +65,15 @@ it('flawless wins ignore inaccuracies but reject player mistakes and blunders fo
   const loss = parseGame('1. e4 e5 0-1');
   expect(contributions(loss, 'white', analyzed(loss)).some(e => e.kind === 'badge' && e.badgeId === 'badge_no_mistakes_blunders')).toBe(false);
 });
+
+it('perfect evaluation applies the authored asymmetric White/Black boundaries to every actual position', () => {
+  for (const [color, pass, fail] of [['white', 1, 0], ['black', 49, 50]] as const) {
+    const game = parseGame(`1. e4 e5 ${color === 'white' ? '1-0' : '0-1'}`); const checkpoint = analyzed(game, pass);
+    const events = () => contributions(game, color, checkpoint).filter(e => e.kind === 'badge' && e.badgeId === 'badge_perfect_eval');
+    expect(events()).toHaveLength(1);
+    checkpoint.results[1].played.value = fail; expect(events()).toEqual([]);
+    checkpoint.results[1].played = {type:'mate',value:color === 'white' ? -1 : 1}; expect(events()).toEqual([]);
+    checkpoint.results[1].played.value *= -1; expect(events()).toHaveLength(1);
+    checkpoint.results.pop(); expect(events()).toEqual([]);
+  }
+});

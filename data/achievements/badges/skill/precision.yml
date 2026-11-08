@@ -7,45 +7,55 @@
   type: badge
   category: 'Skill'
   subcategory: 'Precision'
-  name: ''
+  name: 'Always on Brand'
   description: 'Win a game with always being above 0.0 as white, or below +0.5 as black.'
-  flavor_text: ''
+  flavor:
+    text: The evaluation bar never had to revise its opening statement.
   config:
     metric_key: 'is_perfect_eval_win'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A consistent narrative, for once.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The graph has declined to provide a plot twist.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your opponent is waiting for the part where the advantage changes sides.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The evaluation bar has found a comfortable seat.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You are making the recap unnecessarily easy to write.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The engine's opinion has become repetitive.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Your advantage has survived every scheduled checkpoint.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: A flat story arc. An excellent result.
 
 - id: badge_no_blunders
   type: badge
