@@ -1,0 +1,9 @@
+{
+  "id": "lichess-2100-rapid-2026-05-v1",
+  "file": "lichess_2100_rapid_2026-05.bin",
+  "sha256": "cfe80094e1f5ddea85548d0bc9e05123cb96db39b8203d5335d52f77932e3bda",
+  "url": "https://github.com/Dash1971/chess-opening-book-builder/releases/download/books-2026-05-v1/lichess_2100_rapid_2026-05.bin",
+  "license": "CC0-1.0",
+  "provenance": "lichess_2100_rapid_2026-05.json",
+  "maxPlies": 30
+}
