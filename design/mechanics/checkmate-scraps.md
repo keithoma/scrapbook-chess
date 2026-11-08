@@ -1,9 +1,13 @@
 # Checkmate scraps
 
-These are agreed game-design rules. The current browser proof only demonstrates
-a separate engine continuation; it does not yet award or collect scraps.
+These are agreed game-design rules. See the implementation reference for the
+current scope of local collection and engine continuations.
 
 - Each mating scrap is one collectible, regardless of the player's color.
+- Identity is the complete canonical SAN mating notation. Preserve the piece,
+  destination, capture marker, promotion, castling, and file/rank/square
+  disambiguation. For example, `Rab2#` is a separate scrap from `Rb2#`, `Rhb2#`,
+  or `Raxb2#`. Accept any legal mating SAN rather than maintaining a whitelist.
 - Real: the player delivered the corresponding checkmate in the actual game.
 - Virtual: an engine continuation from the final position delivers that checkmate
   for the player. A forced-mate score is NOT required by the agreed generous rule.
@@ -21,8 +25,9 @@ a separate engine continuation; it does not yet award or collect scraps.
 - The actual simulated mating move determines the virtual scrap, even if it differs
   from an earlier engine prediction.
 - Keep actual game moves immutable. Store and label simulation separately in replay.
-- Eligibility of terminal losses, draws, and timeouts for simulation, and exact
-  notation identity (captures, promotion, disambiguation), still need decisions.
+- Eligibility of terminal losses, draws, and timeouts for simulation still needs
+  a production rule. A simulation must never award the opponent's mate to the
+  selected player.
 
 See [browser analysis](../../docs/explanation/browser-analysis.md) for the current
 implementation and [the implementation map](../planning/achievement-implementation.md)

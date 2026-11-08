@@ -30,8 +30,20 @@ searches can differ from uninterrupted searches. Saved completed results remain.
 After the played moves, the engine can explore a separately labeled continuation
 from the final position. Each simulated ply is saved independently. A terminal
 position stops it; otherwise the configured ply limit bounds the work. This
-demonstrates the basis for [virtual scraps](../../design/mechanics/checkmate-scraps.md),
-but collection awards and alternative-finish selection are not implemented yet.
+supports [virtual scraps](../../design/mechanics/checkmate-scraps.md). A collected
+finish belongs to the selected player's side; the opponent's mate earns no scrap.
+
+When a player's normal finish repeats a scrap owned from another game, the app
+can examine the last three player decisions in that continuation. At each decision
+it considers one alternative that the engine judges no worse at the current
+depth, or another winning mate. Subsequent defense uses unrestricted engine
+searches. Every candidate remains bounded by the continuation limit. This is
+generous engine-based play, not a proof of forced mate or exhaustive novelty search.
+
+Choosing the player color before analysis enables this search automatically.
+If a repeated finish was analyzed before choosing a color, **Look for another
+virtual finish** runs the bounded search explicitly. A game that already contributed
+a virtual discovery keeps that discovery rather than farming alternative finishes.
 
 The browser can suspend or terminate work when the page closes or a phone sleeps.
 Checkpoints preserve completed work, not reliable background execution. Future
@@ -45,6 +57,8 @@ and mobile viewport emulation. Physical-phone testing is still required before
 selecting this full engine build as the universal mobile default. Its large
 download and hosting packaging are material deployment considerations.
 
-The next logical boundary is the [proposed achievement pipeline](achievement-processing.md),
-which separates chess facts, rule evaluation, and collection state. See
+The [proposed achievement pipeline](achievement-processing.md) separates chess
+facts, rule evaluation, and collection state. The local contribution ledger now
+implements the first three badges and mating scraps; other detectors and server
+persistence remain planned. See
 [product experience](../../design/product/experience.md) for intended behavior.

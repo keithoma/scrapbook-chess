@@ -5,6 +5,7 @@ import { makeSanAndPlay } from 'chessops/san';
 import type { ReplayGame } from './game';
 import { DEPTH, saveCheckpoint, type Checkpoint } from './storage';
 import { StockfishClient } from './stockfish';
+import { findNovelFinish, type FinishOptions } from './virtual-finish';
 
 export async function analyzeGame(
   game: ReplayGame,
@@ -12,6 +13,7 @@ export async function analyzeGame(
   engine: StockfishClient,
   signal: AbortSignal,
   onSave: (checkpoint: Checkpoint, stage: 'moves' | 'virtual') => void,
+  finishOptions?: FinishOptions,
 ): Promise<void> {
   let current = structuredClone(checkpoint);
   const persist = async (stage: 'moves' | 'virtual') => {
@@ -20,6 +22,16 @@ export async function analyzeGame(
     await saveCheckpoint(current);
     signal.throwIfAborted();
     onSave(structuredClone(current), stage);
+  };
+  const refineFinish = async () => {
+    if (!finishOptions || current.virtualStatus !== 'mate') return;
+    onSave(structuredClone(current), 'virtual');
+    const alternative = await findNovelFinish(game, current.virtual, finishOptions, engine, signal);
+    if (alternative) {
+      current.virtual = alternative;
+      current.virtualWinner = finishOptions.color;
+      await persist('virtual');
+    }
   };
   for (let index = current.results.length; index < game.moves.length; index++) {
     signal.throwIfAborted();
@@ -35,7 +47,7 @@ export async function analyzeGame(
     });
     await persist('moves');
   }
-  if (current.virtualStatus !== 'pending') return;
+  if (current.virtualStatus !== 'pending') { await refineFinish(); return; }
   const final = game.frames.at(-1)!;
   const position = Chess.fromSetup(parseFen(current.virtual.at(-1)?.fen ?? final.fen).unwrap()).unwrap();
   if (current.virtual.length === 0 && position.isEnd()) {
@@ -57,4 +69,5 @@ export async function analyzeGame(
     } else if (current.virtual.length === 20) current.virtualStatus = 'limit';
     await persist('virtual');
   }
+  await refineFinish();
 }

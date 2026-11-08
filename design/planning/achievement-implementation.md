@@ -96,6 +96,11 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
+The first local collection loop now includes Obsession, Effort, The French Move,
+and exact-SAN real/virtual mating scraps. It supports per-game color selection,
+replay contributions, local persistence, and reward reveals. Tactical mastery,
+opening XP, narrative progression, accounts, and imports remain future work.
+
 1. **Browser proof:** chessops legal replay, full browser Stockfish at initial
    depth 6, explicit 20-ply continuation limit, checkpoint/resume, desktop and phone.
    Verify actual game moves remain unchanged and engine memory/startup are usable.
@@ -122,7 +127,7 @@ remain draft while the author develops it.
 
 - Speed boundaries, game-length eligibility, timestamp/timezone semantics.
 - Phase boundaries, quality thresholds, clean-gain and motif definitions.
-- Virtual scrap identity, terminal-game eligibility, alternative search tolerance.
+- Production terminal-game eligibility and tuning of the bounded virtual search.
 - XP formula, narrative completion/retroactivity, streak/diversity definitions.
 - Rule-update/recalculation policy: preserve, backfill, or rebuild existing awards.
 - Authentication, ownership verification, board renderer, final hosting/database.

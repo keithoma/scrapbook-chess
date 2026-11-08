@@ -3,17 +3,22 @@ import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseGame, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
-import { DEPTH, lastCheckpoint, loadCheckpoint, type Checkpoint } from './storage';
+import { RECENT_GAME_PGN } from './fixtures';
+import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
 import { useLocale, translate, type Locale, type Message, type Parameters } from './i18n';
 import { FeedbackBox } from './support';
+import { CollectionView, GameRewards, useLocalCollection, type Jump } from './achievements/collection-ui';
+import { gameIdentity, projectCollection, virtualMate } from './achievements/collection';
+import type { Color } from 'chessops/types';
 import './style.css';
 
 const glyphs = {
   white: { king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙' },
   black: { king: '♚', queen: '♛', rook: '♜', bishop: '♝', knight: '♞', pawn: '♟' },
 };
+const recentGameId = gameIdentity(parseGame(RECENT_GAME_PGN));
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
 function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; locale: Locale }) {
@@ -33,21 +38,30 @@ function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; loc
   </div>;
 }
 
+function pageFor(path: string) { return path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
+
 function App() {
   const { locale, setLocale, t, number } = useLocale();
-  const [page, setPage] = useState(() => location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+  const [page, setPage] = useState(() => pageFor(location.pathname));
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>, destination: string) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault(); history.pushState(null, '', destination);
-    setPage(destination === '/help' ? 'help' : destination === '/feedback' ? 'feedback' : 'notebook');
+    setPage(pageFor(destination));
   };
   useEffect(() => {
-    const pop = () => setPage(location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+    const pop = () => setPage(pageFor(location.pathname));
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
   }, []);
-  const [game, setGame] = useState(() => parseGame(SAMPLE_PGN));
-  const [draft, setDraft] = useState(SAMPLE_PGN);
+  const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
+  const collection = useLocalCollection();
+  const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
+  const gameId = gameIdentity(game);
+  const savedGame = collection.games.find(record => record.id === gameId);
+  const playerColor = choice?.id === gameId ? choice.color : savedGame?.color ?? (gameId === recentGameId ? 'black' : '');
+  const ownedElsewhere = new Set(projectCollection(collection.games.filter(record => record.id !== gameId)).scraps.map(scrap => scrap.notation));
+  const savedVirtual = savedGame?.color === playerColor && savedGame.events.some(event => event.kind === 'scrap' && event.mode === 'virtual');
+  const [draft, setDraft] = useState(RECENT_GAME_PGN);
   const [checkpoint, setCheckpoint] = useState<Checkpoint>();
   const [status, setStatus] = useState<Status>('loading');
   const [message, setMessage] = useState<Message>('Opening your local notebook…');
@@ -65,7 +79,7 @@ function App() {
     const restore = async () => {
       try {
         const saved = await lastCheckpoint();
-        const pgn = saved?.pgn ?? SAMPLE_PGN;
+        const pgn = saved?.pgn ?? RECENT_GAME_PGN;
         const restored = saved ?? await loadCheckpoint(pgn);
         if (!alive) return;
         setGame(parseGame(pgn)); setDraft(pgn); setCheckpoint(restored);
@@ -87,15 +101,17 @@ function App() {
     return () => { alive = false; leave(); window.removeEventListener('pagehide', leave); window.removeEventListener('pageshow', returnToPage); };
   }, []);
 
-  const openGame = async (pgn: string) => {
+  const openGame = async (pgn: string, jump?: Jump) => {
     if (busy) return;
     const ticket = ++revision.current;
     try {
       const parsed = parseGame(pgn);
       setError(''); setStatus('loading');
       const saved = await loadCheckpoint(parsed.pgn);
+      await saveCheckpoint(saved);
       if (ticket !== revision.current) return;
-      setGame(parsed); setDraft(parsed.pgn); setCheckpoint(saved); setPly(0); setVirtualPly(0);
+      const replay = jump?.virtual ? { ...saved, virtual: jump.virtual, virtualStatus: 'mate' as const, virtualWinner: parseFen(jump.virtual.at(-1)!.fen).unwrap().turn === 'white' ? 'black' as const : 'white' as const } : saved;
+      setGame(parsed); setDraft(parsed.pgn); setCheckpoint(replay); setPly(jump?.ply ?? 0); setVirtualPly(jump?.virtualPly ?? 0);
       setStatus(saved.virtualStatus === 'pending' ? (saved.results.length ? 'paused' : 'ready') : 'complete');
       setMessage(saved.results.length ? 'Saved analysis restored.' : 'Ready when you are.');
     } catch (cause) {
@@ -126,7 +142,7 @@ function App() {
         setCheckpoint(saved);
         setStatus(stage === 'virtual' ? 'virtual' : 'analyzing');
         setMessage(stage === 'virtual' ? 'Exploring a separate engine finish…' : 'Reading the game, one move at a time.');
-      });
+      }, playerColor && !savedVirtual ? { color: playerColor, owned: ownedElsewhere } : undefined);
       active.controller.signal.throwIfAborted();
       setStatus('complete'); setMessage('Analysis complete. Every played move is preserved.');
     } catch (cause) {
@@ -139,6 +155,12 @@ function App() {
     }
   };
 
+  const candidate = virtualMate(game, checkpoint);
+  const canRefine = candidate && candidate.color === playerColor && ownedElsewhere.has(candidate.notation) && !savedVirtual;
+  const jumpTo = (jump: Jump) => {
+    if (jump.virtual && checkpoint) setCheckpoint({ ...checkpoint, virtual: jump.virtual, virtualStatus: 'mate', virtualWinner: playerColor || undefined });
+    setPly(jump.ply); setVirtualPly(jump.virtualPly ?? 0);
+  };
   const completed = checkpoint?.results.length ?? 0;
   const progress = Math.round(completed / game.moves.length * 100);
   const result = checkpoint?.results[ply - 1];
@@ -162,7 +184,7 @@ function App() {
       <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
     <nav aria-label={t('Main navigation')} className="mt-4 flex gap-5 text-sm">
-      {([['/', 'Notebook'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
+      {([['/', 'Notebook'], ['/collection', 'Collection'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
     </nav>
     <div hidden={page !== 'notebook'}>
     <section className="my-8 sm:my-12">
@@ -196,6 +218,7 @@ function App() {
       </section>
 
       <section className="min-w-0 space-y-5">
+        <GameRewards key={gameId} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
@@ -218,7 +241,8 @@ function App() {
         <div className="note-card !bg-[#e8ede3]">
           <div className="label text-emerald-900">{t('A POSSIBLE ENDING')}</div>
           <h2 className="mt-3 text-xl">{t('What if they’d played on?')}</h2>
-          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? t('{color} mates with {move} after {plies} simulated plies.', { color: t(checkpoint.virtualWinner === 'white' ? 'White' : 'Black'), move: checkpoint.virtual.at(-1)?.san ?? '', plies: checkpoint.virtual.length }) : checkpoint?.virtualStatus === 'limit' ? t('No checkmate within the 20-ply continuation.') : checkpoint?.virtualStatus === 'terminal' ? t('The position is terminal; no further finish to explore.') : t('After analysis, explore up to 20 additional engine plies. This proof does not grant scraps.')}</p>
+          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? t('{color} mates with {move} after {plies} simulated plies.', { color: t(checkpoint.virtualWinner === 'white' ? 'White' : 'Black'), move: checkpoint.virtual.at(-1)?.san ?? '', plies: checkpoint.virtual.length }) : checkpoint?.virtualStatus === 'limit' ? t('No checkmate within the 20-ply continuation.') : checkpoint?.virtualStatus === 'terminal' ? t('The position is terminal; no further finish to explore.') : t('After analysis, collect a virtual scrap if your side delivers mate.')}</p>
+          {canRefine && <button className="secondary-button mt-3" disabled={busy} onClick={() => void start()}>{t('Look for another virtual finish')}</button>}
           {!!checkpoint?.virtual.length && <div className="mt-3 flex flex-wrap gap-1" aria-label={t('Virtual continuation')}>
             {checkpoint.virtual.map((move, i) => <button key={i} className={`move-button ${virtualPly === i + 1 ? 'selected' : ''}`} onClick={() => { setPly(game.moves.length); setVirtualPly(i + 1); }}>{move.san}</button>)}
           </div>}
@@ -227,6 +251,7 @@ function App() {
         <details className="note-card">
           <summary className="cursor-pointer text-sm font-semibold">{t('Open another page of the notebook')}</summary>
           <div className="my-4 flex flex-wrap gap-2">
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(RECENT_GAME_PGN)}>{t('Your recent game (Black)')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>{t('Original rapid game')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
           </div>
@@ -248,6 +273,7 @@ function App() {
       </div>
     </section>
     </div>
+    <div hidden={page !== 'collection'}><CollectionView games={collection.games} locale={locale} failed={collection.error} busy={busy} onOpen={(pgn, jump) => { void openGame(pgn, jump); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
     <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
       <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>
