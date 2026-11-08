@@ -28,8 +28,8 @@ Paths below are relative to `data/achievements/`.
 
 | Source and definitions | Required facts / detector | Unresolved semantics |
 | --- | --- | --- |
-| `badges/veterancy/mileage.yml`: `badge_played_total`; `badge_played_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Eligible completed game; normalized speed | Exact speed boundaries and increments; minimum game length |
-| `badges/domination/body-count.yml`: `badge_won_total`; `badge_won_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Same, plus player-relative win | Same speed mapping |
+| `badges/veterancy/mileage.yml`: `badge_played_total`; `badge_played_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Eligible completed game; normalized speed | Total and five Lichess speed badges implemented; hyperbullet remains inactive because Lichess has no such category |
+| `badges/domination/body-count.yml`: `badge_won_total`; `badge_won_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Same, plus player-relative win | Total wins implemented; speed-specific wins remain inactive; shared Lichess classification is available |
 | `badges/veterancy/consolation-prize.yml`: `badge_moves_played` (1) | One contribution per actual player move | Implemented cumulatively with the authored thresholds |
 | `badges/veterancy/dailyscape.yml`: `badge_played_{monday,tuesday,wednesday,thursday,friday,saturday,sunday}` (7) | Calendar classification of eligible game | Start or end timestamp; profile timezone and later timezone changes |
 | `badges/veterancy/chronotype.yml`: `badge_played_time_{00_04,04_08,08_12,12_16,16_20,20_24}` (6) | Six four-hour local-time blocks | Same timestamp/timezone decisions |
@@ -101,7 +101,7 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
-The local collection loop includes seven authored badges and exact-SAN real/virtual
+The local collection loop includes twelve authored badges and exact-SAN real/virtual
 mating scraps. The [active badge rules](../../docs/reference/browser-proof.md#active-board-event-badges)
 define wins, checks, promotions, gross captured material, played games, moves, and
 en passant. Authored YAML thresholds and flavor are unchanged. These factual
@@ -110,6 +110,11 @@ content. Engine continuations contribute only to virtual scraps. Existing games
 gain newly activated badges on explicit recollection, preserving collected XP and
 virtual discoveries for the same color without duplicating progress. General
 recalculation policy for future rule changes remains open.
+
+Mileage uses the [official Lichess categories for both platforms](../../docs/reference/browser-proof.md#mileage-and-time-controls),
+with no extra minimum game length beyond current eligibility. Missing or unsupported
+clock controls do not earn a speed badge. Adderall remains authored but inactive;
+StarCraft III respects its hidden flag until its first collected unlock.
 
 The loop supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery
@@ -153,9 +158,10 @@ from centipawn losses. Repeated collection of the same move does not add XP agai
    Verify virtual→real upgrade and real-only counts by color.
 3. **Profiles and imports:** local mock profiles, both platform adapters, cutoff
    and eligibility filtering, account overrides, platform history, and persistent
-   results are implemented. Authentication, ownership verification, hosted delivery,
-   and speed-category badge mapping remain open. Verify retries and two-browser
-   submissions cannot duplicate contributions.
+   results are implemented. Authentication, ownership verification, and hosted
+   delivery remain open. Mileage normalizes both platforms to Lichess speed
+   categories. Verify retries and two-browser submissions cannot duplicate
+   contributions.
 4. **Broader mechanics:** clean material sequences, evaluation/phase conditions,
    calendar/clock families, opening mastery, and one short narrative chain.
    Use curated positions/games with counterexamples for detectors; do not merely
@@ -170,7 +176,7 @@ remain draft while the author develops it.
 
 ## Decisions needed before activating affected mechanics
 
-- Speed boundaries, game-length eligibility, timestamp/timezone semantics.
+- Timestamp/timezone semantics and eligibility changes beyond the current rules.
 - Phase boundaries, quality thresholds, clean-gain and motif definitions.
 - Production terminal-game eligibility and tuning of the bounded virtual search.
 - Further mastery XP/level curves and refinement of the fork prototype, narrative
