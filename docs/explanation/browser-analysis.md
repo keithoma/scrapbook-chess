@@ -2,7 +2,7 @@
 
 The TypeScript app runs chess analysis in the user's browser. This keeps engine
 compute off a hosted backend and makes a low-cost first release practical. The
-current implementation is a local proof; the original Python CLI remains separate.
+current implementation is a local collection prototype.
 
 ## Chess operations and engine analysis
 

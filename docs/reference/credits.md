@@ -17,7 +17,7 @@ Used during the Python opening-analysis prototype. Norman’s meticulous work cl
 * [http://nk-qy.info/40h](http://nk-qy.info/40h)
 
 ### Niklas Fiekas (python-chess)
-The original Python prototype uses this library for PGN parsing and engine communication.
+The earlier Python prototype used this library for PGN parsing and engine communication.
 * [https://github.com/niklasf/python-chess](https://github.com/niklasf/python-chess)
 
 ### Niklas Fiekas (chessops)

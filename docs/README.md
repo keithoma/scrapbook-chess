@@ -12,7 +12,6 @@ up facts, and understanding the system have separate entry points.
 
 - [Run the relevant checks](how-to/run-checks.md).
 - [Write and organize documentation](how-to/write-documentation.md).
-- [Use the Python prototype scripts](how-to/prototype-scripts.md).
 
 ## Reference
 
