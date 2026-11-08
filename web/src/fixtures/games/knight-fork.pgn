@@ -1,0 +1,8 @@
+[Event "Fork mastery example"]
+[White "Example White"]
+[Black "Example Black"]
+[Result "1/2-1/2"]
+[SetUp "1"]
+[FEN "3q3k/8/8/4N3/8/8/8/7K w - - 0 1"]
+
+1. Nf7+ 1/2-1/2

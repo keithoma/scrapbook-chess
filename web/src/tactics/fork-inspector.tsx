@@ -1,6 +1,7 @@
 import { makeSquare } from 'chessops/util';
 import type { Color, Role } from 'chessops/types';
-import { scoreLabel } from '../game';
+import { scoreLabel, type ReplayGame } from '../game';
+import { assessFork, type MasteryContribution } from '../achievements/mastery';
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { DEPTH, type Checkpoint } from '../storage';
 import { forkEngineEvidence, type KnightForkCandidate } from './knight-forks';
@@ -9,7 +10,9 @@ const roles: Record<Role, Message> = {
   king: 'King', queen: 'Queen', rook: 'Rook', bishop: 'Bishop', knight: 'Knight', pawn: 'Pawn',
 };
 
-export function ForkInspector({ candidates, color, checkpoint, ply, virtual, onJump, locale }: {
+export function ForkInspector({ game, saved, candidates, color, checkpoint, ply, virtual, onJump, locale }: {
+  game: ReplayGame;
+  saved?: MasteryContribution[];
   candidates: KnightForkCandidate[];
   color: Color | '';
   checkpoint?: Checkpoint;
@@ -21,11 +24,15 @@ export function ForkInspector({ candidates, color, checkpoint, ply, virtual, onJ
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const own = candidates.filter(candidate => candidate.color === color);
   const selected = virtual ? undefined : own.find(candidate => candidate.ply === ply);
-  const evidence = selected && forkEngineEvidence(selected, checkpoint?.results.find(result => result.ply === ply));
+  const assessment = selected && assessFork(game, selected, checkpoint);
+  const collected = saved?.find(event => event.ply === ply);
+  const evidence = selected && (collected?.evidence ?? forkEngineEvidence(selected, checkpoint?.pgn === game.pgn ? checkpoint.results.find(result => result.ply === ply) : undefined));
+  const material = collected ? { gainCp: collected.evidence.materialGainCp, reply: collected.evidence.reply, capture: collected.evidence.capture }
+    : assessment?.material.status === 'qualified' ? assessment.material : undefined;
   return <section className="note-card" aria-labelledby="fork-title" data-testid="fork-inspector">
     <p className="label text-emerald-800">{t('TACTICAL DISCOVERIES')}</p>
     <h2 id="fork-title" className="mt-3 text-xl">{t('Knight-fork candidates')}</h2>
-    <p className="mt-2 text-sm leading-6 text-stone-600">{t('Review possible forks from played moves. These candidates do not award mastery or XP.')}</p>
+    <p className="mt-2 text-sm leading-6 text-stone-600">{t('Qualifying forks earn quality-based XP when you collect rewards.')}</p>
     {!color ? <p className="mt-3 text-sm">{t('Choose your side above to inspect your moves.')}</p>
       : !own.length ? <p className="mt-3 text-sm">{t('No knight-fork candidates in your played moves.')}</p>
       : <>
@@ -53,7 +60,19 @@ export function ForkInspector({ candidates, color, checkpoint, ply, virtual, onJ
             : <p>{t('Mate scores are shown separately; they are not converted to centipawn loss.')}</p>}
           <p className="text-xs text-stone-500">{t('Requested search depth: {depth}. Scores are from the moving player’s perspective.', { depth: DEPTH })}</p>
         </div>}
-      <p className="text-xs leading-5 text-stone-500">{t('Fork qualification and XP rules are still being reviewed. No quality label is assigned here.')}</p>
+      <div className="border-t border-stone-200 pt-3 text-sm" data-testid="fork-award">
+        {collected ? <p>{t('Collected +{xp} XP', { xp: collected.amount })}</p>
+          : assessment?.status === 'qualified' ? <p className="font-semibold text-emerald-900">{t('Qualified fork · +{xp} XP', { xp: assessment.event.amount })}</p>
+          : assessment?.material.status === 'rejected' ? <p>{t('No mastery XP: no profitable fork survives the immediate defenses.')}</p>
+          : assessment?.status === 'pending' ? <p>{t('Mastery XP pending: finish analysis or review unresolved material evidence.')}</p>
+          : <p>{t('No mastery XP: move quality is outside the current award settings.')}</p>}
+        {material && <details className="mt-3">
+          <summary className="text-button cursor-pointer">{t('Material evidence')}</summary>
+          <p className="mt-2">{t('Material threat: {gain} pawns after immediate replies and recaptures.', { gain: material.gainCp / 100 })}</p>
+          <p className="mt-2">{t('Example defense: {reply} → {capture}', { reply: material.reply, capture: material.capture })}</p>
+          <p className="mt-2 text-xs text-stone-500">{t('This is an illustrative continuation, not played moves. Longer tactics may change the material result.')}</p>
+        </details>}
+      </div>
     </div>}
   </section>;
 }
