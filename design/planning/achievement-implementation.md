@@ -41,7 +41,7 @@ Paths below are relative to `data/achievements/`.
 | `badges/variety/special-moves.yml`: `badge_en_passant` (1) | Actual en passant captures | Implemented without a quality gate |
 | `badges/material/promotions.yml`: `badge_promotion` (1) | Actual promotions | Implemented; all promotion choices count |
 | `badges/skill/king-pressure.yml`: `badge_total_checks` (1) | Actual checks | Implemented; includes checkmate and counts double check once |
-| `badges/skill/castling.yml`: `badge_opposite_side_casteling` (1; preserve existing ID) | Track both castling directions plus win | No need to rename stable ID just to correct spelling |
+| `badges/skill/castling.yml`: `badge_opposite_side_casteling` (1; preserve existing ID) | Both actual castling directions plus player-relative win | Implemented; one award at game end, with complete base/tier flavor |
 | `badges/skill/development.yml`: `badge_fianchetto_total` (1) | Bishop development pattern | A genuine fianchetto versus repeatedly moving onto b2/g2/b7/g7 |
 | `badges/material/clean-gains.yml`: `badge_clean_pawns`, `badge_clean_knight`, `badge_clean_bishop`, `badge_clean_rook`, `badge_clean_queen` (5) | Net material gain over a tactical sequence, quality gate, subsequent survival | Define five turns, exchanges/recaptures, compensation, early game end, and credit per sequence |
 | `badges/resilience/great-escapes.yml`: `badge_draw_lost_threefold`, `badge_draw_lost_agreement`, `badge_draw_lost_50move`, `badge_draw_lost_insufficient` (4) | Evaluation history plus actual termination reason and relevant board history | Define lost threshold/duration; claimable versus actual draw reason; source data availability |
@@ -107,7 +107,7 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
-The local collection loop includes fifteen authored badges and exact-SAN real/virtual
+The local collection loop includes sixteen authored badges and exact-SAN real/virtual
 mating scraps. The [active badge rules](../../docs/reference/browser-proof.md#active-board-event-badges)
 define wins, checks, promotions, gross captured material, played games, moves, and
 en passant. Authored YAML thresholds and flavor are unchanged. These factual
@@ -132,6 +132,12 @@ New imports retain API rating evidence and provisional flags; guest test PGNs
 provide rating tags. Older imports recover the original rating evidence from
 their already-saved platform payloads. No current-profile lookup or
 cross-platform comparison is used.
+
+[Mirror Dimension](../../docs/reference/browser-proof.md#mirror-dimension) now
+records opposite-side castling wins. Actual legal moves establish each player's
+castling direction, even if a king later moves. The result gates a single award
+at the final actual ply; engine continuations do not count. Its stable ID, name,
+category, and tier amounts remain unchanged, with completed base/tier flavor.
 
 The loop supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery

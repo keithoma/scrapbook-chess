@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { makeSanAndPlay, parseSan } from 'chessops/san';
@@ -146,6 +147,33 @@ test('unfinished games cannot be collected', async ({ page }) => {
   await load(page, '1. e4 e5 *');
   await page.getByLabel('I played as').selectOption('white');
   await expect(page.getByRole('button', { name: 'Collect rewards', exact: true })).toBeDisabled();
+});
+
+test('Mirror Dimension reveals flavor at game end and survives reload, recollection, and color correction', async ({ page }) => {
+  const pgn = readFileSync(new URL('../src/fixtures/games/opposite-castling.pgn', import.meta.url), 'utf8');
+  await page.goto('/');
+  await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
+  await load(page, pgn);
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('Mirror Dimension');
+  await expect(page.getByTestId('reward-reveal')).toContainText('Separate bedrooms. Shared custody of the center.');
+  await page.getByRole('button', { name: 'Last position', exact: true }).click();
+  await expect(page.getByTestId('replay-badge_opposite_side_casteling')).toHaveText('1');
+  await page.getByRole('button', { name: 'Previous move', exact: true }).click();
+  await expect(page.getByTestId('replay-badge_opposite_side_casteling')).toHaveText('0');
+  await page.getByRole('button', { name: 'Previous move', exact: true }).click();
+  await expect(page.getByTestId('replay-position')).toHaveText('Ply 16 / 18');
+  await expect(page.getByTestId('replay-badge_opposite_side_casteling')).toHaveText('0');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_opposite_side_casteling')).toHaveText('1 / 2');
+  await page.reload();
+  await expect(page.getByTestId('total-badge_opposite_side_casteling')).toHaveText('1 / 2');
+  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
+  await collect(page, 'black');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_opposite_side_casteling')).toHaveText('0 / 1');
 });
 
 test('rating badges reveal authored flavor, replay at game end, persist, and correct with player color', async ({ page }) => {
