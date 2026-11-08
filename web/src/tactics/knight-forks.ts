@@ -1,12 +1,9 @@
 import { knightAttacks } from 'chessops/attacks';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
-import { makeSan } from 'chessops/san';
 import { opposite, parseUci } from 'chessops/util';
 import type { Color, Role, Square } from 'chessops/types';
 import type { ReplayGame } from '../game';
-import type { MoveResult } from '../storage';
-import type { Score } from '../stockfish';
 
 export interface ForkTarget {
   square: Square;
@@ -47,18 +44,4 @@ export function knightForkCandidates(game: ReplayGame): KnightForkCandidate[] {
   });
 }
 
-export function forkEngineEvidence(candidate: KnightForkCandidate, result?: MoveResult):
-  { best: Score; played: Score; bestMove: string; lossCp?: number } | undefined {
-  if (!result || result.ply !== candidate.ply) return;
-  const sign = candidate.color === 'white' ? 1 : -1;
-  const best = { ...result.best, value: result.best.value * sign };
-  const played = { ...result.played, value: result.played.value * sign };
-  const before = Chess.fromSetup(parseFen(candidate.beforeFen).unwrap()).unwrap();
-  const bestUci = parseUci(result.bestMove);
-  const bestMove = bestUci ? makeSan(before, bestUci) : result.bestMove;
-  // Mate distances are not centipawns. Separate shallow searches can also make
-  // the forced move look better; never display that noise as a negative loss.
-  const lossCp = best.type === 'cp' && played.type === 'cp'
-    ? Math.max(0, best.value - played.value) : undefined;
-  return { best, played, bestMove, lossCp };
-}
+export { tacticEngineEvidence as forkEngineEvidence } from './engine-evidence';

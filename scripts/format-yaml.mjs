@@ -33,7 +33,7 @@ for (const file of files.sort()) {
   if (file.startsWith('data/achievements/')) visit(doc, {
     Map(_key, map) {
       const fields = map.has('id')
-        ? ['id', 'type', 'category', 'subcategory', 'name', 'description', 'rule_version', 'grade_version', 'compliance_filters', 'flavor', 'flavor_text', 'config', 'quality_awards', 'grade_bands', 'level_thresholds', 'level_requirements']
+        ? ['id', 'type', 'category', 'subcategory', 'name', 'description', 'rule_version', 'grade_version', 'progression', 'compliance_filters', 'flavor', 'flavor_text', 'config', 'quality_awards', 'grade_bands', 'level_thresholds', 'level_requirements']
         : map.has('name') && map.has('amount') ? ['name', 'amount', 'flavor', 'flavor_text']
         : map.has('tiers') || map.has('is_hidden') ? ['metric_key', 'required_value', 'status', 'is_hidden', 'analysis_required', 'max_seconds', 'survival_plies', 'lost_cp', 'retention_chance_slack', 'tiers']
         : map.has('text') || map.has('quote') || map.has('player_quote') ? ['text', 'quote', 'player_quote', 'author'] : [];

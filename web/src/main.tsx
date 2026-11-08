@@ -1,9 +1,11 @@
+import { skewerCandidates, type SkewerCandidate } from './tactics/skewers';
+import { SkewerInspector } from './tactics/skewer-inspector';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseGame, withGameClocks, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
-import { RECENT_GAME_PGN, FORK_PGN } from './fixtures';
+import { RECENT_GAME_PGN, FORK_PGN, SKEWER_PGN } from './fixtures';
 import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
@@ -28,7 +30,7 @@ const glyphs = {
 const recentGameId = gameIdentity(parseGame(RECENT_GAME_PGN));
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
-function Board({ frame, flipped, locale, fork }: { frame: Frame; flipped: boolean; locale: Locale; fork?: KnightForkCandidate }) {
+function Board({ frame, flipped, locale, fork, skewer }: { frame: Frame; flipped: boolean; locale: Locale; fork?: KnightForkCandidate; skewer?: SkewerCandidate }) {
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const squares = Array.from({ length: 64 }, (_, i) => flipped ? (i >> 3) * 8 + 7 - i % 8 : (7 - (i >> 3)) * 8 + i % 8);
   return <div className="board" role="img" aria-label={`${t('Chess position, {color} to move', { color: t(frame.turn === 'white' ? 'White' : 'Black') })}${frame.checkmate ? `, ${t('checkmate')}` : ''}`} data-testid="board" data-fen={frame.fen}>
@@ -36,9 +38,11 @@ function Board({ frame, flipped, locale, fork }: { frame: Frame; flipped: boolea
       const piece = frame.pieces.find(p => p.square === square);
       const rank = square >> 3;
       const file = square % 8;
-      const source = fork?.square === square;
-      const target = fork?.targets.some(piece => piece.square === square);
-      return <div key={square} className={`square ${(rank + file) % 2 ? 'light' : 'dark'} ${source ? 'fork-source' : target ? 'fork-target' : ''}`} data-fork-source={source || undefined} data-fork-target={target || undefined}>
+      const skewerSource = skewer?.lines.some(line => line.attacker === square);
+      const skewerTarget = skewer?.lines.some(line => line.front.square === square || line.rear.square === square);
+      const source = fork?.square === square || skewerSource;
+      const target = fork?.targets.some(piece => piece.square === square) || skewerTarget;
+      return <div key={square} className={`square ${(rank + file) % 2 ? 'light' : 'dark'} ${source ? 'fork-source' : target ? 'fork-target' : ''}`} data-fork-source={fork?.square === square || undefined} data-fork-target={fork?.targets.some(piece => piece.square === square) || undefined} data-skewer-source={skewerSource || undefined} data-skewer-target={skewerTarget || undefined}>
         {index % 8 === 0 && <span className="rank">{rank + 1}</span>}
         {index >= 56 && <span className="file">{'abcdefgh'[file]}</span>}
         {piece && <span className={`piece ${piece.color}`} aria-hidden="true">{glyphs[piece.color][piece.role]}</span>}
@@ -64,6 +68,7 @@ function App() {
   }, []);
   const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
   const forks = useMemo(() => knightForkCandidates(game), [game]);
+  const skewers = useMemo(() => skewerCandidates(game), [game.frames]);
   const profile = useProfile();
   const [guestZone, setGuestZone] = useState(initialTimeZone);
   const collection = useLocalCollection(profile.user?.id, profile.loading);
@@ -225,7 +230,7 @@ function App() {
           <div><strong>{game.white}</strong><span className="mx-2 text-stone-400">{t('vs')}</span><strong>{game.black}</strong></div>
           <button className="text-button shrink-0" onClick={() => setFlipped(!flipped)}>{t('Flip board')}</button>
         </div>
-        <div className="board-frame"><Board frame={frame} flipped={flipped} locale={locale} fork={virtualPly ? undefined : forks.find(fork => fork.ply === ply && fork.color === playerColor)} /></div>
+        <div className="board-frame"><Board frame={frame} flipped={flipped} locale={locale} fork={virtualPly ? undefined : forks.find(fork => fork.ply === ply && fork.color === playerColor)} skewer={virtualPly ? undefined : skewers.find(candidate => candidate.ply === ply && candidate.color === playerColor)} /></div>
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="flex gap-1">
             <button className="nav-button" aria-label={t('First position')} onClick={() => go(0)}>↤</button>
@@ -246,6 +251,7 @@ function App() {
       <section className="min-w-0 space-y-5">
         <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={{ ...withGameClocks(game, importedGame?.clocks), timeControl: importedGame?.timeControl ?? game.timeControl, ratings: importedGame ? importedGame.ratings ?? {} : game.ratings, startedAt: importedGame?.startedAt ?? game.startedAt, drawReason: importedGame?.drawReason ?? game.drawReason, timeZone: profile.user?.timeZone ?? guestZone }} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
         <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
+        <SkewerInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={skewers} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale}/>
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
@@ -282,6 +288,7 @@ function App() {
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(SAMPLE_PGN)}>{t('Original rapid game')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(MATE_PGN)}>{t('Mate example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => void openGame(FORK_PGN)}>{t('Fork example')}</button>
+            <button className="secondary-button" disabled={busy} onClick={() => void openGame(SKEWER_PGN)}>{t('Skewer example')}</button>
           </div>
           <label htmlFor="pgn" className="label">{t('PASTE ONE PGN')}</label>
           <textarea id="pgn" className="mt-2 h-36 w-full resize-y rounded-lg border border-stone-300 bg-white/60 p-3 font-mono text-xs" value={draft} onChange={event => setDraft(event.target.value)} disabled={busy} spellCheck={false} />

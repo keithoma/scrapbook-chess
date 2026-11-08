@@ -1,0 +1,9 @@
+# Tactics / Skewers
+id: mastery_skewers
+type: mastery
+category: Tactics
+subcategory: Skewers
+name: Skewers
+rule_version: skewers-v1
+grade_version: skewer-grades-v1
+progression: tactical-mastery-v1

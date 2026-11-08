@@ -7,10 +7,10 @@ import { forkMaterialThreat } from '../tactics/fork-material';
 import {
   assessFork,
   FORK_MASTERY,
-  FORK_GRADES,
+  TACTICAL_GRADES,
   forkGrade,
   gradeForContribution,
-  withForkGrade,
+  withMasteryGrade,
   masteryProgress,
   qualityXp,
 } from './mastery';
@@ -177,7 +177,7 @@ describe('quality-based XP and levels', () => {
 });
 
 it('grades every qualified CP loss band from S+ down to D- without changing XP', () => {
-  expect([...FORK_MASTERY.grade_bands].reverse().map((band) => band.grade)).toEqual(FORK_GRADES);
+  expect([...FORK_MASTERY.grade_bands].reverse().map((band) => band.grade)).toEqual(TACTICAL_GRADES);
   for (const [i, band] of FORK_MASTERY.grade_bands.entries()) {
     const best = { type: 'cp' as const, value: 200 };
     const played = { type: 'cp' as const, value: 200 - band.max_loss_cp };
@@ -208,7 +208,7 @@ it('recovers legacy grades from evidence, preserves earned XP and grades, and le
   delete legacy.grade;
   delete legacy.evidence.gradeVersion;
   expect(gradeForContribution(legacy)).toBe('S-');
-  const migrated = withForkGrade(legacy);
+  const migrated = withMasteryGrade(legacy);
   expect(migrated).toMatchObject({
     grade: 'S-',
     amount: legacy.amount,

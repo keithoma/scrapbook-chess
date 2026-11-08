@@ -1,16 +1,16 @@
+import { tacticEngineEvidence } from '../tactics/engine-evidence';
 import { parse } from 'yaml';
-import source from '../../../data/achievements/masteries/tactics/forks.yml?raw';
+import forkSource from '../../../data/achievements/masteries/tactics/forks.yml?raw';
+import skewerSource from '../../../data/achievements/masteries/tactics/skewers.yml?raw';
+import policySource from '../../../data/rules/tactical-mastery.yml?raw';
+import { skewerCandidates, skewerMaterialThreat, type SkewerCandidate } from '../tactics/skewers';
 import type { ReplayGame } from '../game';
 import { ANALYSIS_VERSION, type Checkpoint } from '../storage';
 import type { Score } from '../stockfish';
-import {
-  forkEngineEvidence,
-  knightForkCandidates,
-  type KnightForkCandidate,
-} from '../tactics/knight-forks';
+import { knightForkCandidates, type KnightForkCandidate } from '../tactics/knight-forks';
 import { forkMaterialThreat, type MaterialThreat } from '../tactics/fork-material';
 
-export const FORK_GRADES = [
+export const TACTICAL_GRADES = [
   'D-',
   'D',
   'D+',
@@ -27,67 +27,78 @@ export const FORK_GRADES = [
   'S',
   'S+',
 ] as const;
-export type ForkGrade = (typeof FORK_GRADES)[number];
-interface MasteryDefinition {
-  id: 'mastery_knight_forks';
+export type TacticalGrade = (typeof TACTICAL_GRADES)[number];
+export const MASTERY_IDS = ['mastery_knight_forks', 'mastery_skewers'] as const;
+export type MasteryId = (typeof MASTERY_IDS)[number];
+export interface MasteryDefinition {
+  id: MasteryId;
   type: 'mastery';
-  name: string;
+  name: 'Knight forks' | 'Skewers';
   rule_version: string;
   grade_version: string;
-  grade_bands: { grade: ForkGrade; max_loss_cp: number }[];
+  grade_bands: { grade: TacticalGrade; max_loss_cp: number }[];
   quality_awards: { max_loss_cp: number; xp: number }[];
   level_thresholds: number[];
   level_requirements: { level: number; high_grade_count: number }[];
 }
-export const FORK_MASTERY = parse(source) as MasteryDefinition;
-if (
-  FORK_MASTERY.id !== 'mastery_knight_forks' ||
-  FORK_MASTERY.type !== 'mastery' ||
-  !FORK_MASTERY.rule_version ||
-  !FORK_MASTERY.quality_awards?.length ||
-  !FORK_MASTERY.grade_version ||
-  FORK_MASTERY.grade_bands?.length !== FORK_GRADES.length ||
-  FORK_MASTERY.grade_bands.some(
-    (band, i, bands) =>
-      band.grade !== FORK_GRADES[FORK_GRADES.length - 1 - i] ||
-      !Number.isSafeInteger(band.max_loss_cp) ||
-      band.max_loss_cp < 0 ||
-      (i > 0 && band.max_loss_cp <= bands[i - 1].max_loss_cp),
-  ) ||
-  FORK_MASTERY.grade_bands.at(-1)?.max_loss_cp !==
-    FORK_MASTERY.quality_awards.at(-1)?.max_loss_cp ||
-  FORK_MASTERY.level_thresholds?.[0] !== 0 ||
-  FORK_MASTERY.level_thresholds.some(
-    (value, i, values) =>
-      !Number.isSafeInteger(value) || value < 0 || (i > 0 && value <= values[i - 1]),
-  ) ||
-  !Array.isArray(FORK_MASTERY.level_requirements) ||
-  FORK_MASTERY.level_requirements.some(
-    (gate, i, gates) =>
-      !Number.isSafeInteger(gate.level) ||
-      gate.level < 2 ||
-      gate.level > FORK_MASTERY.level_thresholds.length ||
-      !Number.isSafeInteger(gate.high_grade_count) ||
-      gate.high_grade_count < 1 ||
-      (i > 0 && gate.level <= gates[i - 1].level),
-  ) ||
-  FORK_MASTERY.quality_awards.some(
-    (band, i, bands) =>
-      !Number.isSafeInteger(band.xp) ||
-      band.xp <= 0 ||
-      !Number.isSafeInteger(band.max_loss_cp) ||
-      band.max_loss_cp < 0 ||
-      (i > 0 && (band.max_loss_cp <= bands[i - 1].max_loss_cp || band.xp >= bands[i - 1].xp)),
-  )
-) {
-  throw new Error('Invalid fork mastery definition.');
+const policy = parse(policySource);
+export const MASTERIES: MasteryDefinition[] = [forkSource, skewerSource].map((source) => {
+  const definition = parse(source);
+  if (definition.progression !== policy.id)
+    throw new Error('Unknown tactical mastery progression.');
+  return { ...policy, ...definition };
+});
+export const FORK_MASTERY = MASTERIES[0];
+export const SKEWER_MASTERY = MASTERIES[1];
+for (const definition of MASTERIES) {
+  if (
+    !MASTERY_IDS.includes(definition.id) ||
+    definition.type !== 'mastery' ||
+    !definition.rule_version ||
+    !definition.quality_awards?.length ||
+    !definition.grade_version ||
+    definition.grade_bands?.length !== TACTICAL_GRADES.length ||
+    definition.grade_bands.some(
+      (band, i, bands) =>
+        band.grade !== TACTICAL_GRADES[TACTICAL_GRADES.length - 1 - i] ||
+        !Number.isSafeInteger(band.max_loss_cp) ||
+        band.max_loss_cp < 0 ||
+        (i > 0 && band.max_loss_cp <= bands[i - 1].max_loss_cp),
+    ) ||
+    definition.grade_bands.at(-1)?.max_loss_cp !== definition.quality_awards.at(-1)?.max_loss_cp ||
+    definition.level_thresholds?.[0] !== 0 ||
+    definition.level_thresholds.some(
+      (value, i, values) =>
+        !Number.isSafeInteger(value) || value < 0 || (i > 0 && value <= values[i - 1]),
+    ) ||
+    !Array.isArray(definition.level_requirements) ||
+    definition.level_requirements.some(
+      (gate, i, gates) =>
+        !Number.isSafeInteger(gate.level) ||
+        gate.level < 2 ||
+        gate.level > definition.level_thresholds.length ||
+        !Number.isSafeInteger(gate.high_grade_count) ||
+        gate.high_grade_count < 1 ||
+        (i > 0 && gate.level <= gates[i - 1].level),
+    ) ||
+    definition.quality_awards.some(
+      (band, i, bands) =>
+        !Number.isSafeInteger(band.xp) ||
+        band.xp <= 0 ||
+        !Number.isSafeInteger(band.max_loss_cp) ||
+        band.max_loss_cp < 0 ||
+        (i > 0 && (band.max_loss_cp <= bands[i - 1].max_loss_cp || band.xp >= bands[i - 1].xp)),
+    )
+  ) {
+    throw new Error('Invalid tactical mastery definition.');
+  }
 }
 export interface MasteryContribution {
   kind: 'mastery';
-  masteryId: 'mastery_knight_forks';
+  masteryId: MasteryId;
   amount: number;
   ply: number;
-  grade?: ForkGrade; // Optional only for contributions saved before grades existed.
+  grade?: TacticalGrade; // Optional only for contributions saved before grades existed.
   evidence: {
     ruleVersion: string;
     analysisVersion: string;
@@ -99,15 +110,20 @@ export interface MasteryContribution {
     materialGainCp: number;
     reply: string;
     capture: string;
+    skewer?: { attacker: string; front: string; rear: string };
   };
 }
-export function masteryProgress(xp: number, highGrades = 0) {
-  const thresholds = FORK_MASTERY.level_thresholds;
+export function masteryProgress(
+  xp: number,
+  highGrades = 0,
+  definition: MasteryDefinition = FORK_MASTERY,
+) {
+  const thresholds = definition.level_thresholds;
   const xpIndex = Math.max(0, thresholds.filter((threshold) => xp >= threshold).length - 1);
   let index = 0;
   let usedHighGrades = 0;
   for (let candidate = 1; candidate <= xpIndex; candidate++) {
-    const gate = FORK_MASTERY.level_requirements.find((gate) => gate.level === candidate + 1);
+    const gate = definition.level_requirements.find((gate) => gate.level === candidate + 1);
     if (gate && highGrades < usedHighGrades + gate.high_grade_count) break;
     usedHighGrades += gate?.high_grade_count ?? 0;
     index = candidate;
@@ -115,7 +131,7 @@ export function masteryProgress(xp: number, highGrades = 0) {
   const floor = thresholds[Math.max(0, index)];
   const next = thresholds[index + 1];
   const requiredHighGrades =
-    FORK_MASTERY.level_requirements.find((gate) => gate.level === index + 2)?.high_grade_count ?? 0;
+    definition.level_requirements.find((gate) => gate.level === index + 2)?.high_grade_count ?? 0;
   const availableHighGrades = Math.max(0, highGrades - usedHighGrades);
   const remainingHighGrades = Math.max(0, requiredHighGrades - availableHighGrades);
   const remainingXp = next === undefined ? 0 : Math.max(0, next - xp);
@@ -136,12 +152,16 @@ export function masteryProgress(xp: number, highGrades = 0) {
     needed: next === undefined ? undefined : next - floor,
   };
 }
-export function qualityXp(best: Score, played: Score): { xp: number; lossCp?: number } {
+export function qualityXp(
+  best: Score,
+  played: Score,
+  definition: MasteryDefinition = FORK_MASTERY,
+): { xp: number; lossCp?: number } {
   if (!Number.isFinite(best.value) || !Number.isFinite(played.value)) return { xp: 0 };
   if (best.type === 'cp' && played.type === 'cp') {
     const lossCp = Math.max(0, best.value - played.value);
     return {
-      xp: FORK_MASTERY.quality_awards.find((band) => lossCp <= band.max_loss_cp)?.xp ?? 0,
+      xp: definition.quality_awards.find((band) => lossCp <= band.max_loss_cp)?.xp ?? 0,
       lossCp,
     };
   }
@@ -153,33 +173,43 @@ export function qualityXp(best: Score, played: Score): { xp: number; lossCp?: nu
     (best.type === 'mate' &&
       best.value < 0 &&
       (played.type === 'cp' || (played.value < 0 && played.value <= best.value)));
-  return { xp: acceptable ? FORK_MASTERY.quality_awards[0].xp : 0 };
+  return { xp: acceptable ? definition.quality_awards[0].xp : 0 };
 }
-export function forkGrade(best: Score, played: Score): ForkGrade | undefined {
-  const quality = qualityXp(best, played);
+export function tacticGrade(
+  best: Score,
+  played: Score,
+  definition: MasteryDefinition = FORK_MASTERY,
+): TacticalGrade | undefined {
+  const quality = qualityXp(best, played, definition);
   if (!quality.xp) return;
   return quality.lossCp === undefined
     ? 'S+'
-    : FORK_MASTERY.grade_bands.find((band) => quality.lossCp! <= band.max_loss_cp)?.grade;
+    : definition.grade_bands.find((band) => quality.lossCp! <= band.max_loss_cp)?.grade;
 }
-export function gradeForContribution(event: MasteryContribution): ForkGrade | undefined {
-  if (event.grade && FORK_GRADES.includes(event.grade)) return event.grade;
+export const forkGrade = (best: Score, played: Score) => tacticGrade(best, played, FORK_MASTERY);
+export function gradeForContribution(event: MasteryContribution): TacticalGrade | undefined {
+  if (event.grade && TACTICAL_GRADES.includes(event.grade)) return event.grade;
   // Existing awards contain mover-relative engine evidence. Never infer grades
   // from their XP amount or require a browser checkpoint to recover them.
-  if (event.evidence.ruleVersion === 'knight-forks-v1')
-    return forkGrade(event.evidence.best, event.evidence.played);
+  const definition = MASTERIES.find((definition) => definition.id === event.masteryId);
+  if (definition && event.evidence.ruleVersion === definition.rule_version)
+    return tacticGrade(event.evidence.best, event.evidence.played, definition);
 }
-export function isHighGrade(grade: ForkGrade | undefined): boolean {
+export function isHighGrade(grade: TacticalGrade | undefined): boolean {
   return grade === 'S-' || grade === 'S' || grade === 'S+';
 }
-export function withForkGrade(event: MasteryContribution): MasteryContribution {
+export function withMasteryGrade(event: MasteryContribution): MasteryContribution {
   const grade = gradeForContribution(event);
   return event.grade === grade || !grade
     ? event
     : {
         ...event,
         grade,
-        evidence: { ...event.evidence, gradeVersion: FORK_MASTERY.grade_version },
+        evidence: {
+          ...event.evidence,
+          gradeVersion: MASTERIES.find((definition) => definition.id === event.masteryId)!
+            .grade_version,
+        },
       };
 }
 export type ForkAssessment =
@@ -201,7 +231,7 @@ export function assessFork(
     checkpoint?.pgn === game.pgn && checkpoint.version === ANALYSIS_VERSION
       ? checkpoint.results.find((result) => result.ply === fork.ply)
       : undefined;
-  const evidence = forkEngineEvidence(fork, result);
+  const evidence = tacticEngineEvidence(fork, result);
   if (!evidence) return { material, status: 'pending' };
   const quality = qualityXp(evidence.best, evidence.played);
   if (!quality.xp) return { material, status: 'rejected' };
@@ -229,21 +259,72 @@ export function assessFork(
     },
   };
 }
-const candidates = new WeakMap<ReplayGame, KnightForkCandidate[]>();
+const candidates = new WeakMap<ReplayGame['frames'], KnightForkCandidate[]>();
 export function masteryContributions(
   game: ReplayGame,
   color: 'white' | 'black',
   checkpoint?: Checkpoint,
 ): MasteryContribution[] {
-  let forks = candidates.get(game);
+  let forks = candidates.get(game.frames);
   if (!forks) {
     forks = knightForkCandidates(game);
-    candidates.set(game, forks);
+    candidates.set(game.frames, forks);
   }
-  return forks
+  const forkEvents = forks
     .filter((fork) => fork.color === color)
     .flatMap((fork) => {
       const assessment = assessFork(game, fork, checkpoint);
       return assessment.status === 'qualified' ? [assessment.event] : [];
     });
+  const skewerEvents = skewerCandidates(game)
+    .filter((candidate) => candidate.color === color)
+    .flatMap((candidate) => {
+      const assessment = assessSkewer(game, candidate, checkpoint);
+      return assessment.status === 'qualified' ? [assessment.event] : [];
+    });
+  return [...forkEvents, ...skewerEvents];
+}
+
+export function assessSkewer(
+  game: ReplayGame,
+  candidate: SkewerCandidate,
+  checkpoint?: Checkpoint,
+) {
+  const material = skewerMaterialThreat(game, candidate);
+  if (material.status !== 'qualified')
+    return {
+      material,
+      status: material.status === 'unresolved' ? ('pending' as const) : ('rejected' as const),
+    };
+  const result =
+    checkpoint?.pgn === game.pgn && checkpoint.version === ANALYSIS_VERSION
+      ? checkpoint.results.find((result) => result.ply === candidate.ply)
+      : undefined;
+  const evidence = tacticEngineEvidence(candidate, result);
+  if (!evidence) return { material, status: 'pending' as const };
+  const quality = qualityXp(evidence.best, evidence.played, SKEWER_MASTERY);
+  if (!quality.xp) return { material, status: 'rejected' as const };
+  const event: MasteryContribution = {
+    kind: 'mastery',
+    masteryId: SKEWER_MASTERY.id,
+    amount: quality.xp,
+    ply: candidate.ply,
+    grade: tacticGrade(evidence.best, evidence.played, SKEWER_MASTERY),
+    evidence: {
+      ruleVersion: SKEWER_MASTERY.rule_version,
+      gradeVersion: SKEWER_MASTERY.grade_version,
+      analysisVersion: checkpoint!.version,
+      ...evidence,
+      lossCp: quality.lossCp,
+      materialGainCp: material.gainCp,
+      reply: material.reply,
+      capture: material.capture,
+      skewer: {
+        attacker: material.line.attackerName,
+        front: material.line.front.name,
+        rear: material.line.rear.name,
+      },
+    },
+  };
+  return { material, status: 'qualified' as const, event };
 }
