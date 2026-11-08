@@ -4,8 +4,9 @@ import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import type { ReplayGame } from './game';
 import { DEPTH, saveCheckpoint, type Checkpoint } from './storage';
-import { StockfishClient } from './stockfish';
+import { StockfishClient, TOP_MOVE_COUNT } from './stockfish';
 import { findNovelFinish, type FinishOptions } from './virtual-finish';
+import { annotateMoves, createMoveAnnotator } from './chess/annotations';
 
 export async function analyzeGame(
   game: ReplayGame,
@@ -16,6 +17,8 @@ export async function analyzeGame(
   finishOptions?: FinishOptions,
 ): Promise<void> {
   let current = structuredClone(checkpoint);
+  const annotate = createMoveAnnotator(game);
+  current.results = annotateMoves(game, current.results);
   const persist = async (stage: 'moves' | 'virtual') => {
     signal.throwIfAborted();
     current.updatedAt = new Date().toISOString();
@@ -33,17 +36,23 @@ export async function analyzeGame(
       await persist('virtual');
     }
   };
-  for (let index = current.results.length; index < game.moves.length; index++) {
+  if (current.results.length) await persist('moves');
+  for (let index = 0; index < game.moves.length; index++) {
     signal.throwIfAborted();
+    const saved = current.results[index];
+    if (saved?.topMoves?.length) {
+      current.results[index] = annotate(saved);
+      continue;
+    }
     const move = game.moves[index];
     const before = game.frames[index];
     const start = performance.now();
-    const best = await engine.search(before.fen, DEPTH, before.turn);
-    const played = move.uci === best.bestMove ? best :
-      await engine.search(before.fen, DEPTH, before.turn, move.uci);
-    current.results.push({
-      ply: move.ply, best: best.score, played: played.score,
-      bestMove: best.bestMove, ms: performance.now() - start,
+    const best = await engine.search(before.fen, DEPTH, before.turn, undefined, TOP_MOVE_COUNT);
+    const ranked = best.topMoves.find(pick => pick.uci === move.uci);
+    const played = ranked?.score ?? (await engine.search(before.fen, DEPTH, before.turn, move.uci)).score;
+    current.results[index] = annotate({
+      ply: move.ply, best: best.score, played,
+      bestMove: best.bestMove, topMoves: best.topMoves, ms: performance.now() - start,
     });
     await persist('moves');
   }

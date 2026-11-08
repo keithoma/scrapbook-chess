@@ -5,6 +5,8 @@ import { assessFork, gradeForContribution, type MasteryContribution } from '../a
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { DEPTH, type Checkpoint } from '../storage';
 import { forkEngineEvidence, type KnightForkCandidate } from './knight-forks';
+import { TacticalReview } from './tactical-review';
+import { FORK_MASTERY } from '../achievements/mastery-policy';
 
 const roles: Record<Role, Message> = {
   king: 'King', queen: 'Queen', rook: 'Rook', bishop: 'Bishop', knight: 'Knight', pawn: 'Pawn',
@@ -76,6 +78,8 @@ export function ForkInspector({ game, saved, candidates, color, checkpoint, ply,
           <p className="mt-2 text-xs text-stone-500">{t('This is an illustrative continuation, not played moves. Longer tactics may change the material result.')}</p>
         </details>}
       </div>
+      {assessment && <TacticalReview game={game} masteryId={FORK_MASTERY.id} ply={selected.ply}
+        checkpoint={checkpoint} assessment={assessment} locale={locale} />}
     </div>}
   </section>;
 }

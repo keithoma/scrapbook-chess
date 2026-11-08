@@ -19,6 +19,7 @@ up facts, and understanding the system have separate entry points.
 - [Browser proof configuration and storage](reference/browser-proof.md).
 - [Opening masteries](reference/opening-masteries.md).
 - [Tactical masteries](reference/tactical-masteries.md).
+- [Endgame masteries](reference/endgame-masteries.md).
 - [Badge qualification](reference/badge-rules.md).
 - [Local profiles and import server](reference/local-server.md).
 - [Credits and dependencies](reference/credits.md).

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "masteryId": "mastery_skewers",
+  "pgn": "[Event \"rated rapid game\"]\n[Site \"https://lichess.org/game/HkDgQibC\"]\n[Date \"2026.11.08\"]\n[Round \"-\"]\n[White \"noctu2nality\"]\n[Black \"Pegasus11\"]\n[Result \"0-1\"]\n[GameId \"HkDgQibC\"]\n[UTCDate \"2026.11.08\"]\n[UTCTime \"19:42:18\"]\n[WhiteElo \"1802\"]\n[BlackElo \"1782\"]\n[WhiteRatingDiff \"-17\"]\n[BlackRatingDiff \"+7\"]\n[Variant \"Standard\"]\n[TimeControl \"600+0\"]\n[ECO \"D01\"]\n[Opening \"Rapport-Jobava System\"]\n[Termination \"Normal\"]\n\n1. d4 { [%clk 0:10:00] } 1... d5 { [%clk 0:10:00] } 2. Nc3 { [%clk 0:09:59] } 2... Nf6 { [%clk 0:09:56] } 3. Bf4 { [%clk 0:09:57] } 3... a6 { [%clk 0:09:54] } 4. e3 { [%clk 0:09:44] } 4... e6 { [%clk 0:09:50] } 5. Bd3 { [%clk 0:09:34] } 5... c5 { [%clk 0:09:47] } 6. Nf3 { [%clk 0:08:28] } 6... cxd4 { [%clk 0:09:45] } 7. Nxd4 { [%clk 0:08:22] } 7... Be7 { [%clk 0:09:40] } 8. Qf3 { [%clk 0:07:22] } 8... Qb6 { [%clk 0:09:28] } 9. O-O-O { [%clk 0:07:03] } 9... Nc6 { [%clk 0:09:17] } 10. Nxc6 { [%clk 0:06:56] } 10... bxc6 { [%clk 0:09:15] } 11. e4 { [%clk 0:06:00] } 11... dxe4 { [%clk 0:09:02] } 12. Nxe4 { [%clk 0:05:47] } 12... Ra7 { [%clk 0:08:52] } 13. Be3 { [%clk 0:05:31] } 13... c5 { [%clk 0:08:49] } 14. Bc4 { [%clk 0:04:50] } 14... Bb7 { [%clk 0:08:40] } 15. Bxc5 { [%clk 0:01:35] } 15... Bxc5 { [%clk 0:08:28] } 16. Nxf6+ { [%clk 0:01:10] } 16... gxf6 { [%clk 0:08:25] } 17. Qxf6 { [%clk 0:01:08] } 17... Rf8 { [%clk 0:08:19] } 18. Rd7 { [%clk 0:01:00] } 18... Ra8 { [%clk 0:06:56] } 19. Rhd1 { [%clk 0:00:19] } 19... Rb8 { [%clk 0:06:48] } 20. Rd8+ { [%clk 0:00:16] } 20... Rxd8 { [%clk 0:06:46] } 21. Rxd8+ { [%clk 0:00:16] } 21... Qxd8 { [%clk 0:06:44] } 0-1",
+  "ply": 41,
+  "expectedXp": "zero",
+  "analysis": {
+    "version": "stockfish-19.0.1-full-single-depth6-hash32-proof-v1",
+    "result": {
+      "ply": 41,
+      "best": {
+        "type": "cp",
+        "value": -731
+      },
+      "played": {
+        "type": "cp",
+        "value": -731
+      },
+      "bestMove": "d1d8"
+    }
+  },
+  "observed": {
+    "status": "rejected",
+    "xp": 0
+  }
+}

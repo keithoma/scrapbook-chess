@@ -1,7 +1,12 @@
 import type { Message, Parameters } from './i18n';
+import { Chess } from 'chessops/chess';
+import { parseFen } from 'chessops/fen';
+import { legalMoveCount } from './chess/legal-moves';
 
 export interface Score { type: 'cp' | 'mate'; value: number }
-interface SearchResult { score: Score; bestMove: string; depth: number }
+export interface EnginePick { uci: string; score: Score; depth: number }
+export interface SearchResult { score: Score; bestMove: string; depth: number; topMoves: EnginePick[] }
+export const TOP_MOVE_COUNT = 3;
 const CACHE = 'scrapbook-stockfish-19.0.1-full-v1';
 
 export async function prepareEngine(onProgress: (progress: { message: Message; parameters?: Parameters }) => void): Promise<void> {
@@ -44,6 +49,16 @@ export function parseScore(line: string, turn: 'white' | 'black'): Score | undef
   return { type: match[1] as Score['type'], value: Number(match[2]) * (turn === 'white' ? 1 : -1) };
 }
 
+export function parseVariation(line: string, turn: 'white' | 'black'): (EnginePick & { rank: number }) | undefined {
+  if (!line.startsWith('info ')) return;
+  const score = parseScore(line, turn);
+  const depth = Number(line.match(/\bdepth (\d+)/)?.[1] ?? 0);
+  const rank = Number(line.match(/\bmultipv (\d+)/)?.[1] ?? 1);
+  const uci = line.match(/\bpv ([a-h][1-8][a-h][1-8][qrbn]?)(?:\s|$)/)?.[1];
+  if (!score || !uci || depth < 1 || rank < 1) return;
+  return { uci, score, depth, rank };
+}
+
 export class StockfishClient {
   private worker: Worker;
   private listeners = new Set<(line: string) => void>();
@@ -78,26 +93,32 @@ export class StockfishClient {
     this.worker.postMessage('ucinewgame');
     await this.waitFor(line => line === 'readyok', 'isready');
   }
-  async search(fen: string, depth: number, turn: 'white' | 'black', rootMove?: string): Promise<SearchResult> {
+  async search(fen: string, depth: number, turn: 'white' | 'black', rootMove?: string, multiPv = 1): Promise<SearchResult> {
+    if (!Number.isInteger(multiPv) || multiPv < 1 || multiPv > TOP_MOVE_COUNT) throw new Error('Invalid engine choice count.');
+    const position = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
+    const expected = Math.min(multiPv, rootMove ? new Set(rootMove.split(/\s+/)).size : legalMoveCount(position));
+    this.worker.postMessage(`setoption name MultiPV value ${multiPv}`);
     this.worker.postMessage(`position fen ${fen}`);
-    let score: Score | undefined;
-    let reachedDepth = 0;
+    const variations = new Map<number, Map<number, EnginePick>>();
     const collect = (line: string) => {
-      const parsed = parseScore(line, turn);
-      if (parsed) {
-        score = parsed;
-        reachedDepth = Number(line.match(/\bdepth (\d+)/)?.[1] ?? 0);
-      }
+      const parsed = parseVariation(line, turn);
+      if (!parsed || parsed.rank > expected) return;
+      const atDepth = variations.get(parsed.depth) ?? new Map<number, EnginePick>();
+      atDepth.set(parsed.rank, { uci: parsed.uci, score: parsed.score, depth: parsed.depth });
+      variations.set(parsed.depth, atDepth);
     };
     this.listeners.add(collect);
     try {
       const done = await this.waitFor(line => line.startsWith('bestmove '),
         `go depth ${depth}${rootMove ? ` searchmoves ${rootMove}` : ''}`);
       const bestMove = done.split(' ')[1];
-      if (!score || !bestMove || bestMove === '(none)' || bestMove === '0000') {
-        throw new Error('Engine returned no evaluated legal move.');
-      }
-      return { score, bestMove, depth: reachedDepth };
+      const completed = [...variations.entries()].sort(([a], [b]) => b - a).find(([, picks]) =>
+        expected > 0 && Array.from({ length: expected }, (_, i) => picks.has(i + 1)).every(Boolean) &&
+        new Set([...picks.values()].map(pick => pick.uci)).size === expected);
+      const topMoves = completed ? Array.from({ length: expected }, (_, i) => completed[1].get(i + 1)!) : [];
+      if (!topMoves.length || topMoves[0].uci !== bestMove || topMoves[0].depth < depth)
+        throw new Error('Engine returned no complete evaluated choices at the requested depth.');
+      return { score: topMoves[0].score, bestMove, depth: topMoves[0].depth, topMoves };
     } finally { this.listeners.delete(collect); }
   }
   terminate(): void {

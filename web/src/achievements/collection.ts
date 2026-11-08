@@ -20,6 +20,8 @@ import { phaseAt } from './phases';
 import { fianchettoContributions } from './fianchetto';
 import { clockContributions } from './clock-badges';
 import { precisionContributions } from './precision';
+import { gameWinner, isCompletedGame } from '../chess/result';
+export { isCompletedGame } from '../chess/result';
 
 export type Contribution =
   | AnyMasteryContribution
@@ -58,10 +60,6 @@ export function gameIdentity(game: ReplayGame): string {
     game.frames[0].fen, game.moves.map(move => move.uci)]);
 }
 
-export function isCompletedGame(game: ReplayGame): boolean {
-  return ['1-0', '0-1', '1/2-1/2'].includes(game.result) || game.frames.at(-1)!.checkmate;
-}
-
 export function virtualMate(game: ReplayGame, checkpoint?: Checkpoint): { notation: string; color: Color; plies: number } | undefined {
   if (!checkpoint || checkpoint.pgn !== game.pgn || checkpoint.virtualStatus !== 'mate'
       || !checkpoint.virtual.length || checkpoint.virtual.length > 20 || game.frames.at(-1)!.checkmate) return;
@@ -86,7 +84,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   const speed = lichessSpeed(game.timeControl);
   if (speed) events.push({ kind: 'badge', badgeId: `badge_played_${speed}`, amount: 1, ply: game.moves.length });
   const last = game.moves.at(-1)!;
-  const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
+  const winner = gameWinner(game);
   if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });
   const phaseWin = winner === color && BADGES.find(badge => badge.config.metric_key === `is_${phaseAt(game)}_win`);
   if (phaseWin) events.push({ kind: 'badge', badgeId: phaseWin.id, amount: 1, ply: game.moves.length });
@@ -129,8 +127,8 @@ const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, r
 // Keep already collected XP and evidence stable through cache eviction, partial
 // analysis, and tuning changes. Correcting the game's color replaces its awards.
 export function retainMastery(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
-  const savedOpeningIds = new Set(previous?.color === color ? previous.events.filter(event => event.kind === 'mastery' && event.family === 'opening').map(event => event.masteryId) : []);
-  const awards = new Map(events.filter((event): event is AnyMasteryContribution => event.kind === 'mastery' && !(event.family === 'opening' && savedOpeningIds.has(event.masteryId))).map(event => [`${event.masteryId}:${event.ply}`, event]));
+  const savedGameMasteries = new Set(previous?.color === color ? previous.events.filter(event => event.kind === 'mastery' && (event.family === 'opening' || event.family === 'endgame')).map(event => event.masteryId) : []);
+  const awards = new Map(events.filter((event): event is AnyMasteryContribution => event.kind === 'mastery' && !savedGameMasteries.has(event.masteryId)).map(event => [`${event.masteryId}:${event.ply}`, event]));
   if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(`${event.masteryId}:${event.ply}`, withMasteryGrade(event));
   return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }

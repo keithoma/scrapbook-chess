@@ -1,6 +1,7 @@
 node_modules/
 dist/
 public/engine/
+public/pieces/cburnett/
 playwright-report/
 test-results/
 *.tsbuildinfo

@@ -1,4 +1,7 @@
-import type { Score } from './stockfish';
+import type { EnginePick, Score } from './stockfish';
+import type { MoveAnnotations } from './chess/annotations';
+import { annotateMoves } from './chess/annotations';
+import { parseGame } from './game';
 
 export const ANALYSIS_VERSION = 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1';
 export const DEPTH = 6;
@@ -8,6 +11,8 @@ export interface MoveResult {
   played: Score;
   bestMove: string;
   ms: number;
+  annotations?: MoveAnnotations;
+  topMoves?: EnginePick[]; // Absent in older checkpoints, enriched on request.
 }
 export interface VirtualMove { san: string; uci: string; fen: string }
 export interface Checkpoint {
@@ -49,7 +54,8 @@ export async function checkpointKey(pgn: string): Promise<string> {
 export async function loadCheckpoint(pgn: string): Promise<Checkpoint> {
   const key = await checkpointKey(pgn);
   const saved = await transact<Checkpoint | undefined>('readonly', store => store.get(key));
-  return saved ?? {
+  if (saved) return { ...saved, results: annotateMoves(parseGame(saved.pgn), saved.results) };
+  return {
     key, pgn: pgn.trim(), version: ANALYSIS_VERSION, results: [], virtual: [],
     virtualStatus: 'pending', updatedAt: new Date().toISOString(),
   };
@@ -57,8 +63,11 @@ export async function loadCheckpoint(pgn: string): Promise<Checkpoint> {
 export async function saveCheckpoint(value: Checkpoint): Promise<void> {
   await transact('readwrite', store => store.put({ ...value, updatedAt: new Date().toISOString() }));
 }
-export async function lastCheckpoint(): Promise<Checkpoint | undefined> {
+export async function listCheckpoints(): Promise<Checkpoint[]> {
   const all = await transact<Checkpoint[]>('readonly', store => store.getAll());
   return all.filter(c => c.version === ANALYSIS_VERSION)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+export async function lastCheckpoint(): Promise<Checkpoint | undefined> {
+  return (await listCheckpoints())[0];
 }

@@ -16,6 +16,20 @@ authored separately under [data/achievements/](../../data/achievements/).
 - Existing JSON mastery/story content is reference material to preserve,
   not proof that its older naming or rules are final.
 
+## Progression numbers
+
+Author progression thresholds and reward amounts to look random while following
+a deliberate game-design curve. Choose the pacing first, then use irregular
+values around that curve instead of round milestones or simple counting
+sequences. Later tiers should require progressively more additional effort;
+account for how often the qualifying event occurs during normal play. Flavor
+references and numerology can shape individual values while preserving the pacing.
+
+These are fixed, authored values in the catalog, shared by all players. The same
+evidence always earns the same progress. Apply this principle when creating or
+explicitly rebalancing progression; preserve other authored values during unrelated
+work.
+
 ## Content organization
 
 Executable YAML content belongs in a family/category/subcategory path. Categories
@@ -99,10 +113,8 @@ leaves quality-dependent awards pending; it does not imply good or bad play.
 Knight forks and skewers are implemented. Their definitions refer to one
 [shared tactical policy](../../data/rules/tactical-mastery.yml) for quality awards,
 grades, XP thresholds, and grade-gate costs. Each track has independent progress.
-Values should appear irregular like the authored badge thresholds while keeping
-a sensible progression: precise moves earn more experience, and later levels
-require progressively more experience. Awards are deterministic for the same
-evidence; their apparent randomness is in the authored numbers.
+Apply the [progression-number principle](#progression-numbers): precise moves
+earn more experience, and later levels require progressively more experience.
 
 ### Tactical grades and level requirements
 
@@ -146,6 +158,23 @@ Opening masteries use their own [opening rules](opening-masteries.md). Jobava's
 former draft ranks are replaced by independent numbered White/Black tracks.
 Preserve the other inactive opening drafts and their authored thresholds until
 reviewed. They do not establish the tactical progression curve.
+
+### Endgame masteries
+
+Pawn vs Pawn activates when both sides have pawns and the board contains only
+kings and pawns. Its XP and game grade reflect the starting advantage, how well
+the player handles the ending, and the actual result. At comparable quality,
+recovering a losing start earns more than winning from equality, while converting
+an already winning ending earns less. From an even start, winning is the most
+important scoring factor.
+
+The first implementation awards once per game and follows play through promotions
+to the actual finish. It retains the initial evaluation rather than treating a
+self-inflicted setback as a new comeback. Its independent scoring weights and
+grade bands are provisional tuning, while the initial level progression reuses
+the existing numbered curve and separate high-grade batches. See the
+[implemented rules and limits](../../docs/reference/endgame-masteries.md).
+Other endgame categories still need recognition and scoring decisions.
 
 ### Intended tactical scoring follow-up
 

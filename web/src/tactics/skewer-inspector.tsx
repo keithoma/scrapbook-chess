@@ -9,6 +9,8 @@ import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { tacticEngineEvidence } from './engine-evidence';
 import type { SkewerCandidate } from './skewers';
 import type { Color } from 'chessops/types';
+import { TacticalReview } from './tactical-review';
+import { SKEWER_MASTERY } from '../achievements/mastery-policy';
 
 export function SkewerInspector({
   game,
@@ -167,6 +169,8 @@ export function SkewerInspector({
               </details>
             )}
           </div>
+          {assessment && <TacticalReview game={game} masteryId={SKEWER_MASTERY.id} ply={selected.ply}
+            checkpoint={checkpoint} assessment={assessment} locale={locale} />}
         </div>
       )}
     </section>

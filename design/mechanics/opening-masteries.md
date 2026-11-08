@@ -26,8 +26,13 @@ often. Parent/child credit rules remain unresolved until those tracks are added.
 
 ## Theory and independent play
 
-An engine-approved move in the pinned offline book earns modest participation
-XP. Following it deeper increases participation, subject to a per-game cap.
+A confirmed book move under the
+[shared definition](../../docs/reference/opening-masteries.md#shared-book-move-definition)
+earns modest participation XP. The definition is separate from mastery scoring
+so later refinements apply consistently to both players and every consumer.
+The current reference lacks the statistics needed to confirm its candidates;
+unverified moves earn no theory XP and do not establish a departure from theory.
+Following confirmed theory deeper increases participation, subject to a per-game cap.
 Repeated positions cannot farm theory XP. The reference is a bounded sample;
 being outside it is not a claim of a theoretical novelty.
 

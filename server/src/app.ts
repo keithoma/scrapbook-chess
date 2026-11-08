@@ -10,7 +10,10 @@ import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import { gameIdentity, prepareGrant, type GameGrant } from '../../web/src/achievements/collection';
-import { ANALYSIS_VERSION, type Checkpoint } from '../../web/src/storage';
+import { ANALYSIS_VERSION, DEPTH, type Checkpoint } from '../../web/src/storage';
+import { annotateMoves } from '../../web/src/chess/annotations';
+import { legalMoveCount } from '../../web/src/chess/legal-moves';
+import { TOP_MOVE_COUNT } from '../../web/src/stockfish';
 import type { ImportedGame, ImportReport, LinkedAccount, Platform } from '../../shared/contracts';
 import { atomic } from './database';
 import { fetchGames, PlatformClient, PlatformError, sourceRatings, sourceDrawReason, username } from './platforms';
@@ -38,6 +41,24 @@ function validateCheckpoint(value: unknown, pgn: string): Checkpoint | undefined
     const before = Chess.fromSetup(parseFen(game.frames[i].fen).unwrap()).unwrap();
     const best = parseUci(result.bestMove);
     if (!best || !before.isLegal(best)) throw new PlatformError('invalid_analysis');
+    if (result.topMoves !== undefined) {
+      if (!Array.isArray(result.topMoves) || result.topMoves.length !== Math.min(TOP_MOVE_COUNT, legalMoveCount(before))) throw new PlatformError('invalid_analysis');
+      const seen = new Set<string>();
+      for (const pick of result.topMoves) {
+        if (!pick || typeof pick.uci !== 'string' || pick.uci.length > 5 || seen.has(pick.uci)
+          || !Number.isInteger(pick.depth) || pick.depth < DEPTH || pick.depth > 256
+          || pick.depth !== result.topMoves[0].depth
+          || !pick.score || !['cp', 'mate'].includes(pick.score.type)
+          || !Number.isFinite(pick.score.value) || Math.abs(pick.score.value) > 1_000_000) throw new PlatformError('invalid_analysis');
+        const move = parseUci(pick.uci);
+        if (!move || !before.isLegal(move)) throw new PlatformError('invalid_analysis');
+        seen.add(pick.uci);
+      }
+      const first = result.topMoves[0];
+      const played = result.topMoves.find(pick => pick.uci === game.moves[i].uci);
+      if (first.uci !== result.bestMove || first.score.type !== result.best.type || first.score.value !== result.best.value
+        || (played && (played.score.type !== result.played.type || played.score.value !== result.played.value))) throw new PlatformError('invalid_analysis');
+    }
   }
   if (cp.virtual.some(move => !move || typeof move.san !== 'string' || move.san.length > 16 || typeof move.uci !== 'string'
     || move.uci.length > 8 || typeof move.fen !== 'string' || move.fen.length > 128)) throw new PlatformError('invalid_analysis');
@@ -51,7 +72,7 @@ function validateCheckpoint(value: unknown, pgn: string): Checkpoint | undefined
     || cp.virtualWinner !== (pos.turn === 'white' ? 'black' : 'white'))) throw new PlatformError('invalid_analysis');
   if (cp.virtualStatus === 'limit' && (cp.virtual.length !== 20 || pos.isEnd())) throw new PlatformError('invalid_analysis');
   if (cp.virtualStatus === 'terminal' && !pos.isEnd()) throw new PlatformError('invalid_analysis');
-  return { key: '', pgn: game.pgn, version: cp.version, results: cp.results, virtual: cp.virtual,
+  return { key: '', pgn: game.pgn, version: cp.version, results: annotateMoves(game, cp.results), virtual: cp.virtual,
     virtualStatus: cp.virtualStatus, virtualWinner: cp.virtualWinner, updatedAt: new Date().toISOString() };
 }
 export async function createApp(options: AppOptions) {
@@ -215,7 +236,9 @@ export async function createApp(options: AppOptions) {
     return c.json(atomic(db, () => {
       if (checkpoint && (checkpoint.results.length || checkpoint.virtual.length)) {
         const previous = db.prepare('SELECT checkpoint_json FROM analyses WHERE user_id=? AND game_id=?').get(signed.user.id, imported.id);
-        if (!previous || JSON.parse(previous.checkpoint_json as string).results.length <= checkpoint.results.length) {
+        const saved = previous ? JSON.parse(previous.checkpoint_json as string) as Checkpoint : undefined;
+        if (!saved || saved.results.length < checkpoint.results.length || (saved.results.length === checkpoint.results.length
+          && saved.results.filter(result => result.topMoves?.length).length <= checkpoint.results.filter(result => result.topMoves?.length).length)) {
           db.prepare('INSERT INTO analyses VALUES (?,?,?) ON CONFLICT(user_id,game_id) DO UPDATE SET checkpoint_json=excluded.checkpoint_json').run(signed.user.id, imported.id, JSON.stringify(checkpoint));
         }
       }

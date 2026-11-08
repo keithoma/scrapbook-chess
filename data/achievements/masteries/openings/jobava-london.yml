@@ -5,7 +5,7 @@
   subcategory: Jobava London
   name: The Modern Artist (Rapport-Jobava)
   description: Gain experience by playing the Rapport-Jobava System as White.
-  rule_version: jobava-opening-v1
+  rule_version: jobava-opening-v2
   grade_version: opening-grades-v1
   progression: opening-mastery-v1
   color: white
@@ -16,7 +16,7 @@
   subcategory: Jobava London
   name: The Art Critic (Defending the Rapport-Jobava)
   description: Gain experience by neutralizing the Rapport-Jobava System as Black.
-  rule_version: jobava-opening-v1
+  rule_version: jobava-opening-v2
   grade_version: opening-grades-v1
   progression: opening-mastery-v1
   color: black

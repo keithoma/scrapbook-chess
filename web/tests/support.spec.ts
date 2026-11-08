@@ -4,7 +4,7 @@ test('language selection, opening help, and local feedback drafts survive naviga
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Language' }).selectOption('de');
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-  await expect(page.getByRole('heading', { name: 'Deine Partien.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Startseite' })).toBeVisible();
   await page.getByRole('link', { name: 'Hilfe', exact: true }).click();
   await expect(page).toHaveURL(/\/help$/);
   await expect(page.getByRole('heading', { name: 'Eröffnungsmeisterschaft · Jobava-London' })).toBeVisible();
@@ -20,7 +20,7 @@ test('language selection, opening help, and local feedback drafts survive naviga
   await page.getByRole('button', { name: 'Clear draft' }).click();
   await page.reload();
   await expect(page.getByLabel('Your feedback')).toHaveValue('');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   await page.goBack();
   await expect(page).toHaveURL(/\/feedback$/);

@@ -5,6 +5,9 @@ import manifest from '../../../data/openings/book.json';
 import { POLYGLOT_KEYS } from './polyglot-keys';
 
 export const BOOK_VERSION = manifest.id;
+// Polyglot weights are scaled independently at each position, not game counts.
+// Future reference data can supply observations and mover-relative losses here.
+export interface BookMoveEvidence { weight: number; games?: number; losses?: number }
 const roles = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
 
 // Independent implementation of https://hgm.nubati.net/book_format.html.
@@ -37,7 +40,10 @@ export class PolyglotBook {
     this.data = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   }
   has(pos: Chess, move: Move): boolean {
-    if (!('from' in move)) return false;
+    return this.lookup(pos, move) !== undefined;
+  }
+  lookup(pos: Chess, move: Move): BookMoveEvidence | undefined {
+    if (!('from' in move)) return;
     const key = polyglotKey(pos);
     // chessops and Polyglot both encode castling as king-to-rook.
     const promotion = move.promotion ? ['knight', 'bishop', 'rook', 'queen'].indexOf(move.promotion) + 1 : 0;
@@ -49,8 +55,9 @@ export class PolyglotBook {
       else high = mid;
     }
     for (let offset = low * 16; offset < this.data.byteLength && this.data.getBigUint64(offset) === key; offset += 16)
-      if (this.data.getUint16(offset + 8) === encoded) return true;
-    return false;
+      if (this.data.getUint16(offset + 8) === encoded)
+        return { weight: this.data.getUint16(offset + 10) };
+    return;
   }
 }
 

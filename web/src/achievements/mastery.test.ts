@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { parseGame } from '../game';
 import { RECENT_GAME_PGN } from '../fixtures';
+import ne2Pgn from '../fixtures/games/halce-noctu2nality-ne2.pgn?raw';
+import nxd4Pgn from '../fixtures/games/halce-noctu2nality-nxd4.pgn?raw';
+import { analyzed } from '../fixtures/test-analysis';
 import { ANALYSIS_VERSION, type Checkpoint } from '../storage';
 import { knightForkCandidates } from '../tactics/knight-forks';
 import { forkMaterialThreat } from '../tactics/fork-material';
@@ -19,6 +22,7 @@ import {
   newlyUnlocked,
   projectCollection,
   retainMastery,
+  prepareGrant,
   type GameGrant,
 } from './collection';
 
@@ -106,6 +110,32 @@ describe('material qualification', () => {
   });
 });
 describe('quality-based XP and levels', () => {
+  it('awards Ne2+ once and gives no additional fork XP for Nxd4 in Halce–noctu2nality', () => {
+    const example = parseGame(ne2Pgn);
+    const cp = analyzed(example, -309);
+    const candidates = knightForkCandidates(example);
+    const creatingFork = candidates.find(candidate => candidate.san === 'Ne2+')!;
+    const followUp = candidates.find(candidate => candidate.san === 'Nxd4')!;
+    expect(assessFork(example, creatingFork, cp)).toMatchObject({
+      status: 'qualified',
+      event: { ply: 1, amount: 137, grade: 'S+', evidence: { lossCp: 0, materialGainCp: 500 } },
+    });
+    expect(assessFork(example, followUp, cp).status).toBe('rejected');
+    const first = prepareGrant([], example, 'black', cp);
+    expect(first.events.filter(event => event.kind === 'mastery' && event.masteryId === 'mastery_knight_forks'))
+      .toMatchObject([{ ply: 1, amount: 137, grade: 'S+' }]);
+    expect(projectCollection([first]).mastery).toMatchObject({ xp: 137, highGrades: 1 });
+    const again = prepareGrant([first], example, 'black', cp);
+    expect(again.events).toEqual(first.events);
+    expect(prepareGrant([first], example, 'black').events.filter(event => event.kind === 'mastery'))
+      .toEqual(first.events.filter(event => event.kind === 'mastery'));
+    expect(newlyUnlocked([first], [again]).masteryXp).toBe(0);
+
+    const isolatedFollowUp = parseGame(nxd4Pgn);
+    const followUpGrant = prepareGrant([], isolatedFollowUp, 'black', analyzed(isolatedFollowUp, -367));
+    expect(projectCollection([followUpGrant]).mastery.xp).toBe(0);
+  });
+
   it('uses authored irregular values with decreasing awards and rejects moves outside the gate', () => {
     for (const [i, band] of FORK_MASTERY.quality_awards.entries()) {
       expect(qualityXp({ type: 'cp', value: 0 }, { type: 'cp', value: -band.max_loss_cp }).xp).toBe(

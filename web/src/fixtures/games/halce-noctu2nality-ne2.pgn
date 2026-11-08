@@ -1,0 +1,9 @@
+[Event "rated rapid game"]
+[Site "https://lichess.org/0WpU304o"]
+[White "Halce"]
+[Black "noctu2nality"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "4r3/ppq2pk1/2p2pp1/8/2PR1nP1/5Q1P/PPB2P2/5RK1 b - - 0 24"]
+
+24... Ne2+ 25. Kg2 Nxd4 26. Qc3 Qf4 27. Bd3 Qf3+ 28. Kh2 Qf4+ 29. Kg1 Nf3+ 30. Kg2 Qh2+ 31. Kxf3 Qxh3+ 32. Kf4 g5+ 33. Kf5 Qf3# 0-1

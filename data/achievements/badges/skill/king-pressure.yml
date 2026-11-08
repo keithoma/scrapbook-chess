@@ -17,41 +17,41 @@
     is_hidden: false
     tiers:
       - name: 'pawn'
-        amount: 1
+        amount: 97
         flavor:
           text: Excuse me, is this square occupied?
 
       - name: 'knight'
-        amount: 2
+        amount: 239
         flavor:
           text: A follow-up question.
 
       - name: 'bishop'
-        amount: 3
+        amount: 587
         flavor:
           text: The king has asked for this meeting to be an email.
 
       - name: 'rook'
-        amount: 4
+        amount: 1429
         flavor:
           text: This is becoming less of an interview and more of an interrogation.
 
       - name: 'queen'
-        amount: 5
+        amount: 3491
         flavor:
           text: Have you tried turning the king off and on again?
 
       - name: 'king'
-        amount: 6
+        amount: 8513
         flavor:
           text: Your opponent now flinches at plus signs.
 
       - name: 'immortal'
-        amount: 7
+        amount: 20743
         flavor:
           text: The king would like a lawyer.
 
       - name: 'legend'
-        amount: 8
+        amount: 50581
         flavor:
           text: No further questions. For now.
