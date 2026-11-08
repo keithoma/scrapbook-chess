@@ -17,12 +17,15 @@ export interface PlayedMove {
   san: string;
   uci: string;
   color: Color;
+  enPassant: boolean;
 }
 export interface ReplayGame {
   pgn: string;
   white: string;
   black: string;
   result: string;
+  site: string;
+  timestamp: string;
   frames: Frame[];
   moves: PlayedMove[];
 }
@@ -47,17 +50,21 @@ export function parseGame(pgn: string): ReplayGame {
     const move = parseSan(pos, node.san);
     if (!move) throw new Error(`Illegal move at ply ${moves.length + 1}: ${node.san}`);
     const color = pos.turn;
+    const enPassant = 'from' in move && pos.board.getRole(move.from) === 'pawn'
+      && move.to === pos.epSquare && !pos.board.has(move.to);
     // chessops represents castling as king-to-rook; standard UCI uses king-to-g/c.
     const castle = castlingSide(pos, move);
     const uci = castle && 'from' in move ? makeUci({ ...move, to: kingCastlesTo(color, castle) }) : makeUci(move);
     const san = makeSanAndPlay(pos, move);
-    moves.push({ ply: moves.length + 1, san, uci, color });
+    moves.push({ ply: moves.length + 1, san, uci, color, enPassant });
     snapshot();
   }
   if (!moves.length) throw new Error('No playable moves found in that PGN.');
   return {
     pgn: pgn.trim(), white: game.headers.get('White') ?? 'White',
     black: game.headers.get('Black') ?? 'Black', result: game.headers.get('Result') ?? '*',
+    site: game.headers.get('Site') ?? '',
+    timestamp: `${game.headers.get('UTCDate') ?? game.headers.get('Date') ?? ''} ${game.headers.get('UTCTime') ?? ''}`.trim(),
     frames, moves,
   };
 }

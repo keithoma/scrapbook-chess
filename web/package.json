@@ -15,7 +15,8 @@
     "chessops": "0.15.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "stockfish": "19.0.1"
+    "stockfish": "19.0.1",
+    "yaml": "2.9.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
