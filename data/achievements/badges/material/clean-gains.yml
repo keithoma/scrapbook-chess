@@ -61,44 +61,55 @@
   type: badge
   category: 'Material'
   subcategory: 'Clean Gains'
-  name: ''
+  name: 'Horse Stable'
   description: 'Number of clean knights won (the knight winning move is not a mistake nor a blunder and the knight is kept for 5 or more turns).'
-  flavor_text: ''
+  flavor:
+    text: One knight, with no concealed invoice.
   config:
     metric_key: 'clean_knights_count'
     is_hidden: false
+    analysis_required: true
+    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The horse has passed its inspection.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: A second horse. The chess economy is healing.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your stable has more forks than the dining room.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The L-shaped delivery has been signed for.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Five turns later, the horse is still your opponent's problem.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: You have become a reputable distributor of missing cavalry.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The opposing knights now travel in pairs.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Your pasture appears to be an entire rating bracket.
 
 - id: badge_clean_bishop
   type: badge
