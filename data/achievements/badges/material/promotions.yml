@@ -9,19 +9,23 @@
   subcategory: 'Promotions'
   name: 'Promotion Master'
   description: 'Number of all promotions achieved.'
-  flavor_text: ''
+  flavor:
+    text: Entry-level pawn. Senior management ambitions.
   config:
     metric_key: 'promotion_count'
     is_hidden: false
     tiers:
       - name: 'bronze'
         amount: 10
-        flavor_text: ''
+        flavor:
+          text: Ten promotions. Still no paid leave.
 
       - name: 'silver'
         amount: 50
-        flavor_text: ''
+        flavor:
+          text: The pawns have formed a leadership development program.
 
       - name: 'gold'
         amount: 250
-        flavor_text: ''
+        flavor:
+          text: Your succession plan is now a queue at the eighth rank.
