@@ -9,6 +9,47 @@ import { parseSan } from 'chessops/san';
 import { makeUci } from 'chessops/util';
 
 const baseURL = 'http://127.0.0.1:5173';
+test('both providers collect independent Caro-Kann root and named-branch awards and retain them without analysis', async () => {
+  const source = readFileSync(new URL('../../web/src/fixtures/games/caro-kann.pgn', import.meta.url), 'utf8');
+  const moves = source.trim().split('\n\n')[1];
+  const lichess = sample('lichess', { id: 'Caro0001' });
+  const chesscom = sample('chesscom', { id: '999101', name: 'testchess' });
+  for (const raw of [lichess, chesscom]) raw.pgn = raw.pgn.replaceAll('0-1', '1-0').replace('1. f3 e5 2. g4 Qh4# 1-0', moves);
+  lichess.status = 'resign'; lichess.winner = 'white';
+  lichess.clocks = [...moves.matchAll(/%clk 0:(\d+):(\d+)/g)].map(match => (Number(match[1]) * 60 + Number(match[2])) * 100);
+  chesscom.white.result = 'win'; chesscom.black.result = 'resigned';
+  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json();
+  assert.equal(me.games.length, 2);
+  for (const game of me.games) {
+    const parsed = parsePgn(game.pgn)[0];
+    const pos = startingPosition(parsed.headers).unwrap();
+    const results = [];
+    for (const node of parsed.moves.mainline()) {
+      const move = parseSan(pos, node.san);
+      results.push({ ply: results.length + 1, bestMove: makeUci(move), best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 });
+      pos.play(move);
+    }
+    const checkpoint = { pgn: game.pgn, version: 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1', results, virtual: [], virtualStatus: 'pending' };
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const response = await s.request(path, 'POST', { checkpoint, masteryId: 'mastery_caro_kann_white', amount: 99999 });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const events = grant.events.filter(event => event.family === 'opening');
+    const ids = ['mastery_caro_kann_black', 'mastery_caro_kann_advance_variation_black', 'mastery_caro_kann_advance_variation_short_variation_black'];
+    assert.deepEqual([...new Set(events.map(event => event.masteryId))].sort(), [...ids].sort());
+    const totals = ids.map(id => events.filter(event => event.masteryId === id).reduce((sum, event) => sum + event.amount, 0));
+    assert.ok(totals[0] > 0);
+    assert.ok(totals.every(total => total === totals[0]));
+    for (const id of ids) assert.ok(events.filter(event => event.masteryId === id && event.grade).length <= 1);
+    assert.ok(events.every(event => event.evidence.color === 'black' && event.evidence.ruleVersion === 'caro-kann-opening-v1'));
+    s.db.prepare('DELETE FROM analyses').run();
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  s.db.close();
+});
 test('both providers recover missing Jobava clocks and collect the browser-equivalent opening award once', async () => {
   const source = readFileSync(new URL('../../web/src/fixtures/games/jobava.pgn', import.meta.url), 'utf8');
   const moves = source.trim().split('\n\n')[1];

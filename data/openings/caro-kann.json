@@ -1,0 +1,881 @@
+{
+  "source": "https://github.com/lichess-org/chess-openings/blob/3ba6b20d31b2e6125cb0e6a2e792f400717d9d39/b.tsv",
+  "sourceVersion": "3ba6b20d31b2e6125cb0e6a2e792f400717d9d39",
+  "sourceEntryCount": 110,
+  "entries": [
+    {
+      "id": "caro-kann",
+      "name": "Caro-Kann Defense",
+      "aliases": [
+        "Caro-Kann Defense",
+        "Caro-Kann Defense: Main Line"
+      ],
+      "entryLines": [
+        "e4 c6",
+        "e4 c6 Nc3",
+        "e4 c6 Nc3 d5",
+        "e4 c6 d4",
+        "e4 c6 d4 d5",
+        "e4 c6 d4 d5 Nc3",
+        "e4 c6 d4 d5 Nc3 dxe4",
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4"
+      ]
+    },
+    {
+      "id": "caro-kann-accelerated-panov-attack",
+      "name": "Caro-Kann Defense: Accelerated Panov Attack",
+      "aliases": [
+        "Caro-Kann Defense: Accelerated Panov Attack"
+      ],
+      "entryLines": [
+        "e4 c6 c4",
+        "e4 c6 c4 d5"
+      ]
+    },
+    {
+      "id": "caro-kann-accelerated-panov-attack-modern-variation",
+      "name": "Caro-Kann Defense: Accelerated Panov Attack, Modern Variation",
+      "aliases": [
+        "Caro-Kann Defense: Accelerated Panov Attack, Modern Variation"
+      ],
+      "entryLines": [
+        "e4 c6 c4 d5 exd5 cxd5 cxd5 Nf6"
+      ]
+    },
+    {
+      "id": "caro-kann-accelerated-panov-attack-open-variation",
+      "name": "Caro-Kann Defense: Accelerated Panov Attack, Open Variation",
+      "aliases": [
+        "Caro-Kann Defense: Accelerated Panov Attack, Open Variation"
+      ],
+      "entryLines": [
+        "e4 c6 c4 e5"
+      ]
+    },
+    {
+      "id": "caro-kann-accelerated-panov-attack-pseudo-scandinavian",
+      "name": "Caro-Kann Defense: Accelerated Panov Attack, Pseudo-Scandinavian",
+      "aliases": [
+        "Caro-Kann Defense: Accelerated Panov Attack, Pseudo-Scandinavian"
+      ],
+      "entryLines": [
+        "e4 c6 c4 d5 exd5 cxd5 cxd5 Qxd5"
+      ]
+    },
+    {
+      "id": "caro-kann-accelerated-panov-attack-van-weersel-attack",
+      "name": "Caro-Kann Defense: Accelerated Panov Attack, Van Weersel Attack",
+      "aliases": [
+        "Caro-Kann Defense: Accelerated Panov Attack, Van Weersel Attack"
+      ],
+      "entryLines": [
+        "e4 c6 c4 d5 cxd5 cxd5 Qb3"
+      ]
+    },
+    {
+      "id": "caro-kann-apocalypse-attack",
+      "name": "Caro-Kann Defense: Apocalypse Attack",
+      "aliases": [
+        "Caro-Kann Defense: Apocalypse Attack"
+      ],
+      "entryLines": [
+        "e4 c6 Nf3 d5 exd5 cxd5 Ne5"
+      ]
+    },
+    {
+      "id": "caro-kann-breyer-variation",
+      "name": "Caro-Kann Defense: Breyer Variation",
+      "aliases": [
+        "Caro-Kann Defense: Breyer Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d3"
+      ]
+    },
+    {
+      "id": "caro-kann-breyer-variation-stein-attack",
+      "name": "Caro-Kann Defense: Breyer Variation, Stein Attack",
+      "aliases": [
+        "Caro-Kann Defense: Breyer Variation, Stein Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d3 d5 Nd2 g6 Ngf3 Bg7 g3 e5 Bg2 Ne7 O-O O-O b4"
+      ]
+    },
+    {
+      "id": "caro-kann-dinic-gambit",
+      "name": "Caro-Kann Defense: Dinic Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Dinic Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 Nf3 d5 d3 dxe4 Ng5"
+      ]
+    },
+    {
+      "id": "caro-kann-endgame-offer",
+      "name": "Caro-Kann Defense: Endgame Offer",
+      "aliases": [
+        "Caro-Kann Defense: Endgame Offer"
+      ],
+      "entryLines": [
+        "e4 c6 Nf3 d5 d3"
+      ]
+    },
+    {
+      "id": "caro-kann-endgame-variation",
+      "name": "Caro-Kann Defense: Endgame Variation",
+      "aliases": [
+        "Caro-Kann Defense: Endgame Variation"
+      ],
+      "entryLines": [
+        "e4 c6 Nf3 d5 d3 dxe4 dxe4 Qxd1+ Kxd1"
+      ]
+    },
+    {
+      "id": "caro-kann-euwe-attack",
+      "name": "Caro-Kann Defense: Euwe Attack",
+      "aliases": [
+        "Caro-Kann Defense: Euwe Attack"
+      ],
+      "entryLines": [
+        "e4 c6 b3"
+      ]
+    },
+    {
+      "id": "caro-kann-goldman-variation",
+      "name": "Caro-Kann Defense: Goldman Variation",
+      "aliases": [
+        "Caro-Kann Defense: Goldman Variation"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 Qf3"
+      ]
+    },
+    {
+      "id": "caro-kann-hector-gambit",
+      "name": "Caro-Kann Defense: Hector Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Hector Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 Nf3 dxe4 Ng5"
+      ]
+    },
+    {
+      "id": "caro-kann-hillbilly-attack",
+      "name": "Caro-Kann Defense: Hillbilly Attack",
+      "aliases": [
+        "Caro-Kann Defense: Hillbilly Attack"
+      ],
+      "entryLines": [
+        "e4 c6 Bc4"
+      ]
+    },
+    {
+      "id": "caro-kann-hillbilly-attack-schaeffer-gambit",
+      "name": "Caro-Kann Defense: Hillbilly Attack, Schaeffer Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Hillbilly Attack, Schaeffer Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 Bc4 d5 Bb3 dxe4 Qh5"
+      ]
+    },
+    {
+      "id": "caro-kann-labahn-attack",
+      "name": "Caro-Kann Defense: Labahn Attack",
+      "aliases": [
+        "Caro-Kann Defense: Labahn Attack"
+      ],
+      "entryLines": [
+        "e4 c6 b4"
+      ]
+    },
+    {
+      "id": "caro-kann-labahn-attack-double-gambit",
+      "name": "Caro-Kann Defense: Labahn Attack, Double Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Labahn Attack, Double Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 b4 d5 b5"
+      ]
+    },
+    {
+      "id": "caro-kann-labahn-attack-polish-variation",
+      "name": "Caro-Kann Defense: Labahn Attack, Polish Variation",
+      "aliases": [
+        "Caro-Kann Defense: Labahn Attack, Polish Variation"
+      ],
+      "entryLines": [
+        "e4 c6 b4 e5 Bb2"
+      ]
+    },
+    {
+      "id": "caro-kann-scorpion-horus-gambit",
+      "name": "Caro-Kann Defense: Scorpion-Horus Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Scorpion-Horus Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 d3 dxe4 Bg5"
+      ]
+    },
+    {
+      "id": "caro-kann-spike-variation",
+      "name": "Caro-Kann Defense: Spike Variation",
+      "aliases": [
+        "Caro-Kann Defense: Spike Variation"
+      ],
+      "entryLines": [
+        "e4 c6 g4"
+      ]
+    },
+    {
+      "id": "caro-kann-spike-variation-scorpion-grob-gambit",
+      "name": "Caro-Kann Defense: Spike Variation, Scorpion-Grob Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Spike Variation, Scorpion-Grob Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 g4 d5 Nc3 dxe4 d3"
+      ]
+    },
+    {
+      "id": "caro-kann-st-patrick-s-attack",
+      "name": "Caro-Kann Defense: St. Patrick's Attack",
+      "aliases": [
+        "Caro-Kann Defense: St. Patrick's Attack"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 h3"
+      ]
+    },
+    {
+      "id": "caro-kann-toikkanen-gambit",
+      "name": "Caro-Kann Defense: Toikkanen Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Toikkanen Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 c4 d5 e5"
+      ]
+    },
+    {
+      "id": "caro-kann-two-knights-attack",
+      "name": "Caro-Kann Defense: Two Knights Attack",
+      "aliases": [
+        "Caro-Kann Defense: Two Knights Attack"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 Nf3"
+      ]
+    },
+    {
+      "id": "caro-kann-two-knights-attack-mindeno-variation",
+      "name": "Caro-Kann Defense: Two Knights Attack, Mindeno Variation",
+      "aliases": [
+        "Caro-Kann Defense: Two Knights Attack, Mindeno Variation",
+        "Caro-Kann Defense: Two Knights Attack, Mindeno Variation, Exchange Line",
+        "Caro-Kann Defense: Two Knights Attack, Mindeno Variation, Retreat Line"
+      ],
+      "entryLines": [
+        "e4 c6 Nc3 d5 Nf3 Bg4",
+        "e4 c6 Nc3 d5 Nf3 Bg4 h3 Bxf3",
+        "e4 c6 Nc3 d5 Nf3 Bg4 h3 Bh5"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation",
+      "name": "Caro-Kann Defense: Advance Variation",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-bayonet-attack",
+      "name": "Caro-Kann Defense: Advance Variation, Bayonet Attack",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Bayonet Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 g4"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-botvinnik-carls-defense",
+      "name": "Caro-Kann Defense: Advance Variation, Botvinnik-Carls Defense",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Botvinnik-Carls Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 c5"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-bronstein-variation",
+      "name": "Caro-Kann Defense: Advance Variation, Bronstein Variation",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Bronstein Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 Ne2"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-prins-attack",
+      "name": "Caro-Kann Defense: Advance Variation, Prins Attack",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Prins Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 b4"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-short-variation",
+      "name": "Caro-Kann Defense: Advance Variation, Short Variation",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Short Variation",
+        "Caro-Kann Defense: Advance, Short Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 Nf3",
+        "e4 c6 d4 d5 e5 Bf5 c3 e6 Be2"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-tal-variation",
+      "name": "Caro-Kann Defense: Advance Variation, Tal Variation",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Tal Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 h4"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-van-der-wiel-attack",
+      "name": "Caro-Kann Defense: Advance Variation, Van der Wiel Attack",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Van der Wiel Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 Nc3",
+        "e4 c6 d4 d5 e5 Bf5 Nc3 e6 g4 Bg6 Nge2 c5 h4"
+      ]
+    },
+    {
+      "id": "caro-kann-advance-variation-van-der-wiel-attack-dreyev-defense",
+      "name": "Caro-Kann Defense: Advance Variation, Van der Wiel Attack, Dreyev Defense",
+      "aliases": [
+        "Caro-Kann Defense: Advance Variation, Van der Wiel Attack, Dreyev Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 e5 Bf5 Nc3 Qb6"
+      ]
+    },
+    {
+      "id": "caro-kann-de-bruycker-defense",
+      "name": "Caro-Kann Defense: De Bruycker Defense",
+      "aliases": [
+        "Caro-Kann Defense: De Bruycker Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 Na6",
+        "e4 c6 d4 Na6 Nc3 Nc7"
+      ]
+    },
+    {
+      "id": "caro-kann-edinburgh-variation",
+      "name": "Caro-Kann Defense: Edinburgh Variation",
+      "aliases": [
+        "Caro-Kann Defense: Edinburgh Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 Qb6"
+      ]
+    },
+    {
+      "id": "caro-kann-maroczy-variation",
+      "name": "Caro-Kann Defense: Maróczy Variation",
+      "aliases": [
+        "Caro-Kann Defense: Maróczy Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 f3"
+      ]
+    },
+    {
+      "id": "caro-kann-maroczy-variation-maroczy-gambit",
+      "name": "Caro-Kann Defense: Maróczy Variation, Maróczy Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Maróczy Variation, Maróczy Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 f3 dxe4 fxe4 e5 Nf3 exd4 Bc4"
+      ]
+    },
+    {
+      "id": "caro-kann-masi-variation",
+      "name": "Caro-Kann Defense: Masi Variation",
+      "aliases": [
+        "Caro-Kann Defense: Masi Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 Nf6"
+      ]
+    },
+    {
+      "id": "caro-kann-massachusetts-defense",
+      "name": "Caro-Kann Defense: Massachusetts Defense",
+      "aliases": [
+        "Caro-Kann Defense: Massachusetts Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 f5"
+      ]
+    },
+    {
+      "id": "caro-kann-mieses-attack-landau-gambit",
+      "name": "Caro-Kann Defense: Mieses Attack, Landau Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Mieses Attack, Landau Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Bd3 Nf6 e5 Nfd7 e6"
+      ]
+    },
+    {
+      "id": "caro-kann-mieses-gambit",
+      "name": "Caro-Kann Defense: Mieses Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Mieses Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Be3"
+      ]
+    },
+    {
+      "id": "caro-kann-modern-variation",
+      "name": "Caro-Kann Defense: Modern Variation",
+      "aliases": [
+        "Caro-Kann Defense: Modern Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2"
+      ]
+    },
+    {
+      "id": "caro-kann-ulysses-gambit",
+      "name": "Caro-Kann Defense: Ulysses Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Ulysses Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nf3 dxe4 Ng5"
+      ]
+    },
+    {
+      "id": "caro-kann-exchange-variation",
+      "name": "Caro-Kann Defense: Exchange Variation",
+      "aliases": [
+        "Caro-Kann Defense: Exchange Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5",
+        "e4 c6 d4 d5 exd5 cxd5",
+        "e4 c6 d4 d5 exd5 cxd5 Bf4",
+        "e4 c6 d4 d5 exd5 cxd5 Nf3 Nc6"
+      ]
+    },
+    {
+      "id": "caro-kann-exchange-variation-bulla-attack",
+      "name": "Caro-Kann Defense: Exchange Variation, Bulla Attack",
+      "aliases": [
+        "Caro-Kann Defense: Exchange Variation, Bulla Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 g4"
+      ]
+    },
+    {
+      "id": "caro-kann-exchange-variation-rubinstein-variation",
+      "name": "Caro-Kann Defense: Exchange Variation, Rubinstein Variation",
+      "aliases": [
+        "Caro-Kann Defense: Exchange Variation, Rubinstein Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 Bd3 Nc6 c3 Nf6 Bf4"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack",
+      "name": "Caro-Kann Defense: Panov Attack",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack",
+        "Caro-Kann Defense: Panov Attack, Main Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 e6",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nc6 Nc3 Nf6 Nf3 e6 cxd5 exd5 Bb5 Bg4",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nc6 Nc3 Nf6 Nf3 e6 cxd5 exd5 Bb5 Bd6 Bg5 O-O O-O",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Nf3 e6 c5",
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 e6 Nf3 Bb4"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-gunderam-attack",
+      "name": "Caro-Kann Defense: Panov Attack, Gunderam Attack",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Gunderam Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 c5"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-modern-defense",
+      "name": "Caro-Kann Defense: Panov Attack, Modern Defense",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Modern Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-modern-defense-carlsbad-line",
+      "name": "Caro-Kann Defense: Panov Attack, Modern Defense, Carlsbad Line",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Modern Defense, Carlsbad Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Bg5 e6"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-modern-defense-czerniak-line",
+      "name": "Caro-Kann Defense: Panov Attack, Modern Defense, Czerniak Line",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Modern Defense, Czerniak Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Bg5 Qa5"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-modern-defense-mieses-line",
+      "name": "Caro-Kann Defense: Panov Attack, Modern Defense, Mieses Line",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Modern Defense, Mieses Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Nf3 Bg4"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-modern-defense-reifir-spielmann-line",
+      "name": "Caro-Kann Defense: Panov Attack, Modern Defense, Reifir-Spielmann Line",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Modern Defense, Reifir-Spielmann Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Bg5 Qb6"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-botvinnik-herzog-defense",
+      "name": "Caro-Kann Defense: Panov-Botvinnik, Herzog Defense",
+      "aliases": [
+        "Caro-Kann Defense: Panov-Botvinnik, Herzog Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 Nc6 Bg5 dxc4 d5 Na5"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-fianchetto-defense",
+      "name": "Caro-Kann Defense: Panov Attack, Fianchetto Defense",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Fianchetto Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 g6"
+      ]
+    },
+    {
+      "id": "caro-kann-panov-attack-fianchetto-defense-fianchetto-gambit",
+      "name": "Caro-Kann Defense: Panov Attack, Fianchetto Defense, Fianchetto Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Panov Attack, Fianchetto Defense, Fianchetto Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3 g6 cxd5 Bg7"
+      ]
+    },
+    {
+      "id": "caro-kann-alekhine-gambit",
+      "name": "Caro-Kann Defense: Alekhine Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Alekhine Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Bd3"
+      ]
+    },
+    {
+      "id": "caro-kann-alien-gambit",
+      "name": "Caro-Kann Defense: Alien Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Alien Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Ng5 h6 Nxf7"
+      ]
+    },
+    {
+      "id": "caro-kann-campomanes-attack",
+      "name": "Caro-Kann Defense: Campomanes Attack",
+      "aliases": [
+        "Caro-Kann Defense: Campomanes Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 Nf6"
+      ]
+    },
+    {
+      "id": "caro-kann-forgacs-variation",
+      "name": "Caro-Kann Defense: Forgacs Variation",
+      "aliases": [
+        "Caro-Kann Defense: Forgacs Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ exf6 Bc4"
+      ]
+    },
+    {
+      "id": "caro-kann-gurgenidze-counterattack",
+      "name": "Caro-Kann Defense: Gurgenidze Counterattack",
+      "aliases": [
+        "Caro-Kann Defense: Gurgenidze Counterattack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 b5"
+      ]
+    },
+    {
+      "id": "caro-kann-gurgenidze-system",
+      "name": "Caro-Kann Defense: Gurgenidze System",
+      "aliases": [
+        "Caro-Kann Defense: Gurgenidze System"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 g6"
+      ]
+    },
+    {
+      "id": "caro-kann-rasa-studier-gambit",
+      "name": "Caro-Kann Defense: Rasa-Studier Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Rasa-Studier Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 f3"
+      ]
+    },
+    {
+      "id": "caro-kann-tartakower-variation",
+      "name": "Caro-Kann Defense: Tartakower Variation",
+      "aliases": [
+        "Caro-Kann Defense: Tartakower Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ exf6"
+      ]
+    },
+    {
+      "id": "caro-kann-tartakower-variation-perlis-line",
+      "name": "Caro-Kann Defense: Tartakower Variation, Perlis Line",
+      "aliases": [
+        "Caro-Kann Defense: Tartakower Variation, Perlis Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ exf6 c3 Bd6 Bd3 O-O Qc2 h6"
+      ]
+    },
+    {
+      "id": "caro-kann-von-hennig-gambit",
+      "name": "Caro-Kann Defense: von Hennig Gambit",
+      "aliases": [
+        "Caro-Kann Defense: von Hennig Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Bc4"
+      ]
+    },
+    {
+      "id": "caro-kann-bronstein-larsen-variation",
+      "name": "Caro-Kann Defense: Bronstein-Larsen Variation",
+      "aliases": [
+        "Caro-Kann Defense: Bronstein-Larsen Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ gxf6"
+      ]
+    },
+    {
+      "id": "caro-kann-finnish-variation",
+      "name": "Caro-Kann Defense: Finnish Variation",
+      "aliases": [
+        "Caro-Kann Defense: Finnish Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 h6"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation",
+      "name": "Caro-Kann Defense: Karpov Variation",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation-modern-variation",
+      "name": "Caro-Kann Defense: Karpov Variation, Modern Variation",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation, Modern Main Line",
+        "Caro-Kann Defense: Karpov Variation, Modern Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Ng5 Ngf6 Bd3 e6 N1f3 Bd6 Qe2 h6 Ne4 Nxe4 Qxe4",
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Ng5"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation-modern-variation-ivanchuk-defense",
+      "name": "Caro-Kann Defense: Karpov Variation, Modern Variation, Ivanchuk Defense",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation, Modern Variation, Ivanchuk Defense"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Ng5 Ndf6"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation-modern-variation-kasparov-attack",
+      "name": "Caro-Kann Defense: Karpov Variation, Modern Variation, Kasparov Attack",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation, Modern Variation, Kasparov Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nd7 Nf3 Ngf6 Ng3"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation-smyslov-variation",
+      "name": "Caro-Kann Defense: Karpov Variation, Smyslov Variation",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation, Smyslov Variation",
+        "Caro-Kann Defense: Karpov Variation, Smyslov Variation, Main Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Bc4 Ngf6 Ng5 e6 Qe2 Nb6",
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Bc4 Ngf6 Ng5 e6 Qe2 Nb6 Bb3"
+      ]
+    },
+    {
+      "id": "caro-kann-karpov-variation-tiviakov-fischer-attack",
+      "name": "Caro-Kann Defense: Karpov Variation, Tiviakov-Fischer Attack",
+      "aliases": [
+        "Caro-Kann Defense: Karpov Variation, Tiviakov-Fischer Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Nd7 Bc4 Ngf6 Nxf6+ Nxf6"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation",
+      "name": "Caro-Kann Defense: Classical Variation",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation",
+        "Caro-Kann Defense: Classical Variation, Main Line"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5",
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 h4",
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation-flohr-variation",
+      "name": "Caro-Kann Defense: Classical Variation, Flohr Variation",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation, Flohr Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 Nh3"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation-maroczy-attack",
+      "name": "Caro-Kann Defense: Classical Variation, Maróczy Attack",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation, Maróczy Attack"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 f4"
+      ]
+    },
+    {
+      "id": "caro-kann-martian-gambit",
+      "name": "Caro-Kann Defense: Martian Gambit",
+      "aliases": [
+        "Caro-Kann Defense: Martian Gambit"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng5 Bg6 N1f3 h6 Ne6"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation-lobron-system",
+      "name": "Caro-Kann Defense: Classical Variation, Lobron System",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation, Lobron System"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7 h5 Bh7 Bd3 Bxd3 Qxd3 e6 Bd2 Ngf6 O-O-O Be7"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation-seirawan-variation",
+      "name": "Caro-Kann Defense: Classical Variation, Seirawan Variation",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation, Seirawan Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7 h5 Bh7 Bd3 Bxd3 Qxd3 Ngf6 Bd2 e6 O-O-O Bd6"
+      ]
+    },
+    {
+      "id": "caro-kann-classical-variation-spassky-variation",
+      "name": "Caro-Kann Defense: Classical Variation, Spassky Variation",
+      "aliases": [
+        "Caro-Kann Defense: Classical Variation, Spassky Variation"
+      ],
+      "entryLines": [
+        "e4 c6 d4 d5 Nd2 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7 h5"
+      ]
+    }
+  ]
+}

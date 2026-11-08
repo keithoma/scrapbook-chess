@@ -30,36 +30,6 @@
     }
   },
   {
-    "id": "mastery_caro_kann_black",
-    "type": "mastery",
-    "category": "Openings",
-    "name": "The Iron Wall (Caro-Kann)",
-    "description": "Gain experience by playing the solid Caro-Kann Defense as Black.",
-    "is_hidden": false,
-    "config": {
-      "conditions": {
-        "color": "black",
-        "eco_prefixes": ["B1"]
-      },
-      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
-    }
-  },
-  {
-    "id": "mastery_caro_kann_white",
-    "type": "mastery",
-    "category": "Openings",
-    "name": "The Wall Breaker (Facing the Caro-Kann)",
-    "description": "Gain experience by cracking the Caro-Kann Defense as White.",
-    "is_hidden": false,
-    "config": {
-      "conditions": {
-        "color": "white",
-        "eco_prefixes": ["B1"]
-      },
-      "exp_thresholds": { "C": 100, "B": 500, "A": 1500, "S": 3000, "S+": 5000 }
-    }
-  },
-  {
     "id": "mastery_kings_gambit_white",
     "type": "mastery",
     "category": "Openings",

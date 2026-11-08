@@ -26,7 +26,11 @@ export function MasteryCard({
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const fork = definition.id === 'mastery_knight_forks';
   const opening = definition.family === 'opening';
-  const openingName = OPENINGS.find(opening => opening.id === definition.opening_id)?.name;
+  const openingDefinition = OPENINGS.find(opening => opening.id === definition.opening_id);
+  const openingName = openingDefinition?.name;
+  const openingRole = definition.color === 'white'
+    ? openingDefinition?.playedBy === 'black' ? 'Facing {opening} as White' : 'Playing {opening} as White'
+    : openingDefinition?.playedBy === 'black' ? 'Playing {opening} as Black' : 'Facing {opening} as Black';
   const endgame = definition.family === 'endgame';
   const skewer = definition.id === 'mastery_skewers';
   const prefix = fork ? 'mastery' : skewer ? 'skewer' : definition.id;
@@ -39,7 +43,7 @@ export function MasteryCard({
       <p className="achievement-category">{definition.category} · {definition.subcategory}</p>
       <h3 className="font-serif text-2xl">{t(definition.name)}</h3>
       {definition.description && <p className="mt-2 text-sm text-stone-600">{definition.description}</p>}
-      {opening && openingName && <p className="mt-2 text-sm font-semibold">{t(definition.color === 'white' ? 'Playing {opening} as White' : 'Facing {opening} as Black', { opening: t(openingName as Message) })}</p>}
+      {opening && openingName && <p className="mt-2 text-sm font-semibold">{t(openingRole, { opening: t(openingName as Message) })}</p>}
       <p className="mt-2 text-sm">{t('Level {level}', { level: progress.level })}</p>
       <progress
         className="mt-3 h-1.5 w-full"
