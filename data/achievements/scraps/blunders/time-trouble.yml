@@ -1,0 +1,12 @@
+# Blunders / Time Trouble
+
+- id: feat_tragic_timeout
+  type: scrap
+  category: Blunders
+  subcategory: Time Trouble
+  name: Snatching Defeat from the Jaws of Victory
+  description: Lose on time in a completely winning position (evaluation > +5.0 in your favor).
+  flavor_text: You had them on the ropes, but the clock stops for no one.
+  config:
+    status: draft
+    is_hidden: true

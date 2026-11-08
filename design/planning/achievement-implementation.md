@@ -13,7 +13,8 @@ existing description final or require the whole catalog in the first release.
 - `masteries/tactics/forks.yml`: the first tactical mastery, with quality-based XP
   awards, a rule version, and level thresholds.
 - `mastery.json`: eight opening tracks, split by player color.
-- `feats.json`: eight one-time ideas, a legacy source for scraps.
+- `scraps/`: eight named one-time scrap definitions, classified in YAML and still
+  marked as drafts pending unlock rules and detectors.
 - `story.json`: five prerequisite-linked onboarding nodes.
 - Checkmate notation scraps and their virtual/real behavior are specified in the
   [checkmate scrap rules](../mechanics/checkmate-scraps.md), not yet in a complete content catalog.
@@ -57,6 +58,9 @@ scraps; they never provide actual badge events or survival turns.
 ## Mastery, story, and scraps
 
 Tactical tracks use the [mastery progression rules](../mechanics/achievement-families.md#mastery-progression).
+The former feat definitions are [named scraps](../mechanics/achievement-families.md#named-scraps).
+Their original IDs, text, and hidden flags are retained in the scrap YAML catalog;
+classification does not activate the unresolved mechanics below.
 
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
@@ -146,7 +150,7 @@ from centipawn losses. Repeated collection of the same move does not add XP agai
 ## Remaining design and release work
 
 Other tactical and opening masteries, story predicates/episodes, and the draft
-one-time discoveries above still need authored rules. Their presence in JSON or
+named scraps above still need authored rules. Their presence in YAML, JSON, or
 notes does not activate them. Tune badge balance and new writing with actual
 collected games before expanding cross-game groups, streaks, and diversity rules.
 

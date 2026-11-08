@@ -1,0 +1,22 @@
+# Highlights / Openings
+
+- id: feat_bongcloud_played
+  type: scrap
+  category: Highlights
+  subcategory: Openings
+  name: The Bongcloud Attack
+  description: Play the Bongcloud Opening (1. e4 e5 2. Ke2 or black equivalent).
+  flavor_text: Ah, a player of true culture and refined taste.
+  config:
+    status: draft
+    is_hidden: true
+- id: feat_bongcloud_faced
+  type: scrap
+  category: Highlights
+  subcategory: Openings
+  name: Disrespect Acknowledged
+  description: Have an opponent play the Bongcloud against you.
+  flavor_text: Did they just... move their King on move 2?
+  config:
+    status: draft
+    is_hidden: true

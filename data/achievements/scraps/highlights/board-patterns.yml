@@ -1,0 +1,22 @@
+# Highlights / Board Patterns
+
+- id: feat_connect_four
+  type: scrap
+  category: Highlights
+  subcategory: Board Patterns
+  name: Connect Four
+  description: Align four of your pawns side-by-side on the same rank.
+  flavor_text: Wrong board game, but we respect the geometry.
+  config:
+    status: draft
+    is_hidden: true
+- id: feat_lone_kings
+  type: scrap
+  category: Highlights
+  subcategory: Board Patterns
+  name: The Last Men Standing
+  description: Reach a board state where only the two Kings remain.
+  flavor_text: A duel stripped of all armies. Just two monarchs staring at each other.
+  config:
+    status: draft
+    is_hidden: true

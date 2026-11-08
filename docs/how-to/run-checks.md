@@ -52,7 +52,7 @@ Tier fields use name, amount, and flavor order. Lists retain their authored orde
 including tiers, filters, and mastery awards. The formatter rejects changes to
 parsed values. Every YAML achievement must have a category and subcategory. Its
 path is `data/achievements/<family>/<category>/<subcategory>.yml`, with lowercase
-kebab-case folder and file names. Families are `badges` and `masteries`. The
+kebab-case folder and file names. Families are `badges`, `masteries`, and `scraps`. The
 checker rejects missing categories, mismatched paths, and duplicate IDs across
 the YAML catalog. Group by the achievement's game-design subject, not the kind
 of data needed to detect it.
