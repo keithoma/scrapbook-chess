@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import pgn from '../fixtures/games/jobava.pgn?raw';
 import { parseGame } from '../game';
 import { analyzed } from '../fixtures/test-analysis';
@@ -6,6 +6,9 @@ import { openingAssessment, openingContributions, advantageSignal, openingFade }
 import { openingClocks, openingTimeMultiplier } from './time';
 import { OPENING_MASTERIES, gradeForContribution, masteryProgress } from '../achievements/mastery-policy';
 import { prepareGrant, projectCollection } from '../achievements/collection';
+import { openingBook } from './book';
+
+afterEach(() => vi.restoreAllMocks());
 
 const game = parseGame(pgn);
 const total = (events: ReturnType<typeof openingContributions>) => events.reduce((s, e) => s + e.amount, 0);
@@ -20,6 +23,11 @@ it('requires complete matching analysis and platform clock evidence', () => {
   expect(openingAssessment(game, 'white', cp).status).toBe('ready');
 });
 it('awards theory plus larger independent-play XP and one explicit grade per game', () => {
+  const lookup = openingBook.lookup.bind(openingBook);
+  vi.spyOn(openingBook, 'lookup').mockImplementation((pos, move) => {
+    const evidence = lookup(pos, move);
+    return evidence && { ...evidence, games: 100, losses: 40 };
+  });
   const events = openingContributions(game, 'white', analyzed(game));
   expect(events.filter(e => e.evidence.inBook).length).toBeGreaterThan(0);
   const novel = events.filter(e => !e.evidence.inBook);
@@ -34,6 +42,14 @@ it('awards theory plus larger independent-play XP and one explicit grade per gam
   const short = openingContributions(theory, 'white', analyzed(theory));
   expect(total(short)).toBeGreaterThan(0);
   expect(short.some(e => e.grade)).toBe(false);
+});
+it('withholds unverified theory awards without declaring an unsupported departure', () => {
+  const events = openingContributions(game, 'white', analyzed(game));
+  expect(events.length).toBeGreaterThan(4);
+  expect(events.every(e => !e.evidence.inBook && e.evidence.theoryXp === 0)).toBe(true);
+  expect(events[0].evidence.decay).toBe(1);
+  const theory = parseGame('[TimeControl "600+0"]\n\n1. d4 {[%clk 0:10:00]} d5 {[%clk 0:10:00]} 2. Nc3 {[%clk 0:09:55]} Nf6 {[%clk 0:09:55]} 3. Bf4 {[%clk 0:09:50]} 1-0');
+  expect(openingContributions(theory, 'white', analyzed(theory))).toEqual([]);
 });
 it('rejects poor book moves and includes uncredited errors in the game grade', () => {
   const cp = analyzed(game);
@@ -53,10 +69,13 @@ it('rewards early precise conversion, fades continuously and never resets after 
   expect(novel.at(-1)!.evidence.fade).toBeCloseTo(0.01);
   cp.results.slice(18).forEach(r => { r.best.value = r.played.value = -300; });
   const swung = openingContributions(game, 'white', cp);
-  expect(swung.map(e => e.evidence.fade)).toEqual(events.map(e => e.evidence.fade));
+  for (const event of events)
+    expect(swung.find(e => e.ply === event.ply)?.evidence.fade).toBe(event.evidence.fade);
   expect(swung.at(-1)!.evidence.bonusXp).toBe(0);
   cp.results.slice(18).forEach(r => { r.best.value = r.played.value = 0; });
-  expect(openingContributions(game, 'white', cp).map(e => e.evidence.fade)).toEqual(events.map(e => e.evidence.fade));
+  const balanced = openingContributions(game, 'white', cp);
+  for (const event of events)
+    expect(balanced.find(e => e.ply === event.ply)?.evidence.fade).toBe(event.evidence.fade);
   expect(advantageSignal(299)).toBeLessThan(advantageSignal(300));
   expect(advantageSignal(299)).toBeGreaterThan(0.99);
   expect(openingFade(100)).toBe(0.01);
@@ -117,7 +136,7 @@ it('persists independent sides, exactly one high-grade mark, and stable idempote
   expect(projectCollection([black]).masteries.mastery_rapport_jobava_white.xp).toBe(0);
   expect(projectCollection([black]).masteries.mastery_rapport_jobava_black.xp).toBeGreaterThan(0);
   // Golden parity check also exercised through both profile import adapters.
-  expect(projectCollection([black]).masteries.mastery_rapport_jobava_black.xp).toBe(408);
+  expect(projectCollection([black]).masteries.mastery_rapport_jobava_black.xp).toBe(392);
   const def = OPENING_MASTERIES[0];
   expect(masteryProgress(100000, 0, def).level).toBe(5);
   expect(masteryProgress(100000, 2, def).level).toBe(6);

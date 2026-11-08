@@ -1,15 +1,20 @@
 import { expect, test } from '@playwright/test';
 
 test('native Jobava analysis collects separate sides, survives reload, and replays saved evidence', async ({ page }, info) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
-  const summary = page.locator('summary').filter({ hasText: 'Open another page of the notebook' });
+  const summary = page.locator('summary').filter({ hasText: 'Import a PGN or try an example' });
   if (!(await summary.locator('..').evaluate(e => e.hasAttribute('open')))) await summary.click();
   await page.getByRole('button', { name: 'Jobava example', exact: true }).click();
   await page.getByLabel('I played as').selectOption('white');
   await expect(page.getByTestId('opening-status')).toContainText('analyze the complete game');
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'complete', { timeout: 150000 });
+  const moves = page.getByTestId('played-moves').getByRole('button');
+  await expect(moves.nth(0).getByLabel('Unverified book candidate')).toBeVisible();
+  await expect(moves.nth(1).getByLabel('Unverified book candidate')).toBeVisible();
+  await moves.nth(0).click();
+  await expect(page.getByText('Book candidate · frequency or loss statistics unavailable', { exact: true })).toBeVisible();
   await expect(page.getByTestId('opening-status')).toContainText('Jobava recognized');
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('The Modern Artist');
@@ -19,7 +24,7 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   expect(earned).not.toContain('+0 XP');
   await page.getByRole('button', { name: 'First position', exact: true }).click();
   await expect(replay).toContainText('+0 XP');
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   const white = page.getByTestId('mastery_rapport_jobava_white');
   const black = page.getByTestId('mastery_rapport_jobava_black');
   await expect(white).toContainText('Playing Jobava as White');
@@ -35,13 +40,13 @@ test('native Jobava analysis collects separate sides, survives reload, and repla
   await expect(white.getByTestId('mastery_rapport_jobava_white-total-xp')).toHaveText(total);
   await white.locator('summary').click();
   await white.getByRole('button', { name: 'Replay opening', exact: true }).click();
-  await expect(page.getByTestId('replay-position')).toHaveText('Ply 1 / 33');
+  await expect(page.getByTestId('replay-position')).toHaveText('Ply 11 / 33');
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await page.getByLabel('I played as').selectOption('black');
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('The Art Critic');
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(white.getByTestId('mastery_rapport_jobava_white-total-xp')).toHaveText('0 XP');
   await expect(black.getByTestId('mastery_rapport_jobava_black-total-xp')).not.toHaveText('0 XP');
   await page.getByLabel('Language', { exact: true }).selectOption('de');

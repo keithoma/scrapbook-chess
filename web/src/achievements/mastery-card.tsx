@@ -3,6 +3,7 @@ import { gradeForContribution, type MasteryDefinition, type masteryProgress } fr
 import type { GameGrant } from './collection';
 import { OpeningHistory } from '../openings/history';
 import type { Jump } from './collection-ui';
+import { EndgameEvidence } from '../endgames/evidence';
 
 export function MasteryCard({
   definition,
@@ -24,14 +25,18 @@ export function MasteryCard({
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const fork = definition.id === 'mastery_knight_forks';
   const opening = definition.family === 'opening';
-  const prefix = opening ? definition.id : fork ? 'mastery' : 'skewer';
+  const endgame = definition.family === 'endgame';
+  const skewer = definition.id === 'mastery_skewers';
+  const prefix = fork ? 'mastery' : skewer ? 'skewer' : definition.id;
   return (
     <article
       className="note-card"
       aria-label={t(definition.name)}
-      data-testid={opening ? definition.id : fork ? 'fork-mastery' : 'skewer-mastery'}
+      data-testid={fork ? 'fork-mastery' : skewer ? 'skewer-mastery' : definition.id}
     >
+      <p className="achievement-category">{definition.category} · {definition.subcategory}</p>
       <h3 className="font-serif text-2xl">{t(definition.name)}</h3>
+      {definition.description && <p className="mt-2 text-sm text-stone-600">{definition.description}</p>}
       {opening && <p className="mt-2 text-sm font-semibold">{t(definition.color === 'white' ? 'Playing Jobava as White' : 'Facing Jobava as Black')}</p>}
       <p className="mt-2 text-sm">{t('Level {level}', { level: progress.level })}</p>
       <progress
@@ -51,7 +56,7 @@ export function MasteryCard({
             : t('{remaining} XP to the next level', { remaining: progress.remainingXp })}
       </p>
       <p className="mt-2 text-sm" data-testid={`${prefix}-high-grades`}>
-        {t(opening ? 'Opening games rated S- or better: {count}' : fork ? 'Forks rated S- or better: {count}' : 'Skewers rated S- or better: {count}', {
+        {t(endgame ? 'Endgames rated S- or better: {count}' : opening ? 'Opening games rated S- or better: {count}' : fork ? 'Forks rated S- or better: {count}' : 'Skewers rated S- or better: {count}', {
           count: progress.highGrades,
         })}
       </p>
@@ -59,7 +64,7 @@ export function MasteryCard({
         <>
           <p className="mt-2 text-sm" data-testid={`${prefix}-grade-requirement`}>
             {t(
-              opening ? '{earned} / {required} opening games rated S- or better for level {level}' : fork
+              endgame ? '{earned} / {required} endgames rated S- or better for level {level}' : opening ? '{earned} / {required} opening games rated S- or better for level {level}' : fork
                 ? '{earned} / {required} forks rated S- or better for level {level}'
                 : '{earned} / {required} skewers rated S- or better for level {level}',
               {
@@ -71,7 +76,7 @@ export function MasteryCard({
           </p>
           <p className="mt-2 text-xs text-stone-500">
             {t(
-              opening ? 'Each level’s grade requirement uses a separate batch of games.' : fork
+              opening || endgame ? 'Each level’s grade requirement uses a separate batch of games.' : fork
                 ? 'Each level’s grade requirement uses a separate batch of forks.'
                 : 'Each level’s grade requirement uses a separate batch of skewers.',
             )}
@@ -79,7 +84,7 @@ export function MasteryCard({
         </>
       )}
       <p className="mt-3 text-xs text-stone-500">
-        {t('Better move quality earns more XP. Open a contribution to replay its evidence.')}
+        {t(endgame ? 'Winning from equality matters most. Comebacks earn more; routine conversions earn less.' : 'Better move quality earns more XP. Open a contribution to replay its evidence.')}
       </p>
       <div className="mt-3 space-y-2">
         {opening && <OpeningHistory definition={definition} games={games} labels={labels} locale={locale} busy={busy} onOpen={onOpen}/>}
@@ -88,6 +93,11 @@ export function MasteryCard({
             .filter((event) => event.kind === 'mastery' && event.masteryId === definition.id)
             .map((event) => {
               if (event.kind !== 'mastery' || event.family === 'opening') return null;
+              if (event.family === 'endgame') return <details key={`${record.id}:${event.ply}`}>
+                <summary className="cursor-pointer text-sm">{labels.get(record.id)} · {t('{mastery} +{xp} XP', { mastery: t(definition.name), xp: event.amount })}</summary>
+                <EndgameEvidence event={event} locale={locale} />
+                <button className="text-button mt-2" disabled={busy} onClick={() => onOpen(record.pgn, { ply: event.evidence.startPly })}>{t('Replay endgame')}</button>
+              </details>;
               const grade = gradeForContribution(event);
               return (
                 <details key={`${record.id}:${event.ply}`}>

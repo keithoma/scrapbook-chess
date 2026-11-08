@@ -61,7 +61,7 @@ test('both providers recover missing Jobava clocks and collect the browser-equiv
     const grant = (await response.json()).grant;
     const opening = grant.events.filter(e => e.family === 'opening');
     assert.ok(opening.every(e => e.masteryId === 'mastery_rapport_jobava_black'));
-    assert.equal(opening.reduce((sum, e) => sum + e.amount, 0), 408);
+    assert.equal(opening.reduce((sum, e) => sum + e.amount, 0), 392);
     assert.equal(opening.filter(e => e.grade).length, 1);
     assert.equal(opening.find(e => e.grade).grade, 'S+');
     const retry = await (await s.request(path, 'POST', {})).json();
@@ -242,11 +242,37 @@ test('analysis survives a new browser session; malformed evidence and cross-orig
     results: ['f2f3', 'e7e5', 'g2g4', 'd8h4'].map((bestMove, index) => ({ ply: index + 1, bestMove, best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 })),
     virtual: [], virtualStatus: 'terminal', updatedAt: '' };
   const path = '/profile/games/lichess%3AMock0001/analysis';
+  checkpoint.results.forEach(result => { result.annotations = { quality: 'blunder', book: { status: 'book', ruleVersion: 'forged' } }; });
   assert.equal((await s.request(path, 'PUT', { checkpoint })).status, 200);
-  assert.equal((await (await s.request(path)).json()).results.length, 4);
+  const saved = await (await s.request(path)).json();
+  assert.equal(saved.results.length, 4);
+  assert.ok(saved.results.every(result => result.annotations.quality === 'clean'));
+  assert.ok(saved.results.every(result => result.annotations.book.ruleVersion === 'book-move-v1'));
+  assert.ok(saved.results.slice(0, 2).every(result => result.annotations.book.status === 'candidate'));
   const nextApp = await createApp(s.options);
   const restored = await nextApp.request(`${baseURL}/api${path}`, { headers: { Cookie: cookie } });
-  assert.equal((await restored.json()).results.length, 4);
+  assert.deepEqual((await restored.json()).results, saved.results);
+  const expanded = structuredClone(checkpoint);
+  expanded.results[0].topMoves = ['f2f3', 'e2e4', 'd2d4'].map((uci, i) => ({ uci, depth: 6, score: { type: 'cp', value: i ? -55 * i : 0 } }));
+  expanded.results[1].topMoves = ['e7e5', 'c7c5', 'e7e6'].map((uci, i) => ({ uci, depth: 6, score: { type: 'cp', value: 55 * i } }));
+  assert.equal((await s.request(path, 'PUT', { checkpoint: expanded })).status, 200);
+  const enriched = await (await s.request(path)).json();
+  assert.ok(enriched.results.slice(0, 2).every(result => result.annotations.best && result.annotations.only));
+  assert.deepEqual(enriched.results[0].topMoves, expanded.results[0].topMoves);
+  // A stale browser cannot replace enriched analysis with the older shape.
+  assert.equal((await s.request(path, 'PUT', { checkpoint })).status, 200);
+  assert.deepEqual((await (await s.request(path)).json()).results, enriched.results);
+  for (const picks of [
+    expanded.results[0].topMoves.slice(0, 2),
+    expanded.results[0].topMoves.map((pick, i) => i === 1 ? { ...pick, uci: 'e2e8' } : pick),
+    expanded.results[0].topMoves.map((pick, i) => i === 1 ? { ...pick, uci: 'f2f3' } : pick),
+    expanded.results[0].topMoves.map((pick, i) => i === 1 ? { ...pick, depth: 5 } : pick),
+    expanded.results[0].topMoves.map((pick, i) => i === 0 ? { ...pick, score: { type: 'cp', value: 1 } } : pick),
+  ]) {
+    const invalid = structuredClone(expanded);
+    invalid.results[0].topMoves = picks;
+    assert.equal((await s.request(path, 'PUT', { checkpoint: invalid })).status, 400);
+  }
   assert.equal((await s.request(path, 'PUT', { checkpoint: { ...checkpoint, pgn: '1. e4 *' } })).status, 400);
   assert.equal((await s.request(path, 'PUT', { checkpoint: { ...checkpoint, results: [{ ...checkpoint.results[0], bestMove: 'e2e8' }] } })).status, 400);
   assert.equal((await (await s.request(path)).json()).results.length, 4);
@@ -397,6 +423,49 @@ test('both providers collect scoped skewer grades and keep fork balances and ret
     const grant=(await response.json()).grant;const awards=grant.events.filter(e=>e.kind==='mastery');
     assert.equal(awards.length,1);assert.equal(awards[0].masteryId,'mastery_skewers');assert.equal(awards[0].grade,'S+');assert.equal(awards[0].amount,137);
     assert.deepEqual((await(await s.request(path,'POST',{})).json()).grant.events,grant.events);
+  }
+  s.db.close();
+});
+
+test('both providers derive one pawn endgame award from the selected side and preserve it without analysis', async () => {
+  const source = readFileSync(new URL('../../web/src/fixtures/games/pawn-vs-pawn.pgn', import.meta.url), 'utf8');
+  const moves = source.trim().split('\n\n')[1];
+  const fen = source.match(/\[FEN "([^"]+)"\]/)[1];
+  const lichess = sample('lichess', { id: 'Pawn0001' });
+  const chesscom = sample('chesscom', { id: '999091', name: 'testchess' });
+  for (const raw of [lichess, chesscom]) raw.pgn = raw.pgn.replaceAll('0-1', '1-0')
+    .replace('\n\n', `\n[SetUp "1"]\n[FEN "${fen}"]\n\n`)
+    .replace('1. f3 e5 2. g4 Qh4# 1-0', moves);
+  chesscom.white.result = 'win'; chesscom.black.result = 'checkmated';
+  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  await s.login();
+  await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json();
+  assert.equal(me.games.length, 2);
+  for (const game of me.games) {
+    const parsed = parsePgn(game.pgn)[0];
+    const pos = startingPosition(parsed.headers).unwrap();
+    const results = [];
+    for (const node of parsed.moves.mainline()) {
+      const move = parseSan(pos, node.san);
+      results.push({ ply: results.length + 1, bestMove: makeUci(move), best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 });
+      pos.play(move);
+    }
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const checkpoint = { pgn: game.pgn, version: 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1', results, virtual: [], virtualStatus: 'terminal' };
+    const response = await s.request(path, 'POST', { checkpoint, grade: 'S+', amount: 99999 });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const awards = grant.events.filter(e => e.kind === 'mastery' && e.family === 'endgame');
+    assert.equal(awards.length, 1);
+    assert.equal(awards[0].masteryId, 'mastery_pawn_vs_pawn');
+    assert.equal(awards[0].evidence.startPly, 0);
+    assert.equal(awards[0].evidence.result, 'loss');
+    assert.equal(awards[0].grade, 'D-');
+    s.db.prepare('DELETE FROM analyses').run();
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+    assert.equal((await (await s.request('/profile/collection')).json()).find(g => g.id === game.id).events.filter(e => e.family === 'endgame').length, 1);
   }
   s.db.close();
 });

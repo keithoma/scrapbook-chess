@@ -13,6 +13,7 @@ This reference describes the local browser app. See the
 | Hash size, UCI commands, and worker lifecycle | [stockfish.ts](../../web/src/stockfish.ts) |
 | Virtual continuation limit | [analysis.ts](../../web/src/analysis.ts) |
 | Engine preparation and source/license metadata | [prepare-engine.mjs](../../web/scripts/prepare-engine.mjs) |
+| Chess piece preparation, source revisions, and checksums | [prepare-pieces.mjs](../../web/scripts/prepare-pieces.mjs) |
 | Asset caching | [engine-cache.js](../../web/public/engine-cache.js) |
 | Browser-test server and device settings | [playwright.config.ts](../../web/playwright.config.ts) |
 | Workspace package manager and Node runtime | [root package.json](../../package.json) and [pnpm workspace](../../pnpm-workspace.yaml) |
@@ -25,12 +26,73 @@ This reference describes the local browser app. See the
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 | Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
 | Tactical mastery quality awards and levels | [shared policy](../../data/rules/tactical-mastery.yml), [track definitions](../../data/achievements/masteries/tactics/), and [mastery.ts](../../web/src/achievements/mastery.ts) |
+| Pawn endgame recognition and scoring | [material rule](../../web/src/chess/endgames.ts), [assessment](../../web/src/endgames/mastery.ts), and [endgame policy](../../data/rules/endgame-mastery.yml) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
 The development and build scripts copy it from the dependency into ignored
 `web/public/engine/`. The browser receives its license at `/engine/COPYING.txt`
 and source metadata at `/engine/source.json`.
+
+Development and build also prepare the classic SVG chess pieces in ignored
+`web/public/pieces/cburnett/`. The first preparation needs internet access;
+subsequent runs reuse locally cached files after checking their SHA-256 hashes.
+The downloaded assets are excluded from Git. Attribution and license text are
+served alongside the pieces at `/pieces/cburnett/NOTICE.txt` and
+`/pieces/cburnett/GPL-2.0.txt`.
+
+## Navigation and review
+
+Home provides manual game checks, import reports, PGN loading, and games awaiting
+review. History combines imported games and local checkpoint/collection records;
+filters cover players, source, and preparation or collection status. Achievements
+shows the existing collection, categories, authored tiers, and color evidence.
+Profile, Settings, Help, and Feedback remain available as secondary destinations.
+
+A selected game opens at `/review?game=…`. Review requires a current checkpoint
+with every played move analyzed and its engine continuation finished, a player
+color, and successful calculation of existing achievement contributions. The UI
+shows preparation progress until these conditions hold. Achievements are calculated
+locally using existing rules; there is no separate achievement-processing queue.
+Collection remains an explicit action. Saved server analysis is checked on opening
+a game: the server's `analyzed` flag alone indicates presence, not completion.
+Autoplay follows the played game; engine continuations retain their manual move
+buttons. Playback stops on navigation, manual replay jumps, a hidden tab, or game
+end. Collected-game reward previews retain the time zone recorded at collection.
+
+### Move evaluations and shared labels
+
+Both players' played moves have engine evaluations. Selecting a move shows its
+evaluation and up to three ranked engine choices with their evaluations and SAN
+notation. Scores use White's perspective, including when reviewing Black's move.
+Ranked choices come from one MultiPV search at the configured depth; the played
+move receives a separate search only if it is outside those choices. Positions
+with fewer legal moves show fewer choices. Simulated plies do not receive played
+move labels.
+
+The [shared move rules](../../web/src/chess/move-rules.ts) define these labels
+independently of review, profile color, and achievement scoring:
+
+- **Best move:** the played move is the engine's first pick, or both evaluations
+  are centipawn scores whose absolute difference is at most 10 centipawns.
+- **Only move:** the played move is a best move and the engine's second pick is
+  an inaccuracy, mistake, or blunder compared with its first pick, using the
+  [shared Lichess judgments](../../web/src/chess/quality.ts) from the mover's
+  perspective. A missing second pick, including a sole legal move, cannot
+  establish this label.
+
+Mate scores stay categorical. The 10-centipawn tolerance does not compare mate
+distances or convert mates to centipawns. Only-move comparison uses Lichess's
+mate-created and mate-lost conventions; two winning mating choices do not make
+an only move merely because their mate distances differ. Inaccuracy judgment
+uses the shared winning-chance threshold; existing book and achievement gates
+still ignore inaccuracies.
+
+[Checkpoints](../../web/src/storage.ts) save the ranked choices and derived
+annotations with their rule versions. Old checkpoints without choices remain
+reviewable and offer **Add engine choices**. The upgrade preserves completed
+choice analysis on resume; historical collected rewards retain their saved
+evidence. Only moves from either player also appear in highlight navigation.
 
 ## Storage and offline behavior
 
@@ -55,14 +117,17 @@ APIs; use HTTPS when testing a physical device.
 ## Guest collection
 
 Choose White or Black separately for each uploaded game, then select **Collect
-rewards**. Collection requires a completed PGN result or board-proven checkmate.
+rewards** after review preparation finishes. Collection requires a completed PGN
+result or board-proven checkmate.
 The supplied recent-game example defaults to Black, as identified by its author;
 this does not set the color for other uploaded games. Existing saved selections
 and an explicit correction take precedence over that example's default.
-The active badges use their original YAML definitions and thresholds. Badge
+The active badges use the current authored YAML definitions and thresholds. Badge
 names, tier labels, and flavor remain the authored English text;
-the surrounding interface is localized. Knight-fork and skewer masteries are implemented;
-other mastery tracks and story remain future work. All 61 YAML badges are active.
+the surrounding interface is localized. Implemented mastery tracks cover
+[forks and skewers](tactical-masteries.md), [Jobava London](opening-masteries.md),
+and [Pawn vs Pawn](endgame-masteries.md). Other mastery tracks and story remain
+future work. All 61 YAML badges are active.
 See [badge qualification](badge-rules.md) for calendar, phase, clock, development,
 and evaluation-based families.
 

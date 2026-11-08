@@ -12,7 +12,7 @@ const san = makeSanAndPlay(position, parseUci('a2b2')!);
 const baseline = [{ san, uci: 'a2b2', fen: makeFen(position.toSetup()) }];
 
 it('finds a legal uncollected mating notation without changing the baseline', async () => {
-  const search = vi.fn(async (_fen, _depth, _color, roots?: string) => ({ score: { type: 'mate' as const, value: 1 }, bestMove: roots ? 'h2b2' : 'a2b2', depth: 6 }));
+  const search = vi.fn(async (_fen, _depth, _color, roots?: string) => ({ score: { type: 'mate' as const, value: 1 }, bestMove: roots ? 'h2b2' : 'a2b2', depth: 6, topMoves: [] }));
   const result = await findNovelFinish(game, baseline, { color: 'white', owned: new Set(['Rab2#']) }, { search }, new AbortController().signal);
   expect(result?.at(-1)?.san).toBe('Rhb2#');
   expect(baseline[0].san).toBe('Rab2#');
@@ -21,7 +21,7 @@ it('finds a legal uncollected mating notation without changing the baseline', as
 });
 
 it('rejects a weaker alternative instead of manufacturing an uncollected mate', async () => {
-  const search = vi.fn(async (_fen, _depth, _color, roots?: string) => ({ score: { type: 'cp' as const, value: roots ? -500 : 500 }, bestMove: roots ? 'h2b2' : 'a2b2', depth: 6 }));
+  const search = vi.fn(async (_fen, _depth, _color, roots?: string) => ({ score: { type: 'cp' as const, value: roots ? -500 : 500 }, bestMove: roots ? 'h2b2' : 'a2b2', depth: 6, topMoves: [] }));
   expect(await findNovelFinish(game, baseline, { color: 'white', owned: new Set(['Rab2#']) }, { search }, new AbortController().signal)).toBeUndefined();
 });
 

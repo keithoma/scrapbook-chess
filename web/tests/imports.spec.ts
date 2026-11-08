@@ -32,7 +32,7 @@ test('mock profile backdates once, imports both platforms, and restores saved re
   await expect(page.getByTestId('replay-badge_played_hyperbullet')).toHaveText('1');
   await expect(page.getByTestId('replay-badge_played_rapid')).toHaveText('0');
   await expect(page.getByTestId('replay-badge_upset')).toHaveText('1');
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('2 / 100');
   await expect(page.getByTestId('total-badge_played_hyperbullet')).toHaveText('1 / 30');
@@ -46,7 +46,7 @@ test('mock profile backdates once, imports both platforms, and restores saved re
   await login(second);
   const restored = await (await second.request.get('/api/me')).json();
   expect(restored.user.createdAt).toBe(initial.user.createdAt);
-  await second.getByRole('link', { name: 'Collection', exact: true }).click();
+  await second.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(second.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await second.getByRole('link', { name: 'Profile', exact: true }).click();
   await second.getByTestId('imported-lichess:Mock0001').getByRole('button', { name: 'Open game', exact: true }).click();
@@ -61,7 +61,7 @@ test('mock profile backdates once, imports both platforms, and restores saved re
   await page.getByRole('link', { name: 'Profile', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Use local mock login', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(page.getByText('No games collected yet.', { exact: true })).toBeVisible();
 });
 

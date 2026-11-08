@@ -10,3 +10,6 @@ export const SKEWER_PGN = skewerGame;
 
 import jobavaGame from './fixtures/games/jobava.pgn?raw';
 export const JOBAVA_PGN = jobavaGame;
+
+import pawnGame from './fixtures/games/pawn-vs-pawn.pgn?raw';
+export const PAWN_ENDGAME_PGN = pawnGame;

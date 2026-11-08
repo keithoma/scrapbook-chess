@@ -7,6 +7,7 @@ import { forkMaterialThreat, type MaterialThreat } from '../tactics/fork-materia
 
 import { FORK_MASTERY, SKEWER_MASTERY, qualityXp, forkGrade, tacticGrade, type MasteryContribution, type AnyMasteryContribution } from './mastery-policy';
 import { openingContributions } from '../openings/mastery';
+import { endgameContributions } from '../endgames/mastery';
 export * from './mastery-policy';
 
 export type ForkAssessment =
@@ -79,7 +80,7 @@ export function masteryContributions(
       const assessment = assessSkewer(game, candidate, checkpoint);
       return assessment.status === 'qualified' ? [assessment.event] : [];
     });
-  return [...forkEvents, ...skewerEvents, ...openingContributions(game, color, checkpoint)];
+  return [...forkEvents, ...skewerEvents, ...openingContributions(game, color, checkpoint), ...endgameContributions(game, color, checkpoint)];
 }
 
 export function assessSkewer(

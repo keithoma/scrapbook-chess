@@ -3,7 +3,9 @@
 This explains the intended separation of chess facts, achievement decisions, and
 collection state for implementers. It is a target architecture: the current
 [local prototype](browser-analysis.md) implements the
-[complete YAML badge catalog](../reference/badge-rules.md), [tactical masteries](../reference/tactical-masteries.md), and mating scraps.
+[complete YAML badge catalog](../reference/badge-rules.md),
+[tactical](../reference/tactical-masteries.md), [opening](../reference/opening-masteries.md),
+and [endgame masteries](../reference/endgame-masteries.md), and mating scraps.
 Imported-game contributions are evaluated and persisted by the local server using
 the same rules as the guest notebook. A general detector registry and hosted
 persistence remain planned.

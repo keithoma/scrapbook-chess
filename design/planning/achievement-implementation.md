@@ -12,6 +12,8 @@ existing description final or require the whole catalog in the first release.
 - Twenty badge YAML files: 61 unique badge definitions and 515 tier entries.
 - `masteries/tactics/`: knight-fork and skewer definitions, referencing the shared
   tactical progression policy under `data/rules/`.
+- `masteries/endgames/`: Pawn vs Pawn, with independent outcome/quality scoring
+  and the existing level progression.
 - `mastery.json`: six inactive opening drafts, split by player color; Jobava now lives in opening mastery YAML.
 - `scraps/`: eight named one-time scrap definitions, classified in YAML and still
   marked as drafts pending unlock rules and detectors.
@@ -23,12 +25,24 @@ existing description final or require the whole catalog in the first release.
 
 See the [proposed achievement pipeline](../../docs/explanation/achievement-processing.md).
 
+Reusable chess definitions and thresholds have one shared implementation.
+Processing annotates both players' moves with the
+[book-move definition](../../docs/reference/opening-masteries.md#shared-book-move-definition)
+and shared Lichess mistake/blunder classification; mastery and replay reuse these
+rules. The current book lacks per-move counts and outcomes, so its otherwise
+eligible moves remain unverified candidates until the reference is supplemented.
+Review also reuses the
+[best/only-move definitions](../../docs/reference/browser-proof.md#move-evaluations-and-shared-labels)
+for both players. Processing saves each played evaluation and up to three ranked
+engine choices, allowing the shared only-move rule to compare the first two.
+
 ## Badge mechanics
 
 All 61 YAML badges are active, with complete names, taxonomy, base flavor, and
 all 515 tier entries. Each formerly unfinished badge was implemented and merged
-separately. Existing IDs, tier amounts, and nonempty writing are preserved;
-previously blank names and flavor now have initial writing for the author to tune.
+separately. Existing IDs and nonempty writing are preserved; previously blank
+names and flavor now have initial writing for the author to tune. Explicit tier
+rebalancing follows the [progression-number principle](../mechanics/achievement-families.md#progression-numbers).
 
 The [badge qualification reference](../../docs/reference/badge-rules.md) is the
 single description of implemented calendar, phase, clock, development, precision,
@@ -68,6 +82,7 @@ classification does not activate the unresolved mechanics below.
 | Sicilian, Caro-Kann, King's Gambit, each White/Black (`mastery.json`, 6 drafts) | Intended: named-opening recognition and separate color tracks | Author membership, branch/parent credit and frequency-scaled thresholds; preserve draft ranks until reviewed |
 | Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
 | Skewer (`masteries/tactics/skewers.yml`) | Implemented with new-ray detection, bounded net-gain verification, shared grades/XP and independent levels | Tune bounded detection and quality grading |
+| Pawn vs Pawn (`masteries/endgames/pawn-vs-pawn.yml`) | Implemented: first kings-and-pawns-only position with pawns on both sides, one outcome/quality award through the actual finish, independent XP and grade gates | Tune prototype starting-evaluation bands, quality weights, and result scores against real endings; author other endgame types |
 | Discovery (design notes) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (design notes) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (design notes) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |
@@ -113,7 +128,7 @@ SQLite-backed profile rewards are implemented. See the
 The dated [browser proof QA record](../../docs/qa/browser-proof.md) retains the
 limits of that audit; it is not a claim about every later badge.
 
-The loop includes all YAML badges, knight-fork and skewer masteries, and exact-SAN real/virtual
+The loop includes all YAML badges, knight-fork, skewer, Jobava opening, and Pawn vs Pawn masteries, and exact-SAN real/virtual
 mating scraps. Collection is idempotent, color correction replaces the game's
 contributions, and explicit recollection adds newly available awards. Previously
 collected engine evidence and virtual discoveries survive cache eviction for the
@@ -136,9 +151,10 @@ Account for pins and captures/recaptures rather than treating every pair of
 attacked pieces as a profitable threat. A good engine evaluation alone does not
 prove the fork threatens material gain.
 
-The first material test rejects pinned or immediately capturable knights, then
-requires two credible threats and a profitable capture after every legal immediate
-defense. Legal static exchanges account for recaptures on the capture square.
+The first material test rejects pinned knights, then requires two credible threats
+and a profitable capture after every legal immediate defense. If the knight is
+captured, a profitable recapture of its capturer can establish the gain instead.
+Legal static exchanges account for the knight's loss and subsequent recaptures.
 This bounded test is conservative and does not resolve longer tactics away from
 that square. The [browser reference](../../docs/reference/browser-proof.md#knight-fork-mastery)
 describes its award and evidence behavior.

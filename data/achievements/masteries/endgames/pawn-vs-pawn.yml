@@ -1,0 +1,10 @@
+id: mastery_pawn_vs_pawn
+type: mastery
+category: Endgames
+subcategory: Pawn vs Pawn
+name: Pawn vs Pawn
+description: Turn king and pawn endings into results.
+rule_version: pawn-vs-pawn-v1
+grade_version: endgame-grades-v1
+progression: endgame-mastery-v1
+endgame_id: pawn-vs-pawn

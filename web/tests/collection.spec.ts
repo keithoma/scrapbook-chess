@@ -1,3 +1,4 @@
+import { prepareReview } from './helpers';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { Chess } from 'chessops/chess';
@@ -14,8 +15,8 @@ function matePgn(fen: string, san: string) {
   return `[SetUp "1"]\n[FEN "${fen}"]\n\n${fen.includes(' b ') ? '1...' : '1.'} ${san} *`;
 }
 async function load(page: Page, pgn: string) {
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
-  const summary = page.locator('summary').filter({ hasText: 'Open another page of the notebook' });
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
+  const summary = page.locator('summary').filter({ hasText: 'Import a PGN or try an example' });
   const details = summary.locator('..');
   if (!(await details.evaluate(element => element.hasAttribute('open')))) await summary.click();
   await page.getByLabel('PASTE ONE PGN').fill(pgn);
@@ -23,17 +24,17 @@ async function load(page: Page, pgn: string) {
   await expect(page.getByTestId('status')).not.toHaveAttribute('data-state', 'loading');
 }
 async function collect(page: Page, color: 'white' | 'black') {
-  await page.getByLabel('I played as').selectOption(color);
+  await prepareReview(page, color);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toBeVisible();
 }
 async function collection(page: Page) {
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Your scrapbook.', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Achievements', exact: true })).toBeVisible();
 }
 
 test('rewards are idempotent, color can be corrected, and exact SAN counts combine across colors', async ({ page }, info) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, matePgn(WHITE_FEN, 'Rab2#'));
   await expect(page.getByLabel('I played as')).toHaveValue('');
@@ -52,14 +53,14 @@ test('rewards are idempotent, color can be corrected, and exact SAN counts combi
   await page.reload();
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
 
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await expect(page.getByLabel('I played as')).toHaveValue('white');
   await collect(page, 'black');
   await collection(page);
   await expect(page.getByTestId('scrap-Rab2#')).toHaveCount(0);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('0 / 100');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await collect(page, 'white');
   await load(page, matePgn(BLACK_FEN, 'Rab2#'));
   await expect(page.getByLabel('I played as')).toHaveValue('');
@@ -82,7 +83,7 @@ test('rewards are idempotent, color can be corrected, and exact SAN counts combi
 });
 
 test('native virtual finish avoids an owned scrap, upgrades to real, and replays frozen evidence', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, virtualPgn);
   await page.getByLabel('I played as').selectOption('white');
@@ -142,7 +143,7 @@ test('native virtual finish avoids an owned scrap, upgrades to real, and replays
 });
 
 test('unfinished games cannot be collected', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, '1. e4 e5 *');
   await page.getByLabel('I played as').selectOption('white');
@@ -151,7 +152,7 @@ test('unfinished games cannot be collected', async ({ page }) => {
 
 test('Mirror Dimension reveals flavor at game end and survives reload, recollection, and color correction', async ({ page }) => {
   const pgn = readFileSync(new URL('../src/fixtures/games/opposite-castling.pgn', import.meta.url), 'utf8');
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, pgn);
   await collect(page, 'white');
@@ -168,7 +169,7 @@ test('Mirror Dimension reveals flavor at game end and survives reload, recollect
   await expect(page.getByTestId('total-badge_opposite_side_casteling')).toHaveText('1 / 2');
   await page.reload();
   await expect(page.getByTestId('total-badge_opposite_side_casteling')).toHaveText('1 / 2');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await collect(page, 'white');
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await collect(page, 'black');
@@ -177,7 +178,7 @@ test('Mirror Dimension reveals flavor at game end and survives reload, recollect
 });
 
 test('rating badges reveal authored flavor, replay at game end, persist, and correct with player color', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, '[Site "https://lichess.org/Odds0001"]\n[WhiteElo "1700"]\n[BlackElo "1800"]\n\n1. e4 e5 1-0');
   await collect(page, 'white');
@@ -194,7 +195,7 @@ test('rating badges reveal authored flavor, replay at game end, persist, and cor
   await expect(page.getByTestId('total-hold_your_own')).toHaveText('1 / 2');
   await page.reload();
   await expect(page.getByTestId('total-hold_your_own')).toHaveText('1 / 2');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await collect(page, 'white');
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await collect(page, 'black');
@@ -204,7 +205,7 @@ test('rating badges reveal authored flavor, replay at game end, persist, and cor
 });
 
 test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on collection', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await collection(page);
   await expect(page.getByRole('article', { name: 'StarCraft III', exact: true })).toHaveCount(0);
@@ -235,7 +236,7 @@ test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on
 });
 
 test('board badges replay at the played move, persist, and correct with the selected color', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await load(page, '[SetUp "1"]\n[FEN "1r5k/P7/8/8/8/8/8/7K w - - 0 1"]\n\n1. axb8=R+ Kg7 1/2-1/2');
   await collect(page, 'white');
@@ -251,28 +252,29 @@ test('board badges replay at the played move, persist, and correct with the sele
   await collection(page);
   await expect(page.getByTestId('total-badge_promotion')).toHaveText('1 / 10');
   await expect(page.getByTestId('total-badge_material_total')).toHaveText('5 / 69');
-  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('1 / 2');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('1 / 97');
   await expect(page.getByTestId('total-badge_won_total')).toHaveText('0 / 1');
   await page.reload();
   await expect(page.getByTestId('total-badge_promotion')).toHaveText('1 / 10');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await collect(page, 'white');
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await collect(page, 'black');
   await collection(page);
   await expect(page.getByTestId('total-badge_promotion')).toHaveText('0 / 10');
   await expect(page.getByTestId('total-badge_material_total')).toHaveText('0 / 69');
-  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('0 / 1');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('0 / 97');
 });
 
 test('two tabs collecting the same game commit one set of contributions', async ({ page, context }) => {
   const second = await context.newPage();
-  await Promise.all([page.goto('/'), second.goto('/')]);
+  await Promise.all([page.goto('/review'), second.goto('/review')]);
   await Promise.all([page, second].map(async tab => {
     await expect(tab.getByTestId('status')).toHaveAttribute('data-state', 'ready');
     await load(tab, matePgn(WHITE_FEN, 'Rab2#'));
     await tab.getByLabel('I played as').selectOption('white');
   }));
+  for (const tab of [page, second]) await prepareReview(tab, 'white');
   await Promise.all([page, second].map(tab => tab.getByRole('button', { name: 'Collect rewards', exact: true }).click()));
   await collection(page);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
@@ -283,27 +285,29 @@ test('two tabs collecting the same game commit one set of contributions', async 
 });
 
 test('the supplied Black game collects actual moves and a separate virtual Qxf1 mate', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await expect(page.getByLabel('I played as')).toHaveValue('black');
-  await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(52);
+  await expect(page.getByTestId('board')).toHaveCount(0);
   await collect(page, 'black');
+  await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(52);
   await collection(page);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('26 / 100');
   await expect(page.getByTestId('total-badge_won_total')).toHaveText('1 / 7');
-  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 3');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 97');
   await expect(page.getByTestId('total-badge_material_total')).toHaveText('11 / 69');
-  await expect(page.locator('.scrap-card')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
-  await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
+  await expect(page.locator('.scrap-card')).toHaveCount(1);
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
+
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'complete', { timeout: 120000 });
   await expect(page.getByTestId('virtual-status')).toHaveText('Black mates with Qxf1# after 2 simulated plies.');
+  await prepareReview(page);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await collection(page);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('26 / 100');
-  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 3');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 97');
   await expect(page.getByTestId('total-badge_material_total')).toHaveText('11 / 69');
   const scrap = page.getByTestId('scrap-Qxf1#');
   await expect(scrap.locator('summary')).toContainText('Virtual');

@@ -22,9 +22,33 @@ verify the checksum and entry ordering.
 
 This book samples one month of 2100 rapid games, requires 25 games at an emitted
 position, and ends at 30 plies. Missing coverage means outside this reference.
-Book membership alone never proves sound play: the opening policy's engine
-quality gate also applies. Castling uses Polyglot's king-to-rook encoding;
-transpositions are position based.
+Castling uses Polyglot's king-to-rook encoding; transpositions are position based.
+
+## Shared book-move definition
+
+The [book-move rule](../../web/src/chess/book-move.ts) is independent of opening
+recognition and XP scoring. A move qualifies when it appears in the downloaded
+reference, has enough observations of that move, loses fewer than 70% of its
+games from the mover's perspective, and is neither a mistake nor a blunder under
+the [shared Lichess classifier](../../web/src/chess/quality.ts). Draws remain in
+the loss-rate denominator. Inaccuracies do not disqualify a move. The minimum
+observation count is provisional tuning in the rule, pending the designer's
+choice; the reference's minimum position count does not establish it.
+
+The current Polyglot artifact stores scaled move weights without per-move game
+counts or outcomes. We cannot recover those statistics from its weights or
+provenance. Otherwise eligible moves are annotated as unverified book candidates
+until a reference with those statistics is available. They establish neither
+theory XP nor a departure from theory. Known failures of frequency, loss rate,
+or engine quality are outside the book.
+
+[Move annotations](../../web/src/chess/annotations.ts) cover both players,
+independently of the selected profile side, named-opening recognition, or clocks.
+Analysis checkpoints and JSON exports include the quality judgment, book status,
+reason, and rule/reference versions. Reload and resume derive annotations from
+saved engine scores without repeating engine searches. The local server also
+derives annotations when accepting analysis. Replay labels distinguish confirmed
+book moves from unverified candidates. Simulated continuations are excluded.
 
 ## Award calculation
 
@@ -33,7 +57,7 @@ current analysis and usable clocks. It does not finalize partial rewards. Move
 quality uses mover-relative scores and an opening-specific copy of the initial
 quality bands. Mate outcomes remain categorical. Actual checkmate qualifies.
 
-Engine-approved book moves earn depth-increasing participation XP, capped for
+Confirmed book moves earn depth-increasing participation XP, capped for
 the whole game. Repeated positions add no participation or independent-play XP.
 After either player first leaves the book, successive own moves advance the
 independent-play decay, including moves that return to theory. Earlier moves

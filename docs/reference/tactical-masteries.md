@@ -60,13 +60,17 @@ are derived from the PGN and use existing checkpoints. The UI shows pending,
 rejected, qualified, or collected mastery awards. **Collect rewards** saves XP;
 analysis and inspection alone do not save a collection contribution.
 
-Qualification rejects pinned or immediately capturable knights. At least two
-targets must be credible threats, including check or a profitable legal capture.
-Every legal immediate defense must leave a net material gain of at least one pawn
-through a capture by the forking knight. The verifier accounts for defensive
-captures elsewhere and legal recaptures on the target square. Its bounded static
-exchange search may leave complex cases unresolved and does not prove the result
-of longer tactics away from that square. Unresolved cases earn no XP yet.
+Qualification rejects pinned knights. At least two targets must be credible
+threats, including check or a profitable legal capture. Every legal immediate
+defense must leave a net material gain of at least one pawn through a capture by
+the forking knight or a legal recapture of the piece that captured it. A capturable
+knight can therefore qualify when taking it loses material. Unrelated hanging
+pieces cannot compensate for losing the knight. The verifier accounts for
+defensive captures elsewhere and legal recaptures on the target square, including
+the loss of the knight. Gain is measured from the position after the creating
+move; material captured by that move cannot prove its new fork. Its bounded
+static exchange search may leave complex cases unresolved and does not prove
+the result of longer tactics away from that square. Unresolved cases earn no XP yet.
 
 ## Skewers
 
@@ -121,3 +125,32 @@ shows a knight fork. The [skewer example](../../web/src/fixtures/games/skewer.pg
 shows Bb2+, attacking the king on d4 with the rook behind it on e5. Analyze and
 collect, then use the contribution's replay button in its own mastery card.
 The surrounding interface and track labels support English and German.
+
+## Development review fixtures
+
+When running `pnpm dev`, select a fork or skewer candidate after completing
+analysis. Its **Development review** controls offer **Should earn XP** and
+**Should earn 0 XP**. These choices record whether the tactic deserves any
+experience, without choosing an exact amount or changing collected rewards.
+
+The development server saves each judgment as a JSON file under
+`web/src/fixtures/tactical-reviews/`, including the PGN, actual ply, mastery ID,
+captured engine scores, and current qualification result. The game, ply, and
+mastery identify the fixture. Changing a judgment replaces that file; revisiting
+the candidate or reloading restores the saved choice. A failed write displays an
+error and retains the last saved choice. These files can be committed with other
+fixtures. They are separate from browser storage and profile data.
+
+The [review regression tests](../../web/src/tactics/review-fixture.test.ts)
+automatically load every saved judgment during `pnpm --dir web test`. They replay
+the captured scores through the current shared award rules, without running
+Stockfish. Positive judgments require XP greater than zero; negative judgments
+require exactly zero. A judgment that disagrees with the implementation therefore
+creates a failing regression case until the rules or judgment are corrected.
+The original engine version remains recorded as provenance; tests reuse the
+frozen scores when exercising newer rules.
+
+Both the controls and the fixture-writing endpoint are development-only. They
+are unavailable in production builds and `vite preview`. The shared review
+control identifies tactics by mastery ID so future tactical inspectors can reuse
+the same storage and regression workflow.

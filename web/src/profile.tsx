@@ -11,7 +11,7 @@ export function useProfile() {
   const revision = useRef(0);
   const refresh = useCallback(async () => {
     const ticket = ++revision.current;
-    try { const value = await profileApi.me(); if (ticket === revision.current) { setState(value); setUnavailable(false); } }
+    try { const value = await profileApi.me(); if (ticket === revision.current) { setState(value); setUnavailable(false); } return value; }
     catch { if (ticket === revision.current) setUnavailable(true); }
     finally { if (ticket === revision.current) setLoading(false); }
   }, []);
@@ -50,7 +50,6 @@ export function ProfileView({ profile, locale, busy, onOpen }: {
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
-  const [reports, setReports] = useState<ImportReport[]>([]);
   const [platform, setPlatform] = useState<Platform>('chesscom');
   const [name, setName] = useState('');
   async function act(operation: () => Promise<unknown>) {
@@ -90,14 +89,7 @@ export function ProfileView({ profile, locale, busy, onOpen }: {
         </form>
         {profile.multipleAccounts && <p className="mt-3 text-xs">{t('Multiple accounts per platform are enabled for local testing.')}</p>}
       </div>
-      <div className="note-card">
-        <h2 className="text-2xl">{t('New games')}</h2>
-        <p className="mt-2 text-sm text-stone-600">{t('Only completed, rated standard games against people, started after your profile date, are eligible. Chess.com may publish new games with a delay.')}</p>
-        <button className="primary-button mt-4" disabled={pending || !profile.accounts.length} onClick={() => void act(async () => setReports((await profileApi.check()).reports))}>{pending ? t('Checking…') : t('Check for new games')}</button>
-        <ul className="mt-3 space-y-2 text-sm" role="status">{reports.map(report => <li key={report.accountId}>
-          {report.platform === 'lichess' ? 'Lichess' : 'chess.com'} · {report.username}: {report.error ? profileError(report.error, locale) : t('{count} new games imported; {skipped} ineligible records skipped.', { count: report.imported, skipped: report.skipped })}
-        </li>)}</ul>
-      </div>
+      <CheckGames profile={profile} locale={locale} disabled={pending} />
       <h2 className="text-2xl">{t('Imported games')}</h2>
       {!profile.games.length && <p className="text-sm">{t('No eligible games imported yet.')}</p>}
       <ul className="space-y-3">{profile.games.map(game => <li className="note-card flex flex-wrap items-center justify-between gap-3 !p-4" key={game.id} data-testid={`imported-${game.id}`}>
@@ -109,5 +101,40 @@ export function ProfileView({ profile, locale, busy, onOpen }: {
       </li>)}</ul>
     </>}
     {error && <p className="text-sm text-red-800" role="alert">{error}</p>}
+  </section>;
+}
+
+export function CheckGames({ profile, locale, disabled = false, onDiscovered }: {
+  profile: ReturnType<typeof useProfile>; locale: Locale; disabled?: boolean; onDiscovered?: (ids: string[]) => void;
+}) {
+  const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState('');
+  const [reports, setReports] = useState<ImportReport[]>();
+  const check = async () => {
+    if (pending) return;
+    setPending(true); setError('');
+    const known = new Set(profile.games.map(game => game.id));
+    try {
+      const result = await profileApi.check();
+      setReports(result.reports);
+      const updated = await profile.refresh();
+      onDiscovered?.(updated?.games.filter(game => !known.has(game.id)).map(game => game.id) ?? []);
+      announceProfileChange();
+    } catch (cause) { setError(profileError(cause, locale)); }
+    finally { setPending(false); }
+  };
+  return <section className="note-card import-check" aria-label={t('New games')} aria-busy={pending}>
+    <div><h2>{t('Bring in your latest games')}</h2>
+      <p>{t('Only completed, rated standard games against people, started after your profile date, are eligible. Chess.com may publish new games with a delay.')}</p></div>
+    <button className="primary-button" disabled={disabled || pending || profile.loading || profile.unavailable || !profile.user || !profile.accounts.length} onClick={() => void check()}>
+      {pending && <span className="spinner" aria-hidden="true" />}{pending ? t('Checking…') : t('Check for new games')}
+    </button>
+    {profile.loading ? <p role="status">{t('Loading your games…')}</p> : !profile.user || !profile.accounts.length ? <p>{t('Set up your profile and link an account to check for new games.')}</p> : null}
+    {profile.unavailable && <p role="alert">{t('The local profile server is unavailable. Restart the app with pnpm dev.')}</p>}
+    {error && <p role="alert">{error}</p>}
+    {reports && <ul className="import-reports" role="status">{reports.map(report => <li key={report.accountId}>
+      {report.platform === 'lichess' ? 'Lichess' : 'chess.com'} · {report.username}: {report.error ? profileError(report.error, locale) : t('{count} new games imported; {skipped} ineligible records skipped.', { count: report.imported, skipped: report.skipped })}
+    </li>)}</ul>}
   </section>;
 }

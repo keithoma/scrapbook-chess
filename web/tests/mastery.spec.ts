@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function example(page: Page, another = false) {
-  const summary = page.locator('summary').filter({ hasText: 'Open another page of the notebook' });
+  const summary = page.locator('summary').filter({ hasText: 'Import a PGN or try an example' });
   if (!(await summary.locator('..').evaluate((element) => element.hasAttribute('open'))))
     await summary.click();
   if (!another) await page.getByRole('button', { name: 'Fork example', exact: true }).click();
@@ -13,23 +13,21 @@ async function example(page: Page, another = false) {
   }
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await page.getByLabel('I played as').selectOption('white');
-  await page
-    .getByTestId('fork-inspector')
-    .getByRole('button', { name: '1. Nf7+', exact: true })
-    .click();
+  await expect(page.getByTestId('board')).toHaveCount(0);
 }
 async function analyze(page: Page) {
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'complete', {
     timeout: 120000,
   });
+  await page.getByTestId('fork-inspector').getByRole('button', { name: '1. Nf7+', exact: true }).click();
 }
 async function collect(page: Page) {
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toBeVisible();
 }
 async function collection(page: Page, xp: number, level: number) {
-  await page.getByRole('link', { name: 'Collection', exact: true }).click();
+  await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   await expect(page.getByTestId('mastery-total-xp')).toHaveText(
     `${new Intl.NumberFormat('en').format(xp)} XP`,
   );
@@ -39,13 +37,13 @@ async function collection(page: Page, xp: number, level: number) {
 test('native fork analysis earns XP, levels up, replays progress, and supports color correction', async ({
   page,
 }, info) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await example(page);
-  await expect(page.getByTestId('fork-award')).toContainText('Mastery XP pending');
-  await collect(page);
+  await expect(page.getByTestId('review-gate')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Collect rewards', exact: true })).toBeDisabled();
   await collection(page, 0, 1);
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await analyze(page);
   await expect(page.getByTestId('fork-award')).toContainText('Qualified fork · +137 XP');
   await expect(page.getByTestId('fork-grade')).toHaveText('Fork grade: S+');
@@ -71,7 +69,7 @@ test('native fork analysis earns XP, levels up, replays progress, and supports c
   await page.screenshot({ path: info.outputPath('mastery-level.png'), fullPage: true });
   await page.reload();
   await expect(page.getByTestId('mastery-total-xp')).toHaveText('274 XP');
-  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await page.getByLabel('I played as').selectOption('black');
   await collect(page);
   await collection(page, 137, 1);
@@ -85,12 +83,12 @@ test('two tabs save one XP award and collected evidence survives checkpoint evic
   page,
   context,
 }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
   await example(page);
   await analyze(page);
   const second = await context.newPage();
-  await second.goto('/');
+  await second.goto('/review');
   await expect(second.getByTestId('status')).toHaveAttribute('data-state', 'complete');
   await second.getByLabel('I played as').selectOption('white');
   await Promise.all([page, second].map((tab) => collect(tab)));
@@ -108,6 +106,7 @@ test('two tabs save one XP award and collected evidence survives checkpoint evic
   await page.getByTestId('fork-mastery').locator('summary').click();
   await page.getByRole('button', { name: 'Replay fork', exact: true }).click();
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
+  await analyze(page);
   await expect(page.getByTestId('fork-award')).toContainText('Collected +137 XP');
   await expect(page.getByTestId('fork-grade')).toHaveText('Fork grade: S+');
   await expect(page.getByTestId('fork-engine')).toContainText('Best move');
@@ -120,7 +119,7 @@ test('XP keeps accumulating behind the S-grade gate and two collected high grade
   page,
 }) => {
   await page.goto('/collection');
-  await expect(page.getByRole('heading', { name: 'Your scrapbook.', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Achievements', exact: true })).toBeVisible();
   const records = Array.from({ length: 32 }, (_, index) => ({
     id: `lichess:Gate${String(index).padStart(4, '0')}`,
     version: 1,
@@ -180,7 +179,7 @@ test('XP keeps accumulating behind the S-grade gate and two collected high grade
     [false, 2985, 5],
     [true, 3122, 6],
   ] as const) {
-    await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+    await page.getByRole('link', { name: 'Game review', exact: true }).click();
     await example(page, another);
     await analyze(page);
     await expect(page.getByTestId('fork-grade')).toHaveText('Fork grade: S+');

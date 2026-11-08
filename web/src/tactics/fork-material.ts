@@ -14,7 +14,6 @@ const cache = new WeakMap<ReplayGame['frames'], Map<number, MaterialThreat>>();
 
 function inspect(game: ReplayGame, fork: KnightForkCandidate): MaterialThreat {
   if (fork.pinned) return { status: 'rejected', reason: 'pinned' };
-  if (fork.capturable) return { status: 'rejected', reason: 'capturable' };
   const pos = Chess.fromSetup(parseFen(game.frames[fork.ply].fen).unwrap()).unwrap();
   if (pos.isEnd()) return { status: 'rejected', reason: 'no-gain' };
   const own = pos.clone(); own.turn = fork.color;
@@ -25,9 +24,10 @@ function inspect(game: ReplayGame, fork: KnightForkCandidate): MaterialThreat {
     if (threats.length < 2) return { status: 'rejected', reason: 'no-gain' };
     let worst: Extract<MaterialThreat, { status: 'qualified' }> | undefined;
     // Every immediate legal defense must still leave a profitable capture by
-    // this knight. Check counterchecks, target moves, and captures elsewhere.
+    // this knight, or a recapture of the piece that took it.
     for (const reply of legalMoves(pos)) {
       const next = pos.clone(); next.play(reply);
+      const capturedKnight = 'from' in reply && reply.to === fork.square;
       let best = 0;
       let capture = '';
       if (next.board.get(fork.square)?.color === fork.color && !next.isEnd()) {
@@ -38,9 +38,18 @@ function inspect(game: ReplayGame, fork: KnightForkCandidate): MaterialThreat {
           const gain = captureGain(next, fork.square, square, budget);
           if (gain > best) { best = gain; capture = makeSan(next, { from: fork.square, to: square }); }
         }
+      } else if (!next.isEnd() && capturedKnight) {
+        // The knight can be poisoned: QxN may concede the queen to a defender.
+        // Only recapturing its capturer counts, never an unrelated hanging piece.
+        for (const recapture of legalMoves(next)) {
+          if (!('from' in recapture) || recapture.to !== fork.square) continue;
+          const gain = captureGain(next, recapture.from, recapture.to, budget, recapture.promotion);
+          if (gain > best) { best = gain; capture = makeSan(next, recapture); }
+        }
       }
       const gainCp = balance(next, fork.color) - balance(pos, fork.color) + best;
-      if (gainCp < 100 || !capture) return { status: 'rejected', reason: 'no-gain' };
+      if (gainCp < 100 || !capture)
+        return { status: 'rejected', reason: capturedKnight ? 'capturable' : 'no-gain' };
       if (!worst || gainCp < worst.gainCp) worst = { status: 'qualified', gainCp, reply: makeSan(pos, reply), capture };
     }
     return worst ?? { status: 'rejected', reason: 'no-gain' };

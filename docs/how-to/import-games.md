@@ -58,9 +58,10 @@ account. Select **Analyze this game**, then **Collect rewards**. Browser Stockfi
 does the analysis; the server saves completed analysis and recomputes contributions
 from the imported game using the shared reward rules.
 
-You can collect the [board-event badges](../reference/browser-proof.md#active-board-event-badges)
-before analysis. Analyze and collect again to add qualified mastery XP or a
-virtual scrap. Evaluation-based [badges](../reference/badge-rules.md) require
+The [board-event badges](../reference/browser-proof.md#active-board-event-badges)
+use actual played moves, while the review UI requires full preparation before
+collection. Games collected with older partial-analysis workflows can be analyzed
+and collected again to add qualified mastery XP or a virtual scrap. Evaluation-based [badges](../reference/badge-rules.md) require
 analysis as described by their individual rules. Recollect previously saved games
 to add newly activated badges;
 existing progress is not counted twice.
@@ -70,7 +71,7 @@ analysis and usable clocks. If clock evidence is missing, check games again and
 reopen the imported game before collecting. Clockless guest PGNs can still be
 replayed and analyzed, but their opening XP stays pending.
 
-Open **Collection** to see your profile rewards. Another browser connected to the
+Open **Achievements** to see your profile rewards. Another browser connected to the
 same local server and mock account can restore them, including saved analysis.
 This does not make the development server publicly accessible.
 

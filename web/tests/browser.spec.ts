@@ -3,7 +3,7 @@ import { MATE_PGN } from '../src/game';
 
 const state = (page: Page) => page.getByTestId('status');
 async function openInput(page: Page) {
-  const details = page.locator('summary').filter({ hasText: 'Open another page of the notebook' }).locator('..');
+  const details = page.locator('summary').filter({ hasText: 'Import a PGN or try an example' }).locator('..');
   if (!(await details.evaluate(element => element.hasAttribute('open')))) await details.locator('summary').click();
 }
 
@@ -15,19 +15,14 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
     const cdp = await context.newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuSlowdown });
   }
-  await page.goto('/');
+  await page.goto('/review');
   await expect(state(page)).toHaveAttribute('data-state', 'ready');
   await openInput(page);
   await page.getByRole('button', { name: 'Original rapid game', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(137);
-  await page.getByRole('button', { name: 'Next move', exact: true }).click();
-  await expect(page.getByTestId('replay-position')).toHaveText('Ply 1 / 137');
-  const firstFen = await page.getByTestId('board').getAttribute('data-fen');
-  await page.getByRole('button', { name: 'Last position' }).click();
-  const finalFen = await page.getByTestId('board').getAttribute('data-fen');
-  expect(finalFen).not.toBe(firstFen);
-
+  await page.getByLabel('I played as').selectOption('white');
+  await expect(page.getByTestId('review-gate')).toBeVisible();
+  await expect(page.getByTestId('board')).toHaveCount(0);
   const start = Date.now();
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
   // This includes downloading the full engine on a cold, throttled browser.
@@ -40,14 +35,24 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
   await expect(state(page)).toHaveAttribute('data-state', 'paused');
   const restored = Number((await page.getByTestId('progress').innerText()).split('/')[0]);
   expect(restored).toBeGreaterThanOrEqual(saved);
+  await page.getByLabel('I played as').selectOption('white');
   await page.getByRole('button', { name: 'Resume analysis', exact: true }).click();
-  // Board interaction remains responsive while the WASM worker is computing.
+  // Navigation stays responsive while the worker computes; replay stays locked.
   await expect(state(page)).toHaveAttribute('data-state', 'analyzing');
-  await page.getByRole('button', { name: 'Next move', exact: true }).click();
-  await expect(page.getByTestId('replay-position')).toHaveText('Ply 1 / 137');
+  await expect(page.getByTestId('board')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page.getByText('Analysis continues in this browser.')).toBeVisible();
+  await page.getByRole('link', { name: 'Game review', exact: true }).click();
   await expect(state(page)).toHaveAttribute('data-state', 'complete', { timeout: 120000 });
   await expect(page.getByTestId('progress')).toHaveText('137 / 137');
   await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(137);
+  await page.getByRole('button', { name: 'Next move', exact: true }).click();
+  await expect(page.getByTestId('replay-position')).toHaveText('Ply 1 / 137');
+  const firstFen = await page.getByTestId('board').getAttribute('data-fen');
+  await page.getByRole('button', { name: 'Last position' }).click();
+  const finalFen = await page.getByTestId('board').getAttribute('data-fen');
+  expect(finalFen).not.toBe(firstFen);
+  await page.getByRole('button', { name: 'First position' }).click();
   await page.getByRole('button', { name: 'Last position' }).click();
   await expect(page.getByTestId('board')).toHaveAttribute('data-fen', finalFen!);
   const simulationMoves = await page.getByLabel('Virtual continuation', { exact: true }).getByRole('button').count();
@@ -72,6 +77,7 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
   await context.setOffline(true);
   await openInput(page);
   await page.getByRole('button', { name: 'Mate example', exact: true }).click();
+  await page.getByLabel('I played as').selectOption('black');
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
   await expect(state(page)).toHaveAttribute('data-state', 'complete');
   await expect(page.getByTestId('virtual-status')).toContainText('Black mates with Qh4# after 1 simulated plies');
@@ -79,12 +85,13 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
 });
 
 test('real mate is terminal; invalid PGN leaves the existing game intact', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/review');
   await expect(state(page)).toHaveAttribute('data-state', 'ready');
   await openInput(page);
   await page.getByLabel('PASTE ONE PGN').fill(MATE_PGN.replace('2. g4 *', '2. g4 Qh4# 0-1'));
   await page.getByRole('button', { name: 'Load PGN', exact: true }).click();
-  await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(4);
+  await page.getByLabel('I played as').selectOption('black');
+  await expect(page.getByTestId('board')).toHaveCount(0);
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
   await expect(state(page)).toHaveAttribute('data-state', 'complete', { timeout: 120000 });
   await expect(page.getByTestId('virtual-status')).toContainText('terminal');
