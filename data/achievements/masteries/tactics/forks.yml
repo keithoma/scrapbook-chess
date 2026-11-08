@@ -1,5 +1,9 @@
+# Tactics / Forks
+
 id: mastery_knight_forks
 type: mastery
+category: Tactics
+subcategory: Forks
 name: Knight forks
 rule_version: knight-forks-v1
 # Prototype tuning: precise play pays more; later levels take progressively longer.

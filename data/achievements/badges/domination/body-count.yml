@@ -252,7 +252,7 @@
 ###############################################################################
 - id: badge_won_blitz
   type: badge
-  category: 'Veterancy'
+  category: 'Domination'
   subcategory: 'Body Count'
   name: "Blitz Losern't"
   description: 'Total Blitz games won.'
@@ -314,7 +314,7 @@
 ###############################################################################
 - id: badge_won_rapid
   type: badge
-  category: 'Veterancy'
+  category: 'Domination'
   subcategory: 'Body Count'
   name: 'Overthinking'
   description: 'Total Rapid games won.'

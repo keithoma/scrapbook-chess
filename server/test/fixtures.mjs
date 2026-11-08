@@ -5,9 +5,9 @@ export function sample(platform = 'lichess', { now = NOW, id = 'Mock0001', name 
   const url = platform === 'lichess' ? `https://lichess.org/${id}` : `https://www.chess.com/game/live/${id === 'Mock0001' ? '999001' : id}`;
   const pgn = `[Event "rated rapid game"]\n[Site "${platform === 'lichess' ? url : 'Chess.com'}"]\n[Link "${url}"]\n[White "Opponent"]\n[Black "${name}"]\n[Result "0-1"]\n[UTCDate "${date.slice(0, 10).replaceAll('-', '.')}"]\n[UTCTime "${date.slice(11, 19)}"]\n[TimeControl "600+0"]\n\n1. f3 e5 2. g4 Qh4# 0-1`;
   return platform === 'lichess' ? { id, rated: true, variant: 'standard', speed: 'rapid', clock: { initial: 600, increment: 0, totalTime: 600 }, status: 'mate', createdAt: started,
-    lastMoveAt: started + 60_000, players: { white: { user: { id: 'opponent', name: 'Opponent' } }, black: { user: { id: name, name } } }, clocks: [60000, 59000, 58000, 57000], pgn }
+    lastMoveAt: started + 60_000, players: { white: { rating: 1800, user: { id: 'opponent', name: 'Opponent' } }, black: { rating: 1700, user: { id: name, name } } }, clocks: [60000, 59000, 58000, 57000], pgn }
     : { url, pgn, rules: 'chess', time_class: 'rapid', time_control: '600+0', rated: true, end_time: (started + 60_000) / 1000,
-      white: { username: 'Opponent', result: 'checkmated' }, black: { username: name, result: 'win' } };
+      white: { rating: 1800, username: 'Opponent', result: 'checkmated' }, black: { rating: 1700, username: name, result: 'win' } };
 }
 export function upstream({ now = NOW, lichess = [sample()], chesscom = [sample('chesscom', { name: 'testchess' })], lichessStatus = 200, chesscomStatus = 200 } = {}) {
   return async input => {

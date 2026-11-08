@@ -1,0 +1,180 @@
+# Resilience / Great Escapes
+
+###############################################################################
+# SECTION 1: DRAW RECOVERY
+###############################################################################
+- id: badge_draw_lost_threefold
+  type: badge
+  category: 'Resilience'
+  subcategory: 'Great Escapes'
+  name: ''
+  description: 'Draw a previously lost position by three fold repetition.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_drawn_from_lost_by_repetition'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
+
+- id: badge_draw_lost_agreement
+  type: badge
+  category: 'Resilience'
+  subcategory: 'Great Escapes'
+  name: ''
+  description: 'Draw a previously lost position by agreement.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_drawn_from_lost_by_agreement'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
+
+- id: badge_draw_lost_50move
+  type: badge
+  category: 'Resilience'
+  subcategory: 'Great Escapes'
+  name: ''
+  description: 'Draw a previously lost position by the 50 move rule.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_drawn_from_lost_by_50move'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
+
+- id: badge_draw_lost_insufficient
+  type: badge
+  category: 'Resilience'
+  subcategory: 'Great Escapes'
+  name: ''
+  description: 'Draw a previously lost position by insufficient material.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_drawn_from_lost_by_insufficient'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''

@@ -1,15 +1,18 @@
+# Resilience / Comebacks
+
 ###############################################################################
-# SECTION 1: TAKING MATERIAL
+# SECTION 2: COMEBACKS
 ###############################################################################
-- id: badge_clean_pawns
+- id: badge_comeback_1_5_late
   type: badge
-  category: ''
-  subcategory: ''
+  category: 'Resilience'
+  subcategory: 'Comebacks'
   name: ''
-  description: 'Number of clean pawns won (the pawn winning move is not a mistake nor a blunder and the pawn is kept for 5 or more turns).'
+  description: 'Be down 1.5 or more after the opening and the mid game and still win.'
   flavor_text: ''
   config:
-    metric_key: 'clean_pawns_count'
+    metric_key: 'is_comeback_from_1_5_down_late'
+    required_value: true
     is_hidden: false
     tiers:
       - name: 'pawn'
@@ -44,15 +47,16 @@
         amount: 8
         flavor_text: ''
 
-- id: badge_clean_knight
+- id: badge_comeback_2_0_fast
   type: badge
-  category: ''
-  subcategory: ''
+  category: 'Resilience'
+  subcategory: 'Comebacks'
   name: ''
-  description: 'Number of clean knights won (the knight winning move is not a mistake nor a blunder and the knight is kept for 5 or more turns).'
+  description: 'Be down 2.0 or more after the opening and win in 20 moves after the opening.'
   flavor_text: ''
   config:
-    metric_key: 'clean_knights_count'
+    metric_key: 'is_comeback_from_2_0_down_fast'
+    required_value: true
     is_hidden: false
     tiers:
       - name: 'pawn'
@@ -87,15 +91,16 @@
         amount: 8
         flavor_text: ''
 
-- id: badge_clean_bishop
+- id: badge_comeback_3_0_mid
   type: badge
-  category: ''
-  subcategory: ''
+  category: 'Resilience'
+  subcategory: 'Comebacks'
   name: ''
-  description: 'Number of clean bishops won (the bishop winning move is not a mistake nor a blunder and the bishop is kept for 5 or more turns).'
+  description: 'Be down 3.0 or more after the opening and win.'
   flavor_text: ''
   config:
-    metric_key: 'clean_bishops_count'
+    metric_key: 'is_comeback_from_3_0_down_mid'
+    required_value: true
     is_hidden: false
     tiers:
       - name: 'pawn'
@@ -130,58 +135,16 @@
         amount: 8
         flavor_text: ''
 
-- id: badge_clean_rook
+- id: badge_comeback_endgame_2_0
   type: badge
-  category: ''
-  subcategory: ''
+  category: 'Resilience'
+  subcategory: 'Comebacks'
   name: ''
-  description: 'Number of clean rooks won (the rook winning move is not a mistake nor a blunder and the rook is kept for 5 or more turns).'
+  description: 'Start the end game with 2.0 down and draw or win.'
   flavor_text: ''
   config:
-    metric_key: 'clean_rooks_count'
-    is_hidden: false
-    tiers:
-      - name: 'pawn'
-        amount: 1
-        flavor_text: ''
-
-      - name: 'knight'
-        amount: 2
-        flavor_text: ''
-
-      - name: 'bishop'
-        amount: 3
-        flavor_text: ''
-
-      - name: 'rook'
-        amount: 4
-        flavor_text: ''
-
-      - name: 'queen'
-        amount: 5
-        flavor_text: ''
-
-      - name: 'king'
-        amount: 6
-        flavor_text: ''
-
-      - name: 'immortal'
-        amount: 7
-        flavor_text: ''
-
-      - name: 'legend'
-        amount: 8
-        flavor_text: ''
-
-- id: badge_clean_queen
-  type: badge
-  category: ''
-  subcategory: ''
-  name: ''
-  description: 'Number of clean queens won (the queen winning move is not a mistake nor a blunder and the queen is kept for 5 or more turns).'
-  flavor_text: ''
-  config:
-    metric_key: 'clean_queens_count'
+    metric_key: 'is_comeback_from_2_0_down_endgame'
+    required_value: true
     is_hidden: false
     tiers:
       - name: 'pawn'

@@ -5,7 +5,7 @@
 - id: badge_moves_played
   type: badge
   category: 'Veterancy'
-  subcategory: ''
+  subcategory: 'Consolation Prize'
   name: 'Effort'
   description: 'Play a valid move in any game.'
   flavor_text: ''

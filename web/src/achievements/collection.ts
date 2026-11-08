@@ -4,9 +4,10 @@ import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import type { Color, Role } from 'chessops/types';
 import type { ReplayGame } from '../game';
+import type { GameRatings } from '../../../shared/ratings';
 import { lichessSpeed } from '../time-control';
 import type { Checkpoint, VirtualMove } from '../storage';
-import { BADGES, BADGE_IDS, type BadgeId } from './catalog';
+import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
 
 export type Contribution =
@@ -18,6 +19,7 @@ export interface GameGrant {
   version: 1;
   pgn: string;
   timeControl?: string;
+  ratings?: GameRatings;
   color: Color;
   events: Contribution[];
   collectedAt: string;
@@ -71,6 +73,13 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   const last = game.moves.at(-1)!;
   const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
   if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });
+  const player = game.ratings[color];
+  const opponent = game.ratings[color === 'white' ? 'black' : 'white'];
+  if (player && opponent && !player.provisional && !opponent.provisional) {
+    const gap = opponent.value - player.value;
+    if (winner === color && gap >= RATING_GAPS.win) events.push({ kind: 'badge', badgeId: 'badge_upset', amount: 1, ply: game.moves.length });
+    if (!winner && game.result === '1/2-1/2' && gap >= RATING_GAPS.draw) events.push({ kind: 'badge', badgeId: 'hold_your_own', amount: 1, ply: game.moves.length });
+  }
   for (const move of game.moves) {
     if (move.color !== color) continue;
     events.push({ kind: 'badge', badgeId: 'badge_moves_played', amount: 1, ply: move.ply });
@@ -109,7 +118,7 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
   if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
   const virtual = keepVirtual ? previous?.virtual
     : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, color, events: retainMastery(previous, color, events), virtual,
+  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, ratings: structuredClone(game.ratings), color, events: retainMastery(previous, color, events), virtual,
     collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 

@@ -1,0 +1,48 @@
+# Material / Captures
+
+###############################################################################
+# Anti-antichess
+# Total points of materials captured.
+###############################################################################
+- id: badge_material_total
+  type: badge
+  category: 'Material'
+  subcategory: 'Captures'
+  name: 'Anti-antichess'
+  description: 'Total points of materials captured.'
+  flavor_text: '*You know this is not the point, right?*'
+  config:
+    metric_key: 'total_material_captured'
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 69 # 9 + 10 + 6 + 6 + 8 = 39 of points in one game
+        flavor_text: '*I lick your bishop if you lick mine.*'
+
+      - name: 'knight'
+        amount: 420 #
+        flavor_text: '*FYI, there is a bug in the code so that queen trades do not give progression for this achievement.*'
+
+      - name: 'bishop'
+        amount: 666 #
+        flavor_text: '*How many games did you lose bming a won game just to progress this achievement?*'
+
+      - name: 'rook'
+        amount: 1337 #
+        flavor_text: "*You simplify to progress this achievement. I simplify because I don't want to think. We are not the same.*"
+
+      - name: 'queen'
+        amount: 2000 #
+        flavor_text: '*You are doing something great.*'
+
+      - name: 'king'
+        amount: 8000 #
+        flavor_text: '*They are considering awarding you the Nobel price for your achievements.*'
+
+      - name: 'immortal'
+        amount: 8008 #
+        flavor_text: '*I mean you knew this was coming.*'
+
+      - name: 'legend'
+        amount: 80085 #
+        flavor_text: '*Seek medical help.*'

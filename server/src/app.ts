@@ -192,6 +192,7 @@ export async function createApp(options: AppOptions) {
       const before = collection(signed.user.id);
       const game = parseGame(imported.pgn);
       game.timeControl = imported.timeControl;
+      game.ratings = imported.ratings ?? game.ratings;
       if (gameIdentity(game) !== imported.id) throw new PlatformError('invalid_platform_response');
       const grant = prepareGrant(before, game, imported.color, checkpoint, new Date(now()).toISOString());
       grant.source = { platform: imported.platform, username: imported.username };

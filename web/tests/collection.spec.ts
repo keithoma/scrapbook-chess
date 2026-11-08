@@ -148,6 +148,33 @@ test('unfinished games cannot be collected', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Collect rewards', exact: true })).toBeDisabled();
 });
 
+test('rating badges reveal authored flavor, replay at game end, persist, and correct with player color', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
+  await load(page, '[Site "https://lichess.org/Odds0001"]\n[WhiteElo "1700"]\n[BlackElo "1800"]\n\n1. e4 e5 1-0');
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('Their number was bigger. Your point was louder.');
+  await page.getByRole('button', { name: 'Last position', exact: true }).click();
+  await expect(page.getByTestId('replay-badge_upset')).toHaveText('1');
+  await page.getByRole('button', { name: 'Previous move', exact: true }).click();
+  await expect(page.getByTestId('replay-badge_upset')).toHaveText('0');
+  await load(page, '[Site "https://lichess.org/Odds0002"]\n[WhiteElo "1700"]\n[BlackElo "1850"]\n\n1. d4 d5 1/2-1/2');
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('They wanted your king. You offered half a point.');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_upset')).toHaveText('1 / 2');
+  await expect(page.getByTestId('total-hold_your_own')).toHaveText('1 / 2');
+  await page.reload();
+  await expect(page.getByTestId('total-hold_your_own')).toHaveText('1 / 2');
+  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
+  await collect(page, 'black');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_upset')).toHaveText('1 / 2');
+  await expect(page.getByTestId('total-hold_your_own')).toHaveText('0 / 1');
+});
+
 test('mileage follows Lichess clocks and reveals the hidden ultrabullet badge on collection', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');

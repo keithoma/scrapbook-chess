@@ -1,3 +1,5 @@
+import type { GameRatings } from './ratings';
+
 export type Platform = 'lichess' | 'chesscom';
 export interface LinkedAccount {
   id: string; platform: Platform; username: string;
@@ -7,6 +9,7 @@ export interface ImportedGame {
   id: string; platform: Platform; sourceId: string; username: string;
   white: string; black: string; color: 'white' | 'black'; pgn: string;
   startedAt: number; finishedAt: number; speed: string; timeControl: string;
+  ratings?: GameRatings;
   collected?: boolean; analyzed?: boolean;
 }
 export interface ProfileState {

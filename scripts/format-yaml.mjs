@@ -14,11 +14,22 @@ async function discover(directory) {
 }
 await discover('data');
 let changed = 0;
+const ids = new Set();
+const slug = text => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 for (const file of files.sort()) {
   const source = await readFile(file, 'utf8');
   const doc = parseDocument(source);
   if (doc.errors.length) throw new Error(`${file}: ${doc.errors.join('\n')}`);
   const before = doc.toJS();
+  if (file.startsWith('data/achievements/')) for (const entry of Array.isArray(before) ? before : [before]) {
+    assert.ok(entry.id && !ids.has(entry.id), `${file}: missing or duplicate achievement ID`);
+    ids.add(entry.id);
+    assert.ok(typeof entry.category === 'string' && entry.category.trim()
+      && typeof entry.subcategory === 'string' && entry.subcategory.trim(), `${file}: every achievement needs a category and subcategory`);
+    const family = { badge: 'badges', mastery: 'masteries' }[entry.type];
+    assert.ok(family, `${file}: unsupported achievement family`);
+    assert.equal(file, `data/achievements/${family}/${slug(entry.category)}/${slug(entry.subcategory)}.yml`, `${file}: folder and filename must match the category and subcategory`);
+  }
   if (file.startsWith('data/achievements/')) visit(doc, {
     Map(_key, map) {
       const fields = map.has('id')

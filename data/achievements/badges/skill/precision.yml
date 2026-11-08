@@ -1,0 +1,136 @@
+# Skill / Precision
+
+###############################################################################
+# SECTION 3: PRECISION
+###############################################################################
+- id: badge_perfect_eval
+  type: badge
+  category: 'Skill'
+  subcategory: 'Precision'
+  name: ''
+  description: 'Win a game with always being above 0.0 as white, or below +0.5 as black.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_perfect_eval_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
+
+- id: badge_no_blunders
+  type: badge
+  category: 'Skill'
+  subcategory: 'Precision'
+  name: ''
+  description: 'Win a game without any blunders.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_no_blunder_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
+
+- id: badge_no_mistakes_blunders
+  type: badge
+  category: 'Skill'
+  subcategory: 'Precision'
+  name: ''
+  description: 'Win a game without any mistakes and blunders.'
+  flavor_text: ''
+  config:
+    metric_key: 'is_flawless_win'
+    required_value: true
+    is_hidden: false
+    tiers:
+      - name: 'pawn'
+        amount: 1
+        flavor_text: ''
+
+      - name: 'knight'
+        amount: 2
+        flavor_text: ''
+
+      - name: 'bishop'
+        amount: 3
+        flavor_text: ''
+
+      - name: 'rook'
+        amount: 4
+        flavor_text: ''
+
+      - name: 'queen'
+        amount: 5
+        flavor_text: ''
+
+      - name: 'king'
+        amount: 6
+        flavor_text: ''
+
+      - name: 'immortal'
+        amount: 7
+        flavor_text: ''
+
+      - name: 'legend'
+        amount: 8
+        flavor_text: ''
