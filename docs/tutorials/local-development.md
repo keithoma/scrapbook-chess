@@ -46,6 +46,18 @@ the actual game. The simulation never extends the original played line.
 You can paste one standard-chess PGN and select **Load PGN**, or select
 **Export analysis JSON** to save the current analysis outside browser storage.
 
+## Inspect a possible knight fork
+
+Choose **Your recent game (Black)** from the PGN panel. In **Knight-fork
+candidates**, select **15… Nxe3**. The replay jumps to the position and highlights
+the knight and attacked pieces. This example also shows that White can capture
+the knight immediately; a geometric fork alone does not establish an award.
+
+Select **Analyze this game** to see best-versus-played engine evidence. If analysis
+is already complete, the panel uses its saved results. Switch the player color to
+inspect the other side. The inspector awards no mastery or XP; it is for reviewing
+candidate detection and deciding the qualification rules.
+
 ## Collect your first rewards
 
 Load a completed game PGN and choose your side using **I played as**. You can

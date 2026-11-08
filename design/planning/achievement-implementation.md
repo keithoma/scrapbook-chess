@@ -101,6 +101,14 @@ and exact-SAN real/virtual mating scraps. It supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Tactical mastery,
 opening XP, narrative progression, accounts, and imports remain future work.
 
+A knight-fork inspection prototype now lists actual moved-knight candidates and
+their targets, pin/capture warnings, and available engine comparisons in replay.
+It deliberately includes geometric false positives and awards no XP. The clean
+material descriptions in `badges_hybrid.yml` require neither a mistake nor a
+blunder, but do not define a fork-specific gate or numerical quality thresholds.
+Fork qualification, target selection, and XP remain design decisions; the
+inspector does not silently adopt those related badge rules.
+
 1. **Browser proof:** chessops legal replay, full browser Stockfish at initial
    depth 6, explicit 20-ply continuation limit, checkpoint/resume, desktop and phone.
    Verify actual game moves remain unchanged and engine memory/startup are usable.

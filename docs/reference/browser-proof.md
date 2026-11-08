@@ -21,6 +21,7 @@ This reference describes the local browser app. See the
 | Contribution extraction and exact scrap identity | [collection.ts](../../web/src/achievements/collection.ts) |
 | Atomic per-game collection persistence | [ledger.ts](../../web/src/achievements/ledger.ts) |
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
+| Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -76,6 +77,26 @@ Its saved continuation remains available even if the analysis cache changes.
 Replay shows this game's progress through the selected move, separately from
 overall collection totals. Scrap detail links open the actual contributing game
 and its saved continuation when appropriate.
+
+## Knight-fork inspection
+
+The replay includes an inspection panel for the selected player's actual knight
+moves, including knight underpromotions. A candidate attacks at least two enemy
+pieces after the move. Pawns and kings are included. This broad geometric test is
+for reviewing examples, not an approved mastery qualification rule. It does not
+detect forks created by an unmoved knight or inspect virtual continuations.
+
+Selecting a candidate jumps to its played position and outlines the knight and
+targets. Absolute pins, immediate legal captures of the knight, and attacks on
+only pawns/minor pieces are shown as review warnings. Neither the presence nor
+absence of a warning proves material gain or a successful fork.
+
+Saved analysis supplies best-versus-played evaluations from the moving player's
+perspective, with the engine's best move in SAN. Centipawn loss is displayed only
+when both scores are centipawn scores, clamped at zero for shallow-search noise.
+Mate scores remain separate. Unanalyzed moves show pending evidence. Candidates
+are derived from the PGN and use existing checkpoints; they do not change the
+contribution ledger, assign move-quality labels, or award mastery/XP.
 
 ## Scope and limits
 
