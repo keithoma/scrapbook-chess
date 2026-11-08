@@ -1,5 +1,7 @@
 # Dependencies and temporary work
 node_modules/
+.local/
+server/dist/
 .superpowers/
 
 # Secrets and local configuration

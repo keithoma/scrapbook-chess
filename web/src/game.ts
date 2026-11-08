@@ -63,7 +63,8 @@ export function parseGame(pgn: string): ReplayGame {
   return {
     pgn: pgn.trim(), white: game.headers.get('White') ?? 'White',
     black: game.headers.get('Black') ?? 'Black', result: game.headers.get('Result') ?? '*',
-    site: game.headers.get('Site') ?? '',
+    site: /^https:\/\/(?:www\.)?chess\.com\/game\/(?:live|daily)\/\d+/.test(game.headers.get('Link') ?? '')
+      ? game.headers.get('Link')! : game.headers.get('Site') ?? '',
     timestamp: `${game.headers.get('UTCDate') ?? game.headers.get('Date') ?? ''} ${game.headers.get('UTCTime') ?? ''}`.trim(),
     frames, moves,
   };

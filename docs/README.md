@@ -11,11 +11,13 @@ up facts, and understanding the system have separate entry points.
 ## How-to guides
 
 - [Run the relevant checks](how-to/run-checks.md).
+- [Import games with the local mock profile](how-to/import-games.md).
 - [Write and organize documentation](how-to/write-documentation.md).
 
 ## Reference
 
 - [Browser proof configuration and storage](reference/browser-proof.md).
+- [Local profiles and import server](reference/local-server.md).
 - [Credits and dependencies](reference/credits.md).
 
 ## Explanation

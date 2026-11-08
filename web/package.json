@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "prepare:engine": "node scripts/prepare-engine.mjs",
-    "dev": "pnpm prepare:engine && vite --host 127.0.0.1",
+    "dev": "pnpm prepare:engine && vite --host 127.0.0.1 --strictPort",
     "build": "pnpm prepare:engine && tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",

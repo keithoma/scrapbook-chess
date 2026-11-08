@@ -4,7 +4,9 @@ This explains the intended separation of chess facts, achievement decisions, and
 collection state for implementers. It is a target architecture: the current
 [local prototype](browser-analysis.md) implements three badges, knight-fork
 mastery, and mating scraps.
-General detector-driven evaluation and server persistence remain planned.
+Imported-game contributions are evaluated and persisted by the local server using
+the same rules as the guest notebook. A general detector registry and hosted
+persistence remain planned.
 
 1. **Import:** retain source identity and raw payload/PGN; normalize players,
    clocks, time settings, opening metadata, timestamps, result, and termination.
@@ -36,11 +38,16 @@ for the catalog-specific detectors and open rules.
 ## Trust and future persistence
 
 Browser-computed engine results are acceptable for the initial personal release.
-A future server must still enforce ownership, eligibility, rule evaluation, and
-duplicate prevention; clients must not submit arbitrary collection balances.
-Store completed results for cross-device replay. Version engine settings,
+The local server enforces profile scoping, import eligibility, rule evaluation,
+and duplicate prevention. It derives color and played moves from imported data;
+clients do not submit collection balances. Proper authentication and platform
+ownership verification are deferred, with mock login restricted to development.
+Completed imported-game analysis is saved for replay from another browser using
+the same server. Version engine settings,
 detectors, and definitions, and decide the recalculation policy before applying
 rule changes to existing collections.
 
-Cloudflare Workers and D1 are proposed hosting choices, not an implemented
-backend. Authentication and the production board renderer are not selected.
+The implemented backend is a local Node.js server with SQLite. Earlier Cloudflare
+Workers/D1 hosting ideas are not implemented; a hosted deployment, authentication,
+and the production board renderer remain unselected. See the
+[local server reference](../reference/local-server.md) for its boundaries.

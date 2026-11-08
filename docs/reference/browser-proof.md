@@ -38,6 +38,10 @@ PGN and engine/settings version. They belong to this browser and origin. Clearin
 site data or browser eviction can remove them. JSON export preserves a copy
 outside browser storage; there is no import/restore interface for that export yet.
 
+Imported games opened from a mock profile also restore saved server analysis.
+The [local server reference](local-server.md) describes profile persistence; the
+rest of this section describes the browser cache and signed-out guest notebook.
+
 A service worker caches the pinned engine assets. An already-open app can reuse
 them for another analysis without a network connection. The app shell is not
 cached for offline reload. Updating the engine requires updating the relevant
@@ -47,7 +51,7 @@ The app requires a secure origin for Web Crypto and service-worker support.
 Localhost qualifies. A plain HTTP LAN URL on a phone does not provide the same
 APIs; use HTTPS when testing a physical device.
 
-## Local collection
+## Guest collection
 
 Choose White or Black separately for each uploaded game, then select **Collect
 rewards**. Collection requires a completed PGN result or board-proven checkmate.
@@ -137,11 +141,12 @@ details are not translated. `/help` is a player-facing help shell without articl
 `/feedback` saves a local draft on explicit request; it does not send feedback.
 The draft survives reloads until cleared, subject to browser storage availability.
 
-The app accepts one standard-chess PGN and replays its main line. It has no
-platform imports, accounts, or server persistence. Signup cutoffs and rated-human
-eligibility are not enforced on manual test uploads. Collection data stays in
-this browser and can be lost if browser storage is cleared or evicted. The current
-JSON export contains analysis, not a collection backup.
+The guest notebook accepts one standard-chess PGN and replays its main line.
+Signup cutoffs and rated-human eligibility are not enforced on manual guest
+uploads. Guest collection data stays in this browser and can be lost if browser
+storage is cleared or evicted. The current JSON export contains analysis, not a
+collection backup. The separate [mock-profile workflow](../how-to/import-games.md)
+imports eligible games and saves rewards and completed analysis on the local server.
 
 The full engine asset exceeds Cloudflare's individual static-file limit. Hosted
 delivery requires split packaging or separate asset storage. That packaging and

@@ -2,7 +2,8 @@
 
 This tutorial takes a contributor from a checkout to a locally analyzed game.
 You will replay a sample game, pause analysis, and restore it after reloading.
-No chess-platform account, database, or server engine is required.
+Guest examples need no chess-platform account. The local server creates its SQLite
+database automatically; Stockfish runs in the browser.
 
 ## Start the app
 
@@ -18,9 +19,13 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open the Local URL printed by Vite. The scripts prepare the engine files from the
+Open the Local URL printed by Vite. The root command starts the API and browser
+app together. The scripts prepare the engine files from the
 pinned dependency; generated binaries are not committed. Stop the development
 server with Ctrl+C when you finish.
+
+For your own games, follow [the mock-profile import guide](../how-to/import-games.md).
+The guest notebook below remains available when signed out.
 
 ## Replay and analyze a game
 

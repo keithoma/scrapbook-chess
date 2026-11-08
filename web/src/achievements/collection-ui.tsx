@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { profileApi, announceProfileChange } from '../profile-api';
 import type { Color } from 'chessops/types';
 import { parseGame, type ReplayGame } from '../game';
 import type { Checkpoint, VirtualMove } from '../storage';
@@ -8,17 +9,23 @@ import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCol
 import { collectGame, readCollection, subscribeCollection } from './ledger';
 
 export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
-export function useLocalCollection() {
-  const [games, setGames] = useState<GameGrant[]>([]);
+export function useLocalCollection(profileId?: string, loading = false) {
+  const [saved, setSaved] = useState<{ scope?: string; games: GameGrant[] }>({ games: [] });
+  const currentScope = useRef(profileId); currentScope.current = profileId;
+  const setGames = (games: GameGrant[]) => { if (currentScope.current === profileId) setSaved({ scope: profileId, games }); };
   const [error, setError] = useState(false);
   useEffect(() => {
     let alive = true;
-    const refresh = () => { void readCollection().then(value => { if (alive) { setGames(value); setError(false); } }).catch(() => { if (alive) setError(true); }); };
+    if (loading) return;
+    const refresh = () => { void (profileId ? profileApi.collection() : readCollection()).then(value => { if (alive) { setGames(value); setError(false); } }).catch(() => { if (alive) setError(true); }); };
     refresh();
     const unsubscribe = subscribeCollection(refresh);
-    return () => { alive = false; unsubscribe(); };
-  }, []);
-  return { games, setGames, error };
+    window.addEventListener('scrapbook-profile-changed', refresh); window.addEventListener('focus', refresh);
+    let channel: BroadcastChannel | undefined;
+    try { channel = new BroadcastChannel('scrapbook-profile'); channel.onmessage = refresh; } catch {}
+    return () => { alive = false; unsubscribe(); window.removeEventListener('scrapbook-profile-changed', refresh); window.removeEventListener('focus', refresh); channel?.close(); };
+  }, [profileId, loading]);
+  return { games: loading || saved.scope !== profileId ? [] : saved.games, setGames, error };
 }
 
 function FlavorText({ flavor, legacy }: { flavor?: Flavor; legacy?: string }) {
@@ -31,7 +38,8 @@ function FlavorText({ flavor, legacy }: { flavor?: Flavor; legacy?: string }) {
   </blockquote>;
 }
 
-export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, ply, virtualPly, onJump, locale }: {
+export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, ply, virtualPly, onJump, locale, profileMode = false, imported = false }: {
+  profileMode?: boolean; imported?: boolean;
   game: ReplayGame; checkpoint?: Checkpoint; color: Color | ''; onColor: (color: Color | '') => void;
   games: GameGrant[]; onSaved: (games: GameGrant[]) => void; ply: number; virtualPly: number;
   onJump: (jump: Jump) => void; locale: Locale;
@@ -42,7 +50,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
   const [reveal, setReveal] = useState<ReturnType<typeof newlyUnlocked>>();
   const [unchanged, setUnchanged] = useState(false);
   const recorded = games.find(entry => entry.id === gameIdentity(game));
-  const eligible = isCompletedGame(game);
+  const eligible = isCompletedGame(game) && (!profileMode || imported);
   let events = color && eligible ? retainMastery(recorded, color, contributions(game, color, checkpoint)) : [];
   const savedVirtual = recorded?.color === color ? recorded.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
   if (savedVirtual.length && !events.some(event => event.kind === 'scrap' && event.mode === 'real')) {
@@ -57,11 +65,12 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     if (!color || saving || !eligible) return;
     setSaving(true); setFailed(false);
     try {
-      const result = await collectGame(game, color, checkpoint);
+      const result = profileMode ? await profileApi.collect(gameIdentity(game), checkpoint) : await collectGame(game, color, checkpoint);
       const previous = result.before.find(entry => entry.id === result.grant.id);
       setUnchanged(previous?.color === color && JSON.stringify(previous.events) === JSON.stringify(result.grant.events));
       setReveal(newlyUnlocked(result.before, result.after));
       onSaved(result.after);
+      if (profileMode) announceProfileChange();
     } catch { setFailed(true); }
     finally { setSaving(false); }
   };
@@ -70,13 +79,14 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     <p className="label text-emerald-800">{t('YOUR NEXT DISCOVERY')}</p>
     <h2 id="game-rewards-title" className="mt-3 text-2xl">{t('Your game, your rewards.')}</h2>
     <label className="mt-4 block text-sm font-semibold" htmlFor="player-color">{t('I played as')}</label>
-    <select id="player-color" className="mt-2 w-full rounded-lg border border-stone-300 bg-white/60 p-3" value={color} onChange={event => { onColor(event.target.value as Color | ''); setReveal(undefined); }} disabled={saving}>
+    <select id="player-color" className="mt-2 w-full rounded-lg border border-stone-300 bg-white/60 p-3" value={color} onChange={event => { onColor(event.target.value as Color | ''); setReveal(undefined); }} disabled={saving || (profileMode && imported)}>
       <option value="">{t('Choose after your game')}</option>
       <option value="white">{t('White')} · {game.white}</option>
       <option value="black">{t('Black')} · {game.black}</option>
     </select>
-    {recorded && <p className="mt-2 text-xs text-stone-600">{t('Changing color replaces this game’s rewards; it does not collect both sides.')}</p>}
-    {!eligible && <p className="mt-3 text-sm text-stone-600">{t('Load a completed game to collect rewards.')}</p>}
+    {recorded && !profileMode && <p className="mt-2 text-xs text-stone-600">{t('Changing color replaces this game’s rewards; it does not collect both sides.')}</p>}
+    {profileMode && imported && <p className="mt-2 text-xs text-stone-600">{t('Your player color comes from the imported account.')}</p>}
+    {!eligible && <p className="mt-3 text-sm text-stone-600">{t(profileMode ? 'Open an imported game from Profile to collect profile rewards.' : 'Load a completed game to collect rewards.')}</p>}
     <button className="primary-button mt-4 w-full" onClick={() => void collect()} disabled={!color || !eligible || saving}>{saving ? t('Saving rewards…') : t('Collect rewards')}</button>
     {failed && <p className="mt-3 text-sm text-red-800" role="alert">{t('Could not save rewards. Please try again.')}</p>}
     {reveal && <div className="reward-reveal mt-4 rounded-xl border border-amber-400 bg-amber-50 p-4" role="status" data-testid="reward-reveal">
@@ -104,7 +114,8 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
   </section>;
 }
 
-export function CollectionView({ games, locale, onOpen, failed, busy }: {
+export function CollectionView({ games, locale, onOpen, failed, busy, profileMode = false }: {
+  profileMode?: boolean;
   games: GameGrant[]; locale: Locale; onOpen: (pgn: string, jump?: Jump) => void; failed: boolean; busy: boolean;
 }) {
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
@@ -116,7 +127,7 @@ export function CollectionView({ games, locale, onOpen, failed, busy }: {
   return <section className="my-10" aria-labelledby="collection-title">
     <p className="label text-emerald-800">{t('A GROWING COLLECTION')}</p>
     <h1 id="collection-title" className="mt-3 text-4xl">{t('Your scrapbook.')}</h1>
-    <p className="mt-3 text-sm leading-6 text-stone-600">{t('Saved only in this browser. Collect completed PGNs to try the reward loop.')}</p>
+    <p className="mt-3 text-sm leading-6 text-stone-600">{t(profileMode ? 'Saved with your profile on the local server.' : 'Saved only in this browser. Collect completed PGNs to try the reward loop.')}</p>
     {failed && <p className="mt-4 text-sm text-red-800" role="alert">{t('Could not open the local collection. Reload to try again.')}</p>}
     {busy && <p className="mt-3 text-sm text-stone-600">{t('Pause analysis before opening another game.')}</p>}
     <h2 className="my-6 text-2xl">{t('Masteries')}</h2>
@@ -162,7 +173,9 @@ export function CollectionView({ games, locale, onOpen, failed, busy }: {
     <h2 className="mb-4 mt-10 text-2xl">{t('Collected games')}</h2>
     {!games.length && <p className="text-sm text-stone-600">{t('No games collected yet.')}</p>}
     <ul className="space-y-2">{[...games].sort((a, b) => b.collectedAt.localeCompare(a.collectedAt)).map(record => <li key={record.id} className="note-card flex flex-wrap items-center justify-between gap-3 !p-4">
-      <span className="text-sm">{labels.get(record.id)} · {t(record.color === 'white' ? 'White' : 'Black')}</span>
+      <span className="text-sm">{labels.get(record.id)} · {t(record.color === 'white' ? 'White' : 'Black')}
+        {(record.source || record.id.startsWith('lichess:') || record.id.startsWith('chesscom:')) && <span className="mt-1 block text-xs text-stone-600">{(record.source?.platform ?? record.id.split(':')[0]) === 'lichess' ? 'Lichess' : 'chess.com'}{record.source ? ` · ${record.source.username}` : ''}</span>}
+      </span>
       <button className="text-button" disabled={busy} onClick={() => onOpen(record.pgn)}>{t('Replay game')}</button>
     </li>)}</ul>
   </section>;

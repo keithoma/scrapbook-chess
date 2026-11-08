@@ -1,7 +1,7 @@
 import type { Color } from 'chessops/types';
 import type { ReplayGame } from '../game';
 import type { Checkpoint } from '../storage';
-import { contributions, gameIdentity, retainMastery, type GameGrant } from './collection';
+import { prepareGrant, type GameGrant } from './collection';
 
 const CHANNEL = 'scrapbook-collection-changed';
 async function database(): Promise<IDBDatabase> {
@@ -27,8 +27,6 @@ export async function readCollection(): Promise<GameGrant[]> {
 }
 
 export async function collectGame(game: ReplayGame, color: Color, checkpoint?: Checkpoint) {
-  const events = contributions(game, color, checkpoint);
-  const id = gameIdentity(game);
   const db = await database();
   try {
     const saved = await new Promise<{ before: GameGrant[]; after: GameGrant[]; grant: GameGrant }>((resolve, reject) => {
@@ -38,21 +36,9 @@ export async function collectGame(game: ReplayGame, color: Color, checkpoint?: C
       let result: { before: GameGrant[]; after: GameGrant[]; grant: GameGrant };
       request.onsuccess = () => {
         const before: GameGrant[] = request.result;
-        const previous = before.find(entry => entry.id === id);
-        const now = new Date().toISOString();
-        const previousVirtual = previous?.color === color
-          ? previous.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
-        const hasRealMate = events.some(event => event.kind === 'scrap' && event.mode === 'real');
-        // Once collected, keep this game's virtual discovery and its evidence.
-        // Refreshing analysis must not erase it or farm alternative finishes.
-        const keepVirtual = previousVirtual.length > 0 && !hasRealMate;
-        const savedEvents = keepVirtual
-          ? [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual] : events;
-        const virtual = keepVirtual ? previous?.virtual
-          : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-        const grant: GameGrant = { id, version: 1, pgn: game.pgn, color, events: retainMastery(previous, color, savedEvents), virtual, collectedAt: previous?.collectedAt ?? now, updatedAt: now };
+        const grant = prepareGrant(before, game, color, checkpoint);
         store.put(grant);
-        result = { before, after: [...before.filter(entry => entry.id !== id), grant], grant };
+        result = { before, after: [...before.filter(entry => entry.id !== grant.id), grant], grant };
       };
       tx.oncomplete = () => resolve(result);
       tx.onabort = tx.onerror = () => reject(tx.error);

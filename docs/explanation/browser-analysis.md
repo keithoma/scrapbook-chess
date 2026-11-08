@@ -46,9 +46,10 @@ virtual finish** runs the bounded search explicitly. A game that already contrib
 a virtual discovery keeps that discovery rather than farming alternative finishes.
 
 The browser can suspend or terminate work when the page closes or a phone sleeps.
-Checkpoints preserve completed work, not reliable background execution. Future
-server persistence will make completed collections available across devices;
-current local storage does not provide that synchronization.
+Checkpoints preserve completed work, not reliable background execution. Imported
+games also save completed analysis and collected rewards to the local server,
+allowing another browser on that server to restore them. Guest storage remains
+browser-local. Proper authentication and hosted synchronization are deferred.
 
 ## Evidence and next boundaries
 
@@ -59,6 +60,7 @@ download and hosting packaging are material deployment considerations.
 
 The [proposed achievement pipeline](achievement-processing.md) separates chess
 facts, rule evaluation, and collection state. The local contribution ledger now
-implements the first three badges, knight-fork mastery, and mating scraps; other detectors and server
-persistence remain planned. See
+implements the first three badges, knight-fork mastery, and mating scraps. The
+local server reuses those rules for imported profile games; other detectors and
+hosted persistence remain planned. See
 [product experience](../../design/product/experience.md) for intended behavior.
