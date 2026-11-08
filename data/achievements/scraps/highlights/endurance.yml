@@ -1,0 +1,12 @@
+# Highlights / Endurance
+
+- id: feat_marathon_120
+  type: scrap
+  category: Highlights
+  subcategory: Endurance
+  name: The Century Mark
+  description: Win a game that lasts longer than 120 moves.
+  flavor_text: Both players aged visibly during this encounter.
+  config:
+    status: draft
+    is_hidden: true

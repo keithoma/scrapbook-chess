@@ -1,0 +1,12 @@
+# Blunders / Material
+
+- id: feat_botez_gambit
+  type: scrap
+  category: Blunders
+  subcategory: Material
+  name: The Botez Gambit
+  description: Blunder your Queen entirely cleanly without compensation.
+  flavor_text: Chat, is this theory?
+  config:
+    status: draft
+    is_hidden: true

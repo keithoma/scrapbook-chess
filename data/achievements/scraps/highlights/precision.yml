@@ -1,0 +1,12 @@
+# Highlights / Precision
+
+- id: feat_perfect_game
+  type: scrap
+  category: Highlights
+  subcategory: Precision
+  name: The Centaur
+  description: Win a game without committing a single inaccuracy, mistake, or blunder.
+  flavor_text: Are you sure you don't have Stockfish running in another tab?
+  config:
+    status: draft
+    is_hidden: false

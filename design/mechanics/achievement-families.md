@@ -13,7 +13,7 @@ authored separately under [data/achievements/](../../data/achievements/).
   their exact definitions are not yet authored.
 - Preserve authored thresholds, tier names, flavor text, attribution, and humor.
   Do not standardize progress curves or silently edit content.
-- Existing JSON feat/mastery/story content is reference material to preserve,
+- Existing JSON mastery/story content is reference material to preserve,
   not proof that its older naming or rules are final.
 
 ## Content organization
@@ -26,6 +26,27 @@ The [YAML checks](../../docs/how-to/run-checks.md#yaml-content) enforce matching
 paths and metadata. Keep IDs stable through moves and category corrections.
 Unimplemented drafts remain drafts after being classified; filing them does not
 activate their mechanics or require completing their writing in the same change.
+
+## Named scraps
+
+The eight former feat definitions belong to the scrap family alongside mating
+notation discoveries. They are one-time collectibles, rather than another
+achievement family or repeatable badge tiers. A named scrap uses its stable
+catalog ID as its identity, regardless of the player's color. Keep the existing
+`feat_` ID prefixes so moving the definitions does not rename their identities.
+
+The definitions live in [the scrap catalog](../../data/achievements/scraps/),
+grouped by their existing categories and new subject-based subcategories. Names,
+descriptions, flavor, and hidden flags are preserved. `config.status: draft`
+records that these definitions do not yet have active unlock detectors. Hidden
+status alone does not establish that a detector exists.
+
+Mating scraps already have implemented real/virtual states. Moving named
+discoveries into the same family does not extend engine simulation eligibility
+to their conditions. Their unlock rules still need review, including Connect
+Four's starting-position false positive, the no-achievement-hunting principle,
+and the perfect game's mention of inaccuracies. See the
+[implementation map](../planning/achievement-implementation.md#mastery-story-and-scraps).
 
 ## Badge qualification and tuning
 
