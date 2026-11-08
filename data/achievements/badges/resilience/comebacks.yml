@@ -61,45 +61,55 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Comebacks'
-  name: ''
+  name: 'Speedrun the Apology'
   description: 'Be down 2.0 or more after the opening and win in 20 moves after the opening.'
-  flavor_text: ''
+  flavor:
+    text: A bad opening, followed by an unusually efficient correction.
   config:
     metric_key: 'is_comeback_from_2_0_down_fast'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The disadvantage barely had time to unpack.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent was still naming their extra material.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The comeback has developed a turnaround target.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: Please return the advantage within twenty moves of purchase.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Your bad openings now come with expedited support.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The evaluation graph has requested a speed limit.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The opponent's victory speech was still in draft.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: You have optimized the most stressful part of being wrong.
 
 - id: badge_comeback_3_0_mid
   type: badge
