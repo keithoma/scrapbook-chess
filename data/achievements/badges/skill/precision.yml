@@ -105,42 +105,52 @@
   type: badge
   category: 'Skill'
   subcategory: 'Precision'
-  name: ''
+  name: 'Terms of Perfection'
   description: 'Win a game without any mistakes and blunders.'
-  flavor_text: ''
+  flavor:
+    text: 'Read the small print: inaccuracies are allowed.'
   config:
     metric_key: 'is_flawless_win'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: The quality department has approved this win.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Two wins without a strongly worded engine annotation.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your moves are beginning to arrive with documentation.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The opponent's counterplay did not pass review.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You have temporarily defeated your own decision-making process.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The engine has run out of useful ways to sound disappointed.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Your position has an unusually clean inspection record.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Please enjoy this certificate before your next game.

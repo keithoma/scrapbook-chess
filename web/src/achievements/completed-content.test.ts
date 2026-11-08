@@ -16,3 +16,7 @@ it('badge_time_scramble has a complete name, taxonomy, base flavor, and every ti
 it('badge_no_blunders has a complete name, taxonomy, base flavor, and every tier flavor', () => {
  const badge=BADGES.find(badge=>badge.id==='badge_no_blunders')!; expect(badge.name.trim()).not.toBe(''); expect(badge.category).toBeTruthy();expect(badge.subcategory).toBeTruthy();expect(badge.flavor?.text||badge.flavor?.quote||badge.flavor?.player_quote||badge.flavor_text).toBeTruthy(); for(const tier of badge.config.tiers) expect(tier.flavor?.text||tier.flavor?.quote||tier.flavor?.player_quote||tier.flavor_text).toBeTruthy();
 });
+
+it('badge_no_mistakes_blunders has a complete name, taxonomy, base flavor, and every tier flavor', () => {
+ const badge=BADGES.find(badge=>badge.id==='badge_no_mistakes_blunders')!; expect(badge.name.trim()).not.toBe(''); expect(badge.category).toBeTruthy();expect(badge.subcategory).toBeTruthy();expect(badge.flavor?.text||badge.flavor?.quote||badge.flavor?.player_quote||badge.flavor_text).toBeTruthy(); for(const tier of badge.config.tiers) expect(tier.flavor?.text||tier.flavor?.quote||tier.flavor?.player_quote||tier.flavor_text).toBeTruthy();
+});
