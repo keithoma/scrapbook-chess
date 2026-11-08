@@ -90,7 +90,8 @@ function legalGame(platform: Platform, sourceId: string, name: string, pgn: stri
     color, pgn: game.pgn, startedAt, finishedAt, speed, timeControl, ratings };
 }
 
-function playerRatings(players: Json): GameRatings {
+export function sourceRatings(platform: Platform, raw: Json): GameRatings {
+  const players = platform === 'lichess' ? raw.players ?? {} : raw;
   return { white: gameRating(players.white?.rating, players.white?.provisional), black: gameRating(players.black?.rating, players.black?.provisional) };
 }
 
@@ -118,7 +119,7 @@ export async function fetchGames(client: PlatformClient, platform: Platform, nam
         }
         if (!clockSpeed(raw.clock?.initial, raw.clock?.increment)) return;
         return legalGame(platform, raw.id, name, raw.pgn, raw.createdAt, raw.lastMoveAt,
-          raw.speed, `${raw.clock.initial}+${raw.clock.increment}`, cutoff, now, playerRatings(raw.players));
+          raw.speed, `${raw.clock.initial}+${raw.clock.increment}`, cutoff, now, sourceRatings(platform, raw));
       });
     }
   } else {
@@ -143,7 +144,7 @@ export async function fetchGames(client: PlatformClient, platform: Platform, nam
         const tags = headers(raw.pgn);
         if (!equal(tags?.get('White') ?? '', raw.white.username) || !equal(tags?.get('Black') ?? '', raw.black.username)) return;
         return legalGame(platform, `${id[1]}:${id[2]}`, name, raw.pgn, startFromPgn(raw.pgn), raw.end_time * 1000,
-          raw.time_class, raw.time_control, cutoff, now, playerRatings(raw));
+          raw.time_class, raw.time_control, cutoff, now, sourceRatings(platform, raw));
       });
     }
   }

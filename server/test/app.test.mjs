@@ -191,7 +191,8 @@ test('rating badges use pre-game API ratings, ignore forged inputs, and skip pro
     const players = platform === 'lichess' ? raw.players : raw;
     players.white.rating = opponent; players.black.rating = player; players.black.provisional = provisional;
     // These deliberately contradict the API; they must not determine rewards.
-    raw.pgn = `[WhiteElo "900"]\n[BlackElo "2900"]\n${raw.pgn}`;
+    raw.pgn = player === undefined ? `[WhiteElo "2900"]\n[BlackElo "900"]\n${raw.pgn}`
+      : `[WhiteElo "900"]\n[BlackElo "2900"]\n${raw.pgn}`;
     if (result === '1/2-1/2') {
       raw.pgn = raw.pgn.replaceAll('0-1', result).replace('1. f3 e5 2. g4 Qh4#', '1. e4 e5');
       if (platform === 'lichess') raw.status = 'draw';
@@ -213,6 +214,19 @@ test('rating badges use pre-game API ratings, ignore forged inputs, and skip pro
     if (expected) { assert.equal(events[0].amount, 1); assert.equal(events[0].ply, expected === 'badge_upset' ? 4 : 2); }
     assert.deepEqual(grant.ratings, imported.ratings);
     assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  // Earlier imports have no normalized ratings, but retain their original API
+  // payload, including missing/provisional evidence. Recover that evidence too.
+  for (const row of s.db.prepare('SELECT * FROM imported_games').all()) {
+    const old = JSON.parse(row.game_json); delete old.ratings;
+    s.db.prepare('UPDATE imported_games SET game_json=? WHERE user_id=? AND game_id=?').run(JSON.stringify(old), row.user_id, row.game_id);
+  }
+  const restored = await (await s.request('/me')).json();
+  assert.deepEqual(restored.games.map(game => game.ratings), me.games.map(game => game.ratings));
+  for (const imported of restored.games) {
+    const expected = cases.find(item => item[0] === imported.platform && imported.sourceId.endsWith(item[1]))[6];
+    const grant = (await (await s.request(`/profile/games/${encodeURIComponent(imported.id)}/collect`, 'POST', {})).json()).grant;
+    assert.deepEqual(grant.events.filter(event => ['badge_upset', 'hold_your_own'].includes(event.badgeId)).map(event => event.badgeId), expected ? [expected] : []);
   }
   s.db.close();
 });

@@ -12,7 +12,7 @@ import { gameIdentity, prepareGrant, type GameGrant } from '../../web/src/achiev
 import { ANALYSIS_VERSION, type Checkpoint } from '../../web/src/storage';
 import type { ImportedGame, ImportReport, LinkedAccount, Platform } from '../../shared/contracts';
 import { atomic } from './database';
-import { fetchGames, PlatformClient, PlatformError, username } from './platforms';
+import { fetchGames, PlatformClient, PlatformError, sourceRatings, username } from './platforms';
 
 export interface AppOptions {
   db: DatabaseSync; baseURL: string; development: boolean;
@@ -106,10 +106,17 @@ export async function createApp(options: AppOptions) {
       development: !!row.development };
   }
   function games(userId: string): ImportedGame[] {
-    return db.prepare(`SELECT g.game_json, c.game_id AS collected, a.game_id AS analyzed FROM imported_games g
+    return db.prepare(`SELECT g.game_json, g.raw_json, c.game_id AS collected, a.game_id AS analyzed FROM imported_games g
       LEFT JOIN collections c ON c.user_id=g.user_id AND c.game_id=g.game_id
       LEFT JOIN analyses a ON a.user_id=g.user_id AND a.game_id=g.game_id WHERE g.user_id=? ORDER BY g.imported_at DESC`).all(userId)
-      .map(row => ({ ...JSON.parse(row.game_json as string), collected: !!row.collected, analyzed: !!row.analyzed }));
+      .map(row => ({ ...readImported(row), collected: !!row.collected, analyzed: !!row.analyzed }));
+  }
+  function readImported(row: Record<string, unknown>): ImportedGame {
+    const game = JSON.parse(row.game_json as string) as ImportedGame;
+    // Imports made before rating badges already retained the original payload.
+    // Recover historical evidence without fetching today's profile ratings.
+    game.ratings ??= sourceRatings(game.platform, JSON.parse(row.raw_json as string));
+    return game;
   }
   function collection(userId: string): GameGrant[] { return db.prepare('SELECT grant_json FROM collections WHERE user_id=?').all(userId).map(row => JSON.parse(row.grant_json as string)); }
   app.get('/api/me', async c => {
@@ -177,9 +184,9 @@ export async function createApp(options: AppOptions) {
   app.on(['PUT', 'POST'], ['/api/profile/games/:id/analysis', '/api/profile/games/:id/collect'], async c => {
     if ((c.req.path.endsWith('/analysis') && c.req.method !== 'PUT') || (c.req.path.endsWith('/collect') && c.req.method !== 'POST')) return c.json({ error: 'method_not_allowed' }, 405);
     const signed = (await session(c.req.raw))!;
-    const row = db.prepare('SELECT game_json FROM imported_games WHERE user_id=? AND game_id=?').get(signed.user.id, c.req.param('id'));
+    const row = db.prepare('SELECT game_json, raw_json FROM imported_games WHERE user_id=? AND game_id=?').get(signed.user.id, c.req.param('id'));
     if (!row) return c.json({ error: 'imported_game_required' }, 404);
-    const imported = JSON.parse(row.game_json as string) as ImportedGame;
+    const imported = readImported(row);
     const body = await c.req.json(); const checkpoint = validateCheckpoint(body.checkpoint, imported.pgn);
     return c.json(atomic(db, () => {
       if (checkpoint && (checkpoint.results.length || checkpoint.virtual.length)) {
@@ -192,7 +199,7 @@ export async function createApp(options: AppOptions) {
       const before = collection(signed.user.id);
       const game = parseGame(imported.pgn);
       game.timeControl = imported.timeControl;
-      game.ratings = imported.ratings ?? game.ratings;
+      game.ratings = imported.ratings ?? {};
       if (gameIdentity(game) !== imported.id) throw new PlatformError('invalid_platform_response');
       const grant = prepareGrant(before, game, imported.color, checkpoint, new Date(now()).toISOString());
       grant.source = { platform: imported.platform, username: imported.username };
