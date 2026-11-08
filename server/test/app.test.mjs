@@ -77,6 +77,10 @@ test('the server derives rewards from imported PGN, ignores forged balances/colo
   const records = await (await s.request('/profile/collection')).json();
   assert.equal(records.length, 1); assert.equal(records[0].color, 'black');
   assert.equal(records[0].events.filter(event => event.badgeId === 'badge_moves_played').reduce((sum, event) => sum + event.amount, 0), 2);
+  assert.deepEqual(records[0].events.filter(event => ['badge_won_total', 'badge_total_checks'].includes(event.badgeId)), [
+    { kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: 4 },
+    { kind: 'badge', badgeId: 'badge_total_checks', amount: 1, ply: 4 },
+  ]);
   assert.equal(records[0].events.find(event => event.kind === 'scrap').notation, 'Qh4#');
   assert.equal(records[0].source.platform, 'lichess');
   assert.equal((await s.request('/profile/games/made-up/collect', 'POST', {})).status, 404);
@@ -85,6 +89,24 @@ test('the server derives rewards from imported PGN, ignores forged balances/colo
   const login = await other.request(`${baseURL}/api/mock-login`, { method: 'POST', headers: { Origin: baseURL } });
   const cookie = login.headers.get('set-cookie').split(';')[0];
   assert.deepEqual(await (await other.request(`${baseURL}/api/profile/collection`, { headers: { Cookie: cookie } })).json(), []);
+  s.db.close();
+});
+test('recollecting an older profile record activates new badges without duplicating its saved rewards', async () => {
+  const s = await setup(); await s.login(); await s.request('/profile/check-games', 'POST', {});
+  const path = '/profile/games/lichess%3AMock0001/collect';
+  await s.request(path, 'POST', {});
+  const row = s.db.prepare('SELECT * FROM collections').get();
+  const oldGrant = JSON.parse(row.grant_json);
+  oldGrant.events = oldGrant.events.filter(event => !['badge_won_total', 'badge_total_checks', 'badge_material_total', 'badge_promotion'].includes(event.badgeId));
+  s.db.prepare('UPDATE collections SET grant_json=? WHERE user_id=? AND game_id=?').run(JSON.stringify(oldGrant), row.user_id, row.game_id);
+  const updated = (await (await s.request(path, 'POST', {})).json()).grant;
+  assert.equal(updated.collectedAt, oldGrant.collectedAt);
+  assert.equal(updated.events.find(event => event.badgeId === 'badge_won_total').amount, 1);
+  assert.equal(updated.events.find(event => event.badgeId === 'badge_total_checks').amount, 1);
+  assert.deepEqual(updated.events.filter(event => event.kind === 'scrap'), oldGrant.events.filter(event => event.kind === 'scrap'));
+  const repeated = (await (await s.request(path, 'POST', {})).json()).grant;
+  assert.deepEqual(repeated.events, updated.events);
+  assert.equal((await (await s.request('/profile/collection')).json()).length, 1);
   s.db.close();
 });
 test('analysis survives a new browser session; malformed evidence and cross-origin writes are rejected', async () => {
