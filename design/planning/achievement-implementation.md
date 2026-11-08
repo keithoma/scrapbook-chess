@@ -9,8 +9,8 @@ existing description final or require the whole catalog in the first release.
 - `design/content/achievement-ideas.md`: family concepts, episodes, tactical mastery ideas,
   hidden scraps, shelved mechanics, streak/diversity/group conditions.
 - `design/content/quote-ideas.md`: writing reference, not executable rules.
-- Twelve badge YAML files: 61 unique badge definitions and 515 tier entries.
-- `masteries/knight-forks.yml`: the first tactical mastery, with quality-based XP
+- Twenty badge YAML files: 61 unique badge definitions and 515 tier entries.
+- `masteries/tactics/forks.yml`: the first tactical mastery, with quality-based XP
   awards, a rule version, and level thresholds.
 - `mastery.json`: eight opening tracks, split by player color.
 - `feats.json`: eight one-time ideas, a legacy source for scraps.
@@ -36,20 +36,26 @@ Paths below are relative to `data/achievements/`.
 | `badges/domination/work-life-balance.yml`: `badge_won_weekday`, `badge_won_weekend` (2) | Calendar classification plus win | Same calendar decisions |
 | `badges/domination/phasewise.yml`: `badge_won_opening`, `badge_won_middlegame`, `badge_won_endgame` (3) | Phase at game end plus win | Define phase from position/opening knowledge rather than inheriting prototype move-count heuristics |
 | `badges/domination/chessdom.yml`: `badge_time_advantage`, `badge_time_scramble` (2) | Per-ply clocks and increments plus win | Comparison sampling, equality, missing clocks, scramble threshold/duration |
-| `badges/meta.yml`: `badge_upset`, `hold_your_own` (2) | Player/opponent pregame ratings and result; +100 win / +150 draw thresholds | Provisional or missing ratings; ratings stay platform-specific |
-| `badges/position.yml`: `badge_material_total` (1) | Gross captured points from actual legal moves | Implemented; see the active badge rules below |
-| Same: `badge_en_passant`, `badge_promotion`, `badge_total_checks` (3) | Actual move events from legal board transitions | Implemented without quality gates; all promotion choices count |
-| Same: `badge_opposite_side_casteling` (1; preserve existing ID) | Track both castling directions plus win | No need to rename stable ID just to correct spelling |
-| Same: `badge_fianchetto_total` (1) | Bishop development pattern | A genuine fianchetto versus repeatedly moving onto b2/g2/b7/g7 |
-| `badges/hybrid.yml`: `badge_clean_pawns`, `badge_clean_knight`, `badge_clean_bishop`, `badge_clean_rook`, `badge_clean_queen` (5) | Net material gain over a tactical sequence, quality gate, subsequent survival | Define five turns, exchanges/recaptures, compensation, early game end, and credit per sequence |
-| `badges/evaluation.yml`: `badge_draw_lost_threefold`, `badge_draw_lost_agreement`, `badge_draw_lost_50move`, `badge_draw_lost_insufficient` (4) | Evaluation history plus actual termination reason and relevant board history | Define lost threshold/duration; claimable versus actual draw reason; source data availability |
-| Same: `badge_comeback_1_5_late`, `badge_comeback_2_0_fast`, `badge_comeback_3_0_mid`, `badge_comeback_endgame_2_0` (4) | Phase boundaries, evaluation trajectory, result, elapsed moves | Point-in-time versus sustained deficit; start of 20-move window; draw-or-win endgame exception |
-| Same: `badge_perfect_eval`, `badge_no_blunders`, `badge_no_mistakes_blunders` (3) | Consistent evaluation perspective; quality classification across player moves; win | Sampling and quality thresholds; exact asymmetric White/Black limits in perfect-eval description |
-| Same: `badge_punish_mistakes`, `badge_punish_blunders` (2) | Opponent quality loss followed by player exploitation | How much advantage must be retained, response window, credit per error |
+| `badges/resilience/against-the-odds.yml`: `badge_upset`, `hold_your_own` (2) | Player/opponent pregame ratings and result; +100 win / +150 draw thresholds | Implemented; use same-game pre-game ratings and skip missing or provisional evidence |
+| `badges/material/captures.yml`: `badge_material_total` (1) | Gross captured points from actual legal moves | Implemented; see the active badge rules below |
+| `badges/variety/special-moves.yml`: `badge_en_passant` (1) | Actual en passant captures | Implemented without a quality gate |
+| `badges/material/promotions.yml`: `badge_promotion` (1) | Actual promotions | Implemented; all promotion choices count |
+| `badges/skill/king-pressure.yml`: `badge_total_checks` (1) | Actual checks | Implemented; includes checkmate and counts double check once |
+| `badges/skill/castling.yml`: `badge_opposite_side_casteling` (1; preserve existing ID) | Track both castling directions plus win | No need to rename stable ID just to correct spelling |
+| `badges/skill/development.yml`: `badge_fianchetto_total` (1) | Bishop development pattern | A genuine fianchetto versus repeatedly moving onto b2/g2/b7/g7 |
+| `badges/material/clean-gains.yml`: `badge_clean_pawns`, `badge_clean_knight`, `badge_clean_bishop`, `badge_clean_rook`, `badge_clean_queen` (5) | Net material gain over a tactical sequence, quality gate, subsequent survival | Define five turns, exchanges/recaptures, compensation, early game end, and credit per sequence |
+| `badges/resilience/great-escapes.yml`: `badge_draw_lost_threefold`, `badge_draw_lost_agreement`, `badge_draw_lost_50move`, `badge_draw_lost_insufficient` (4) | Evaluation history plus actual termination reason and relevant board history | Define lost threshold/duration; claimable versus actual draw reason; source data availability |
+| `badges/resilience/comebacks.yml`: `badge_comeback_1_5_late`, `badge_comeback_2_0_fast`, `badge_comeback_3_0_mid`, `badge_comeback_endgame_2_0` (4) | Phase boundaries, evaluation trajectory, result, elapsed moves | Point-in-time versus sustained deficit; start of 20-move window; draw-or-win endgame exception |
+| `badges/skill/precision.yml`: `badge_perfect_eval`, `badge_no_blunders`, `badge_no_mistakes_blunders` (3) | Consistent evaluation perspective; quality classification across player moves; win | Sampling and quality thresholds; exact asymmetric White/Black limits in perfect-eval description |
+| `badges/domination/punishment.yml`: `badge_punish_mistakes`, `badge_punish_blunders` (2) | Opponent quality loss followed by player exploitation | How much advantage must be retained, response window, credit per error |
 
 Total: 61 definitions. Braces in the table abbreviate explicit IDs, not a new rule
 syntax. Calendar/speed concepts should be shared across badges rather than
-implemented separately for each content file.
+implemented separately for each content file. Every YAML achievement now has
+a category/subcategory path matching its metadata. Detector inputs such as
+metadata, positions, or engine evaluations are not content categories. Existing
+JSON catalogs remain design references. The two rating badges have completed
+names and base/tier flavor; the remaining unnamed drafts are still inactive.
 
 ## Mastery, story, and scraps
 
@@ -58,7 +64,7 @@ Tactical tracks use the [mastery progression rules](../mechanics/achievement-fam
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
-| Knight fork (`masteries/knight-forks.yml`) | Material-threat checks, Stockfish quality-based XP, levels, saved replay contributions | Tune the prototype values; longer tactical sequences, other forking pieces, and repeated motifs |
+| Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, levels, saved replay contributions | Tune the prototype values; longer tactical sequences, other forking pieces, and repeated motifs |
 | Skewer, discovery (same) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (same) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (same) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |
@@ -101,7 +107,7 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
-The local collection loop includes thirteen authored badges and exact-SAN real/virtual
+The local collection loop includes fifteen authored badges and exact-SAN real/virtual
 mating scraps. The [active badge rules](../../docs/reference/browser-proof.md#active-board-event-badges)
 define wins, checks, promotions, gross captured material, played games, moves, and
 en passant. Authored YAML thresholds and flavor are unchanged. These factual
@@ -118,6 +124,14 @@ game length beyond current eligibility. Imported games use API clock settings;
 platform labels and PGN event names do not select the badge. Missing or unsupported
 clock controls do not earn a speed badge. StarCraft III and Adderall respect their
 hidden flags until their first collected unlocks.
+
+The [rating badges](../../docs/reference/browser-proof.md#rating-badges) use
+pre-game ratings and actual results. Both now belong to Resilience / Against the
+Odds, with stable IDs, original tier thresholds, and complete base/tier flavor.
+New imports retain API rating evidence and provisional flags; guest test PGNs
+provide rating tags. Older imports recover the original rating evidence from
+their already-saved platform payloads. No current-profile lookup or
+cross-platform comparison is used.
 
 The loop supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery
@@ -146,7 +160,7 @@ This bounded test is conservative and does not resolve longer tactics away from
 that square. The [browser reference](../../docs/reference/browser-proof.md#knight-fork-mastery)
 describes its award and evidence behavior.
 
-The related clean-material descriptions in `badges/hybrid.yml` require neither
+The related clean-material descriptions in `badges/material/clean-gains.yml` require neither
 a mistake nor a blunder, without numerical thresholds. The knight-fork YAML now
 supplies explicit prototype quality bands and XP awards; these are tuning rules,
 not claims about standard mistake categories. Mate outcomes are compared separately

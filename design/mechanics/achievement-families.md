@@ -16,6 +16,17 @@ authored separately under [data/achievements/](../../data/achievements/).
 - Existing JSON feat/mastery/story content is reference material to preserve,
   not proof that its older naming or rules are final.
 
+## Content organization
+
+Executable YAML content belongs in a family/category/subcategory path. Categories
+describe the player's accomplishment, rather than its detector input. For example,
+rating-based wins and draws belong to Resilience / Against the Odds, while gross
+captures and clean material gains belong to separate Material subcategories.
+The [YAML checks](../../docs/how-to/run-checks.md#yaml-content) enforce matching
+paths and metadata. Keep IDs stable through moves and category corrections.
+Unimplemented drafts remain drafts after being classified; filing them does not
+activate their mechanics or require completing their writing in the same change.
+
 ## Mastery progression
 
 Tactics such as forks, skewers, and discoveries belong to mastery tracks. A
@@ -30,7 +41,7 @@ forks, use the intended qualification in the
 leaves quality-dependent awards pending; it does not imply good or bad play.
 
 The first implemented track is knight forks. Its prototype quality awards and
-level thresholds live in the [mastery YAML](../../data/achievements/masteries/knight-forks.yml).
+level thresholds live in the [mastery YAML](../../data/achievements/masteries/tactics/forks.yml).
 Values should appear irregular like the authored badge thresholds while keeping
 a sensible progression: precise moves earn more experience, and later levels
 require progressively more experience. Awards are deterministic for the same

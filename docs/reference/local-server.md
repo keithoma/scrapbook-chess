@@ -76,6 +76,9 @@ require a mock session. Uploads are bounded and analysis evidence is validated
 against the imported PGN. Reward calculation reuses the existing
 [collection rules](../../web/src/achievements/collection.ts), including frozen
 mastery and virtual-scrap evidence. The server build loads the same authored YAML.
+Imported pre-game ratings and provisional flags are retained with each game and
+used for the [rating badges](browser-proof.md#rating-badges). The server ignores
+client-supplied balances, player colors, and rating overrides.
 
 ## Platform behavior and limits
 

@@ -24,7 +24,7 @@ This reference describes the local browser app. See the
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
 | Legal material-threat verification | [fork-material.ts](../../web/src/tactics/fork-material.ts) |
-| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/knight-forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
+| Fork mastery quality awards and levels | [mastery YAML](../../data/achievements/masteries/tactics/forks.yml) and [mastery.ts](../../web/src/achievements/mastery.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -84,6 +84,32 @@ badges remain inactive; their quality and survival requirements do not apply to
 Anti-antichess. Its queen-trade flavor text remains a joke, not a capture rule.
 Promotion Master retains its separate bronze/silver/gold tiers, starting at ten
 promotions.
+
+### Rating badges
+
+Both badges in [Resilience / Against the Odds](../../data/achievements/badges/resilience/against-the-odds.yml)
+use the selected player's actual result and the ratings recorded before that
+game. They need no Stockfish analysis and contribute once at the final actual ply.
+
+| Badge | Qualifying result |
+| --- | --- |
+| Elo Is a Social Construct (`badge_upset`) | Win against an opponent rated at least 100 points higher. |
+| Agree to Disagree (`hold_your_own`) | Draw against an opponent rated at least 150 points higher. |
+
+Gaps are inclusive and compare the two players in the same game and platform.
+Current profile ratings, rating changes after the game, and engine continuations
+do not determine these awards. Missing, invalid, or explicitly provisional ratings
+on either side give no rating-badge progress; other rewards remain collectible.
+A board-proven mate takes precedence over a contradictory PGN result.
+
+New profile imports preserve both ratings and explicit provisional flags from
+the platform payload. Those values override conflicting PGN rating tags. Older
+imports recover this evidence from their already-saved platform payload, including
+missing or provisional ratings, without looking up current ratings. Guest
+uploads use `WhiteElo` and `BlackElo`; a trailing `?` marks a provisional rating.
+Unknown values are never treated as zero. Collected records retain the rating
+evidence alongside the PGN. Recollect an older game to add its qualifying award
+without duplicating progress.
 
 ### Mileage and time controls
 
