@@ -30,15 +30,15 @@ Paths below are relative to `data/achievements/`.
 | --- | --- | --- |
 | `badges/veterancy/mileage.yml`: `badge_played_total`; `badge_played_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Eligible completed game; normalized speed | Exact speed boundaries and increments; minimum game length |
 | `badges/domination/body_count.yml`: `badge_won_total`; `badge_won_{ultrabullet,hyperbullet,bullet,blitz,rapid,classical}` (7) | Same, plus player-relative win | Same speed mapping |
-| `badges/veterancy/consolation_prize.yml`: `badge_moves_played` (1) | One contribution per actual player move | Description says one move; tiers start at 100; confirm cumulative intent |
+| `badges/veterancy/consolation_prize.yml`: `badge_moves_played` (1) | One contribution per actual player move | Implemented cumulatively with the authored thresholds |
 | `badges/veterancy/dailyscape.yml`: `badge_played_{monday,tuesday,wednesday,thursday,friday,saturday,sunday}` (7) | Calendar classification of eligible game | Start or end timestamp; profile timezone and later timezone changes |
 | `badges/veterancy/chronotype.yml`: `badge_played_time_{00_04,04_08,08_12,12_16,16_20,20_24}` (6) | Six four-hour local-time blocks | Same timestamp/timezone decisions |
 | `badges/domination/work-life_balance.yml`: `badge_won_weekday`, `badge_won_weekend` (2) | Calendar classification plus win | Same calendar decisions |
 | `badges/domination/phasewise.yml`: `badge_won_opening`, `badge_won_middlegame`, `badge_won_endgame` (3) | Phase at game end plus win | Define phase from position/opening knowledge rather than inheriting prototype move-count heuristics |
 | `badges/domination/chessdom.yml`: `badge_time_advantage`, `badge_time_scramble` (2) | Per-ply clocks and increments plus win | Comparison sampling, equality, missing clocks, scramble threshold/duration |
 | `badges_meta.yml`: `badge_upset`, `hold_your_own` (2) | Player/opponent pregame ratings and result; +100 win / +150 draw thresholds | Provisional or missing ratings; ratings stay platform-specific |
-| `badges_position.yml`: `badge_material_total` (1) | Actual captures and captured piece values | En passant, promotion values, and whether trades simply count as captures |
-| Same: `badge_en_passant`, `badge_promotion`, `badge_total_checks` (3) | Actual move events from legal board transitions | All promotions versus separate underpromotion content; quality gates if any |
+| `badges_position.yml`: `badge_material_total` (1) | Gross captured points from actual legal moves | Implemented; see the active badge rules below |
+| Same: `badge_en_passant`, `badge_promotion`, `badge_total_checks` (3) | Actual move events from legal board transitions | Implemented without quality gates; all promotion choices count |
 | Same: `badge_opposite_side_casteling` (1; preserve existing ID) | Track both castling directions plus win | No need to rename stable ID just to correct spelling |
 | Same: `badge_fianchetto_total` (1) | Bishop development pattern | A genuine fianchetto versus repeatedly moving onto b2/g2/b7/g7 |
 | `badges_hybrid.yml`: `badge_clean_pawns`, `badge_clean_knight`, `badge_clean_bishop`, `badge_clean_rook`, `badge_clean_queen` (5) | Net material gain over a tactical sequence, quality gate, subsequent survival | Define five turns, exchanges/recaptures, compensation, early game end, and credit per sequence |
@@ -101,8 +101,17 @@ Browser proof status: implemented and tested in desktop Chrome and mobile Chrome
 emulation. See [the verification record](../../docs/qa/browser-proof.md). Physical-phone checks
 and engine packaging for hosted delivery remain open.
 
-The first local collection loop now includes Obsession, Effort, The French Move,
-and exact-SAN real/virtual mating scraps. It supports per-game color selection,
+The local collection loop includes seven authored badges and exact-SAN real/virtual
+mating scraps. The [active badge rules](../../docs/reference/browser-proof.md#active-board-event-badges)
+define wins, checks, promotions, gross captured material, played games, moves, and
+en passant. Authored YAML thresholds and flavor are unchanged. These factual
+badges have no engine quality gate; clean-material badges remain separate future
+content. Engine continuations contribute only to virtual scraps. Existing games
+gain newly activated badges on explicit recollection, preserving collected XP and
+virtual discoveries for the same color without duplicating progress. General
+recalculation policy for future rule changes remains open.
+
+The loop supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery
 adds quality-based XP and levels. Other tactical tracks, opening XP, narrative
 progression, and hosted authentication remain future work. Local mock profiles,

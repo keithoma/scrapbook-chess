@@ -148,6 +148,37 @@ test('unfinished games cannot be collected', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Collect rewards', exact: true })).toBeDisabled();
 });
 
+test('board badges replay at the played move, persist, and correct with the selected color', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'ready');
+  await load(page, '[SetUp "1"]\n[FEN "1r5k/P7/8/8/8/8/8/7K w - - 0 1"]\n\n1. axb8=R+ Kg7 1/2-1/2');
+  await collect(page, 'white');
+  await page.getByRole('button', { name: 'First position', exact: true }).click();
+  for (const id of ['badge_won_total', 'badge_total_checks', 'badge_material_total', 'badge_promotion']) {
+    await expect(page.getByTestId(`replay-${id}`)).toHaveText('0');
+  }
+  await page.getByRole('button', { name: 'Next move', exact: true }).click();
+  await expect(page.getByTestId('replay-badge_won_total')).toHaveText('0');
+  await expect(page.getByTestId('replay-badge_total_checks')).toHaveText('1');
+  await expect(page.getByTestId('replay-badge_material_total')).toHaveText('5');
+  await expect(page.getByTestId('replay-badge_promotion')).toHaveText('1');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_promotion')).toHaveText('1 / 10');
+  await expect(page.getByTestId('total-badge_material_total')).toHaveText('5 / 69');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('1 / 2');
+  await expect(page.getByTestId('total-badge_won_total')).toHaveText('0 / 1');
+  await page.reload();
+  await expect(page.getByTestId('total-badge_promotion')).toHaveText('1 / 10');
+  await page.getByRole('link', { name: 'Notebook', exact: true }).click();
+  await collect(page, 'white');
+  await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
+  await collect(page, 'black');
+  await collection(page);
+  await expect(page.getByTestId('total-badge_promotion')).toHaveText('0 / 10');
+  await expect(page.getByTestId('total-badge_material_total')).toHaveText('0 / 69');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('0 / 1');
+});
+
 test('two tabs collecting the same game commit one set of contributions', async ({ page, context }) => {
   const second = await context.newPage();
   await Promise.all([page.goto('/'), second.goto('/')]);
@@ -174,6 +205,9 @@ test('the supplied Black game collects actual moves and a separate virtual Qxf1 
   await collection(page);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('26 / 100');
+  await expect(page.getByTestId('total-badge_won_total')).toHaveText('1 / 7');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 3');
+  await expect(page.getByTestId('total-badge_material_total')).toHaveText('11 / 69');
   await expect(page.locator('.scrap-card')).toHaveCount(0);
   await page.getByRole('link', { name: 'Notebook', exact: true }).click();
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
@@ -183,6 +217,8 @@ test('the supplied Black game collects actual moves and a separate virtual Qxf1 
   await collection(page);
   await expect(page.getByTestId('total-badge_played_total')).toHaveText('1 / 16');
   await expect(page.getByTestId('total-badge_moves_played')).toHaveText('26 / 100');
+  await expect(page.getByTestId('total-badge_total_checks')).toHaveText('2 / 3');
+  await expect(page.getByTestId('total-badge_material_total')).toHaveText('11 / 69');
   const scrap = page.getByTestId('scrap-Qxf1#');
   await expect(scrap.locator('summary')).toContainText('Virtual');
   await scrap.locator('summary').click();

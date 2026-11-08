@@ -79,6 +79,9 @@ Load a completed game PGN and choose your side using **I played as**. You can
 decide after seeing which color you played; no color is assumed for the next
 game. Select **Collect rewards**, then open **Collection** to see badges and
 mating scraps. Basic badges and actual checkmates do not require Stockfish.
+The [badge reference](../reference/browser-proof.md#active-board-event-badges)
+explains which game events count. If you saved games before a badge was activated,
+open each game and collect again to add its new contributions without duplicates.
 
 The mate example above has an unfinished result, so it demonstrates analysis
 without being collectible. Use a completed PGN for collection. The local stage

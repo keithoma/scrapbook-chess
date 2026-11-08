@@ -33,7 +33,8 @@ describe('local contribution extraction', () => {
     expect(game.moves.at(-1)?.san).toBe('Qe1+');
     expect(game.frames.at(-1)?.checkmate).toBe(false);
     const rewards = projectCollection([grant(game, 'black')]);
-    expect(rewards.totals).toEqual({ badge_played_total: 1, badge_moves_played: 26, badge_en_passant: 0 });
+    expect(rewards.totals).toEqual({ badge_played_total: 1, badge_won_total: 1, badge_moves_played: 26,
+      badge_total_checks: 2, badge_material_total: 11, badge_promotion: 0, badge_en_passant: 0 });
     expect(rewards.scraps).toEqual([]);
   });
   it('uses exact legal SAN, including file disambiguation, captures, and promotions', () => {
@@ -50,8 +51,10 @@ describe('local contribution extraction', () => {
   });
   it('counts only the selected side’s moves and en passant, including drawn games', () => {
     const game = parseGame('1. e4 a6 2. e5 d5 3. exd6 1/2-1/2');
-    expect(projectCollection([grant(game, 'white')]).totals).toEqual({ badge_played_total: 1, badge_moves_played: 3, badge_en_passant: 1 });
-    expect(projectCollection([grant(game, 'black')]).totals).toEqual({ badge_played_total: 1, badge_moves_played: 2, badge_en_passant: 0 });
+    expect(projectCollection([grant(game, 'white')]).totals).toEqual({ badge_played_total: 1, badge_won_total: 0,
+      badge_moves_played: 3, badge_total_checks: 0, badge_material_total: 1, badge_promotion: 0, badge_en_passant: 1 });
+    expect(projectCollection([grant(game, 'black')]).totals).toEqual({ badge_played_total: 1, badge_won_total: 0,
+      badge_moves_played: 2, badge_total_checks: 0, badge_material_total: 0, badge_promotion: 0, badge_en_passant: 0 });
     expect(contributions(game, 'white').find(e => e.kind === 'badge' && e.badgeId === 'badge_en_passant')?.ply).toBe(5);
   });
   it('rejects unfinished games while accepting board-proven mate with an unknown result', () => {
@@ -93,6 +96,19 @@ describe('scrap collection and tier progression', () => {
     checkpoint.virtual[0].san = 'Rab2#';
     expect(virtualMate(game, checkpoint)).toBeUndefined();
     expect(virtualMate(game, { ...checkpoint, pgn: 'different' })).toBeUndefined();
+  });
+  it('never gives board-event badge progress for a virtual checkmate or capture', () => {
+    const game = parseGame('[SetUp "1"]\n[FEN "8/8/8/8/8/1NK5/Rp5R/2k5 b - - 0 1"]\n\n1... Kb1 1-0');
+    const checkpoint = simulated(game, ['a2b2']);
+    expect(virtualMate(game, checkpoint)?.notation).toBe('Raxb2#');
+    for (const color of ['white', 'black'] as const) {
+      const actual = contributions(game, color).filter(event => event.kind === 'badge');
+      expect(contributions(game, color, checkpoint).filter(event => event.kind === 'badge')).toEqual(actual);
+    }
+    // The engine can find a win even when the PGN declares a different result.
+    const lost = parseGame(MATE_PGN.replaceAll('*', '1-0'));
+    const line = simulated(lost, ['d8h4']);
+    expect(projectCollection([grant(lost, 'black', line)]).totals).toMatchObject({ badge_won_total: 0, badge_total_checks: 0 });
   });
   it('loads authored thresholds and awards every crossed tier without rewriting them', () => {
     const obsession = BADGES.find(b => b.id === 'badge_played_total')!;

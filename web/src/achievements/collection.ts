@@ -2,10 +2,10 @@ import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
-import type { Color } from 'chessops/types';
+import type { Color, Role } from 'chessops/types';
 import type { ReplayGame } from '../game';
 import type { Checkpoint, VirtualMove } from '../storage';
-import { BADGES, type BadgeId } from './catalog';
+import { BADGES, BADGE_IDS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
 
 export type Contribution =
@@ -64,12 +64,17 @@ export function virtualMate(game: ReplayGame, checkpoint?: Checkpoint): { notati
 export function contributions(game: ReplayGame, color: Color, checkpoint?: Checkpoint): Contribution[] {
   if (!isCompletedGame(game)) throw new Error('Only completed games can be collected.');
   const events: Contribution[] = [{ kind: 'badge', badgeId: 'badge_played_total', amount: 1, ply: game.moves.length }];
+  const last = game.moves.at(-1)!;
+  const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
+  if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });
   for (const move of game.moves) {
     if (move.color !== color) continue;
     events.push({ kind: 'badge', badgeId: 'badge_moves_played', amount: 1, ply: move.ply });
     if (move.enPassant) events.push({ kind: 'badge', badgeId: 'badge_en_passant', amount: 1, ply: move.ply });
+    if (move.check) events.push({ kind: 'badge', badgeId: 'badge_total_checks', amount: 1, ply: move.ply });
+    if (move.promotion) events.push({ kind: 'badge', badgeId: 'badge_promotion', amount: 1, ply: move.ply });
+    if (move.captured) events.push({ kind: 'badge', badgeId: 'badge_material_total', amount: MATERIAL_POINTS[move.captured], ply: move.ply });
   }
-  const last = game.moves.at(-1)!;
   if (game.frames.at(-1)!.checkmate && last.color === color) {
     events.push({ kind: 'scrap', mode: 'real', notation: last.san, ply: last.ply });
   } else {
@@ -78,6 +83,10 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   }
   return [...events, ...masteryContributions(game, color, checkpoint)];
 }
+
+// Gross captured points, not net advantage. Capture quality and material kept
+// for later turns belong to the separate, still-inactive clean-material badges.
+const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
 
 // Keep already collected XP and evidence stable through cache eviction, partial
 // analysis, and tuning changes. Correcting the game's color replaces its awards.
@@ -101,7 +110,7 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
 }
 
 export function projectCollection(games: GameGrant[]) {
-  const totals: Record<BadgeId, number> = { badge_played_total: 0, badge_moves_played: 0, badge_en_passant: 0 };
+  const totals = Object.fromEntries(BADGE_IDS.map(id => [id, 0])) as Record<BadgeId, number>;
   const scraps = new Map<string, Scrap>();
   let masteryXp = 0;
   for (const game of games) for (const event of game.events) {
