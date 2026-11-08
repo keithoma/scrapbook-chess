@@ -4,7 +4,7 @@ import { makeFen } from 'chessops/fen';
 import { makeUci } from 'chessops/util';
 import { kingCastlesTo } from 'chessops/util';
 import { castlingSide } from 'chessops/chess';
-import type { Color, Role } from 'chessops/types';
+import type { CastlingSide, Color, Role } from 'chessops/types';
 import { pgnRating, type GameRatings } from '../../shared/ratings';
 
 export interface Frame {
@@ -22,6 +22,7 @@ export interface PlayedMove {
   captured?: Role;
   promotion?: Role;
   check: boolean;
+  castling?: CastlingSide;
 }
 export interface ReplayGame {
   pgn: string;
@@ -67,7 +68,7 @@ export function parseGame(pgn: string): ReplayGame {
     const castle = castlingSide(pos, move);
     const uci = castle && 'from' in move ? makeUci({ ...move, to: kingCastlesTo(color, castle) }) : makeUci(move);
     const san = makeSanAndPlay(pos, move);
-    moves.push({ ply: moves.length + 1, san, uci, color, enPassant, captured, promotion, check: pos.isCheck() });
+    moves.push({ ply: moves.length + 1, san, uci, color, enPassant, captured, promotion, check: pos.isCheck(), castling: castle });
     snapshot();
   }
   if (!moves.length) throw new Error('No playable moves found in that PGN.');

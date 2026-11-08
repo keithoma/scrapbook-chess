@@ -9,8 +9,9 @@
   category: 'Skill'
   subcategory: 'Castling'
   name: 'Mirror Dimension'
-  description: 'Games won in games where opposite side castling occurred.'
-  flavor_text: ''
+  description: 'Win a game in which the players castled on opposite sides.'
+  flavor:
+    text: 'We agreed to see other files.'
   config:
     metric_key: 'opposite_castling_wins'
     required_value: true
@@ -18,32 +19,40 @@
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: 'Separate bedrooms. Shared custody of the center.'
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          player_quote: 'Your king is over there? Mine specifically asked not to be.'
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: 'Both kings moved to quieter neighborhoods. Then the pawns arrived.'
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: 'A pawn storm is just a very committed housewarming party.'
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          player_quote: 'My defensive strategy is making your side of the board more urgent.'
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: 'Your insurance no longer covers opposite-side castling.'
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: 'The kings now communicate exclusively through demolition notices.'
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: 'Congratulations. You have made the entire board a bad place to live.'

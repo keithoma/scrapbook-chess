@@ -7,10 +7,12 @@ import promotions from '../../../data/achievements/badges/material/promotions.ym
 import checks from '../../../data/achievements/badges/skill/king-pressure.yml?raw';
 import odds from '../../../data/achievements/badges/resilience/against-the-odds.yml?raw';
 import victories from '../../../data/achievements/badges/domination/body-count.yml?raw';
+import castling from '../../../data/achievements/badges/skill/castling.yml?raw';
 
 export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
   'badge_material_total', 'badge_promotion', 'badge_en_passant', 'badge_played_ultrabullet', 'badge_played_hyperbullet',
-  'badge_played_bullet', 'badge_played_blitz', 'badge_played_rapid', 'badge_played_classical', 'badge_upset', 'hold_your_own'] as const;
+  'badge_played_bullet', 'badge_played_blitz', 'badge_played_rapid', 'badge_played_classical', 'badge_upset', 'hold_your_own',
+  'badge_opposite_side_casteling'] as const;
 export type BadgeId = typeof BADGE_IDS[number];
 export interface Flavor { text?: string; quote?: string; player_quote?: string; author?: string }
 export interface Tier { name: string; amount: number; flavor?: Flavor; flavor_text?: string }
@@ -25,7 +27,7 @@ export interface Badge {
   config: { tiers: Tier[]; is_hidden?: boolean; required_value?: number | string | boolean | null };
 }
 
-const raw: Badge[] = [mileage, victories, consolation, captures, specialMoves, promotions, checks, odds].flatMap(source => parse(source));
+const raw: Badge[] = [mileage, victories, consolation, captures, specialMoves, promotions, checks, odds, castling].flatMap(source => parse(source));
 export const BADGES = BADGE_IDS.map(id => {
   const matches = raw.filter(badge => badge.id === id);
   if (matches.length !== 1) throw new Error(`Expected exactly one definition for ${id}.`);
