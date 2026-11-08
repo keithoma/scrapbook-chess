@@ -1,4 +1,8 @@
 
+# Quote ideas
+
+These are writing references for the game designer.
+
 "Everyone complains about their memory, but no one complains about their judgment."
 "Is it progress if a cannibal uses a fork?"
 

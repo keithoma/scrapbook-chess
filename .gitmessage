@@ -1,0 +1,10 @@
+type(scope): short description
+
+# Replace the subject above. The scope is optional.
+# Explain what changed and why here, if the subject is not sufficient.
+# Separate the body and footers with blank lines.
+#
+# Optional footers:
+# BREAKING CHANGE: describe an incompatible change
+# Refs: #123
+# Closes: #123

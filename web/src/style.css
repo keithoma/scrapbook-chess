@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+}
+
+:root { font-family: var(--font-sans); color: #292e28; background: #f5f0e6; font-synthesis: none; }
+body { margin: 0; background-image: radial-gradient(#958d7b18 .7px, transparent .7px); background-size: 6px 6px; }
+h1, h2, .brand { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+h1 em { color: #47664f; }
+button, input, textarea, a { -webkit-tap-highlight-color: transparent; }
+button, summary { touch-action: manipulation; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .55; }
+button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #bb6a35; outline-offset: 3px; }
+.brand { font-size: clamp(1.5rem, 4vw, 2rem); text-decoration: none; color: inherit; }
+.brand span { color: #b26a40; }
+.label { font-size: .65rem; font-weight: 650; letter-spacing: .14em; }
+.note-card { padding: 1.5rem; border: 1px solid #d9d3c6; border-radius: 1rem; background: #fcfaf4; box-shadow: 0 3px 0 #ded7c655; }
+.board-frame { padding: 9px; background: #fdfbf5; border: 1px solid #d7ceba; border-radius: 6px; box-shadow: 0 8px 20px #50442c15; }
+.board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; overflow: hidden; border-radius: 2px; }
+.square { display: flex; align-items: center; justify-content: center; position: relative; aspect-ratio: 1; min-width: 0; }
+.square.light { background: #e9e4d4; }
+.square.dark { background: #7e9176; }
+.piece { font-family: "DejaVu Sans", "Segoe UI Symbol", "Apple Symbols", serif; font-size: clamp(1.5rem, 6.7vw, 3.4rem); line-height: 1; z-index: 1; }
+.piece.white { color: #fffcf2; -webkit-text-stroke: 1px #3f493b; text-shadow: 0 2px 1px #27332240; }
+.piece.black { color: #26342c; text-shadow: 0 1px 0 #fff7; }
+.rank, .file { position: absolute; font-family: var(--font-sans); font-size: .6rem; font-weight: 600; opacity: .75; }
+.rank { left: 3px; top: 2px; }
+.file { right: 3px; bottom: 1px; }
+.dark .rank, .dark .file { color: #f5f0e6; }
+.primary-button { border-radius: .6rem; background: #35573e; color: #fcfaf4; padding: .9rem 1rem; font-size: .9rem; font-weight: 600; min-height: 48px; }
+.primary-button:hover:enabled { background: #24452e; }
+.secondary-button { padding: .65rem .8rem; border: 1px solid #ccc5b7; border-radius: .5rem; font-size: .75rem; min-height: 44px; }
+.secondary-button:hover:enabled { background: #e9e5d9; }
+.text-button { font-size: .75rem; color: #35573e; text-decoration: underline; text-underline-offset: 4px; min-height: 36px; }
+.nav-button { width: 44px; height: 44px; border: 1px solid #d3cbbb; border-radius: .5rem; font-size: 1.2rem; background: #fcfaf4; }
+.nav-button:hover { background: #e8ede3; }
+.move-button { min-height: 40px; padding: .45rem .6rem; font-size: .85rem; border-radius: .3rem; }
+.move-button:hover { background: #e9e4d6; }
+.move-button.selected { background: #35573e; color: #fff; }
+.move-button.selected span { color: #d5e4d0; }
+.metric { display: block; font-family: Georgia, serif; font-size: 1.5rem; font-weight: 400; }
+.metric-label { display: block; margin-top: .25rem; font-size: .65rem; color: #77756b; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #76936c; }
+.status-dot.working { animation: pulse 1.5s ease-in-out infinite; }
+progress { appearance: none; border: 0; border-radius: 3px; background: #e6e1d5; overflow: hidden; }
+progress::-webkit-progress-bar { background: #e6e1d5; }
+progress::-webkit-progress-value { background: #6b8c64; transition: width .2s; }
+progress::-moz-progress-bar { background: #6b8c64; }
+footer a { text-decoration: underline; text-underline-offset: 3px; }
+@keyframes pulse { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@media (min-width: 1024px) { .piece { font-size: 3rem; } }
+@media (max-width: 380px) { .note-card { padding: 1rem; } .piece { font-size: 1.5rem; } }
