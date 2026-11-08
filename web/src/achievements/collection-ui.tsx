@@ -7,7 +7,8 @@ import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { BADGES, progressFor, type Flavor } from './catalog';
 import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, retainCollectedEvidence, type GameGrant } from './collection';
 import { collectGame, readCollection, subscribeCollection } from './ledger';
-import { gradeForContribution } from './mastery';
+import { MASTERIES } from './mastery';
+import { MasteryCard } from './mastery-card';
 
 export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
 export function useLocalCollection(profileId?: string, loading = false) {
@@ -96,8 +97,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
       <h3 className="font-serif text-xl">{unchanged ? t('Already in your scrapbook.') : t('A little more remarkable.')}</h3>
       {unchanged ? <p className="mt-2 text-sm">{t('No progress was counted twice.')}</p> : <>
         <p className="mt-2 text-sm">{t('Game rewards saved. Your collection is up to date.')}</p>
-        {reveal.masteryXp > 0 && <p className="mt-3 font-semibold">{t('Knight forks +{xp} XP', { xp: reveal.masteryXp })}</p>}
-        {reveal.masteryLevels.map(level => <p className="mt-2 font-serif text-xl" key={level}>{t('Knight forks reached level {level}!', { level })}</p>)}
+        {reveal.masteries.map(({definition,xp,levels})=><div key={definition.id}>{xp>0&&<p className="mt-3 font-semibold">{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp})}</p>}{levels.map(level=><p className="mt-2 font-serif text-xl" key={level}>{t('{mastery} reached level {level}!',{mastery:t(definition.name),level})}</p>)}</div>)}
         {reveal.tiers.map(({ badge, tier }) => <div className="mt-4 border-t border-amber-200 pt-3" key={`${badge.id}:${tier.name}`}>
           <p className="font-semibold">✦ {badge.name} · {tier.name}</p>
           <FlavorText flavor={tier.flavor} legacy={tier.flavor_text} />
@@ -108,10 +108,10 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     {color && eligible && <div className="mt-5 border-t border-stone-200 pt-4">
       <h3 className="label">{t('THIS GAME THROUGH THE CURRENT MOVE')}</h3>
       <ul className="mt-3 space-y-1 text-sm">{BADGES.filter(badge => !badge.config.is_hidden || progressFor(badge, totals[badge.id]).tier).map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
-      <p className="mt-2 text-sm" data-testid="replay-mastery-xp">{t('Knight forks +{xp} XP', { xp: events.reduce((sum, event) => sum + (event.kind === 'mastery' && event.ply <= ply ? event.amount : 0), 0) })}</p>
+      {MASTERIES.map(definition=><p key={definition.id} className="mt-2 text-sm" data-testid={definition.id==='mastery_knight_forks'?'replay-mastery-xp':'replay-skewer-xp'}>{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp:events.reduce((sum,event)=>sum+(event.kind==='mastery'&&event.masteryId===definition.id&&event.ply<=ply?event.amount:0),0)})}</p>)}
       <p className="label mt-4">{t('AT THIS MOMENT')}</p>
-      {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'mastery' ? t('Knight forks +{xp} XP', { xp: event.amount }) : event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}{event.kind === 'badge' && event.originPly !== undefined && <button className="text-button ml-2" onClick={() => onJump({ ply: event.originPly! })}>{t('Replay from ply {ply}', { ply: event.originPly })}</button>}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
-      <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined, virtual: event.kind === 'scrap' && event.mode === 'virtual' ? recorded?.virtual ?? checkpoint?.virtual : undefined })}>{event.kind === 'scrap' ? event.notation : event.kind === 'mastery' ? `${event.ply} · ${t('Knight forks +{xp} XP', { xp: event.amount })}` : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>
+      {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'mastery' ? t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount}) : event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}{event.kind === 'badge' && event.originPly !== undefined && <button className="text-button ml-2" onClick={() => onJump({ ply: event.originPly! })}>{t('Replay from ply {ply}', { ply: event.originPly })}</button>}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
+      <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined, virtual: event.kind === 'scrap' && event.mode === 'virtual' ? recorded?.virtual ?? checkpoint?.virtual : undefined })}>{event.kind === 'scrap' ? event.notation : event.kind === 'mastery' ? `${event.ply} · ${t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount})}` : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>
     </div>}
     {locale === 'de' && <p className="mt-3 text-xs text-stone-500">{t('Badge names and flavor text are the English originals.')}</p>}
   </section>;
@@ -134,23 +134,7 @@ export function CollectionView({ games, locale, onOpen, failed, busy, profileMod
     {failed && <p className="mt-4 text-sm text-red-800" role="alert">{t('Could not open the local collection. Reload to try again.')}</p>}
     {busy && <p className="mt-3 text-sm text-stone-600">{t('Pause analysis before opening another game.')}</p>}
     <h2 className="my-6 text-2xl">{t('Masteries')}</h2>
-    <article className="note-card" aria-label={t('Knight forks')} data-testid="fork-mastery">
-      <h3 className="font-serif text-2xl">{t('Knight forks')}</h3>
-      <p className="mt-2 text-sm">{t('Level {level}', { level: collection.mastery.level })}</p>
-      <progress className="mt-3 h-1.5 w-full" value={collection.mastery.needed === undefined ? 1 : collection.mastery.gained} max={collection.mastery.needed ?? 1} aria-label={t('Mastery level progress')} />
-      <p className="mt-2 text-sm" data-testid="mastery-total-xp">{t('{xp} XP', { xp: collection.mastery.xp })}</p>
-      <p className="mt-2 text-xs text-stone-600" data-testid="mastery-xp-requirement">{collection.mastery.next === undefined ? t('Maximum level reached') : collection.mastery.gradeLocked ? t('XP requirement met. Extra XP is saved.') : t('{remaining} XP to the next level', { remaining: collection.mastery.remainingXp })}</p>
-      <p className="mt-2 text-sm" data-testid="mastery-high-grades">{t('Forks rated S- or better: {count}', { count: collection.mastery.highGrades })}</p>
-      {collection.mastery.requiredHighGrades > 0 && <><p className="mt-2 text-sm" data-testid="mastery-grade-requirement">{t('{earned} / {required} forks rated S- or better for level {level}', { earned: Math.min(collection.mastery.availableHighGrades, collection.mastery.requiredHighGrades), required: collection.mastery.requiredHighGrades, level: collection.mastery.level + 1 })}</p><p className="mt-2 text-xs text-stone-500">{t('Each level’s grade requirement uses a separate batch of forks.')}</p></>}
-      <p className="mt-3 text-xs text-stone-500">{t('Better move quality earns more XP. Open a contribution to replay its evidence.')}</p>
-      <div className="mt-3 space-y-2">{games.flatMap(record => record.events.filter(event => event.kind === 'mastery').map(event => <details key={`${record.id}:${event.ply}`}>
-        <summary className="cursor-pointer text-sm">{labels.get(record.id)} · {t('Knight forks +{xp} XP', { xp: event.amount })}</summary>
-        <p className="mt-2 text-sm" data-testid="collected-fork-grade">{gradeForContribution(event) ? t('Fork grade: {grade}', { grade: gradeForContribution(event)! }) : t('Fork grade unavailable')}</p>
-        <p className="mt-2 text-xs">{t('Material threat: {gain} pawns after immediate replies and recaptures.', { gain: event.evidence.materialGainCp / 100 })}</p>
-        <p className="mt-2 text-xs">{t('Example defense: {reply} → {capture}', { reply: event.evidence.reply, capture: event.evidence.capture })}</p>
-        <button className="text-button mt-2" disabled={busy} onClick={() => onOpen(record.pgn, { ply: event.ply })}>{t('Replay fork')}</button>
-      </details>))}</div>
-    </article>
+    {MASTERIES.map(definition=><MasteryCard key={definition.id} definition={definition} progress={collection.masteries[definition.id]} games={games} labels={labels} locale={locale} busy={busy} onOpen={onOpen}/>)}
     <h2 className="my-6 text-2xl">{t('Badges')}</h2>
     {locale === 'de' && <p className="mb-3 text-xs text-stone-500">{t('Badge names and flavor text are the English originals.')}</p>}
     <div className="grid gap-4 md:grid-cols-3">{BADGES.map(badge => {

@@ -14,7 +14,7 @@ import type { GameRatings } from '../../../shared/ratings';
 import { lichessSpeed } from '../time-control';
 import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
-import { masteryContributions, masteryProgress, withForkGrade, gradeForContribution, isHighGrade, type MasteryContribution } from './mastery';
+import { masteryContributions, masteryProgress, withMasteryGrade, gradeForContribution, isHighGrade, MASTERIES, type MasteryId, type MasteryContribution } from './mastery';
 import { calendarContributions } from './calendar';
 import { phaseAt } from './phases';
 import { fianchettoContributions } from './fianchetto';
@@ -129,8 +129,8 @@ const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, r
 // Keep already collected XP and evidence stable through cache eviction, partial
 // analysis, and tuning changes. Correcting the game's color replaces its awards.
 export function retainMastery(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
-  const awards = new Map(events.filter((event): event is MasteryContribution => event.kind === 'mastery').map(event => [event.ply, event]));
-  if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(event.ply, withForkGrade(event));
+  const awards = new Map(events.filter((event): event is MasteryContribution => event.kind === 'mastery').map(event => [`${event.masteryId}:${event.ply}`, event]));
+  if (previous?.color === color) for (const event of previous.events) if (event.kind === 'mastery') awards.set(`${event.masteryId}:${event.ply}`, withMasteryGrade(event));
   return [...events.filter(event => event.kind !== 'mastery'), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }
 
@@ -159,23 +159,24 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
 export function projectCollection(games: GameGrant[]) {
   const totals = Object.fromEntries(BADGE_IDS.map(id => [id, 0])) as Record<BadgeId, number>;
   const scraps = new Map<string, Scrap>();
-  let masteryXp = 0;
-  let masteryHighGrades = 0;
+  const masteryTotals = Object.fromEntries(MASTERIES.map(definition => [definition.id, { xp: 0, highGrades: 0 }])) as Record<MasteryId, { xp: number; highGrades: number }>;
   for (const game of games) for (const event of game.events) {
     if (event.kind === 'badge') { totals[event.badgeId] += event.amount; continue; }
-    if (event.kind === 'mastery') { masteryXp += event.amount; if (isHighGrade(gradeForContribution(event))) masteryHighGrades++; continue; }
+    if (event.kind === 'mastery') { const total = masteryTotals[event.masteryId]; if (total) { total.xp += event.amount; if (isHighGrade(gradeForContribution(event))) total.highGrades++; } continue; }
     const scrap: Scrap = scraps.get(event.notation) ?? { notation: event.notation, mode: 'virtual', realCounts: { white: 0, black: 0 }, occurrences: [] };
     if (event.mode === 'real') { scrap.mode = 'real'; scrap.realCounts[game.color]++; }
     scrap.occurrences.push({ gameId: game.id, color: game.color, event });
     scraps.set(event.notation, scrap);
   }
-  return { totals, mastery: masteryProgress(masteryXp, masteryHighGrades), scraps: [...scraps.values()].sort((a, b) => a.notation.localeCompare(b.notation)) };
+  const masteries = Object.fromEntries(MASTERIES.map(definition => [definition.id, masteryProgress(masteryTotals[definition.id].xp, masteryTotals[definition.id].highGrades, definition)])) as Record<MasteryId, ReturnType<typeof masteryProgress>>;
+  return { totals, masteries, mastery: masteries.mastery_knight_forks, scraps: [...scraps.values()].sort((a, b) => a.notation.localeCompare(b.notation)) };
 }
 
 export function newlyUnlocked(before: GameGrant[], after: GameGrant[]) {
   const old = projectCollection(before);
   const next = projectCollection(after);
   return {
+    masteries: MASTERIES.map(definition => ({ definition, xp: next.masteries[definition.id].xp - old.masteries[definition.id].xp, levels: Array.from({ length: Math.max(0, next.masteries[definition.id].level - old.masteries[definition.id].level) }, (_, i) => old.masteries[definition.id].level + i + 1) })),
     masteryXp: next.mastery.xp - old.mastery.xp,
     masteryLevels: Array.from({ length: Math.max(0, next.mastery.level - old.mastery.level) }, (_, i) => old.mastery.level + i + 1),
     tiers: BADGES.flatMap(badge => badge.config.tiers.filter(tier => old.totals[badge.id] < tier.amount && next.totals[badge.id] >= tier.amount).map(tier => ({ badge, tier }))),

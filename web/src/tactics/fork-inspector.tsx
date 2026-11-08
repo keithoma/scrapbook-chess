@@ -25,7 +25,7 @@ export function ForkInspector({ game, saved, candidates, color, checkpoint, ply,
   const own = candidates.filter(candidate => candidate.color === color);
   const selected = virtual ? undefined : own.find(candidate => candidate.ply === ply);
   const assessment = selected && assessFork(game, selected, checkpoint);
-  const collected = saved?.find(event => event.ply === ply);
+  const collected = saved?.find(event => event.masteryId === 'mastery_knight_forks' && event.ply === ply);
   const grade = collected ? gradeForContribution(collected)
     : assessment?.status === 'qualified' ? assessment.event.grade : undefined;
   const evidence = selected && (collected?.evidence ?? forkEngineEvidence(selected, checkpoint?.pgn === game.pgn ? checkpoint.results.find(result => result.ply === ply) : undefined));

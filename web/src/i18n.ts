@@ -1,6 +1,26 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  "Skewers": "Spieße",
+  "Skewer example": "Spießbeispiel",
+  "Skewer candidates": "Spießkandidaten",
+  "Skewers rated S- or better: {count}": "Spieße mit S- oder besser: {count}",
+  "{earned} / {required} skewers rated S- or better for level {level}": "{earned} / {required} Spieße mit S- oder besser für Stufe {level}",
+  "Each level’s grade requirement uses a separate batch of skewers.": "Für die Bewertungsanforderung jeder Stufe zählt eine eigene Gruppe von Spießen.",
+  "{mastery} +{xp} XP": "{mastery} +{xp} EP",
+  "{mastery} reached level {level}!": "{mastery} auf Stufe {level}!",
+  "Tactic grade unavailable": "Taktikbewertung nicht verfügbar",
+  "Skewer grade: {grade}": "Spießbewertung: {grade}",
+  "Skewer: {attacker} → {front} → {rear}": "Spieß: {attacker} → {front} → {rear}",
+  "Replay skewer": "Spieß wiedergeben",
+  "Qualifying skewers earn quality-based XP when you collect rewards.": "Qualifizierte Spieße erhalten qualitätsabhängige EP, wenn du Belohnungen sammelst.",
+  "No skewer candidates in your played moves.": "Keine Spießkandidaten in deinen gespielten Zügen.",
+  "Jump to a skewer candidate": "Zu einem Spießkandidaten springen",
+  "The attacker is outlined in gold; the front and rear targets are outlined in orange.": "Der Angreifer ist goldfarben umrandet; vorderes und hinteres Ziel sind orange umrandet.",
+  "Qualified skewer · +{xp} XP": "Qualifizierter Spieß · +{xp} EP",
+  "Skewer XP pending: finish analysis or review unresolved material evidence.": "Spieß-EP ausstehend: Beende die Analyse oder prüfe noch ungeklärte Materialnachweise.",
+  "No mastery XP: the skewer does not prove a material gain with acceptable move quality.": "Keine Meisterschafts-EP: Der Spieß belegt keinen Materialgewinn bei ausreichender Zugqualität.",
+
   'Each level’s grade requirement uses a separate batch of forks.': 'Für die Bewertungsanforderung jeder Stufe zählt eine eigene Gruppe von Gabeln.',
   'XP requirement met. Extra XP is saved.': 'EP-Anforderung erfüllt. Weitere EP werden gespeichert.',
   'Forks rated S- or better: {count}': 'Gabeln mit S- oder besser: {count}',

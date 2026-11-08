@@ -316,3 +316,24 @@ test('both imported platforms collect an analyzed repetition recovery once and p
   }
   s.db.close();
 });
+
+test('both providers collect scoped skewer grades and keep fork balances and retries independent', async () => {
+  const white = sample('lichess', { id: 'Skew0001' });
+  white.pgn = white.pgn.replace('[White "Opponent"]', '[White "noctu2nality"]').replace('[Black "noctu2nality"]', '[Black "Opponent"]')
+    .replaceAll('0-1', '1/2-1/2').replace('\n\n', '\n[SetUp "1"]\n[FEN "8/8/8/4r3/3k4/8/8/2B4K w - - 0 1"]\n\n').replace('1. f3 e5 2. g4 Qh4#', '1. Bb2+');
+  white.players = {white:{user:{id:'noctu2nality',name:'noctu2nality'}},black:{user:{id:'opponent',name:'Opponent'}}}; white.status='draw';
+  const black = sample('chesscom', {id:'999081',name:'testchess'});
+  black.pgn = black.pgn.replace('\n\n', '\n[SetUp "1"]\n[FEN "6kr/8/8/8/Q3K3/8/8/8 b - - 0 1"]\n\n').replace('1. f3 e5 2. g4 Qh4#', '1... Rh4+');
+  const s=await setup({fetcher:upstream({lichess:[white],chesscom:[black]})});
+  await s.login();await s.request('/profile/accounts','POST',{platform:'chesscom',username:'testchess'});await s.request('/profile/check-games','POST',{});
+  const me=await(await s.request('/me')).json();assert.equal(me.games.length,2);
+  for(const game of me.games){
+    const path=`/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const checkpoint={pgn:game.pgn,version:'stockfish-19.0.1-full-single-depth6-hash32-proof-v1',virtual:[],virtualStatus:'pending',results:[{ply:1,bestMove:game.color==='white'?'c1b2':'h8h4',ms:1,best:{type:'cp',value:0},played:{type:'cp',value:0}}]};
+    const response=await s.request(path,'POST',{checkpoint,masteryId:'mastery_knight_forks',amount:99999});assert.equal(response.status,200);
+    const grant=(await response.json()).grant;const awards=grant.events.filter(e=>e.kind==='mastery');
+    assert.equal(awards.length,1);assert.equal(awards[0].masteryId,'mastery_skewers');assert.equal(awards[0].grade,'S+');assert.equal(awards[0].amount,137);
+    assert.deepEqual((await(await s.request(path,'POST',{})).json()).grant.events,grant.events);
+  }
+  s.db.close();
+});

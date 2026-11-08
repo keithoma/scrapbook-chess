@@ -1,0 +1,60 @@
+# Shared tactical mastery blueprint. Preserve saved awards when tuning.
+id: tactical-mastery-v1
+quality_awards:
+  - max_loss_cp: 7
+    xp: 137
+  - max_loss_cp: 23
+    xp: 89
+  - max_loss_cp: 61
+    xp: 53
+  - max_loss_cp: 97
+    xp: 29
+grade_bands:
+  - grade: S+
+    max_loss_cp: 0
+  - grade: S
+    max_loss_cp: 2
+  - grade: S-
+    max_loss_cp: 7
+  - grade: A+
+    max_loss_cp: 11
+  - grade: A
+    max_loss_cp: 17
+  - grade: A-
+    max_loss_cp: 23
+  - grade: B+
+    max_loss_cp: 31
+  - grade: B
+    max_loss_cp: 43
+  - grade: B-
+    max_loss_cp: 61
+  - grade: C+
+    max_loss_cp: 67
+  - grade: C
+    max_loss_cp: 73
+  - grade: C-
+    max_loss_cp: 79
+  - grade: D+
+    max_loss_cp: 85
+  - grade: D
+    max_loss_cp: 91
+  - grade: D-
+    max_loss_cp: 97
+level_thresholds:
+  - 0
+  - 173
+  - 467
+  - 941
+  - 1663
+  - 2767
+  - 4441
+  - 6971
+  - 10781
+  - 16547
+level_requirements:
+  - level: 6
+    high_grade_count: 2
+  - level: 7
+    high_grade_count: 3
+  - level: 8
+    high_grade_count: 5
