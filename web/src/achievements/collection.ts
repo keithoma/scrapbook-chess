@@ -136,10 +136,9 @@ export function retainMastery(previous: GameGrant | undefined, color: Color, eve
 
 export function retainCollectedEvidence(previous: GameGrant | undefined, color: Color, events: Contribution[]): Contribution[] {
   const stable = retainMastery(previous, color, events);
-  if (previous?.color !== color) return stable;
   const engineBadge = (event: Contribution) => event.kind === 'badge' && BADGES.find(badge => badge.id === event.badgeId)?.config.analysis_required;
   const awards = new Map(stable.filter(engineBadge).map(event => [`${event.kind === 'badge' ? event.badgeId : ''}:${event.ply}`, event]));
-  for (const event of previous.events.filter(engineBadge)) awards.set(`${event.kind === 'badge' ? event.badgeId : ''}:${event.ply}`, event);
+  if (previous?.color === color) for (const event of previous.events.filter(engineBadge)) awards.set(`${event.kind === 'badge' ? event.badgeId : ''}:${event.ply}`, event);
   return [...stable.filter(event => !engineBadge(event)), ...[...awards.values()].sort((a, b) => a.ply - b.ply)];
 }
 
