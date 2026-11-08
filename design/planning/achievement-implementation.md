@@ -54,7 +54,8 @@ implemented separately for each content file.
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
-| Fork, skewer, discovery (`design/content/achievement-ideas.md`) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
+| Fork (`design/content/achievement-ideas.md`) | Multiple attacks plus a credible threat to win material or an exchange; Stockfish quality gate | Evaluate pins, captures/recaptures, and net gain; numerical quality cutoff and repeated motifs |
+| Skewer, discovery (same) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (same) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (same) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |
 | Five onboarding story nodes (`story.json`) | Prerequisite graph plus explicit completion predicates | Existing JSON has prerequisites but lacks executable completion predicates; replace Lichess-only wording |
@@ -103,11 +104,20 @@ opening XP, narrative progression, accounts, and imports remain future work.
 
 A knight-fork inspection prototype now lists actual moved-knight candidates and
 their targets, pin/capture warnings, and available engine comparisons in replay.
-It deliberately includes geometric false positives and awards no XP. The clean
-material descriptions in `badges_hybrid.yml` require neither a mistake nor a
-blunder, but do not define a fork-specific gate or numerical quality thresholds.
-Fork qualification, target selection, and XP remain design decisions; the
-inspector does not silently adopt those related badge rules.
+It deliberately includes geometric false positives and awards no XP.
+
+The intended qualification has two independent tests: the fork must threaten to
+win net material, including an exchange, and the engine must judge the move that
+creates it good or at least not bad. Assess the threat when the move is played;
+the opponent need not actually concede material in the played continuation.
+Account for pins and captures/recaptures rather than treating every pair of
+attacked pieces as a profitable threat. A good engine evaluation alone does not
+prove the fork threatens material gain.
+
+The related clean-material descriptions in `badges_hybrid.yml` require neither
+a mistake nor a blunder. They provide no numerical quality thresholds. The exact
+fork quality cutoff, threat-validation method, and XP remain open; the current
+inspector implements neither qualification test as an award rule.
 
 1. **Browser proof:** chessops legal replay, full browser Stockfish at initial
    depth 6, explicit 20-ply continuation limit, checkpoint/resume, desktop and phone.
