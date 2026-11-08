@@ -58,41 +58,52 @@
   type: badge
   category: 'Domination'
   subcategory: 'Punishment'
-  name: ''
+  name: 'Find Out'
   description: 'Punish opponents blunders.'
-  flavor_text: ''
+  flavor:
+    text: The second half of the experiment.
   config:
     metric_key: 'opponent_blunders_punished'
     is_hidden: false
+    analysis_required: true
+    retention_chance_slack: 0.02
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: An immediate and educational consequence.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: The opponent has repeated the experiment under identical conditions.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: You are accumulating a useful body of evidence.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The hypothesis has become difficult to defend.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: Your response has been peer reviewed by the engine.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The opponent would like to retract the previous move.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The demonstration now requires protective eyewear.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Further research is unlikely to change the conclusion.
