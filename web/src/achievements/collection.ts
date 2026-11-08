@@ -11,6 +11,7 @@ import { BADGES, BADGE_IDS, RATING_GAPS, type BadgeId } from './catalog';
 import { masteryContributions, masteryProgress, type MasteryContribution } from './mastery';
 import { calendarContributions } from './calendar';
 import { phaseAt } from './phases';
+import { fianchettoContributions } from './fianchetto';
 
 export type Contribution =
   | MasteryContribution
@@ -107,7 +108,8 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
+  return [...events, ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+    ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
 // Gross captured points, not net advantage. Capture quality and material kept
