@@ -73,6 +73,8 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   const last = game.moves.at(-1)!;
   const winner = game.frames.at(-1)!.checkmate ? last.color : game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : undefined;
   if (winner === color) events.push({ kind: 'badge', badgeId: 'badge_won_total', amount: 1, ply: game.moves.length });
+  const speedWin = speed && BADGE_IDS.find(id => id === `badge_won_${speed}`);
+  if (winner === color && speedWin) events.push({ kind: 'badge', badgeId: speedWin, amount: 1, ply: game.moves.length });
   const whiteCastle = game.moves.find(move => move.color === 'white' && move.castling)?.castling;
   const blackCastle = game.moves.find(move => move.color === 'black' && move.castling)?.castling;
   if (winner === color && whiteCastle && blackCastle && whiteCastle !== blackCastle) {
