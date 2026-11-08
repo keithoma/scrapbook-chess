@@ -105,7 +105,10 @@ The first local collection loop now includes Obsession, Effort, The French Move,
 and exact-SAN real/virtual mating scraps. It supports per-game color selection,
 replay contributions, local persistence, and reward reveals. Knight-fork mastery
 adds quality-based XP and levels. Other tactical tracks, opening XP, narrative
-progression, accounts, and imports remain future work.
+progression, and hosted authentication remain future work. Local mock profiles,
+manual Lichess/chess.com imports, and SQLite-backed profile rewards are implemented.
+The [import workflow](../../docs/how-to/import-games.md) describes the local stage;
+production authentication and account ownership verification remain deferred.
 
 A knight-fork inspector lists actual moved-knight candidates and their targets,
 pin/capture warnings, engine comparisons, and qualification or pending status.
@@ -139,9 +142,10 @@ from centipawn losses. Repeated collection of the same move does not add XP agai
    with quality-based XP and levels,
    real/virtual mating scraps, move-linked evidence, collection state, and reveals.
    Verify virtual→real upgrade and real-only counts by color.
-3. **Hosted profile and imports:** selected authentication, both platform adapters,
-   signup cutoff, rated-human eligibility, normalized speeds/clocks, local account
-   override, platform history, persistent results. Verify retries and two-device
+3. **Profiles and imports:** local mock profiles, both platform adapters, cutoff
+   and eligibility filtering, account overrides, platform history, and persistent
+   results are implemented. Authentication, ownership verification, hosted delivery,
+   and speed-category badge mapping remain open. Verify retries and two-browser
    submissions cannot duplicate contributions.
 4. **Broader mechanics:** clean material sequences, evaluation/phase conditions,
    calendar/clock families, opening mastery, and one short narrative chain.

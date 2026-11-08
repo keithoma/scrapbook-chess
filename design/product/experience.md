@@ -43,6 +43,12 @@ include planned behavior, not a claim that the browser proof implements it.
   game's local contributions rather than collecting both sides of the same game.
 - Separate Scrapbook accounts are the working direction; the exact sign-in method
   and platform ownership verification are not selected.
+- Proper authentication is deferred. The local prototype uses a server-controlled
+  mock login bound to the author's configured Lichess account. Production rejects
+  the mock-login flag and does not accept its sessions.
+- For local testing, a newly created mock profile starts eight hours in the past.
+  Its start time is then fixed. This explicit development exception does not
+  change the intended signup cutoff for future real profiles.
 - Production permits one linked account per platform per profile.
 - Local development permits multiple accounts from one platform through an
   explicit server-side development flag. Production must reject that flag.
@@ -51,6 +57,9 @@ include planned behavior, not a claim that the browser proof implements it.
 - Catalog categories are ultrabullet, hyperbullet, bullet, blitz, rapid, classical.
   Their exact cross-platform time-control mapping is still open.
 - Preserve original source data needed for clocks, termination, moves, and dates.
+- The local server stores imported source records, completed browser analysis,
+  and profile contributions in SQLite. Guest test collections stay separate in
+  browser storage. Hosted storage and authentication remain future decisions.
 - Importing and retrying a game must not duplicate progress, including when two
   linked development accounts participated in the same game.
 - Chess.com public-data freshness may delay availability. Do not promise immediate

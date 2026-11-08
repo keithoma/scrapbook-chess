@@ -1,7 +1,7 @@
 # Run the relevant checks
 
-Run the checks that exercise your change. The root and browser app have separate
-workspace packages; no root dependency installation is needed for documentation checks.
+Run the checks that exercise your change. The root, server, and browser app are
+workspace packages; no dependency installation is needed for documentation checks.
 
 ## Documentation
 
@@ -25,10 +25,13 @@ pnpm build
 pnpm test:browser
 ```
 
-The build checks TypeScript and prepares the production assets. Browser tests
+The tests cover server imports/storage and browser chess rules. The build checks
+TypeScript in both packages and prepares the server bundle and browser assets. Browser tests
 require that build and installed Google Chrome; the
 [Playwright configuration](../../web/playwright.config.ts) selects Chrome and
-starts a local preview server. It shuts down the server after the run.
+starts a browser preview plus an isolated API fixture server. Both shut down after
+the run. Fixtures and reset controls belong only to the test server. No live API
+request or alteration of the developer's SQLite database is needed by these tests.
 
 Playwright writes screenshots, traces on failure, and measurement attachments to
 ignored `web/test-results/`. The mobile project uses touch/viewport emulation;
