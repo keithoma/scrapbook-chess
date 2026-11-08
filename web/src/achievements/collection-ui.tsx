@@ -60,6 +60,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     ? virtualPly === event.virtualPly
     : !virtualPly && event.ply === ply);
   const soFar = events.filter(event => event.kind === 'badge' && event.ply <= ply);
+  const totals = projectCollection(games).totals;
 
   const collect = async () => {
     if (!color || saving || !eligible) return;
@@ -104,7 +105,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     </div>}
     {color && eligible && <div className="mt-5 border-t border-stone-200 pt-4">
       <h3 className="label">{t('THIS GAME THROUGH THE CURRENT MOVE')}</h3>
-      <ul className="mt-3 space-y-1 text-sm">{BADGES.map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
+      <ul className="mt-3 space-y-1 text-sm">{BADGES.filter(badge => !badge.config.is_hidden || progressFor(badge, totals[badge.id]).tier).map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
       <p className="mt-2 text-sm" data-testid="replay-mastery-xp">{t('Knight forks +{xp} XP', { xp: events.reduce((sum, event) => sum + (event.kind === 'mastery' && event.ply <= ply ? event.amount : 0), 0) })}</p>
       <p className="label mt-4">{t('AT THIS MOMENT')}</p>
       {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'mastery' ? t('Knight forks +{xp} XP', { xp: event.amount }) : event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
@@ -149,6 +150,7 @@ export function CollectionView({ games, locale, onOpen, failed, busy, profileMod
     {locale === 'de' && <p className="mb-3 text-xs text-stone-500">{t('Badge names and flavor text are the English originals.')}</p>}
     <div className="grid gap-4 md:grid-cols-3">{BADGES.map(badge => {
       const { total, tier, next } = progressFor(badge, collection.totals[badge.id]);
+      if (badge.config.is_hidden && !tier) return null;
       return <article className="note-card" key={badge.id} aria-label={badge.name}>
         <p className="text-3xl text-emerald-800" aria-hidden="true">{tier ? '✦' : '◇'}</p>
         <h3 className="mt-3 font-serif text-2xl">{badge.name}</h3>
