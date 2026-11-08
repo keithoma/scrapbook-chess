@@ -76,7 +76,6 @@ export const german = {
   "What if they’d played on?": "Was wäre beim Weiterspielen passiert?",
   "No checkmate within the 20-ply continuation.": "Kein Schachmatt innerhalb der Fortsetzung von 20 Halbzügen.",
   "The position is terminal; no further finish to explore.": "Die Stellung ist beendet; keine weitere Fortsetzung möglich.",
-  "After analysis, explore up to 20 additional engine plies. This proof does not grant scraps.": "Nach der Analyse folgen bis zu 20 zusätzliche Engine-Halbzüge. Dieser Prototyp vergibt noch keine Scraps.",
   "Virtual continuation": "Virtuelle Fortsetzung",
   "Open another page of the notebook": "Eine andere Seite im Notizbuch aufschlagen",
   "Original rapid game": "Ursprüngliche Schnellschachpartie",
