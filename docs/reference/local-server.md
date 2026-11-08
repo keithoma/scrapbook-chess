@@ -96,8 +96,9 @@ come from UTC PGN tags; missing timestamps are not guessed. Rated games exclude
 the platform's [always-unrated computer games](https://support.chess.com/en/articles/8614091-how-can-i-play-against-the-chess-com-bots),
 and explicit bot markers are rejected. The API's cache can delay new games.
 
-Mileage rewards use the [shared Lichess speed classification](browser-proof.md#mileage-and-time-controls)
-for both platforms. No automatic polling, correspondence imports, or public
+Mileage rewards use the [shared clock-based classification](browser-proof.md#mileage-and-time-controls)
+for both platforms. Lichess imports require valid numeric API clock settings;
+PGN tags do not substitute for missing clock settings. No automatic polling, correspondence imports, or public
 account verification is implemented. Existing tests cover schema fixtures,
 filters, delayed publication, concurrent saves, session isolation, and browser
 restoration. Browser import tests use an isolated fixture server; live platform

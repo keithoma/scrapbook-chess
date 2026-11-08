@@ -19,7 +19,7 @@ This reference describes the local browser app. See the
 | English/German interface messages | [i18n.ts](../../web/src/i18n.ts) |
 | Local badges and their YAML sources | [catalog.ts](../../web/src/achievements/catalog.ts) |
 | Contribution extraction and exact scrap identity | [collection.ts](../../web/src/achievements/collection.ts) |
-| Shared Lichess speed classification | [time-control.ts](../../web/src/time-control.ts) |
+| Shared clock-based speed classification | [time-control.ts](../../web/src/time-control.ts) |
 | Atomic per-game collection persistence | [ledger.ts](../../web/src/achievements/ledger.ts) |
 | Bounded alternative virtual finishes | [virtual-finish.ts](../../web/src/virtual-finish.ts) |
 | Knight-fork candidates and engine comparisons | [knight-forks.ts](../../web/src/tactics/knight-forks.ts) |
@@ -87,16 +87,24 @@ promotions.
 
 ### Mileage and time controls
 
-Obsession counts every completed eligible game. The five active speed badges
+Obsession counts every completed eligible game. The six active speed badges
 each count one completed game at the final actual ply, regardless of its result.
 Both platforms use the [Lichess time-control convention](https://lichess.org/faq#time-controls):
-starting seconds plus 40 times the increment. Original platform labels remain in
-import history but do not determine mileage rewards.
+starting seconds plus 40 times the increment. The computed duration selects one
+of the six authored categories, including hyperbullet. Original platform labels
+remain in import history but do not determine mileage rewards.
+
+Imported Lichess games use the API's numeric `clock.initial` and `clock.increment`;
+chess.com games use the API's `time_control`. These clock settings take precedence
+over PGN tags and are saved with collected contributions. The replay preview and
+server collection use the same settings. Uploaded guest PGNs use their numeric
+`TimeControl` tag; event names and speed labels are never used to guess a category.
 
 | Estimated seconds | Speed | Authored badge |
 | --- | --- | --- |
 | Below 30 | Ultrabullet | StarCraft III |
-| 30–179 | Bullet | Bullet Time |
+| 30–59 | Hyperbullet | Adderall |
+| 60–179 | Bullet | Bullet Time |
 | 180–479 | Blitz | Blitz Dopamine Loop |
 | 480–1499 | Rapid | Restroom Rapid Ritual |
 | At least 1500 | Classical | Improover |
@@ -107,9 +115,8 @@ still accepts completed test PGNs with those controls; profile imports enforce
 their existing live-game eligibility rules. There is no additional minimum length
 requirement for mileage.
 
-Lichess has no hyperbullet category. The authored Adderall definition stays in
-the YAML but is inactive. StarCraft III respects its authored hidden flag: its
-collection card and replay total appear after its first tier is collected.
+StarCraft III and Adderall respect their authored hidden flags: their collection
+cards and replay totals appear after their first tiers are collected.
 Names, flavor, and all mileage tier thresholds remain the authored English values.
 
 ### Saved contributions
