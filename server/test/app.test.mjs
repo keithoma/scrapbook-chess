@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createApp } from '../dist/app.js';
 import { openDatabase } from '../dist/database.js';
 import { NOW, sample, upstream } from './fixtures.mjs';
@@ -17,6 +18,31 @@ async function setup(extra = {}) {
   async function login() { const response = await request('/mock-login', 'POST', {}); assert.equal(response.status, 200); cookie = response.headers.get('set-cookie').split(';')[0]; return cookie; }
   return { db, app, options, request, login, advance: ms => { clock += ms; } };
 }
+
+test('both platforms collect Mirror Dimension from actual imported castling once', async () => {
+  const moves = readFileSync(new URL('../../web/src/fixtures/games/opposite-castling.pgn', import.meta.url), 'utf8').trim().split('\n\n')[1].replace('1-0', '0-1');
+  const lichess = sample('lichess', { id: 'Cast0001' });
+  const chesscom = sample('chesscom', { id: '999031', name: 'testchess' });
+  for (const raw of [lichess, chesscom]) raw.pgn = raw.pgn.replace('1. f3 e5 2. g4 Qh4# 0-1', moves);
+  lichess.status = 'resign';
+  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
+  await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json(); assert.equal(me.games.length, 2);
+  for (const game of me.games) {
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const response = await s.request(path, 'POST', { color: 'white', events: [{ kind: 'badge', badgeId: 'badge_opposite_side_casteling', amount: 9999 }] });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    assert.equal(grant.color, 'black');
+    assert.deepEqual(grant.events.filter(event => event.badgeId === 'badge_opposite_side_casteling'), [
+      { kind: 'badge', badgeId: 'badge_opposite_side_casteling', amount: 1, ply: 18 },
+    ]);
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  assert.equal((await (await s.request('/profile/collection')).json()).length, 2);
+  s.db.close();
+});
 
 test('mock login auto-links Lichess, backdates exactly eight hours, and preserves its date on later logins', async () => {
   const s = await setup();
