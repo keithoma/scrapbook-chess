@@ -38,6 +38,9 @@ include planned behavior, not a claim that the browser proof implements it.
 - Support Lichess and chess.com, contributing to one shared collection.
 - Record each game's platform and linked account in history.
 - Collection eligibility begins at Scrapbook profile creation, not historical play.
+- During the local PGN stage, choose the player's color separately for each game;
+  do not assume the next game will use the same color. A correction replaces that
+  game's local contributions rather than collecting both sides of the same game.
 - Separate Scrapbook accounts are the working direction; the exact sign-in method
   and platform ownership verification are not selected.
 - Production permits one linked account per platform per profile.
