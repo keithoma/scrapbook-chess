@@ -18,6 +18,9 @@ export interface PlayedMove {
   uci: string;
   color: Color;
   enPassant: boolean;
+  captured?: Role;
+  promotion?: Role;
+  check: boolean;
 }
 export interface ReplayGame {
   pgn: string;
@@ -52,11 +55,16 @@ export function parseGame(pgn: string): ReplayGame {
     const color = pos.turn;
     const enPassant = 'from' in move && pos.board.getRole(move.from) === 'pawn'
       && move.to === pos.epSquare && !pos.board.has(move.to);
+    const target = pos.board.get(move.to);
+    // Castling uses a friendly rook square in chessops, so occupancy alone is
+    // insufficient evidence of a capture. En passant has an empty destination.
+    const captured = enPassant ? 'pawn' : target?.color !== color ? target?.role : undefined;
+    const promotion = 'from' in move ? move.promotion : undefined;
     // chessops represents castling as king-to-rook; standard UCI uses king-to-g/c.
     const castle = castlingSide(pos, move);
     const uci = castle && 'from' in move ? makeUci({ ...move, to: kingCastlesTo(color, castle) }) : makeUci(move);
     const san = makeSanAndPlay(pos, move);
-    moves.push({ ply: moves.length + 1, san, uci, color, enPassant });
+    moves.push({ ply: moves.length + 1, san, uci, color, enPassant, captured, promotion, check: pos.isCheck() });
     snapshot();
   }
   if (!moves.length) throw new Error('No playable moves found in that PGN.');

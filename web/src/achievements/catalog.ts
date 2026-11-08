@@ -2,8 +2,10 @@ import { parse } from 'yaml';
 import mileage from '../../../data/achievements/badges/veterancy/mileage.yml?raw';
 import consolation from '../../../data/achievements/badges/veterancy/consolation_prize.yml?raw';
 import position from '../../../data/achievements/badges_position.yml?raw';
+import victories from '../../../data/achievements/badges/domination/body_count.yml?raw';
 
-export const BADGE_IDS = ['badge_played_total', 'badge_moves_played', 'badge_en_passant'] as const;
+export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
+  'badge_material_total', 'badge_promotion', 'badge_en_passant'] as const;
 export type BadgeId = typeof BADGE_IDS[number];
 export interface Flavor { text?: string; quote?: string; player_quote?: string; author?: string }
 export interface Tier { name: string; amount: number; flavor?: Flavor; flavor_text?: string }
@@ -16,7 +18,7 @@ export interface Badge {
   config: { tiers: Tier[] };
 }
 
-const raw: Badge[] = [mileage, consolation, position].flatMap(source => parse(source));
+const raw: Badge[] = [mileage, victories, consolation, position].flatMap(source => parse(source));
 export const BADGES = BADGE_IDS.map(id => {
   const matches = raw.filter(badge => badge.id === id);
   if (matches.length !== 1) throw new Error(`Expected exactly one definition for ${id}.`);
