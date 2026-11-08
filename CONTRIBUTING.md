@@ -1,8 +1,7 @@
 # Contributing
 
 Follow the [local development tutorial](docs/tutorials/local-development.md), then
-run the [checks relevant to your change](docs/how-to/run-checks.md). The browser
-proof uses pnpm. The Python prototype uses uv; it has separate dependencies.
+run the [checks relevant to your change](docs/how-to/run-checks.md).
 
 ## Branches and pull requests
 
