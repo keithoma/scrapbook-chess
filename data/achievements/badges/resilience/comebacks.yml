@@ -7,45 +7,55 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Comebacks'
-  name: ''
+  name: 'The Long Con'
   description: 'Be down 1.5 or more after the opening and the mid game and still win.'
-  flavor_text: ''
+  flavor:
+    text: The opening was bad. The middlegame confirmed it. The result disagreed.
   config:
     metric_key: 'is_comeback_from_1_5_down_late'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A delayed response to several reasonable concerns.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent has begun checking the last page first.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The deficit was present at both inspections. The win was not impressed.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: You are developing a very unreliable relationship with foreshadowing.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The graph would like an explanation for its ending.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your opponent's winning plan has outlived its warranty.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: You now specialize in games that should have been shorter.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: The opening and middlegame have filed a joint complaint.
 
 - id: badge_comeback_2_0_fast
   type: badge
