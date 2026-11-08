@@ -51,6 +51,9 @@ level_thresholds:
   - 38231
   - 60317
   - 94183
+level_threshold_multipliers:
+  rapport-jobava: 1
+  queens-pawn-game: 10
 level_requirements:
   - level: 6
     high_grade_count: 2

@@ -60,10 +60,13 @@ test('both providers recover missing Jobava clocks and collect the browser-equiv
     assert.equal(response.status, 200);
     const grant = (await response.json()).grant;
     const opening = grant.events.filter(e => e.family === 'opening');
-    assert.ok(opening.every(e => e.masteryId === 'mastery_rapport_jobava_black'));
-    assert.equal(opening.reduce((sum, e) => sum + e.amount, 0), 392);
-    assert.equal(opening.filter(e => e.grade).length, 1);
-    assert.equal(opening.find(e => e.grade).grade, 'S+');
+    assert.deepEqual([...new Set(opening.map(e => e.masteryId))].sort(), ['mastery_queens_pawn_game_black', 'mastery_rapport_jobava_black']);
+    for (const masteryId of ['mastery_rapport_jobava_black', 'mastery_queens_pawn_game_black']) {
+      const track = opening.filter(e => e.masteryId === masteryId);
+      assert.equal(track.reduce((sum, e) => sum + e.amount, 0), 392);
+      assert.equal(track.filter(e => e.grade).length, 1);
+      assert.equal(track.find(e => e.grade).grade, 'S+');
+    }
     const retry = await (await s.request(path, 'POST', {})).json();
     assert.deepEqual(retry.grant.events, grant.events);
   }

@@ -17,7 +17,9 @@ therefore supplies candidate evidence for the
 [shared book-move definition](../../docs/reference/opening-masteries.md#shared-book-move-definition),
 not proof that its frequency and loss-rate gates pass.
 
-[jobava.json](jobava.json) handcrafts recognition from the
+[jobava.json](jobava.json) and [queens-pawn-game.json](queens-pawn-game.json)
+handcraft recognition from the
 [Lichess opening names](https://github.com/lichess-org/chess-openings/tree/3ba6b20d31b2e6125cb0e6a2e792f400717d9d39),
-also CC0. It folds move-only continuations into one identity. Future generation
+also CC0. Jobava folds move-only continuations into one identity; Queen's Pawn
+uses the position after 1.d4 as a broad family entry. Future generation
 can replace recognition data while retaining authored mastery IDs and writing.
