@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
@@ -12,6 +12,8 @@ import { FeedbackBox } from './support';
 import { CollectionView, GameRewards, useLocalCollection, type Jump } from './achievements/collection-ui';
 import { gameIdentity, projectCollection, virtualMate } from './achievements/collection';
 import type { Color } from 'chessops/types';
+import { knightForkCandidates, type KnightForkCandidate } from './tactics/knight-forks';
+import { ForkInspector } from './tactics/fork-inspector';
 import './style.css';
 
 const glyphs = {
@@ -21,7 +23,7 @@ const glyphs = {
 const recentGameId = gameIdentity(parseGame(RECENT_GAME_PGN));
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
-function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; locale: Locale }) {
+function Board({ frame, flipped, locale, fork }: { frame: Frame; flipped: boolean; locale: Locale; fork?: KnightForkCandidate }) {
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const squares = Array.from({ length: 64 }, (_, i) => flipped ? (i >> 3) * 8 + 7 - i % 8 : (7 - (i >> 3)) * 8 + i % 8);
   return <div className="board" role="img" aria-label={`${t('Chess position, {color} to move', { color: t(frame.turn === 'white' ? 'White' : 'Black') })}${frame.checkmate ? `, ${t('checkmate')}` : ''}`} data-testid="board" data-fen={frame.fen}>
@@ -29,7 +31,9 @@ function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; loc
       const piece = frame.pieces.find(p => p.square === square);
       const rank = square >> 3;
       const file = square % 8;
-      return <div key={square} className={`square ${(rank + file) % 2 ? 'light' : 'dark'}`}>
+      const source = fork?.square === square;
+      const target = fork?.targets.some(piece => piece.square === square);
+      return <div key={square} className={`square ${(rank + file) % 2 ? 'light' : 'dark'} ${source ? 'fork-source' : target ? 'fork-target' : ''}`} data-fork-source={source || undefined} data-fork-target={target || undefined}>
         {index % 8 === 0 && <span className="rank">{rank + 1}</span>}
         {index >= 56 && <span className="file">{'abcdefgh'[file]}</span>}
         {piece && <span className={`piece ${piece.color}`} aria-hidden="true">{glyphs[piece.color][piece.role]}</span>}
@@ -54,6 +58,7 @@ function App() {
     return () => window.removeEventListener('popstate', pop);
   }, []);
   const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
+  const forks = useMemo(() => knightForkCandidates(game), [game]);
   const collection = useLocalCollection();
   const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
   const gameId = gameIdentity(game);
@@ -199,7 +204,7 @@ function App() {
           <div><strong>{game.white}</strong><span className="mx-2 text-stone-400">{t('vs')}</span><strong>{game.black}</strong></div>
           <button className="text-button shrink-0" onClick={() => setFlipped(!flipped)}>{t('Flip board')}</button>
         </div>
-        <div className="board-frame"><Board frame={frame} flipped={flipped} locale={locale} /></div>
+        <div className="board-frame"><Board frame={frame} flipped={flipped} locale={locale} fork={virtualPly ? undefined : forks.find(fork => fork.ply === ply && fork.color === playerColor)} /></div>
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="flex gap-1">
             <button className="nav-button" aria-label={t('First position')} onClick={() => go(0)}>↤</button>
@@ -219,6 +224,7 @@ function App() {
 
       <section className="min-w-0 space-y-5">
         <GameRewards key={gameId} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
+        <ForkInspector candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
