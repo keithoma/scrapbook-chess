@@ -11,8 +11,12 @@ export default defineConfig({
     { name: 'desktop-chrome', use: { viewport: { width: 1440, height: 1000 } } },
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'], defaultBrowserType: 'chromium' } },
   ],
-  webServer: {
+  webServer: [{
+    command: 'pnpm --dir ../server test:browser',
+    url: 'http://127.0.0.1:8788/api/health', reuseExistingServer: false,
+  }, {
     command: 'pnpm preview --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI,
-  },
+    env: { SCRAPBOOK_API_URL: 'http://127.0.0.1:8788' },
+  }],
 });

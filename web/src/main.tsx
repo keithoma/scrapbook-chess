@@ -15,6 +15,9 @@ import type { Color } from 'chessops/types';
 import { knightForkCandidates, type KnightForkCandidate } from './tactics/knight-forks';
 import { ForkInspector } from './tactics/fork-inspector';
 import './style.css';
+import { ProfileView, useProfile } from './profile';
+import { profileApi } from './profile-api';
+import { ANALYSIS_VERSION } from './storage';
 
 const glyphs = {
   white: { king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙' },
@@ -42,7 +45,7 @@ function Board({ frame, flipped, locale, fork }: { frame: Frame; flipped: boolea
   </div>;
 }
 
-function pageFor(path: string) { return path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
+function pageFor(path: string) { return path === '/profile' ? 'profile' : path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
 
 function App() {
   const { locale, setLocale, t, number } = useLocale();
@@ -59,11 +62,13 @@ function App() {
   }, []);
   const [game, setGame] = useState(() => parseGame(RECENT_GAME_PGN));
   const forks = useMemo(() => knightForkCandidates(game), [game]);
-  const collection = useLocalCollection();
+  const profile = useProfile();
+  const collection = useLocalCollection(profile.user?.id, profile.loading);
   const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
   const gameId = gameIdentity(game);
   const savedGame = collection.games.find(record => record.id === gameId);
-  const playerColor = choice?.id === gameId ? choice.color : savedGame?.color ?? (gameId === recentGameId ? 'black' : '');
+  const importedGame = profile.games.find(record => record.id === gameId);
+  const playerColor = importedGame?.color ?? (choice?.id === gameId ? choice.color : savedGame?.color ?? (gameId === recentGameId ? 'black' : ''));
   const ownedElsewhere = new Set(projectCollection(collection.games.filter(record => record.id !== gameId)).scraps.map(scrap => scrap.notation));
   const savedVirtual = savedGame?.color === playerColor && savedGame.events.some(event => event.kind === 'scrap' && event.mode === 'virtual');
   const [draft, setDraft] = useState(RECENT_GAME_PGN);
@@ -112,7 +117,14 @@ function App() {
     try {
       const parsed = parseGame(pgn);
       setError(''); setStatus('loading');
-      const saved = await loadCheckpoint(parsed.pgn);
+      let saved = await loadCheckpoint(parsed.pgn);
+      const imported = profile.games.find(record => record.id === gameIdentity(parsed));
+      if (profile.user && imported) {
+        try {
+          const remote = await profileApi.analysis(imported.id);
+          if (remote?.pgn === parsed.pgn && remote.version === ANALYSIS_VERSION && remote.results.length >= saved.results.length) saved = { ...remote, key: saved.key };
+        } catch { setError(t('Server analysis could not be loaded. The local checkpoint is still available.')); }
+      }
       await saveCheckpoint(saved);
       if (ticket !== revision.current) return;
       const replay = jump?.virtual ? { ...saved, virtual: jump.virtual, virtualStatus: 'mate' as const, virtualWinner: parseFen(jump.virtual.at(-1)!.fen).unwrap().turn === 'white' ? 'black' as const : 'white' as const } : saved;
@@ -142,14 +154,20 @@ function App() {
       const engine = new StockfishClient(); active.engine = engine;
       await engine.init();
       setStatus('analyzing'); setMessage('Reading the game, one move at a time.');
+      let latest = checkpoint;
       await analyzeGame(game, checkpoint, engine, active.controller.signal, (saved, stage) => {
         if (ticket !== revision.current) return;
         setCheckpoint(saved);
+        latest = saved;
         setStatus(stage === 'virtual' ? 'virtual' : 'analyzing');
         setMessage(stage === 'virtual' ? 'Exploring a separate engine finish…' : 'Reading the game, one move at a time.');
       }, playerColor && !savedVirtual ? { color: playerColor, owned: ownedElsewhere } : undefined);
       active.controller.signal.throwIfAborted();
       setStatus('complete'); setMessage('Analysis complete. Every played move is preserved.');
+      if (profile.user && importedGame) {
+        try { await profileApi.saveAnalysis(importedGame.id, latest); void profile.refresh(); }
+        catch { setError(t('Analysis is saved on this device. Collect rewards to retry saving it to your profile.')); }
+      }
     } catch (cause) {
       if (!active.controller.signal.aborted && ticket === revision.current) {
         setStatus('error'); setError(cause instanceof Error ? cause.message : String(cause));
@@ -189,7 +207,7 @@ function App() {
       <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
     <nav aria-label={t('Main navigation')} className="mt-4 flex gap-5 text-sm">
-      {([['/', 'Notebook'], ['/collection', 'Collection'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
+      {([['/', 'Notebook'], ['/profile', 'Profile'], ['/collection', 'Collection'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
     </nav>
     <div hidden={page !== 'notebook'}>
     <section className="my-8 sm:my-12">
@@ -223,7 +241,7 @@ function App() {
       </section>
 
       <section className="min-w-0 space-y-5">
-        <GameRewards key={gameId} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
+        <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
         <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
@@ -280,14 +298,15 @@ function App() {
       </div>
     </section>
     </div>
-    <div hidden={page !== 'collection'}><CollectionView games={collection.games} locale={locale} failed={collection.error} busy={busy} onOpen={(pgn, jump) => { void openGame(pgn, jump); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
+    <div hidden={page !== 'collection'}><CollectionView profileMode={!!profile.user} games={collection.games} locale={locale} failed={collection.error} busy={busy} onOpen={(pgn, jump) => { void openGame(pgn, jump); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
+    <div hidden={page !== 'profile'}><ProfileView profile={profile} locale={locale} busy={busy} onOpen={game => { void openGame(game.pgn); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
     <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
       <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>
     </section>
     <section hidden={page !== 'feedback'} className="my-10"><FeedbackBox locale={locale} /></section>
     <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-stone-300 pt-5 text-xs leading-5 text-stone-500">
-      <span>{t('Local browser proof · analysis stays on this device · no account or game imports yet.')}</span>
+      <span>{t('Local prototype · Stockfish runs in your browser · mock profiles and imports use the local server.')}</span>
       <span><a href="/engine/COPYING.txt">Stockfish GPLv3</a> · <a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1">{t('Engine source')}</a></span>
     </footer>
   </main>;
