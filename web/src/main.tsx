@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseGame, SAMPLE_PGN, MATE_PGN, scoreLabel, type Frame } from './game';
-import { DEPTH, lastCheckpoint, loadCheckpoint, type Checkpoint } from './storage';
+import { DEPTH, lastCheckpoint, loadCheckpoint, saveCheckpoint, type Checkpoint } from './storage';
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
 import { useLocale, translate, type Locale, type Message, type Parameters } from './i18n';
 import { FeedbackBox } from './support';
+import { CollectionView, GameRewards, useLocalCollection, type Jump } from './achievements/collection-ui';
+import { gameIdentity } from './achievements/collection';
+import type { Color } from 'chessops/types';
 import './style.css';
 
 const glyphs = {
@@ -33,20 +36,26 @@ function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; loc
   </div>;
 }
 
+function pageFor(path: string) { return path === '/help' ? 'help' : path === '/feedback' ? 'feedback' : path === '/collection' ? 'collection' : 'notebook'; }
+
 function App() {
   const { locale, setLocale, t, number } = useLocale();
-  const [page, setPage] = useState(() => location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+  const [page, setPage] = useState(() => pageFor(location.pathname));
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>, destination: string) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault(); history.pushState(null, '', destination);
-    setPage(destination === '/help' ? 'help' : destination === '/feedback' ? 'feedback' : 'notebook');
+    setPage(pageFor(destination));
   };
   useEffect(() => {
-    const pop = () => setPage(location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+    const pop = () => setPage(pageFor(location.pathname));
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
   }, []);
   const [game, setGame] = useState(() => parseGame(SAMPLE_PGN));
+  const collection = useLocalCollection();
+  const [choice, setChoice] = useState<{ id: string; color: Color | '' }>();
+  const gameId = gameIdentity(game);
+  const playerColor = choice?.id === gameId ? choice.color : collection.games.find(record => record.id === gameId)?.color ?? '';
   const [draft, setDraft] = useState(SAMPLE_PGN);
   const [checkpoint, setCheckpoint] = useState<Checkpoint>();
   const [status, setStatus] = useState<Status>('loading');
@@ -87,15 +96,16 @@ function App() {
     return () => { alive = false; leave(); window.removeEventListener('pagehide', leave); window.removeEventListener('pageshow', returnToPage); };
   }, []);
 
-  const openGame = async (pgn: string) => {
+  const openGame = async (pgn: string, jump?: Jump) => {
     if (busy) return;
     const ticket = ++revision.current;
     try {
       const parsed = parseGame(pgn);
       setError(''); setStatus('loading');
       const saved = await loadCheckpoint(parsed.pgn);
+      await saveCheckpoint(saved);
       if (ticket !== revision.current) return;
-      setGame(parsed); setDraft(parsed.pgn); setCheckpoint(saved); setPly(0); setVirtualPly(0);
+      setGame(parsed); setDraft(parsed.pgn); setCheckpoint(saved); setPly(jump?.ply ?? 0); setVirtualPly(jump?.virtualPly ?? 0);
       setStatus(saved.virtualStatus === 'pending' ? (saved.results.length ? 'paused' : 'ready') : 'complete');
       setMessage(saved.results.length ? 'Saved analysis restored.' : 'Ready when you are.');
     } catch (cause) {
@@ -162,7 +172,7 @@ function App() {
       <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
     <nav aria-label={t('Main navigation')} className="mt-4 flex gap-5 text-sm">
-      {([['/', 'Notebook'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
+      {([['/', 'Notebook'], ['/collection', 'Collection'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
     </nav>
     <div hidden={page !== 'notebook'}>
     <section className="my-8 sm:my-12">
@@ -196,6 +206,7 @@ function App() {
       </section>
 
       <section className="min-w-0 space-y-5">
+        <GameRewards key={gameId} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jump => { setPly(jump.ply); setVirtualPly(jump.virtualPly ?? 0); }} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
           <h2 className="mt-4 text-2xl">{t('A moment of reflection.')}</h2>
@@ -218,7 +229,7 @@ function App() {
         <div className="note-card !bg-[#e8ede3]">
           <div className="label text-emerald-900">{t('A POSSIBLE ENDING')}</div>
           <h2 className="mt-3 text-xl">{t('What if they’d played on?')}</h2>
-          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? t('{color} mates with {move} after {plies} simulated plies.', { color: t(checkpoint.virtualWinner === 'white' ? 'White' : 'Black'), move: checkpoint.virtual.at(-1)?.san ?? '', plies: checkpoint.virtual.length }) : checkpoint?.virtualStatus === 'limit' ? t('No checkmate within the 20-ply continuation.') : checkpoint?.virtualStatus === 'terminal' ? t('The position is terminal; no further finish to explore.') : t('After analysis, explore up to 20 additional engine plies. This proof does not grant scraps.')}</p>
+          <p className="mt-2 text-sm leading-6 text-stone-600" data-testid="virtual-status">{checkpoint?.virtualStatus === 'mate' ? t('{color} mates with {move} after {plies} simulated plies.', { color: t(checkpoint.virtualWinner === 'white' ? 'White' : 'Black'), move: checkpoint.virtual.at(-1)?.san ?? '', plies: checkpoint.virtual.length }) : checkpoint?.virtualStatus === 'limit' ? t('No checkmate within the 20-ply continuation.') : checkpoint?.virtualStatus === 'terminal' ? t('The position is terminal; no further finish to explore.') : t('After analysis, collect a virtual scrap if your side delivers mate.')}</p>
           {!!checkpoint?.virtual.length && <div className="mt-3 flex flex-wrap gap-1" aria-label={t('Virtual continuation')}>
             {checkpoint.virtual.map((move, i) => <button key={i} className={`move-button ${virtualPly === i + 1 ? 'selected' : ''}`} onClick={() => { setPly(game.moves.length); setVirtualPly(i + 1); }}>{move.san}</button>)}
           </div>}
@@ -248,6 +259,7 @@ function App() {
       </div>
     </section>
     </div>
+    <div hidden={page !== 'collection'}><CollectionView games={collection.games} locale={locale} failed={collection.error} busy={busy} onOpen={(pgn, jump) => { void openGame(pgn, jump); history.pushState(null, '', '/'); setPage('notebook'); }} /></div>
     <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
       <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>

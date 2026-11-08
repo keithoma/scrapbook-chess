@@ -50,6 +50,10 @@ progress::-webkit-progress-value { background: #6b8c64; transition: width .2s; }
 progress::-moz-progress-bar { background: #6b8c64; }
 footer a { text-decoration: underline; text-underline-offset: 3px; }
 @keyframes pulse { 50% { opacity: .3; } }
+.scrap-real { border-color: #bc9450; background: #fff7df; box-shadow: 0 3px 0 #bd9d5540; }
+.scrap-virtual { border: 2px dashed #7d947e; background: #eef3eb; }
+.reward-reveal { animation: reveal .35s ease-out; }
+@keyframes reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media (min-width: 1024px) { .piece { font-size: 3rem; } }
 @media (max-width: 380px) { .note-card { padding: 1rem; } .piece { font-size: 1.5rem; } }
