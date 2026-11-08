@@ -15,6 +15,8 @@ This reference describes the local browser app. See the
 | Engine preparation and source/license metadata | [prepare-engine.mjs](../../web/scripts/prepare-engine.mjs) |
 | Asset caching | [engine-cache.js](../../web/public/engine-cache.js) |
 | Browser-test server and device settings | [playwright.config.ts](../../web/playwright.config.ts) |
+| Workspace package manager and Node runtime | [root package.json](../../package.json) and [pnpm workspace](../../pnpm-workspace.yaml) |
+| English/German interface messages | [i18n.ts](../../web/src/i18n.ts) |
 
 The full single-threaded engine is approximately 94.6 MiB. The
 [verification record](../qa/browser-proof.md) records the exact tested artifact.
@@ -39,6 +41,12 @@ Localhost qualifies. A plain HTTP LAN URL on a phone does not provide the same
 APIs; use HTTPS when testing a physical device.
 
 ## Scope and limits
+
+The interface supports English and German, with browser-language detection and a
+saved manual preference. Standard chess notation and diagnostic engine/parser
+details are not translated. `/help` is a player-facing help shell without articles.
+`/feedback` saves a local draft on explicit request; it does not send feedback.
+The draft survives reloads until cleared, subject to browser storage availability.
 
 The app accepts one standard-chess PGN and replays its main line. It has no
 platform imports, accounts, achievement awards, or server persistence. It does

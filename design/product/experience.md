@@ -27,6 +27,11 @@ include planned behavior, not a claim that the browser proof implements it.
 - Keep localization separate from chess notation, rule identifiers, and authored
   content. Preserve the original flavor writing. How to handle untranslated
   achievement writing remains a design decision.
+- Include a help page for player-facing documentation from the beginning. It
+  starts without articles; contributor documentation under `docs/` is separate.
+- Include an in-app feedback box. Initially, keep feedback in the app as a local
+  draft. Clearly distinguish a saved draft from feedback that has been sent.
+- GitHub feedback integration is planned for later, not an initial dependency.
 
 ## Accounts, imports, and eligibility
 

@@ -7,6 +7,7 @@ import { DEPTH, lastCheckpoint, loadCheckpoint, type Checkpoint } from './storag
 import { prepareEngine, StockfishClient } from './stockfish';
 import { analyzeGame } from './analysis';
 import { useLocale, translate, type Locale, type Message, type Parameters } from './i18n';
+import { FeedbackBox } from './support';
 import './style.css';
 
 const glyphs = {
@@ -34,6 +35,17 @@ function Board({ frame, flipped, locale }: { frame: Frame; flipped: boolean; loc
 
 function App() {
   const { locale, setLocale, t, number } = useLocale();
+  const [page, setPage] = useState(() => location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+  const navigate = (event: React.MouseEvent<HTMLAnchorElement>, destination: string) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault(); history.pushState(null, '', destination);
+    setPage(destination === '/help' ? 'help' : destination === '/feedback' ? 'feedback' : 'notebook');
+  };
+  useEffect(() => {
+    const pop = () => setPage(location.pathname === '/help' ? 'help' : location.pathname === '/feedback' ? 'feedback' : 'notebook');
+    window.addEventListener('popstate', pop);
+    return () => window.removeEventListener('popstate', pop);
+  }, []);
   const [game, setGame] = useState(() => parseGame(SAMPLE_PGN));
   const [draft, setDraft] = useState(SAMPLE_PGN);
   const [checkpoint, setCheckpoint] = useState<Checkpoint>();
@@ -144,11 +156,15 @@ function App() {
 
   return <main className="mx-auto max-w-6xl px-4 py-7 sm:px-8 sm:py-12">
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-300 pb-6">
-      <a className="brand" href="/">scrapbook<span>;</span> chess</a>
+      <a className="brand" href="/" onClick={event => navigate(event, '/')}>scrapbook<span>;</span> chess</a>
       <div className="flex flex-wrap items-center gap-3">
       <label className="text-xs">{t('Language')} <select aria-label={t('Language')} className="ml-1 rounded border border-stone-300 bg-transparent px-2 py-2" value={locale} onChange={event => setLocale(event.target.value as Locale)}><option value="en">English</option><option value="de">Deutsch</option></select></label>
       <span className="label rounded-full border border-stone-300 px-3 py-1.5">{t('FIELD NOTES / 001')}</span></div>
     </header>
+    <nav aria-label={t('Main navigation')} className="mt-4 flex gap-5 text-sm">
+      {([['/', 'Notebook'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={path} href={path} onClick={event => navigate(event, path)} aria-current={page === (path === '/' ? 'notebook' : path.slice(1)) ? 'page' : undefined} className="text-button">{t(label)}</a>)}
+    </nav>
+    <div hidden={page !== 'notebook'}>
     <section className="my-8 sm:my-12">
       <p className="label mb-3 text-emerald-800">{t('THE BROWSER EXPERIMENT')}</p>
       <h1 className="max-w-3xl text-4xl leading-tight sm:text-6xl">{t('Your games.')}<br /><em>{t('A little more remarkable.')}</em></h1>
@@ -231,6 +247,12 @@ function App() {
         </button>)}
       </div>
     </section>
+    </div>
+    <section hidden={page !== 'help'} className="note-card my-10" aria-labelledby="help-title">
+      <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
+      <p className="mt-4 text-stone-600">{t('There are no help articles yet.')}</p>
+    </section>
+    <section hidden={page !== 'feedback'} className="my-10"><FeedbackBox locale={locale} /></section>
     <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-stone-300 pt-5 text-xs leading-5 text-stone-500">
       <span>{t('Local browser proof · analysis stays on this device · no account or game imports yet.')}</span>
       <span><a href="/engine/COPYING.txt">Stockfish GPLv3</a> · <a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1">{t('Engine source')}</a></span>
