@@ -172,42 +172,53 @@
   type: badge
   category: 'Resilience'
   subcategory: 'Great Escapes'
-  name: ''
+  name: 'Nothing Personal'
   description: 'Draw a previously lost position by insufficient material.'
-  flavor_text: ''
+  flavor:
+    text: The advantage was real. The mating material was not.
   config:
     metric_key: 'is_drawn_from_lost_by_insufficient'
     required_value: true
     is_hidden: false
+    analysis_required: true
+    lost_cp: 300
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: There is no longer enough chess left to lose.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent has simplified the result by accident.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The remaining pieces have agreed to stop pretending.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: A very small army has submitted a very large objection.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The evaluation bar has been replaced by a headcount.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your king has outlasted the relevant equipment.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The winning chances have been packed away with the missing pawns.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Congratulations on your opponent's successful disarmament.
