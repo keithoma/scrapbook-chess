@@ -149,23 +149,26 @@ test('profile collection uses the same YAML mastery rules and preserves XP witho
   assert.deepEqual(recollect.grant.events.find(event => event.kind === 'mastery'), award);
   s.db.close();
 });
-test('both platforms earn mileage from Lichess clock boundaries rather than source speed labels', async () => {
+test('both platforms calculate mileage from API clocks despite conflicting PGN metadata and speed labels', async () => {
   const lichess = sample('lichess', { id: 'Speed001' });
-  lichess.pgn = lichess.pgn.replace('600+0', '900+15');
+  lichess.clock = { initial: 900, increment: 15, totalTime: 1500 }; // PGN deliberately still says 600+0.
   const chesscom = sample('chesscom', { id: '999002', name: 'testchess' });
-  chesscom.pgn = chesscom.pgn.replace('600+0', '300+5');
+  // PGN deliberately still says 600+0; API clock settings take precedence.
   chesscom.time_control = '300+5'; chesscom.time_class = 'blitz';
-  const s = await setup({ fetcher: upstream({ lichess: [lichess], chesscom: [chesscom] }) });
+  const fastLichess = [15, 30].map((initial, i) => ({ ...sample('lichess', { id: `Fast000${i}` }), speed: 'bullet', clock: { initial, increment: 0, totalTime: initial } }));
+  const fastChess = [15, 30].map((initial, i) => ({ ...sample('chesscom', { id: String(999010 + i), name: 'testchess' }), time_class: 'bullet', time_control: `${initial}+0` }));
+  const s = await setup({ fetcher: upstream({ lichess: [lichess, ...fastLichess], chesscom: [chesscom, ...fastChess] }) });
   await s.login(); await s.request('/profile/accounts', 'POST', { platform: 'chesscom', username: 'testchess' });
   await s.request('/profile/check-games', 'POST', {});
   const me = await (await s.request('/me')).json();
-  assert.equal(me.games.length, 2);
+  assert.equal(me.games.length, 6);
   for (const game of me.games) {
     const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
-    const response = await s.request(path, 'POST', {});
+    const response = await s.request(path, 'POST', { timeControl: '3600+0', speed: 'classical' });
     assert.equal(response.status, 200);
     const grant = (await response.json()).grant;
-    const expected = game.platform === 'lichess' ? 'badge_played_classical' : 'badge_played_rapid';
+    const expected = { '15+0': 'badge_played_ultrabullet', '30+0': 'badge_played_hyperbullet', '900+15': 'badge_played_classical', '300+5': 'badge_played_rapid' }[game.timeControl];
+    assert.ok(expected); assert.equal(grant.timeControl, game.timeControl);
     assert.deepEqual(grant.events.filter(event => event.kind === 'badge' && event.badgeId.startsWith('badge_played_') && event.badgeId !== 'badge_played_total'), [
       { kind: 'badge', badgeId: expected, amount: 1, ply: 4 },
     ]);

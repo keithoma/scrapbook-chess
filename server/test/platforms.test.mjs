@@ -19,7 +19,8 @@ test('Lichess filters old, bot, casual, ongoing, variant, unrelated, and malform
   const bot = structuredClone(valid); bot.players.white.user.title = 'BOT';
   const records = [valid, sample('lichess', { age: 9 * 3600_000 }), bot, { ...valid, rated: false },
     { ...valid, status: 'started' }, { ...valid, variant: 'chess960' }, sample('lichess', { name: 'somebodyelse' }),
-    { ...valid, pgn: valid.pgn.replace('Qh4#', 'Qa7') }];
+    { ...valid, pgn: valid.pgn.replace('Qh4#', 'Qa7') }, { ...valid, clock: undefined },
+    { ...valid, clock: { initial: -30, increment: 0 } }, { ...valid, clock: { initial: '30', increment: 0 } }];
   const result = await fetchGames(new PlatformClient(upstream({ lichess: records })), 'lichess', 'noctu2nality', NOW - 8 * 3600_000, NOW);
   assert.equal(result.candidates.length, 1); assert.equal(result.skipped, records.length - 1);
 });

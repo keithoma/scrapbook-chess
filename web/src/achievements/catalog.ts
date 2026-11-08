@@ -5,7 +5,7 @@ import position from '../../../data/achievements/badges/position.yml?raw';
 import victories from '../../../data/achievements/badges/domination/body-count.yml?raw';
 
 export const BADGE_IDS = ['badge_played_total', 'badge_won_total', 'badge_moves_played', 'badge_total_checks',
-  'badge_material_total', 'badge_promotion', 'badge_en_passant', 'badge_played_ultrabullet',
+  'badge_material_total', 'badge_promotion', 'badge_en_passant', 'badge_played_ultrabullet', 'badge_played_hyperbullet',
   'badge_played_bullet', 'badge_played_blitz', 'badge_played_rapid', 'badge_played_classical'] as const;
 export type BadgeId = typeof BADGE_IDS[number];
 export interface Flavor { text?: string; quote?: string; player_quote?: string; author?: string }

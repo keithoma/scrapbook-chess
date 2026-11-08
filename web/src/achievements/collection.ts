@@ -17,6 +17,7 @@ export interface GameGrant {
   id: string;
   version: 1;
   pgn: string;
+  timeControl?: string;
   color: Color;
   events: Contribution[];
   collectedAt: string;
@@ -108,7 +109,7 @@ export function prepareGrant(before: GameGrant[], game: ReplayGame, color: Color
   if (keepVirtual) events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual];
   const virtual = keepVirtual ? previous?.virtual
     : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
-  return { id, version: 1, pgn: game.pgn, color, events: retainMastery(previous, color, events), virtual,
+  return { id, version: 1, pgn: game.pgn, timeControl: game.timeControl, color, events: retainMastery(previous, color, events), virtual,
     collectedAt: previous?.collectedAt ?? now, updatedAt: now };
 }
 

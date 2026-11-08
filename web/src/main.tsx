@@ -241,7 +241,7 @@ function App() {
       </section>
 
       <section className="min-w-0 space-y-5">
-        <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={game} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
+        <GameRewards key={`${profile.user?.id ?? 'guest'}:${gameId}`} profileMode={!!profile.user} imported={!!importedGame} game={{ ...game, timeControl: importedGame?.timeControl ?? game.timeControl }} checkpoint={checkpoint} color={playerColor} onColor={color => setChoice({ id: gameId, color })} games={collection.games} onSaved={collection.setGames} ply={ply} virtualPly={virtualPly} onJump={jumpTo} locale={locale} />
         <ForkInspector game={game} saved={savedGame?.color === playerColor ? savedGame.events.filter(event => event.kind === 'mastery') : undefined} candidates={forks} color={playerColor} checkpoint={checkpoint} ply={ply} virtual={!!virtualPly} onJump={go} locale={locale} />
         <div className="note-card">
           <div className="flex items-center justify-between gap-3"><span className="label text-emerald-800">{t('ON YOUR DEVICE')}</span><span className={`status-dot ${busy ? 'working' : ''}`} /></div>
