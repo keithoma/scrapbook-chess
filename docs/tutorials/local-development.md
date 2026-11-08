@@ -55,8 +55,18 @@ the knight immediately; a geometric fork alone does not establish an award.
 
 Select **Analyze this game** to see best-versus-played engine evidence. If analysis
 is already complete, the panel uses its saved results. Switch the player color to
-inspect the other side. The inspector awards no mastery or XP; it is for reviewing
-candidate detection and deciding the qualification rules.
+inspect the other side. This particular candidate earns no mastery XP because
+White can capture the knight immediately.
+
+To try a qualifying fork, open **Fork example** and select White under **I played
+as**. Select **1. Nf7+**, analyze the game, then select **Collect rewards**. Open
+**Collection** to see the **Knight forks** mastery, its XP, level, and progress
+to the next level. Expand the contribution and select **Replay fork** to revisit
+the evidence. This example is a synthetic completed PGN for local testing.
+
+Higher-quality moves earn larger XP awards according to the mastery YAML. Analysis
+must be available before quality-dependent XP can be collected. Recollecting the
+same game keeps earned XP stable and does not count the same move twice.
 
 ## Collect your first rewards
 
@@ -76,7 +86,7 @@ counterpart. Recollecting a game does not duplicate progress; choosing another
 color and collecting again corrects that game's rewards.
 
 If you collect basic rewards before analysis finishes, select **Collect rewards**
-again afterward to save any newly found virtual scrap. Played-move progress is
+again afterward to save any newly found virtual scrap or qualified mastery XP. Played-move progress is
 not counted again.
 
 Everything stays in this browser. Continue with [running checks](../how-to/run-checks.md)

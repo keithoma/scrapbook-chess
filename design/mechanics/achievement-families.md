@@ -29,10 +29,16 @@ forks, use the intended qualification in the
 [implementation map](../planning/achievement-implementation.md). Missing analysis
 leaves quality-dependent awards pending; it does not imply good or bad play.
 
-The quality-to-XP formula and tactical level thresholds remain undecided. Preserve
-the existing opening-mastery rank thresholds while those tracks are reviewed;
-they do not establish a level curve for tactical masteries. The current fork
-inspector displays candidates and engine evidence without awarding mastery XP.
+The first implemented track is knight forks. Its prototype quality awards and
+level thresholds live in the [mastery YAML](../../data/achievements/masteries/knight_forks.yml).
+Values should appear irregular like the authored badge thresholds while keeping
+a sensible progression: precise moves earn more experience, and later levels
+require progressively more experience. Awards are deterministic for the same
+evidence; their apparent randomness is in the authored numbers.
+
+Preserve the existing opening-mastery rank thresholds while those tracks are
+reviewed; they do not establish the curve for tactical masteries. Other tactical
+tracks and their tuning remain future work.
 
 See [checkmate scraps](checkmate-scraps.md) for their collectible rules and the
 [implementation map](../planning/achievement-implementation.md) for detectors
