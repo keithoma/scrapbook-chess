@@ -51,45 +51,55 @@
   type: badge
   category: 'Skill'
   subcategory: 'Precision'
-  name: ''
+  name: 'Adult Supervision'
   description: 'Win a game without any blunders.'
-  flavor_text: ''
+  flavor:
+    text: A winning game with no major incident reports.
   config:
     metric_key: 'is_no_blunder_win'
     required_value: true
     is_hidden: false
+    analysis_required: true
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: Nobody gave the queen an unsupervised afternoon.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Two games. The safety briefing is paying off.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: Your pieces have noticed the improvement in working conditions.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: The big red button remains unpressed.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: You are becoming a difficult source of highlight clips.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: The opponent waited for a catastrophe. There was a scheduling conflict.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: Your queen has stopped checking the exits.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Boring, dependable, and one point richer.
 
 - id: badge_no_mistakes_blunders
   type: badge

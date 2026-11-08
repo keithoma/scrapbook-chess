@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { profileApi, announceProfileChange } from '../profile-api';
 import type { Color } from 'chessops/types';
 import { parseGame, type ReplayGame } from '../game';
-import type { Checkpoint, VirtualMove } from '../storage';
+import { ANALYSIS_VERSION, type Checkpoint, type VirtualMove } from '../storage';
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { BADGES, progressFor, type Flavor } from './catalog';
-import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, retainMastery, type GameGrant } from './collection';
+import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, retainCollectedEvidence, type GameGrant } from './collection';
 import { collectGame, readCollection, subscribeCollection } from './ledger';
 
 export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
@@ -51,7 +51,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
   const [unchanged, setUnchanged] = useState(false);
   const recorded = games.find(entry => entry.id === gameIdentity(game));
   const eligible = isCompletedGame(game) && (!profileMode || imported);
-  let events = color && eligible ? retainMastery(recorded, color, contributions({ ...game, timeZone: recorded?.timeZone ?? game.timeZone }, color, checkpoint)) : [];
+  let events = color && eligible ? retainCollectedEvidence(recorded, color, contributions({ ...game, timeZone: recorded?.timeZone ?? game.timeZone }, color, checkpoint)) : [];
   const savedVirtual = recorded?.color === color ? recorded.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
   if (savedVirtual.length && !events.some(event => event.kind === 'scrap' && event.mode === 'real')) {
     events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...savedVirtual];
@@ -89,6 +89,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     {profileMode && imported && <p className="mt-2 text-xs text-stone-600">{t('Your player color comes from the imported account.')}</p>}
     {!eligible && <p className="mt-3 text-sm text-stone-600">{t(profileMode ? 'Open an imported game from Profile to collect profile rewards.' : 'Load a completed game to collect rewards.')}</p>}
     <button className="primary-button mt-4 w-full" onClick={() => void collect()} disabled={!color || !eligible || saving}>{saving ? t('Saving rewards…') : t('Collect rewards')}</button>
+    {color && eligible && (!checkpoint || checkpoint.version !== ANALYSIS_VERSION || checkpoint.results.length !== game.moves.length) && <p className="mt-3 text-sm text-stone-600">{t('Analyze the complete game and collect again for evaluation-based badges.')}</p>}
     {failed && <p className="mt-3 text-sm text-red-800" role="alert">{t('Could not save rewards. Please try again.')}</p>}
     {reveal && <div className="reward-reveal mt-4 rounded-xl border border-amber-400 bg-amber-50 p-4" role="status" data-testid="reward-reveal">
       <h3 className="font-serif text-xl">{unchanged ? t('Already in your scrapbook.') : t('A little more remarkable.')}</h3>
