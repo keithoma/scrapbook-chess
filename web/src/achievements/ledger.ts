@@ -40,23 +40,35 @@ export async function collectGame(game: ReplayGame, color: Color, checkpoint?: C
         const before: GameGrant[] = request.result;
         const previous = before.find(entry => entry.id === id);
         const now = new Date().toISOString();
-        const grant: GameGrant = { id, version: 1, pgn: game.pgn, color, events, collectedAt: previous?.collectedAt ?? now, updatedAt: now };
+        const previousVirtual = previous?.color === color
+          ? previous.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
+        const hasRealMate = events.some(event => event.kind === 'scrap' && event.mode === 'real');
+        // Once collected, keep this game's virtual discovery and its evidence.
+        // Refreshing analysis must not erase it or farm alternative finishes.
+        const keepVirtual = previousVirtual.length > 0 && !hasRealMate;
+        const savedEvents = keepVirtual
+          ? [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...previousVirtual] : events;
+        const virtual = keepVirtual ? previous?.virtual
+          : events.some(event => event.kind === 'scrap' && event.mode === 'virtual') ? structuredClone(checkpoint?.virtual) : undefined;
+        const grant: GameGrant = { id, version: 1, pgn: game.pgn, color, events: savedEvents, virtual, collectedAt: previous?.collectedAt ?? now, updatedAt: now };
         store.put(grant);
         result = { before, after: [...before.filter(entry => entry.id !== id), grant], grant };
       };
       tx.oncomplete = () => resolve(result);
       tx.onabort = tx.onerror = () => reject(tx.error);
     });
-    if ('BroadcastChannel' in globalThis) {
+    try { if ('BroadcastChannel' in globalThis) {
       const channel = new BroadcastChannel(CHANNEL); channel.postMessage('changed'); channel.close();
-    }
+    } } catch { /* A notification failure must not misreport a committed reward. */ }
     return saved;
   } finally { db.close(); }
 }
 
 export function subscribeCollection(refresh: () => void): () => void {
   if (!('BroadcastChannel' in globalThis)) return () => {};
-  const channel = new BroadcastChannel(CHANNEL);
-  channel.onmessage = refresh;
-  return () => channel.close();
+  try {
+    const channel = new BroadcastChannel(CHANNEL);
+    channel.onmessage = refresh;
+    return () => channel.close();
+  } catch { return () => {}; }
 }

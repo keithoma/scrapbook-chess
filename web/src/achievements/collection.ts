@@ -4,7 +4,7 @@ import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import type { Color } from 'chessops/types';
 import type { ReplayGame } from '../game';
-import type { Checkpoint } from '../storage';
+import type { Checkpoint, VirtualMove } from '../storage';
 import { BADGES, type BadgeId } from './catalog';
 
 export type Contribution =
@@ -18,6 +18,7 @@ export interface GameGrant {
   events: Contribution[];
   collectedAt: string;
   updatedAt: string;
+  virtual?: VirtualMove[];
 }
 export interface Scrap {
   notation: string;

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Color } from 'chessops/types';
 import { parseGame, type ReplayGame } from '../game';
-import type { Checkpoint } from '../storage';
+import type { Checkpoint, VirtualMove } from '../storage';
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { BADGES, progressFor, type Flavor } from './catalog';
 import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, type GameGrant } from './collection';
 import { collectGame, readCollection, subscribeCollection } from './ledger';
 
-export interface Jump { ply: number; virtualPly?: number }
+export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
 export function useLocalCollection() {
   const [games, setGames] = useState<GameGrant[]>([]);
   const [error, setError] = useState(false);
@@ -43,7 +43,11 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
   const [unchanged, setUnchanged] = useState(false);
   const recorded = games.find(entry => entry.id === gameIdentity(game));
   const eligible = isCompletedGame(game);
-  const events = color && eligible ? contributions(game, color, checkpoint) : [];
+  let events = color && eligible ? contributions(game, color, checkpoint) : [];
+  const savedVirtual = recorded?.color === color ? recorded.events.filter(event => event.kind === 'scrap' && event.mode === 'virtual') : [];
+  if (savedVirtual.length && !events.some(event => event.kind === 'scrap' && event.mode === 'real')) {
+    events = [...events.filter(event => !(event.kind === 'scrap' && event.mode === 'virtual')), ...savedVirtual];
+  }
   const atMove = events.filter(event => event.kind === 'scrap' && event.virtualPly !== undefined
     ? virtualPly === event.virtualPly
     : !virtualPly && event.ply === ply);
@@ -91,7 +95,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
       <ul className="mt-3 space-y-1 text-sm">{BADGES.map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
       <p className="label mt-4">{t('AT THIS MOMENT')}</p>
       {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
-      <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined })}>{event.kind === 'scrap' ? event.notation : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>
+      <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined, virtual: event.kind === 'scrap' && event.mode === 'virtual' ? recorded?.virtual ?? checkpoint?.virtual : undefined })}>{event.kind === 'scrap' ? event.notation : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>
     </div>}
     {locale === 'de' && <p className="mt-3 text-xs text-stone-500">{t('Badge names and flavor text are the English originals.')}</p>}
   </section>;
@@ -134,7 +138,7 @@ export function CollectionView({ games, locale, onOpen, failed, busy }: {
       <p className="mt-4 text-sm" data-testid="real-counts">{t('Real checkmates · White {white} · Black {black}', scrap.realCounts)}</p>
       <div className="mt-3 space-y-2">{scrap.occurrences.map(({ gameId, event }, index) => {
         const record = games.find(game => game.id === gameId)!;
-        return <button className="text-button block text-left" disabled={busy} key={`${gameId}:${index}`} onClick={() => onOpen(record.pgn, { ply: event.ply, virtualPly: event.virtualPly })}>{labels.get(gameId)} · {t(event.mode === 'real' ? 'Real' : 'Virtual')}</button>;
+        return <button className="text-button block text-left" disabled={busy} key={`${gameId}:${index}`} onClick={() => onOpen(record.pgn, { ply: event.ply, virtualPly: event.virtualPly, virtual: record.virtual })}>{labels.get(gameId)} · {t(event.mode === 'real' ? 'Real' : 'Virtual')}</button>;
       })}</div>
     </details>)}</div>
     <h2 className="mb-4 mt-10 text-2xl">{t('Collected games')}</h2>

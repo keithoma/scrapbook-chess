@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  "Look for another virtual finish": "Andere virtuelle Fortsetzung suchen",
   "Collection": "Sammlung",
   "YOUR NEXT DISCOVERY": "DEINE NÄCHSTE ENTDECKUNG",
   "Your game, your rewards.": "Deine Partie, deine Erfolge.",
