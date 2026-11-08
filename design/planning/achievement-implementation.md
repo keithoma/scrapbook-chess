@@ -65,7 +65,7 @@ classification does not activate the unresolved mechanics below.
 | Mechanic and source | Implementation | Open design |
 | --- | --- | --- |
 | Sicilian, Caro-Kann, King's Gambit, Rapport-Jobava, each White/Black (`mastery.json`, 8 tracks) | Opening identification, player color, game-quality facts, XP contribution | XP formula; ECO precision/transpositions; consistent opening names; thresholds are currently C/B/A/S/S+ |
-| Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, levels, saved replay contributions | Tune the prototype values; longer tactical sequences, other forking pieces, and repeated motifs |
+| Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
 | Skewer, discovery (design notes) | chessops attacks/rays and before/after board relationships; Stockfish quality gate | Qualifying targets, pinned pieces, discovered checks, repeated motifs, non-blunder versus good move |
 | Pawn, exchange, piece sacrifice; seven-man standing (design notes) | Sequence/material tracking, engine compensation, piece-count snapshots | Intentional sacrifice versus blunder, return window, exact seven-man condition |
 | Best retreating move (design notes) | Piece motion classification plus engine best-move comparison | Meaning of retreat and treatment of equivalent best moves |

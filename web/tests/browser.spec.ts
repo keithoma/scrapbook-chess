@@ -30,7 +30,8 @@ test('real Stockfish survives pause/reload, finishes original game, and keeps si
 
   const start = Date.now();
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
-  await expect.poll(async () => Number((await page.getByTestId('progress').innerText()).split('/')[0])).toBeGreaterThanOrEqual(3);
+  // This includes downloading the full engine on a cold, throttled browser.
+  await expect.poll(async () => Number((await page.getByTestId('progress').innerText()).split('/')[0]), { timeout: 120000 }).toBeGreaterThanOrEqual(3);
   await page.getByRole('button', { name: 'Pause analysis', exact: true }).click();
   await expect(state(page)).toHaveAttribute('data-state', 'paused');
   const saved = Number((await page.getByTestId('progress').innerText()).split('/')[0]);
@@ -85,7 +86,7 @@ test('real mate is terminal; invalid PGN leaves the existing game intact', async
   await page.getByRole('button', { name: 'Load PGN', exact: true }).click();
   await expect(page.getByTestId('played-moves').getByRole('button')).toHaveCount(4);
   await page.getByRole('button', { name: 'Analyze this game', exact: true }).click();
-  await expect(state(page)).toHaveAttribute('data-state', 'complete');
+  await expect(state(page)).toHaveAttribute('data-state', 'complete', { timeout: 120000 });
   await expect(page.getByTestId('virtual-status')).toContainText('terminal');
   await page.getByLabel('PASTE ONE PGN').fill('1. e4 e5 2. Bh6 *');
   await page.getByRole('button', { name: 'Load PGN', exact: true }).click();

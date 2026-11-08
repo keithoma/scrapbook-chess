@@ -1,7 +1,7 @@
 import { makeSquare } from 'chessops/util';
 import type { Color, Role } from 'chessops/types';
 import { scoreLabel, type ReplayGame } from '../game';
-import { assessFork, type MasteryContribution } from '../achievements/mastery';
+import { assessFork, gradeForContribution, type MasteryContribution } from '../achievements/mastery';
 import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { DEPTH, type Checkpoint } from '../storage';
 import { forkEngineEvidence, type KnightForkCandidate } from './knight-forks';
@@ -26,6 +26,8 @@ export function ForkInspector({ game, saved, candidates, color, checkpoint, ply,
   const selected = virtual ? undefined : own.find(candidate => candidate.ply === ply);
   const assessment = selected && assessFork(game, selected, checkpoint);
   const collected = saved?.find(event => event.ply === ply);
+  const grade = collected ? gradeForContribution(collected)
+    : assessment?.status === 'qualified' ? assessment.event.grade : undefined;
   const evidence = selected && (collected?.evidence ?? forkEngineEvidence(selected, checkpoint?.pgn === game.pgn ? checkpoint.results.find(result => result.ply === ply) : undefined));
   const material = collected ? { gainCp: collected.evidence.materialGainCp, reply: collected.evidence.reply, capture: collected.evidence.capture }
     : assessment?.material.status === 'qualified' ? assessment.material : undefined;
@@ -61,6 +63,7 @@ export function ForkInspector({ game, saved, candidates, color, checkpoint, ply,
           <p className="text-xs text-stone-500">{t('Requested search depth: {depth}. Scores are from the moving player’s perspective.', { depth: DEPTH })}</p>
         </div>}
       <div className="border-t border-stone-200 pt-3 text-sm" data-testid="fork-award">
+        {grade && <p className="mb-2 font-semibold" data-testid="fork-grade">{t('Fork grade: {grade}', { grade })}</p>}
         {collected ? <p>{t('Collected +{xp} XP', { xp: collected.amount })}</p>
           : assessment?.status === 'qualified' ? <p className="font-semibold text-emerald-900">{t('Qualified fork · +{xp} XP', { xp: assessment.event.amount })}</p>
           : assessment?.material.status === 'rejected' ? <p>{t('No mastery XP: no profitable fork survives the immediate defenses.')}</p>

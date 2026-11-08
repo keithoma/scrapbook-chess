@@ -7,6 +7,7 @@ import { translate, type Locale, type Message, type Parameters } from '../i18n';
 import { BADGES, progressFor, type Flavor } from './catalog';
 import { contributions, gameIdentity, isCompletedGame, newlyUnlocked, projectCollection, retainCollectedEvidence, type GameGrant } from './collection';
 import { collectGame, readCollection, subscribeCollection } from './ledger';
+import { gradeForContribution } from './mastery';
 
 export interface Jump { ply: number; virtualPly?: number; virtual?: VirtualMove[] }
 export function useLocalCollection(profileId?: string, loading = false) {
@@ -138,10 +139,13 @@ export function CollectionView({ games, locale, onOpen, failed, busy, profileMod
       <p className="mt-2 text-sm">{t('Level {level}', { level: collection.mastery.level })}</p>
       <progress className="mt-3 h-1.5 w-full" value={collection.mastery.needed === undefined ? 1 : collection.mastery.gained} max={collection.mastery.needed ?? 1} aria-label={t('Mastery level progress')} />
       <p className="mt-2 text-sm" data-testid="mastery-total-xp">{t('{xp} XP', { xp: collection.mastery.xp })}</p>
-      <p className="mt-2 text-xs text-stone-600">{collection.mastery.next === undefined ? t('Maximum level reached') : t('{remaining} XP to the next level', { remaining: collection.mastery.next - collection.mastery.xp })}</p>
+      <p className="mt-2 text-xs text-stone-600" data-testid="mastery-xp-requirement">{collection.mastery.next === undefined ? t('Maximum level reached') : collection.mastery.gradeLocked ? t('XP requirement met. Extra XP is saved.') : t('{remaining} XP to the next level', { remaining: collection.mastery.remainingXp })}</p>
+      <p className="mt-2 text-sm" data-testid="mastery-high-grades">{t('Forks rated S- or better: {count}', { count: collection.mastery.highGrades })}</p>
+      {collection.mastery.requiredHighGrades > 0 && <><p className="mt-2 text-sm" data-testid="mastery-grade-requirement">{t('{earned} / {required} forks rated S- or better for level {level}', { earned: Math.min(collection.mastery.availableHighGrades, collection.mastery.requiredHighGrades), required: collection.mastery.requiredHighGrades, level: collection.mastery.level + 1 })}</p><p className="mt-2 text-xs text-stone-500">{t('Each level’s grade requirement uses a separate batch of forks.')}</p></>}
       <p className="mt-3 text-xs text-stone-500">{t('Better move quality earns more XP. Open a contribution to replay its evidence.')}</p>
       <div className="mt-3 space-y-2">{games.flatMap(record => record.events.filter(event => event.kind === 'mastery').map(event => <details key={`${record.id}:${event.ply}`}>
         <summary className="cursor-pointer text-sm">{labels.get(record.id)} · {t('Knight forks +{xp} XP', { xp: event.amount })}</summary>
+        <p className="mt-2 text-sm" data-testid="collected-fork-grade">{gradeForContribution(event) ? t('Fork grade: {grade}', { grade: gradeForContribution(event)! }) : t('Fork grade unavailable')}</p>
         <p className="mt-2 text-xs">{t('Material threat: {gain} pawns after immediate replies and recaptures.', { gain: event.evidence.materialGainCp / 100 })}</p>
         <p className="mt-2 text-xs">{t('Example defense: {reply} → {capture}', { reply: event.evidence.reply, capture: event.evidence.capture })}</p>
         <button className="text-button mt-2" disabled={busy} onClick={() => onOpen(record.pgn, { ply: event.ply })}>{t('Replay fork')}</button>

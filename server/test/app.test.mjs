@@ -205,9 +205,10 @@ test('profile collection uses the same YAML mastery rules and preserves XP witho
     results: ['e2e4','e7e5','g1f3','b8c6','f1c4','a7a6','f3g5','b7b6','g5f7'].map((bestMove, i) => ({ ply: i + 1, bestMove, best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 })),
     virtual: [], virtualStatus: 'pending' };
   const path = '/profile/games/lichess%3AFork0001/collect';
-  const response = await s.request(path, 'POST', { checkpoint }); assert.equal(response.status, 200);
+  const response = await s.request(path, 'POST', { checkpoint, grade: 'D-', highGrades: 999, level: 10 }); assert.equal(response.status, 200);
   const award = (await response.json()).grant.events.find(event => event.kind === 'mastery');
   assert.equal(award.amount, 137); assert.equal(award.ply, 9);
+  assert.equal(award.grade, 'S+'); assert.equal(award.evidence.gradeVersion, 'fork-grades-v1');
   const recollect = await (await s.request(path, 'POST', {})).json();
   assert.deepEqual(recollect.grant.events.find(event => event.kind === 'mastery'), award);
   s.db.close();
