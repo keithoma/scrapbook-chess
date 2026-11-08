@@ -1,3 +1,4 @@
+import { punishmentContributions } from './punishment';
 import { escapeContributions } from './escapes';
 import { drawReason } from '../draw-reason';
 import type { DrawReason } from '../../../shared/draw';
@@ -117,7 +118,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     const mate = virtualMate(game, checkpoint);
     if (mate?.color === color) events.push({ kind: 'scrap', mode: 'virtual', notation: mate.notation, ply: game.moves.length, virtualPly: mate.plies });
   }
-  return [...events, ...escapeContributions(game, color, BADGES, checkpoint), ...comebackContributions(game, color, winner, BADGES, checkpoint), ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
+  return [...events, ...punishmentContributions(game, color, BADGES, checkpoint), ...escapeContributions(game, color, BADGES, checkpoint), ...comebackContributions(game, color, winner, BADGES, checkpoint), ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
 
