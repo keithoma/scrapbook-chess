@@ -1,0 +1,16 @@
+id: mastery_knight_forks
+type: mastery
+name: Knight forks
+rule_version: knight-forks-v1
+# Prototype tuning: precise play pays more; later levels take progressively longer.
+# These are authored constants, not random rolls or standard mistake categories.
+quality_awards:
+  - max_loss_cp: 7
+    xp: 137
+  - max_loss_cp: 23
+    xp: 89
+  - max_loss_cp: 61
+    xp: 53
+  - max_loss_cp: 97
+    xp: 29
+level_thresholds: [0, 173, 467, 941, 1663, 2767, 4441, 6971, 10781, 16547]
