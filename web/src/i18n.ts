@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  'Replay from ply {ply}': 'Ab Halbzug {ply} wiedergeben',
   "Analyze the complete game and collect again for evaluation-based badges.": "Analysiere die vollständige Partie und sammle erneut, um bewertungsabhängige Abzeichen zu erhalten.",
   "Settings": "Einstellungen",
   "Time zone": "Zeitzone",

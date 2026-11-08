@@ -4,44 +4,55 @@
   type: badge
   category: 'Domination'
   subcategory: 'Punishment'
-  name: ''
+  name: 'Customer Feedback'
   description: 'Punish opponents mistakes.'
-  flavor_text: ''
+  flavor:
+    text: Thank you for your move. We have identified an issue.
   config:
     metric_key: 'opponent_mistakes_punished'
     is_hidden: false
+    analysis_required: true
+    retention_chance_slack: 0.02
     tiers:
       - name: 'pawn'
         amount: 1
-        flavor_text: ''
+        flavor:
+          text: A prompt and constructive response.
 
       - name: 'knight'
         amount: 2
-        flavor_text: ''
+        flavor:
+          text: Your opponent has received another actionable suggestion.
 
       - name: 'bishop'
         amount: 3
-        flavor_text: ''
+        flavor:
+          text: The feedback loop is becoming expensive.
 
       - name: 'rook'
         amount: 4
-        flavor_text: ''
+        flavor:
+          text: You are developing a reputation for reading the error messages.
 
       - name: 'queen'
         amount: 5
-        flavor_text: ''
+        flavor:
+          text: The opponent has been advised to review their previous move.
 
       - name: 'king'
         amount: 6
-        flavor_text: ''
+        flavor:
+          text: Your quality assurance process is now visible on the board.
 
       - name: 'immortal'
         amount: 7
-        flavor_text: ''
+        flavor:
+          text: The suggestion box has been replaced by a complaint department.
 
       - name: 'legend'
         amount: 8
-        flavor_text: ''
+        flavor:
+          text: Thank you for helping us improve your opponent's position. In reverse.
 
 - id: badge_punish_blunders
   type: badge
