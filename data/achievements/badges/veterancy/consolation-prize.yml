@@ -8,7 +8,8 @@
   subcategory: 'Consolation Prize'
   name: 'Effort'
   description: 'Play a valid move in any game.'
-  flavor_text: ''
+  flavor:
+    text: Every masterpiece contains several hundred moves that were simply legal.
   config:
     metric_key: 'my_moves_count'
     required_value: null
@@ -16,32 +17,40 @@
     tiers:
       - name: 'pawn'
         amount: 100
-        flavor_text: ''
+        flavor:
+          text: You have successfully operated the pieces.
 
       - name: 'knight'
         amount: 200
-        flavor_text: ''
+        flavor:
+          text: The mouse has requested a lunch break.
 
       - name: 'bishop'
         amount: 300
-        flavor_text: ''
+        flavor:
+          text: Not every move needs an exclamation mark. Most of these do not have one.
 
       - name: 'rook'
         amount: 400
-        flavor_text: ''
+        flavor:
+          text: You are developing a very specific kind of wrist strength.
 
       - name: 'queen'
         amount: 500
-        flavor_text: ''
+        flavor:
+          text: Five hundred decisions. Some of them even belonged to you.
 
       - name: 'king'
         amount: 600
-        flavor_text: ''
+        flavor:
+          text: The board is small. Your commitment to moving things around it is not.
 
       - name: 'immortal'
         amount: 700
-        flavor_text: ''
+        flavor:
+          text: Your pieces recognize the sound of the chair.
 
       - name: 'legend'
         amount: 800
-        flavor_text: ''
+        flavor:
+          text: Participation has become a competitive advantage.
