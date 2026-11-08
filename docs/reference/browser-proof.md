@@ -58,16 +58,43 @@ rewards**. Collection requires a completed PGN result or board-proven checkmate.
 The supplied recent-game example defaults to Black, as identified by its author;
 this does not set the color for other uploaded games. Existing saved selections
 and an explicit correction take precedence over that example's default.
-Obsession, Effort, and The French Move use their original YAML definitions and
-thresholds. Badge names, tier labels, and flavor remain the authored English text;
+The active badges use their original YAML definitions and thresholds. Badge
+names, tier labels, and flavor remain the authored English text;
 the surrounding interface is localized. Knight-fork mastery is implemented;
 other mastery tracks and story remain future work.
+
+### Active board-event badges
+
+These badges use the selected player's actual game, without Stockfish analysis.
+The [catalog](../../web/src/achievements/catalog.ts) links their authored sources.
+
+| Badge | Progress |
+| --- | --- |
+| Obsession | One completed game. |
+| Winner | One win at the final actual ply, from the PGN result; a board-proven checkmate takes precedence. Draws and losses give none. |
+| Effort | One per actual player move. |
+| Inquisitor | One per move giving check, including checkmate, discovered checks, and castling checks. Double check counts once. |
+| Anti-antichess | Gross captured material: pawn 1, knight/bishop 3, rook 5, queen 9. Trades count; own losses are not subtracted. En passant captures a pawn. A captured promoted piece uses its current role. |
+| Promotion Master | One per promotion, including underpromotions and capture-promotions. Promotion itself adds no captured material. |
+| The French Move | One per en passant capture. |
+
+Virtual continuations never contribute to these badges. The clean-material
+badges remain inactive; their quality and survival requirements do not apply to
+Anti-antichess. Its queen-trade flavor text remains a joke, not a capture rule.
+Promotion Master retains its separate bronze/silver/gold tiers, starting at ten
+promotions.
+
+### Saved contributions
 
 The collection uses a separate IndexedDB database, `scrapbook-local-collection`.
 One record per game contains its chosen color, played PGN, contributions, and any
 collected virtual continuation. Recollecting replaces that record rather than
 incrementing totals again. Changing color corrects its contributions. Concurrent
 tabs use an atomic read/write transaction, with notifications to refresh views.
+Previously saved games do not gain newly activated badge events automatically.
+Open and collect each game again to add them. Recollection preserves collected
+mastery XP and virtual discoveries for the same color. The same behavior applies
+to [profile collections](local-server.md), which use the shared reward rules.
 
 Known platform game URLs provide the identity. Otherwise, identity uses player
 names, the available date/time, the initial position, and canonical moves. Comments

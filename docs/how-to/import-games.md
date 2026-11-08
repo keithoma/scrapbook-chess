@@ -49,6 +49,11 @@ account. Select **Analyze this game**, then **Collect rewards**. Browser Stockfi
 does the analysis; the server saves completed analysis and recomputes contributions
 from the imported game using the shared reward rules.
 
+You can collect the [board-event badges](../reference/browser-proof.md#active-board-event-badges)
+before analysis. Analyze and collect again to add qualified mastery XP or a
+virtual scrap. Recollect previously saved games to add newly activated badges;
+existing progress is not counted twice.
+
 Open **Collection** to see your profile rewards. Another browser connected to the
 same local server and mock account can restore them, including saved analysis.
 This does not make the development server publicly accessible.

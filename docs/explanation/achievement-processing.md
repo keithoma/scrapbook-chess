@@ -2,7 +2,8 @@
 
 This explains the intended separation of chess facts, achievement decisions, and
 collection state for implementers. It is a target architecture: the current
-[local prototype](browser-analysis.md) implements three badges, knight-fork
+[local prototype](browser-analysis.md) implements the
+[active board-event badges](../reference/browser-proof.md#active-board-event-badges), knight-fork
 mastery, and mating scraps.
 Imported-game contributions are evaluated and persisted by the local server using
 the same rules as the guest notebook. A general detector registry and hosted
