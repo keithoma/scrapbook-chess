@@ -62,6 +62,7 @@ profiles, and import reports. [The API](../../server/src/app.ts) implements:
 
 | Route | Behavior |
 | --- | --- |
+| `PUT /api/profile/settings` | Save a validated IANA time zone without changing the collection cutoff. |
 | `GET /api/me` | Return the session's profile, accounts, and game history. |
 | `POST /api/mock-login`, `POST /api/logout` | Enter or leave the local test profile. |
 | `POST /api/profile/accounts` | Add an unverified local-testing account. |
@@ -75,10 +76,17 @@ State-changing requests require the configured browser Origin. Profile endpoints
 require a mock session. Uploads are bounded and analysis evidence is validated
 against the imported PGN. Reward calculation reuses the existing
 [collection rules](../../web/src/achievements/collection.ts), including frozen
-mastery and virtual-scrap evidence. The server build loads the same authored YAML.
+mastery, analysis-badge, and virtual-scrap evidence. The server build loads the
+same authored YAML.
 Imported pre-game ratings and provisional flags are retained with each game and
 used for the [rating badges](browser-proof.md#rating-badges). The server ignores
 client-supplied balances, player colors, and rating overrides.
+
+Imports retain canonical clock samples and specific draw reasons where available.
+Older records recover evidence from their saved raw payload without fetching
+current account data. The replay preview and server use the same
+[badge rules](badge-rules.md), including conservative handling of unknown endings.
+Profile settings and collected calendar time-zone snapshots are retained separately.
 
 ## Platform behavior and limits
 

@@ -60,8 +60,8 @@ download and hosting packaging are material deployment considerations.
 
 The [proposed achievement pipeline](achievement-processing.md) separates chess
 facts, rule evaluation, and collection state. The local contribution ledger now
-implements the [active board-event badges](../reference/browser-proof.md#active-board-event-badges),
-[rating badges](../reference/browser-proof.md#rating-badges), knight-fork mastery, and mating scraps. The
-local server reuses those rules for imported profile games; other detectors and
-hosted persistence remain planned. See
+implements the [complete YAML badge catalog](../reference/badge-rules.md),
+knight-fork mastery, and mating scraps. The local server reuses those rules for
+imported profile games. Further mastery and story detectors, and hosted
+persistence, remain planned. See
 [product experience](../../design/product/experience.md) for intended behavior.

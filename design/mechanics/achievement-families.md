@@ -27,6 +27,26 @@ paths and metadata. Keep IDs stable through moves and category corrections.
 Unimplemented drafts remain drafts after being classified; filing them does not
 activate their mechanics or require completing their writing in the same change.
 
+## Badge qualification and tuning
+
+All YAML badges are implemented. Repeatable game accomplishments stay badges;
+quality-scaled tactical skill stays mastery. The
+[qualification reference](../../docs/reference/badge-rules.md) describes the
+implemented rules and their source limitations without duplicating them here.
+
+Calendar rewards use the user's Settings time zone and original game start time.
+Phases follow Lichess scalachess. Mistakes and blunders follow Lichess's convention;
+inaccuracies do not block badges. Existing authored tier curves and nonempty
+flavor are preserved. Previously blank writing now has initial text for review.
+
+Some formerly unspecified mechanics needed prototype interpretations: clock
+sampling and scramble duration, five-full-turn net-gain retention, comeback
+boundary samples, the lost-position threshold for draws, and how much gifted
+advantage a response must retain. These are revisable implementation choices,
+not user-approved balance decisions. The relevant YAML exposes tunable values;
+the qualification reference identifies the sampling rules. Missing evidence
+leaves an award unavailable rather than assuming success.
+
 ## Mastery progression
 
 Tactics such as forks, skewers, and discoveries belong to mastery tracks. A

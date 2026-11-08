@@ -62,7 +62,9 @@ and an explicit correction take precedence over that example's default.
 The active badges use their original YAML definitions and thresholds. Badge
 names, tier labels, and flavor remain the authored English text;
 the surrounding interface is localized. Knight-fork mastery is implemented;
-other mastery tracks and story remain future work.
+other mastery tracks and story remain future work. All 61 YAML badges are active.
+See [badge qualification](badge-rules.md) for calendar, phase, clock, development,
+and evaluation-based families.
 
 ### Active board-event badges
 
@@ -80,9 +82,10 @@ The [catalog](../../web/src/achievements/catalog.ts) links their authored source
 | The French Move | One per en passant capture. |
 | Mirror Dimension | One win in a game where both players actually castled, on opposite sides. |
 
-Virtual continuations never contribute to these badges. The clean-material
-badges remain inactive; their quality and survival requirements do not apply to
-Anti-antichess. Its queen-trade flavor text remains a joke, not a capture rule.
+Virtual continuations never contribute to these badges. The separate
+[clean-material badges](badge-rules.md#clean-material-gains) have quality and
+survival requirements that do not apply to Anti-antichess. Its queen-trade flavor
+text remains a joke, not a capture rule.
 Promotion Master retains its separate bronze/silver/gold tiers, starting at ten
 promotions.
 
@@ -158,7 +161,8 @@ server collection use the same settings. Uploaded guest PGNs use their numeric
 | 480–1499 | Rapid | Restroom Rapid Ritual |
 | At least 1500 | Classical | Improover |
 
-Each game contributes to Obsession and at most one speed badge. Missing, invalid,
+Each game contributes to Obsession and at most one played-speed badge. A win
+also contributes once to the matching won-speed badge. Missing, invalid,
 correspondence, or multi-stage controls give no speed progress. The guest notebook
 still accepts completed test PGNs with those controls; profile imports enforce
 their existing live-game eligibility rules. There is no additional minimum length
@@ -177,7 +181,8 @@ incrementing totals again. Changing color corrects its contributions. Concurrent
 tabs use an atomic read/write transaction, with notifications to refresh views.
 Previously saved games do not gain newly activated badge events automatically.
 Open and collect each game again to add them. Recollection preserves collected
-mastery XP and virtual discoveries for the same color. The same behavior applies
+mastery XP, analysis-based badge evidence, and virtual discoveries for the same
+color. The same behavior applies
 to [profile collections](local-server.md), which use the shared reward rules.
 
 Known platform game URLs provide the identity. Otherwise, identity uses player

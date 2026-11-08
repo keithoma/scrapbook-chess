@@ -17,6 +17,7 @@ up facts, and understanding the system have separate entry points.
 ## Reference
 
 - [Browser proof configuration and storage](reference/browser-proof.md).
+- [Badge qualification](reference/badge-rules.md).
 - [Local profiles and import server](reference/local-server.md).
 - [Credits and dependencies](reference/credits.md).
 
