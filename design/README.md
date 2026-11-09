@@ -22,6 +22,8 @@ platform collection, eligibility, and replay experience.
 
 ## Content
 
+- [Implemented Caro-Kann masteries](content/caro-kann-masteries.md) lists every
+  current identity and its grouped aliases for reviewing catalog granularity.
 - [Achievement ideas](content/achievement-ideas.md) preserves draft mechanics,
   episode ideas, and shelved concepts.
 - [Quote ideas](content/quote-ideas.md) preserves writing references.
@@ -32,7 +34,7 @@ platform collection, eligibility, and replay experience.
 the catalog to required detectors, open decisions, and the requested milestones.
 
 These are subject-based design sections, not Diátaxis categories. Keep agreed
-rules in product/mechanics, draft writing in content, and implementation planning
-in planning. Link between them rather than repeating the same rule. Mark a
+rules in product/mechanics, catalog reviews and draft writing in content, and
+implementation planning in planning. Link between them rather than repeating the same rule. Mark a
 proposal or open question explicitly. See the [documentation guide](../docs/how-to/write-documentation.md)
 for maintenance and file-size rules.
