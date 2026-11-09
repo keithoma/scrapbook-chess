@@ -116,7 +116,7 @@ export function GameRewards({ game, checkpoint, color, onColor, games, onSaved, 
     {!locked && color && eligible && <details className="mt-5 border-t border-stone-200 pt-4"><summary className="text-button">{t('Game contributions')}</summary>
       <h3 className="label">{t('THIS GAME THROUGH THE CURRENT MOVE')}</h3>
       <ul className="mt-3 space-y-1 text-sm">{BADGES.filter(badge => !badge.config.is_hidden || progressFor(badge, totals[badge.id]).tier).map(badge => <li className="flex justify-between gap-3" key={badge.id}><span>{badge.name}</span><span data-testid={`replay-${badge.id}`}>{soFar.reduce((sum, event) => sum + (event.kind === 'badge' && event.badgeId === badge.id ? event.amount : 0), 0)}</span></li>)}</ul>
-      {MASTERIES.map(definition=><p key={definition.id} className="mt-2 text-sm" data-testid={definition.id==='mastery_knight_forks'?'replay-mastery-xp':definition.id==='mastery_skewers'?'replay-skewer-xp':`replay-${definition.id}`}>{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp:events.reduce((sum,event)=>sum+(event.kind==='mastery'&&event.masteryId===definition.id&&event.ply<=ply?event.amount:0),0)})}</p>)}
+      {MASTERIES.filter(definition => events.some(event => event.kind === 'mastery' && event.masteryId === definition.id)).map(definition=><p key={definition.id} className="mt-2 text-sm" data-testid={definition.id==='mastery_knight_forks'?'replay-mastery-xp':definition.id==='mastery_skewers'?'replay-skewer-xp':`replay-${definition.id}`}>{t('{mastery} +{xp} XP',{mastery:t(definition.name),xp:events.reduce((sum,event)=>sum+(event.kind==='mastery'&&event.masteryId===definition.id&&event.ply<=ply?event.amount:0),0)})}</p>)}
       <p className="label mt-4">{t('AT THIS MOMENT')}</p>
       {atMove.length ? <ul className="mt-2 space-y-2 text-sm">{atMove.map((event, index) => <li key={index}>{event.kind === 'mastery' ? t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount}) : event.kind === 'badge' ? `${BADGES.find(b => b.id === event.badgeId)!.name} +${event.amount}` : `${event.notation} · ${t(event.mode === 'real' ? 'Real' : 'Virtual')}`}{event.kind === 'badge' && event.originPly !== undefined && <button className="text-button ml-2" onClick={() => onJump({ ply: event.originPly! })}>{t('Replay from ply {ply}', { ply: event.originPly })}</button>}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">{t('No contribution on this move.')}</p>}
       <details className="mt-4"><summary className="text-button cursor-pointer">{t('Jump to a reward moment')}</summary><div className="mt-2 flex max-h-40 flex-wrap gap-1 overflow-y-auto">{events.map((event, index) => <button className="move-button" key={index} onClick={() => onJump({ ply: event.ply, virtualPly: event.kind === 'scrap' ? event.virtualPly : undefined, virtual: event.kind === 'scrap' && event.mode === 'virtual' ? recorded?.virtual ?? checkpoint?.virtual : undefined })}>{event.kind === 'scrap' ? event.notation : event.kind === 'mastery' ? `${event.ply} · ${t('{mastery} +{xp} XP', {mastery:t(MASTERIES.find(definition=>definition.id===event.masteryId)!.name),xp:event.amount})}` : `${event.ply} · ${BADGES.find(b => b.id === event.badgeId)!.name}`}</button>)}</div></details>
@@ -132,6 +132,8 @@ export function CollectionView({ games, locale, onOpen, failed, busy, loading = 
   const t = (key: Message, parameters?: Parameters) => translate(locale, key, parameters);
   const collection = useMemo(() => projectCollection(games), [games]);
   const [query, setQuery] = useState('');
+  const [masteryQuery, setMasteryQuery] = useState('');
+  const [masteryPage, setMasteryPage] = useState(0);
   const [category, setCategory] = useState('all');
   const [subcategory, setSubcategory] = useState('all');
   const [unlock, setUnlock] = useState('all');
@@ -149,6 +151,13 @@ export function CollectionView({ games, locale, onOpen, failed, busy, loading = 
     const game = parseGame(record.pgn);
     return [record.id, `${game.white} ${translate(locale, 'vs')} ${game.black}`];
   })), [games, locale]);
+  const masteries = [...MASTERIES.filter(definition => definition.family !== 'opening'), ...MASTERIES.filter(definition => definition.family === 'opening')].filter(definition =>
+    `${t(definition.name)} ${definition.name} ${definition.subcategory ?? ''}`.toLocaleLowerCase(locale)
+      .includes(masteryQuery.trim().toLocaleLowerCase(locale)));
+  const pageSize = 24;
+  const masteryPages = Math.max(1, Math.ceil(masteries.length / pageSize));
+  const currentMasteryPage = Math.min(masteryPage, masteryPages - 1);
+  const visibleMasteries = masteries.slice(currentMasteryPage * pageSize, (currentMasteryPage + 1) * pageSize);
   if (loading) return <section className="page-section"><h1>{t('Achievements')}</h1><p className="empty-state" role="status"><span className="spinner" aria-hidden="true" />{t('Loading your achievements…')}</p></section>;
   if (failed) return <section className="page-section"><h1>{t('Achievements')}</h1><p className="error-state" role="alert">{t('Could not open the local collection. Reload to try again.')}</p></section>;
   return <section className="page-section" aria-labelledby="collection-title">
@@ -157,7 +166,14 @@ export function CollectionView({ games, locale, onOpen, failed, busy, loading = 
     <p className="mt-3 text-sm leading-6 text-stone-600">{t(profileMode ? 'Saved with your profile on the local server.' : 'Saved only in this browser. Collect completed PGNs to try the reward loop.')}</p>
     {busy && <p className="mt-3 text-sm text-stone-600">{t('Pause analysis before opening another game.')}</p>}
     <h2 className="my-6 text-2xl">{t('Masteries')}</h2>
-    <div className="mastery-grid">{MASTERIES.map(definition=><MasteryCard key={definition.id} definition={definition} progress={collection.masteries[definition.id]} games={games} labels={labels} locale={locale} busy={busy} onOpen={onOpen}/>)}</div>
+    <div className="filter-bar"><label>{t('Search masteries')}<input type="search" value={masteryQuery} onChange={event => { setMasteryQuery(event.target.value); setMasteryPage(0); }} /></label></div>
+    {!masteries.length && <p className="empty-state">{t('No masteries match this search.')}</p>}
+    <div className="mastery-grid">{visibleMasteries.map(definition=><MasteryCard key={definition.id} definition={definition} progress={collection.masteries[definition.id]} games={games} labels={labels} locale={locale} busy={busy} onOpen={onOpen}/>)}</div>
+    {masteryPages > 1 && <nav className="mt-4 flex items-center justify-between gap-3" aria-label={t('Mastery pages')}>
+      <button className="secondary-button" disabled={currentMasteryPage === 0} onClick={() => setMasteryPage(currentMasteryPage - 1)}>{t('Previous mastery page')}</button>
+      <p className="text-sm">{t('Page {page} of {pages}', { page: currentMasteryPage + 1, pages: masteryPages })}</p>
+      <button className="secondary-button" disabled={currentMasteryPage + 1 >= masteryPages} onClick={() => setMasteryPage(currentMasteryPage + 1)}>{t('Next mastery page')}</button>
+    </nav>}
     <h2 className="my-6 text-2xl">{t('Badges')}</h2>
     {locale === 'de' && <p className="mb-3 text-xs text-stone-500">{t('Badge names and flavor text are the English originals.')}</p>}
     <div className="tier-legend"><span>{t('Standard badge tiers')}</span><ol>{['Stone', 'Pawn', 'Knight', 'Bishop', 'Rook', 'Queen', 'King', 'Immortal', 'Legend'].map(tier => <li key={tier}>{tier}</li>)}</ol><p>{t('Some badges use their authored tier names. Thresholds follow each badge’s definition.')}</p></div>

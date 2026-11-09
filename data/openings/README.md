@@ -23,3 +23,12 @@ handcraft recognition from the
 also CC0. Jobava folds move-only continuations into one identity; Queen's Pawn
 uses the position after 1.d4 as a broad family entry. Future generation
 can replace recognition data while retaining authored mastery IDs and writing.
+
+[caro-kann.json](caro-kann.json) curates all Caro-Kann Defense entries from the
+same pinned Lichess snapshot. The exact filtered [source rows](sources/caro-kann.tsv)
+are vendored under the same CC0 terms for offline coverage tests. Repeated names,
+Short Variation aliases, and generic Main Line or move-only continuation labels
+share reviewed identities. Eponymous variations and lines retain separate entries.
+Recognition replays positions from these records; it does not infer membership
+from ECO prefixes or naming structure. Scoring and XP multipliers remain in the
+[shared opening policy](../rules/opening-mastery.yml), separate from this data.

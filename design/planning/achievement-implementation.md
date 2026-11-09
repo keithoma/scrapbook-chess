@@ -14,7 +14,8 @@ existing description final or require the whole catalog in the first release.
   tactical progression policy under `data/rules/`.
 - `masteries/endgames/`: Pawn vs Pawn, with independent outcome/quality scoring
   and the existing level progression.
-- `mastery.json`: six inactive opening drafts, split by player color; Jobava now lives in opening mastery YAML.
+- `mastery.json`: four inactive Sicilian and King's Gambit drafts, split by player color;
+  the active opening masteries live in YAML.
 - `scraps/`: eight named one-time scrap definitions, classified in YAML and still
   marked as drafts pending unlock rules and detectors.
 - `story.json`: five prerequisite-linked onboarding nodes.
@@ -80,7 +81,8 @@ classification does not activate the unresolved mechanics below.
 | --- | --- | --- |
 | Jobava London, White/Black (`masteries/openings/jobava-london.yml`) | Implemented: position recognition, offline book, quality/conversion XP, independent levels and one game grade | Tune prototype policy against actual games; automate recognition data later |
 | Queen's Pawn Game, White/Black (`masteries/openings/queen-s-pawn-game.yml`) | Implemented: broad 1.d4 entry recognition, shared opening scoring, higher XP thresholds, and full independent credit alongside Jobava when both are recognized | Tune the shared threshold multiplier; other families' parent/child memberships remain unresolved |
-| Sicilian, Caro-Kann, King's Gambit, each White/Black (`mastery.json`, 6 drafts) | Intended: named-opening recognition and separate color tracks | Author membership, branch/parent credit and frequency-scaled thresholds; preserve draft ranks until reviewed |
+| Caro-Kann, root and named branches, White/Black (`masteries/openings/caro-kann-defense.yml`) | Implemented: complete pinned source coverage, reviewed aliases, position recognition, independent overlapping awards, shared scoring and branch-specific XP multipliers; root draft names, writing, and IDs retained | Tune prototype branch multipliers against actual games |
+| Sicilian and King's Gambit, each White/Black (`mastery.json`, 4 drafts) | Intended: named-opening recognition and separate color tracks | Author membership, branch/parent credit and frequency-scaled thresholds; preserve draft ranks until reviewed |
 | Knight fork (`masteries/tactics/forks.yml`) | Material-threat checks, Stockfish quality-based XP, D- through S+ grades, XP and grade-gated levels, saved replay contributions | Tune prototype grade bands and the XP curve; longer sequences, other forking pieces, repeated motifs |
 | Skewer (`masteries/tactics/skewers.yml`) | Implemented with new-ray detection, bounded net-gain verification, shared grades/XP and independent levels | Tune bounded detection and quality grading |
 | Pawn vs Pawn (`masteries/endgames/pawn-vs-pawn.yml`) | Implemented: first kings-and-pawns-only position with pawns on both sides, one outcome/quality award through the actual finish, independent XP and grade gates | Tune prototype starting-evaluation bands, quality weights, and result scores against real endings; author other endgame types |
@@ -129,7 +131,7 @@ SQLite-backed profile rewards are implemented. See the
 The dated [browser proof QA record](../../docs/qa/browser-proof.md) retains the
 limits of that audit; it is not a claim about every later badge.
 
-The loop includes all YAML badges, knight-fork, skewer, Jobava and Queen's Pawn opening, and Pawn vs Pawn masteries, and exact-SAN real/virtual
+The loop includes all YAML badges, knight-fork, skewer, Jobava, Queen's Pawn and named Caro-Kann opening, and Pawn vs Pawn masteries, and exact-SAN real/virtual
 mating scraps. Collection is idempotent, color correction replaces the game's
 contributions, and explicit recollection adds newly available awards. Previously
 collected engine evidence and virtual discoveries survive cache eviction for the

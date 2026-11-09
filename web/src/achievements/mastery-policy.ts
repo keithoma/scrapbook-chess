@@ -5,10 +5,12 @@ import policySource from '../../../data/rules/tactical-mastery.yml?raw';
 import openingPolicySource from '../../../data/rules/opening-mastery.yml?raw';
 import openingSource from '../../../data/achievements/masteries/openings/jobava-london.yml?raw';
 import queensPawnSource from '../../../data/achievements/masteries/openings/queen-s-pawn-game.yml?raw';
+import caroKannSource from '../../../data/achievements/masteries/openings/caro-kann-defense.yml?raw';
 import endgameSource from '../../../data/achievements/masteries/endgames/pawn-vs-pawn.yml?raw';
 import endgamePolicySource from '../../../data/rules/endgame-mastery.yml?raw';
 import type { Score } from '../stockfish';
-import { OPENINGS } from '../openings/recognition';
+import { OPENINGS, CARO_KANN_OPENINGS } from '../openings/recognition';
+import type { Message } from '../i18n';
 
 export const TACTICAL_GRADES = [
   'D-',
@@ -28,14 +30,17 @@ export const TACTICAL_GRADES = [
   'S+',
 ] as const;
 export type TacticalGrade = (typeof TACTICAL_GRADES)[number];
-export const MASTERY_IDS = ['mastery_knight_forks', 'mastery_skewers', 'mastery_rapport_jobava_white', 'mastery_rapport_jobava_black', 'mastery_queens_pawn_game_white', 'mastery_queens_pawn_game_black', 'mastery_pawn_vs_pawn'] as const;
+type CaroKannMasteryId = `mastery_caro_kann_${'white' | 'black'}` | `mastery_caro_kann_${string}_${'white' | 'black'}`;
+export const MASTERY_IDS = ['mastery_knight_forks', 'mastery_skewers', 'mastery_rapport_jobava_white', 'mastery_rapport_jobava_black', 'mastery_queens_pawn_game_white', 'mastery_queens_pawn_game_black',
+  ...CARO_KANN_OPENINGS.flatMap(opening => (['white', 'black'] as const).map(color => `mastery_${opening.id.replaceAll('-', '_')}_${color}` as CaroKannMasteryId)),
+  'mastery_pawn_vs_pawn'] as const;
 export type MasteryId = (typeof MASTERY_IDS)[number];
 export interface MasteryDefinition {
   id: MasteryId;
   type: 'mastery';
   category?: string;
   subcategory?: string;
-  name: 'Knight forks' | 'Skewers' | 'The Modern Artist (Rapport-Jobava)' | 'The Art Critic (Defending the Rapport-Jobava)' | "Queen's Pawn Game (White)" | "Queen's Pawn Game (Black)" | 'Pawn vs Pawn';
+  name: Message;
   family?: 'opening' | 'tactical' | 'endgame';
   color?: 'white' | 'black';
   opening_id?: string;
@@ -95,7 +100,7 @@ if (!(OPENING_POLICY.novel_decay > 0 && OPENING_POLICY.novel_decay < 1 &&
     OPENING_POLICY.control_cap_seconds > 0 && OPENING_POLICY.control_exponent > 1 &&
     OPENING_POLICY.minimum_time_multiplier > 0))
   throw new Error('Invalid opening mastery policy.');
-export const OPENING_MASTERIES: MoveMasteryDefinition[] = [openingSource, queensPawnSource].flatMap(source => parse(source)).map((definition: MoveMasteryDefinition & { progression: string }) => {
+export const OPENING_MASTERIES: MoveMasteryDefinition[] = [openingSource, queensPawnSource, caroKannSource].flatMap(source => parse(source)).map((definition: MoveMasteryDefinition & { progression: string }) => {
   const opening = OPENINGS.find(opening => opening.id === definition.opening_id);
   const multiplier = OPENING_POLICY.level_threshold_multipliers[definition.opening_id ?? ''];
   if (definition.progression !== OPENING_POLICY.id || !opening ||
@@ -151,6 +156,9 @@ export const ENDGAME_MASTERIES: MasteryDefinition[] = [parse(endgameSource)].map
 });
 export const PAWN_VS_PAWN_MASTERY = ENDGAME_MASTERIES[0];
 export const MASTERIES: MasteryDefinition[] = [...TACTICAL_MASTERIES, ...OPENING_MASTERIES, ...ENDGAME_MASTERIES];
+if (new Set(MASTERY_IDS).size !== MASTERY_IDS.length || MASTERIES.length !== MASTERY_IDS.length ||
+    new Set(MASTERIES.map(definition => definition.id)).size !== MASTERIES.length)
+  throw new Error('Mastery identities must be unique and complete.');
 for (const definition of [...TACTICAL_MASTERIES, ...OPENING_MASTERIES]) {
   if (
     !MASTERY_IDS.includes(definition.id) ||

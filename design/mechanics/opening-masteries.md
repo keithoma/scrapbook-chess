@@ -1,8 +1,9 @@
 # Opening masteries
 
-These rules serve the game designer and implementers. Jobava London and Queen's
-Pawn Game are implemented opening families. Their numeric balance values are
-prototype tuning in [the opening policy](../../data/rules/opening-mastery.yml), not conventional chess
+These rules serve the game designer and implementers. Jobava London, Queen's
+Pawn Game, and the named Caro-Kann branches are implemented opening families.
+Their numeric balance values are prototype tuning in
+[the opening policy](../../data/rules/opening-mastery.yml), not conventional chess
 grades or immutable game-design thresholds.
 
 ## Named openings and branching
@@ -25,8 +26,17 @@ and later named variation. A game recognized as both Queen's Pawn Game and Jobav
 earns full XP and one eligible grade in each track, without splitting the award.
 Both Queen's Pawn color tracks require substantially more XP at every level;
 the shared opening policy supplies their threshold multiplier. Grade gates stay
-the same and are independent by track. Other opening families and their
-parent/child memberships remain future work.
+the same and are independent by track.
+
+Caro-Kann has a track pair for every genuinely named variation in the pinned
+opening source. Duplicate labels, the Short Variation naming variants, and
+generic Main Line or move-only Exchange/Retreat continuations share their reviewed
+named identities. Named lines such as Carlsbad and Perlis remain separate. Preserve
+The Iron Wall and The Wall Breaker, their writing, and their stable root IDs.
+Every recognized position earns full independent progress, as with Queen's Pawn
+and Jobava. Broader Caro-Kann branches need more XP than narrower variations;
+the shared policy defines the multipliers. Other opening families and their
+memberships remain future work.
 
 ## Theory and independent play
 
@@ -89,7 +99,8 @@ Future automation should generate opening recognition data from Lichess, then
 apply reviewed naming/grouping rules. Recognition records, source provenance,
 scoring policies, and authored writing remain separate so generation preserves
 stable IDs and the designer's flavor text. Recognition handcrafts Jobava and
-Queen's Pawn Game; it does not activate or implement a catalog-wide generator.
+Queen's Pawn Game, and curates the complete named Caro-Kann family from the pinned
+snapshot. This does not activate or implement a catalog-wide generator.
 
 See the [implementation reference](../../docs/reference/opening-masteries.md)
 for current evidence, arithmetic, and source limitations.
