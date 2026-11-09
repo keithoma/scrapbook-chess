@@ -21,5 +21,11 @@ it('lists every active definition exactly once, with its exact name and ID, and 
   expect(ids.sort()).toEqual(active.map(entry => entry.id).sort());
   expect(new Set(ids).size).toBe(ids.length);
   for (const entry of active) expect(tables).toContain(`| ${entry.name} | \`${entry.id}\` |`);
+  const badges = generated['implemented-achievements/badges.md'];
+  expect(badges).toContain('| When you get it |');
+  for (const badge of BADGES) {
+    expect(badge.description.trim()).not.toBe('');
+    expect(badges).toContain(`| ${badge.name} | \`${badge.id}\` | ${badge.description.replaceAll('|', '\\|').replace(/[\r\n]+/g, ' ')} |`);
+  }
   for (const draft of legacyMasteries) expect(ids).not.toContain(draft.id);
 });
