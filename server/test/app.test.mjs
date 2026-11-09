@@ -9,6 +9,54 @@ import { parseSan } from 'chessops/san';
 import { makeUci } from 'chessops/util';
 
 const baseURL = 'http://127.0.0.1:5173';
+test('Lichess terminal clock states do not block opening XP, including older imports saved with null clocks', async () => {
+  const source = readFileSync(new URL('../../web/src/fixtures/games/jobava.pgn', import.meta.url), 'utf8');
+  const moves = source.trim().split('\n\n')[1];
+  const clocks = [...moves.matchAll(/%clk 0:(\d+):(\d+)/g)].map(match => (Number(match[1]) * 60 + Number(match[2])) * 100);
+  const records = ['resign', 'outoftime'].map((status, index) => {
+    const raw = sample('lichess', { id: `Clok000${index}` });
+    raw.pgn = raw.pgn.replaceAll('0-1', '1-0').replace('1. f3 e5 2. g4 Qh4# 1-0', moves);
+    raw.status = status; raw.winner = 'white';
+    raw.clocks = [...clocks, status === 'outoftime' ? 0 : 33000];
+    return raw;
+  });
+  const s = await setup({ fetcher: upstream({ lichess: records }) });
+  await s.login(); await s.request('/profile/check-games', 'POST', {});
+  const fresh = await (await s.request('/me')).json();
+  assert.equal(fresh.games.length, records.length);
+  for (const game of fresh.games) assert.deepEqual(game.clocks, clocks.map(value => value / 100));
+  for (const row of s.db.prepare('SELECT * FROM imported_games').all()) {
+    const game = JSON.parse(row.game_json);
+    game.clocks = Array(clocks.length).fill(null);
+    s.db.prepare('UPDATE imported_games SET game_json=? WHERE user_id=? AND game_id=?').run(JSON.stringify(game), row.user_id, row.game_id);
+  }
+  const restored = await (await s.request('/me')).json();
+  for (const game of restored.games) {
+    assert.deepEqual(game.clocks, clocks.map(value => value / 100));
+    const parsed = parsePgn(game.pgn)[0];
+    const pos = startingPosition(parsed.headers).unwrap();
+    const results = [];
+    for (const node of parsed.moves.mainline()) {
+      const move = parseSan(pos, node.san);
+      results.push({ ply: results.length + 1, bestMove: makeUci(move), best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 });
+      pos.play(move);
+    }
+    const checkpoint = { pgn: game.pgn, version: 'stockfish-19.0.1-full-single-depth6-hash32-proof-v1', results, virtual: [], virtualStatus: 'pending' };
+    const path = `/profile/games/${encodeURIComponent(game.id)}/collect`;
+    const response = await s.request(path, 'POST', { checkpoint });
+    assert.equal(response.status, 200);
+    const grant = (await response.json()).grant;
+    const opening = grant.events.filter(event => event.family === 'opening');
+    for (const id of ['mastery_rapport_jobava_black', 'mastery_queens_pawn_game_black']) {
+      const track = opening.filter(event => event.masteryId === id);
+      assert.equal(track.reduce((sum, event) => sum + event.amount, 0), 392);
+      assert.equal(track.filter(event => event.grade).length, 1);
+    }
+    assert.deepEqual(grant.clocks, clocks.map(value => value / 100));
+    assert.deepEqual((await (await s.request(path, 'POST', {})).json()).grant.events, grant.events);
+  }
+  s.db.close();
+});
 test('both providers collect independent Caro-Kann root and named-branch awards and retain them without analysis', async () => {
   const source = readFileSync(new URL('../../web/src/fixtures/games/caro-kann.pgn', import.meta.url), 'utf8');
   const moves = source.trim().split('\n\n')[1];

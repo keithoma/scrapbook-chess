@@ -139,12 +139,17 @@ export async function createApp(options: AppOptions) {
   }
   function readImported(row: Record<string, unknown>): ImportedGame {
     const game = JSON.parse(row.game_json as string) as ImportedGame;
+    const raw = JSON.parse(row.raw_json as string);
     // Imports made before rating badges already retained the original payload.
     // Recover historical evidence without fetching today's profile ratings.
-    game.ratings ??= sourceRatings(game.platform, JSON.parse(row.raw_json as string));
-    if (game.platform === 'lichess' && game.clocks === undefined) game.clocks = lichessClocks(JSON.parse(row.raw_json as string).clocks, parseGame(game.pgn).moves.length);
-    if (game.platform === 'chesscom' && game.clocks === undefined) game.clocks = parseGame(game.pgn).moves.map(move => move.clock ?? null);
-    game.drawReason ??= sourceDrawReason(game.platform, JSON.parse(row.raw_json as string));
+    game.ratings ??= sourceRatings(game.platform, raw);
+    const replay = parseGame(game.pgn);
+    const missingClocks = !game.clocks || game.clocks.length !== replay.moves.length || game.clocks.some(value => value === null || !Number.isFinite(value));
+    if (missingClocks) {
+      const recovered = game.platform === 'lichess' ? lichessClocks(raw.clocks, replay.moves.length) : replay.moves.map(move => move.clock ?? null);
+      game.clocks = recovered ?? game.clocks;
+    }
+    game.drawReason ??= sourceDrawReason(game.platform, raw);
     return game;
   }
   function collection(userId: string): GameGrant[] { return db.prepare('SELECT grant_json FROM collections WHERE user_id=?').all(userId).map(row => JSON.parse(row.grant_json as string)); }
