@@ -149,6 +149,11 @@ than adding newly repriced move fragments. Recollecting older Jobava games with
 analysis and clocks can add the newly available Queen's Pawn award while leaving
 their saved Jobava awards intact. Color correction replaces the awards.
 
+An opening mastery card appears only once its specific color track has at least
+one collected XP. Recognition, preview XP, and grades alone do not reveal a card.
+Search and pagination include only revealed opening tracks. Color correction
+hides a track again if its collected total falls to zero.
+
 Collection cards group contributions by game. Open a game to inspect book,
 independent-play, bonus, reward-weight and time/result evidence; replay buttons
 jump to the contributing moves. Saved awards survive analysis-cache eviction.
