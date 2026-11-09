@@ -7,19 +7,22 @@ import { DEPTH, saveCheckpoint, type Checkpoint } from './storage';
 import { StockfishClient, TOP_MOVE_COUNT } from './stockfish';
 import { findNovelFinish, type FinishOptions } from './virtual-finish';
 import { annotateMoves, createMoveAnnotator } from './chess/annotations';
+import { analyzeCleanGain } from './clean-gain-analysis';
+import { CLEAN_GAIN_RULE, validCleanGainEvidence } from './chess/clean-gain';
+import type { EnginePick } from './stockfish';
 
 export async function analyzeGame(
   game: ReplayGame,
   checkpoint: Checkpoint,
   engine: StockfishClient,
   signal: AbortSignal,
-  onSave: (checkpoint: Checkpoint, stage: 'moves' | 'virtual') => void,
+  onSave: (checkpoint: Checkpoint, stage: 'moves' | 'material' | 'virtual') => void,
   finishOptions?: FinishOptions,
 ): Promise<void> {
   let current = structuredClone(checkpoint);
   const annotate = createMoveAnnotator(game);
   current.results = annotateMoves(game, current.results);
-  const persist = async (stage: 'moves' | 'virtual') => {
+  const persist = async (stage: 'moves' | 'material' | 'virtual') => {
     signal.throwIfAborted();
     current.updatedAt = new Date().toISOString();
     await saveCheckpoint(current);
@@ -55,6 +58,18 @@ export async function analyzeGame(
       bestMove: best.bestMove, topMoves: best.topMoves, ms: performance.now() - start,
     });
     await persist('moves');
+  }
+  const materialCache = new Map<string, EnginePick>();
+  const materialBudget = { remainingNodes: CLEAN_GAIN_RULE.gameNodeBudget as number };
+  for (const move of game.moves.filter(move => move.captured)) {
+    signal.throwIfAborted();
+    const saved = current.cleanGains?.find(evidence => evidence.capturePly === move.ply);
+    if (saved?.ruleVersion === CLEAN_GAIN_RULE.version && !saved.budgetExhausted && validCleanGainEvidence(game, saved)) continue;
+    const evidence = await analyzeCleanGain(game, move.ply, engine, signal, {
+      results: current.results, cache: materialCache, budget: materialBudget, previous: saved,
+    });
+    current.cleanGains = [...(current.cleanGains ?? []).filter(entry => entry.capturePly !== move.ply), evidence];
+    await persist('material');
   }
   if (current.virtualStatus !== 'pending') { await refineFinish(); return; }
   const final = game.frames.at(-1)!;

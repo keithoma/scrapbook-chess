@@ -35,7 +35,7 @@ export interface Badge {
   subcategory: string;
   flavor?: Flavor;
   flavor_text?: string;
-  config: { tiers: Tier[]; is_hidden?: boolean; metric_key?: string | null; required_value?: number | string | boolean | null; max_seconds?: number; analysis_required?: boolean; survival_plies?: number; lost_cp?: number; retention_chance_slack?: number };
+  config: { tiers: Tier[]; is_hidden?: boolean; metric_key?: string | null; required_value?: number | string | boolean | null; max_seconds?: number; analysis_required?: boolean; lost_cp?: number; retention_chance_slack?: number };
 }
 
 const raw: Badge[] = [mileage, victories, consolation, captures, specialMoves, promotions, checks, odds, castling, weekdays, hours, workLife, phases, development, clockBadges, precision, cleanGains, comebacks, escapes, punishment].flatMap(source => parse(source));

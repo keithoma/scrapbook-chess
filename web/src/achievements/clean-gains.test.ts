@@ -1,73 +1,68 @@
 import { expect, it } from 'vitest';
-import { parseGame } from '../game';
 import { analyzed } from '../fixtures/test-analysis';
+import { cleanGainFixture } from '../fixtures/clean-gain-evidence';
 import { BADGES } from './catalog';
 import { contributions, prepareGrant, projectCollection } from './collection';
-const candidates = [
-  ['badge_clean_pawns', 'p'],
-  ['badge_clean_knight', 'n'],
-  ['badge_clean_bishop', 'b'],
-  ['badge_clean_rook', 'r'],
-  ['badge_clean_queen', 'q'],
-] as const;
-function capture(piece: string, black = false, exchange = false) {
-  const fen = black
-    ? `k2r4/8/8/8/3${piece.toUpperCase()}4/8/6P1/7K b - - 0 1`
-    : `${exchange ? '3r3k' : '7k'}/6p1/8/3${piece}4/8/8/8/K2R4 w - - 0 1`;
-  const moves = black
-    ? '1... Rxd4 2. Kh2 Rd5 3. Kh1 Rd4 4. Kh2 Rd5 5. Kh1 Rd4 6. Kh2 Rd5 0-1'
-    : exchange
-      ? '1. Rxd5 Rxd5 2. Ka2 Kh7 3. Ka3 Kh8 4. Ka2 Kh7 5. Ka3 Kh8 6. Ka2 0-1'
-      : '1. Rxd5 Kh7 2. Rd4 Kh8 3. Rd5 Kh7 4. Rd4 Kh8 5. Rd5 Kh7 6. Rd4 1-0';
-  return parseGame(`[SetUp "1"]\n[FEN "${fen}"]\n\n${moves}`);
-}
-for (const [id, piece] of candidates.filter(([id]) => BADGES.some((b) => b.id === id))) {
-  it(`${id} confirms retained material after ten actual plies, gates move quality and keeps saved evidence`, () => {
+import { parseGame } from '../game';
+
+for (const [role, id] of [
+  ['pawn', 'badge_clean_pawns'], ['knight', 'badge_clean_knight'], ['bishop', 'badge_clean_bishop'],
+  ['rook', 'badge_clean_rook'], ['queen', 'badge_clean_queen'],
+] as const) {
+  it(`${id} awards a confirmed actual capture without a survival delay and retains its saved evidence`, () => {
     for (const black of [false, true]) {
-      const game = capture(piece, black);
+      const { game, evidence } = cleanGainFixture(role, black);
       const color = black ? 'black' : 'white';
-      const checkpoint = analyzed(game);
-      const events = () =>
-        contributions(game, color, checkpoint).filter(
-          (e) => e.kind === 'badge' && e.badgeId === id,
-        );
-      expect(events()).toMatchObject([{ ply: 11, originPly: 1, amount: 1 }]);
+      const checkpoint = { ...analyzed(game), cleanGains: [evidence] };
+      const events = () => contributions(game, color, checkpoint).filter(event => event.kind === 'badge' && event.badgeId === id);
+      expect(events()).toMatchObject([{ ply: 2, originPly: 1, amount: 1, evidence: { rule: 'clean-gains-v2', depth: 14 } }]);
       const saved = prepareGrant([], game, color, checkpoint);
       const again = prepareGrant([saved], game, color);
-      expect(
-        projectCollection([again]).totals[
-          id as keyof ReturnType<typeof projectCollection>['totals']
-        ],
-      ).toBe(1);
-      expect(
-        projectCollection([prepareGrant([saved], game, black ? 'white' : 'black')]).totals[
-          id as keyof ReturnType<typeof projectCollection>['totals']
-        ],
-      ).toBe(0);
-      checkpoint.results[0].played.value = black ? 111 : -111;
+      expect(projectCollection([again]).totals[id]).toBe(1);
+      expect(projectCollection([prepareGrant([saved], game, black ? 'white' : 'black')]).totals[id]).toBe(0);
+      checkpoint.cleanGains = [];
       expect(events()).toEqual([]);
-      checkpoint.results[0].played.value = black ? 110 : -110;
-      expect(events()).toHaveLength(1);
-      expect(contributions(game, color).some((e) => e.kind === 'badge' && e.badgeId === id)).toBe(
-        false,
-      );
-      const short = { ...game, moves: game.moves.slice(0, 10), frames: game.frames.slice(0, 11) };
-      expect(
-        contributions(short, color, analyzed(short)).some(
-          (e) => e.kind === 'badge' && e.badgeId === id,
-        ),
-      ).toBe(false);
-      const partial = { ...checkpoint, results: checkpoint.results.slice(0, 1) };
-      partial.results[0].played.value = 0;
-      expect(
-        contributions(game, color, partial).filter((e) => e.kind === 'badge' && e.badgeId === id),
-      ).toHaveLength(1);
+      expect(contributions(game, color).some(event => event.kind === 'badge' && event.badgeId === id)).toBe(false);
     }
-    const exchange = capture(piece, false, true);
-    expect(
-      contributions(exchange, 'white', analyzed(exchange)).some(
-        (e) => e.kind === 'badge' && e.badgeId === id,
-      ),
-    ).toBe(false);
   });
 }
+it('does not award compensated captures or missing, partial, malformed or mismatched evidence', () => {
+  const { game, evidence } = cleanGainFixture();
+  const checkpoint = { ...analyzed(game), cleanGains: [evidence] };
+  const events = () => contributions(game, 'white', checkpoint).filter(event => event.kind === 'badge' && event.badgeId === 'badge_clean_pawns');
+  for (const sample of evidence.attempts[0].samples) sample.after.score.value = 50;
+  expect(events()).toEqual([]);
+  evidence.attempts[0].samples.length = 1;
+  expect(events()).toEqual([]);
+  checkpoint.pgn += ' ';
+  expect(events()).toEqual([]);
+});
+it('the catalog uses the shared engine rule rather than a survival window', () => {
+  for (const badge of BADGES.filter(badge => badge.subcategory === 'Clean Gains')) {
+    expect(badge.config).not.toHaveProperty('survival_plies');
+    expect(badge.description).toContain('80%');
+  }
+});
+
+it('cannot repeatedly spend one concession’s evaluation budget on different captured pawns', () => {
+  const game = parseGame('[SetUp "1"]\n[FEN "7k/6p1/3p4/6p1/8/8/6P1/K2R4 b - - 0 1"]\n\n1... d5 2. Rxd5 Kh7 3. Rxg5 1-0');
+  const first = cleanGainFixture().evidence;
+  const second = structuredClone(first);
+  second.capturePly = 4; second.attempts[0].capturePly = 4;
+  const quiet = ['h7h6', 'a1a2', 'h6h7', 'a2a1', 'h7h6', 'a1a2'];
+  for (const evidence of [first, second]) for (const sample of evidence.attempts[0].samples) {
+    const capture = evidence.capturePly;
+    const lines = {
+      before: [...game.moves.map(move => move.uci), ...quiet],
+      conceded: [...game.moves.slice(1).map(move => move.uci), ...quiet],
+      captureBest: [...game.moves.slice(capture - 1).map(move => move.uci), ...quiet],
+      after: [...game.moves.slice(capture).map(move => move.uci), ...quiet],
+    };
+    for (const field of ['before', 'conceded', 'captureBest', 'after'] as const) {
+      sample[field].pv = lines[field]; sample[field].uci = lines[field][0];
+    }
+  }
+  const checkpoint = { ...analyzed(game), cleanGains: [first, second] };
+  const events = contributions(game, 'white', checkpoint).filter(event => event.kind === 'badge' && event.badgeId === 'badge_clean_pawns');
+  expect(events).toHaveLength(1);
+});

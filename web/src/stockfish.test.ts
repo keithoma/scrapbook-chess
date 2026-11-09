@@ -17,7 +17,7 @@ afterEach(() => vi.unstubAllGlobals());
 const fen = makeFen(Chess.default().toSetup());
 
 it('parses ranked scores and rejects bound-only, score-only and invalid PV output', () => {
-  expect(parseVariation('info depth 6 multipv 2 score cp 15 pv e7e5 g1f3', 'black')).toEqual({ rank: 2, depth: 6, uci: 'e7e5', score: { type: 'cp', value: -15 } });
+  expect(parseVariation('info depth 6 multipv 2 score cp 15 pv e7e5 g1f3', 'black')).toEqual({ rank: 2, depth: 6, uci: 'e7e5', pv: ['e7e5', 'g1f3'], score: { type: 'cp', value: -15 } });
   expect(parseVariation('info depth 6 score mate 1 pv d8h4', 'black')?.score).toEqual({ type: 'mate', value: -1 });
   for (const line of ['info depth 6 score cp 10 lowerbound pv e2e4', 'info depth 6 score cp 10', 'info depth 6 multipv 0 score cp 10 pv e2e4'])
     expect(parseVariation(line, 'white')).toBeUndefined();
@@ -68,5 +68,14 @@ it('returns fewer than three choices when only one legal move exists', async () 
   const searched = client.search('k7/8/2K5/8/8/8/8/R7 b - - 0 1', 6, 'black', undefined, 3);
   FakeWorker.last.emit('info depth 6 multipv 1 score mate -1 pv a8b8', 'bestmove a8b8');
   expect((await searched).topMoves).toHaveLength(1);
+  client.terminate();
+});
+
+it('reports actual depth and nodes when a bounded search exhausts its budget', async () => {
+  const client = new StockfishClient();
+  const searched = client.search(fen, 14, 'white', undefined, 1, { nodes: 500, allowPartialDepth: true });
+  FakeWorker.last.emit('info depth 8 score cp 25 nodes 480 pv e2e4 e7e5', 'bestmove e2e4');
+  expect(await searched).toMatchObject({ depth: 8, nodes: 480, topMoves: [{ pv: ['e2e4', 'e7e5'], depth: 8 }] });
+  expect(FakeWorker.last.postMessage).toHaveBeenLastCalledWith('go depth 14 nodes 500');
   client.terminate();
 });
