@@ -8,14 +8,13 @@
   category: 'Material'
   subcategory: 'Clean Gains'
   name: 'Finders Keepers'
-  description: 'Number of clean pawns won (the pawn winning move is not a mistake nor a blunder and the pawn is kept for 5 or more turns).'
+  description: 'Number of clean pawns won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap).'
   flavor:
     text: A pawn, acquired without a subscription to the opponent's attack.
   config:
     metric_key: 'clean_pawns_count'
     is_hidden: false
     analysis_required: true
-    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
@@ -62,14 +61,13 @@
   category: 'Material'
   subcategory: 'Clean Gains'
   name: 'Horse Stable'
-  description: 'Number of clean knights won (the knight winning move is not a mistake nor a blunder and the knight is kept for 5 or more turns).'
+  description: 'Number of clean knights won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap).'
   flavor:
     text: One knight, with no concealed invoice.
   config:
     metric_key: 'clean_knights_count'
     is_hidden: false
     analysis_required: true
-    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
@@ -94,7 +92,7 @@
       - name: 'queen'
         amount: 5
         flavor:
-          text: Five turns later, the horse is still your opponent's problem.
+          text: The horse came without a tactical invoice.
 
       - name: 'king'
         amount: 6
@@ -116,14 +114,13 @@
   category: 'Material'
   subcategory: 'Clean Gains'
   name: 'Clerical Error'
-  description: 'Number of clean bishops won (the bishop winning move is not a mistake nor a blunder and the bishop is kept for 5 or more turns).'
+  description: 'Number of clean bishops won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap).'
   flavor:
     text: The diagonal department has misplaced a member of staff.
   config:
     metric_key: 'clean_bishops_count'
     is_hidden: false
     analysis_required: true
-    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
@@ -143,7 +140,7 @@
       - name: 'rook'
         amount: 4
         flavor:
-          text: The vacancy remains unfilled after five turns.
+          text: The vacancy remains unfilled after the exchanges.
 
       - name: 'queen'
         amount: 5
@@ -170,14 +167,13 @@
   category: 'Material'
   subcategory: 'Clean Gains'
   name: 'Property Acquisition'
-  description: 'Number of clean rooks won (the rook winning move is not a mistake nor a blunder and the rook is kept for 5 or more turns).'
+  description: 'Number of clean rooks won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap).'
   flavor:
     text: A castle, purchased for substantially less than the asking price.
   config:
     metric_key: 'clean_rooks_count'
     is_hidden: false
     analysis_required: true
-    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1
@@ -224,14 +220,13 @@
   category: 'Material'
   subcategory: 'Clean Gains'
   name: 'Hostile Takeover'
-  description: 'Number of clean queens won (the queen winning move is not a mistake nor a blunder and the queen is kept for 5 or more turns).'
+  description: 'Number of clean queens won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap).'
   flavor:
     text: The board of directors has changed the board.
   config:
     metric_key: 'clean_queens_count'
     is_hidden: false
     analysis_required: true
-    survival_plies: 10
     tiers:
       - name: 'pawn'
         amount: 1

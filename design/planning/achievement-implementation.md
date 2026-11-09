@@ -54,21 +54,27 @@ covers factual moves, ratings, speed, and castling. Values remain authoritative 
 
 The user's decisions are to use Settings time zones for local game-start calendar
 rewards, Lichess's phase divider, and Lichess's mistake/blunder convention while
-ignoring inaccuracies. All six source time controls apply to both played and won
-badges, with both platforms calculated using the same duration convention.
+ignoring inaccuracies. Clean pawns require at least +0.80 evaluation gain after
+the tactical sequence; later blunders do not cancel a confirmed gain. Book moves
+are excluded unless the material-losing line wins below 30% of its games with
+the shared minimum sample. The search bounds, convergence tolerance, and scaling
+to other pieces remain prototype tuning. All six source time controls apply to
+both played and won badges, with both platforms calculated using the same duration
+convention.
 
 The first implementation also makes explicit, revisable choices where the old
-catalog was incomplete: clock comparison samples and scramble duration; ten-ply
-clean-gain confirmation; phase-boundary comeback sampling; the lost-position draw
-threshold; and the advantage-retention slack after an opponent error. These are
+catalog was incomplete: clock comparison samples and scramble duration; bounded,
+progressively deeper engine confirmation for clean gains; phase-boundary comeback
+sampling; the lost-position draw threshold; and the advantage-retention slack after an opponent error. These are
 prototype interpretations, not additional decisions attributed to the user.
 See [badge design boundaries](../mechanics/achievement-families.md#badge-qualification-and-tuning).
 
 Missing clocks, ratings, timestamps, analysis, or draw reasons do not establish a
 qualifying event. In particular, generic Lichess draw status cannot prove agreement.
 Source limitations are exposed in the qualification reference rather than hidden
-behind fabricated achievements. Engine continuations remain exclusive to virtual
-scraps; they never provide actual badge events or survival turns.
+behind fabricated achievements. Engine continuations may assess retainability for
+actual material captures. Only virtual scraps award simulated moves; continuations
+never provide actual badge events or survival turns.
 
 ## Mastery, story, and scraps
 

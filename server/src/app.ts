@@ -11,6 +11,7 @@ import { parseUci } from 'chessops/util';
 import { makeSanAndPlay } from 'chessops/san';
 import { gameIdentity, prepareGrant, type GameGrant } from '../../web/src/achievements/collection';
 import { ANALYSIS_VERSION, DEPTH, type Checkpoint } from '../../web/src/storage';
+import { validCleanGainEvidence, materialLine, mergeCleanGainEvidence } from '../../web/src/chess/clean-gain';
 import { annotateMoves } from '../../web/src/chess/annotations';
 import { legalMoveCount } from '../../web/src/chess/legal-moves';
 import { TOP_MOVE_COUNT } from '../../web/src/stockfish';
@@ -52,6 +53,7 @@ function validateCheckpoint(value: unknown, pgn: string): Checkpoint | undefined
           || !Number.isFinite(pick.score.value) || Math.abs(pick.score.value) > 1_000_000) throw new PlatformError('invalid_analysis');
         const move = parseUci(pick.uci);
         if (!move || !before.isLegal(move)) throw new PlatformError('invalid_analysis');
+        if (pick.pv !== undefined && !materialLine(game.frames[i].fen, pick, before.turn, 0)) throw new PlatformError('invalid_analysis');
         seen.add(pick.uci);
       }
       const first = result.topMoves[0];
@@ -72,7 +74,10 @@ function validateCheckpoint(value: unknown, pgn: string): Checkpoint | undefined
     || cp.virtualWinner !== (pos.turn === 'white' ? 'black' : 'white'))) throw new PlatformError('invalid_analysis');
   if (cp.virtualStatus === 'limit' && (cp.virtual.length !== 20 || pos.isEnd())) throw new PlatformError('invalid_analysis');
   if (cp.virtualStatus === 'terminal' && !pos.isEnd()) throw new PlatformError('invalid_analysis');
-  return { key: '', pgn: game.pgn, version: cp.version, results: annotateMoves(game, cp.results), virtual: cp.virtual,
+  if (cp.cleanGains !== undefined && (!Array.isArray(cp.cleanGains) || cp.cleanGains.length > game.moves.length ||
+      new Set(cp.cleanGains.map(entry => entry?.capturePly)).size !== cp.cleanGains.length ||
+      !cp.cleanGains.every(entry => validCleanGainEvidence(game, entry)))) throw new PlatformError('invalid_analysis');
+  return { key: '', pgn: game.pgn, version: cp.version, results: annotateMoves(game, cp.results), cleanGains: cp.cleanGains, virtual: cp.virtual,
     virtualStatus: cp.virtualStatus, virtualWinner: cp.virtualWinner, updatedAt: new Date().toISOString() };
 }
 export async function createApp(options: AppOptions) {
@@ -242,6 +247,7 @@ export async function createApp(options: AppOptions) {
       if (checkpoint && (checkpoint.results.length || checkpoint.virtual.length)) {
         const previous = db.prepare('SELECT checkpoint_json FROM analyses WHERE user_id=? AND game_id=?').get(signed.user.id, imported.id);
         const saved = previous ? JSON.parse(previous.checkpoint_json as string) as Checkpoint : undefined;
+        checkpoint.cleanGains = mergeCleanGainEvidence(saved?.cleanGains, checkpoint.cleanGains);
         if (!saved || saved.results.length < checkpoint.results.length || (saved.results.length === checkpoint.results.length
           && saved.results.filter(result => result.topMoves?.length).length <= checkpoint.results.filter(result => result.topMoves?.length).length)) {
           db.prepare('INSERT INTO analyses VALUES (?,?,?) ON CONFLICT(user_id,game_id) DO UPDATE SET checkpoint_json=excluded.checkpoint_json').run(signed.user.id, imported.id, JSON.stringify(checkpoint));

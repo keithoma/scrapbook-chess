@@ -1,13 +1,6 @@
 import type { Position } from 'chessops/chess';
 import type { Color, Move, Role, Square } from 'chessops/types';
-const VALUES: Record<Role, number> = {
-  pawn: 100,
-  knight: 300,
-  bishop: 300,
-  rook: 500,
-  queen: 900,
-  king: 0,
-};
+import { MATERIAL_VALUES } from '../chess/material-values';
 export function* legalMoves(pos: Position): Generator<Move> {
   for (const [from, destinations] of pos.allDests())
     for (const to of destinations) {
@@ -19,7 +12,7 @@ export function* legalMoves(pos: Position): Generator<Move> {
 }
 export function balance(pos: Position, color: Color) {
   let value = 0;
-  for (const [, piece] of pos.board) value += VALUES[piece.role] * (piece.color === color ? 1 : -1);
+  for (const [, piece] of pos.board) value += MATERIAL_VALUES[piece.role] * (piece.color === color ? 1 : -1);
   return value;
 }
 // Legal static exchanges on one square. Either player may decline the next

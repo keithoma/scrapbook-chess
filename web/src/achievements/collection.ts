@@ -4,6 +4,7 @@ import { drawReason } from '../draw-reason';
 import type { DrawReason } from '../../../shared/draw';
 import { comebackContributions } from './comebacks';
 import { cleanGainContributions } from './clean-gains';
+import { MATERIAL_VALUES } from '../chess/material-values';
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
@@ -108,7 +109,7 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
     if (move.enPassant) events.push({ kind: 'badge', badgeId: 'badge_en_passant', amount: 1, ply: move.ply });
     if (move.check) events.push({ kind: 'badge', badgeId: 'badge_total_checks', amount: 1, ply: move.ply });
     if (move.promotion) events.push({ kind: 'badge', badgeId: 'badge_promotion', amount: 1, ply: move.ply });
-    if (move.captured) events.push({ kind: 'badge', badgeId: 'badge_material_total', amount: MATERIAL_POINTS[move.captured], ply: move.ply });
+    if (move.captured) events.push({ kind: 'badge', badgeId: 'badge_material_total', amount: MATERIAL_VALUES[move.captured] / MATERIAL_VALUES.pawn, ply: move.ply });
   }
   if (game.frames.at(-1)!.checkmate && last.color === color) {
     events.push({ kind: 'scrap', mode: 'real', notation: last.san, ply: last.ply });
@@ -119,10 +120,6 @@ export function contributions(game: ReplayGame, color: Color, checkpoint?: Check
   return [...events, ...punishmentContributions(game, color, BADGES, checkpoint), ...escapeContributions(game, color, BADGES, checkpoint), ...comebackContributions(game, color, winner, BADGES, checkpoint), ...cleanGainContributions(game, color, BADGES, checkpoint), ...precisionContributions(game, color, winner, BADGES, checkpoint), ...clockContributions(game, color, winner, BADGES), ...fianchettoContributions(game, color, BADGES.find(badge => badge.id === 'badge_fianchetto_total')),
     ...calendarContributions(game, color, winner, BADGES), ...masteryContributions(game, color, checkpoint)];
 }
-
-// Gross captured points, not net advantage. Capture quality and material kept
-// for later turns belong to the separate clean-material badges.
-const MATERIAL_POINTS: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
 
 // Keep already collected XP and evidence stable through cache eviction, partial
 // analysis, and tuning changes. Correcting the game's color replaces its awards.

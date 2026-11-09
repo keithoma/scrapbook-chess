@@ -4,8 +4,8 @@ import { parseFen } from 'chessops/fen';
 import { legalMoveCount } from './chess/legal-moves';
 
 export interface Score { type: 'cp' | 'mate'; value: number }
-export interface EnginePick { uci: string; score: Score; depth: number }
-export interface SearchResult { score: Score; bestMove: string; depth: number; topMoves: EnginePick[] }
+export interface EnginePick { uci: string; score: Score; depth: number; pv?: string[] }
+export interface SearchResult { score: Score; bestMove: string; depth: number; topMoves: EnginePick[]; nodes?: number }
 export const TOP_MOVE_COUNT = 3;
 const CACHE = 'scrapbook-stockfish-19.0.1-full-v1';
 
@@ -54,9 +54,11 @@ export function parseVariation(line: string, turn: 'white' | 'black'): (EnginePi
   const score = parseScore(line, turn);
   const depth = Number(line.match(/\bdepth (\d+)/)?.[1] ?? 0);
   const rank = Number(line.match(/\bmultipv (\d+)/)?.[1] ?? 1);
-  const uci = line.match(/\bpv ([a-h][1-8][a-h][1-8][qrbn]?)(?:\s|$)/)?.[1];
+  const pv = line.match(/\bpv (.+)$/)?.[1].trim().split(/\s+/);
+  const uci = pv?.[0];
+  if (!pv?.every(move => /^[a-h][1-8][a-h][1-8][qrbn]?$/.test(move))) return;
   if (!score || !uci || depth < 1 || rank < 1) return;
-  return { uci, score, depth, rank };
+  return { uci, score, depth, rank, pv };
 }
 
 export class StockfishClient {
@@ -93,32 +95,36 @@ export class StockfishClient {
     this.worker.postMessage('ucinewgame');
     await this.waitFor(line => line === 'readyok', 'isready');
   }
-  async search(fen: string, depth: number, turn: 'white' | 'black', rootMove?: string, multiPv = 1): Promise<SearchResult> {
+  async search(fen: string, depth: number, turn: 'white' | 'black', rootMove?: string, multiPv = 1,
+    limits?: { nodes: number; allowPartialDepth: boolean }): Promise<SearchResult> {
     if (!Number.isInteger(multiPv) || multiPv < 1 || multiPv > TOP_MOVE_COUNT) throw new Error('Invalid engine choice count.');
+    if (limits && (!Number.isSafeInteger(limits.nodes) || limits.nodes < 1)) throw new Error('Invalid engine node limit.');
     const position = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
     const expected = Math.min(multiPv, rootMove ? new Set(rootMove.split(/\s+/)).size : legalMoveCount(position));
     this.worker.postMessage(`setoption name MultiPV value ${multiPv}`);
     this.worker.postMessage(`position fen ${fen}`);
     const variations = new Map<number, Map<number, EnginePick>>();
+    let nodes = 0;
     const collect = (line: string) => {
+      nodes = Math.max(nodes, Number(line.match(/\bnodes (\d+)/)?.[1] ?? 0));
       const parsed = parseVariation(line, turn);
       if (!parsed || parsed.rank > expected) return;
       const atDepth = variations.get(parsed.depth) ?? new Map<number, EnginePick>();
-      atDepth.set(parsed.rank, { uci: parsed.uci, score: parsed.score, depth: parsed.depth });
+      atDepth.set(parsed.rank, { uci: parsed.uci, score: parsed.score, depth: parsed.depth, pv: parsed.pv });
       variations.set(parsed.depth, atDepth);
     };
     this.listeners.add(collect);
     try {
       const done = await this.waitFor(line => line.startsWith('bestmove '),
-        `go depth ${depth}${rootMove ? ` searchmoves ${rootMove}` : ''}`);
+        `go depth ${depth}${limits ? ` nodes ${Math.max(1, Math.floor(limits.nodes))}` : ''}${rootMove ? ` searchmoves ${rootMove}` : ''}`);
       const bestMove = done.split(' ')[1];
       const completed = [...variations.entries()].sort(([a], [b]) => b - a).find(([, picks]) =>
         expected > 0 && Array.from({ length: expected }, (_, i) => picks.has(i + 1)).every(Boolean) &&
         new Set([...picks.values()].map(pick => pick.uci)).size === expected);
       const topMoves = completed ? Array.from({ length: expected }, (_, i) => completed[1].get(i + 1)!) : [];
-      if (!topMoves.length || topMoves[0].uci !== bestMove || topMoves[0].depth < depth)
+      if (!topMoves.length || (!limits?.allowPartialDepth && (topMoves[0].uci !== bestMove || topMoves[0].depth < depth)))
         throw new Error('Engine returned no complete evaluated choices at the requested depth.');
-      return { score: topMoves[0].score, bestMove, depth: topMoves[0].depth, topMoves };
+      return { score: topMoves[0].score, bestMove: topMoves[0].uci, depth: topMoves[0].depth, topMoves, nodes };
     } finally { this.listeners.delete(collect); }
   }
   terminate(): void {

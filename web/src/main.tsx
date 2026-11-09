@@ -27,15 +27,18 @@ import { ANALYSIS_VERSION } from './storage';
 import { SettingsView } from './settings';
 import { initialTimeZone, saveTimeZone } from './preferences';
 import { gameLibrary, gameDate, HomeView, HistoryView } from './game-library';
-import { hasCompleteAnalysis, hasEngineChoices } from './review-state';
+import { hasCompleteAnalysis, hasEngineChoices, hasCleanMaterialAnalysis } from './review-state';
 import { EngineReview } from './engine-review';
 import { reviewHighlights } from './review-highlights';
+import { CleanGainReviewBoard } from './clean-gain-review';
+import { mergeCleanGainEvidence } from './chess/clean-gain';
 
 const recentGameId = gameIdentity(parseGame(RECENT_GAME_PGN));
 type Status = 'loading' | 'ready' | 'downloading' | 'analyzing' | 'virtual' | 'paused' | 'complete' | 'error';
 
 function pageFor(path: string) {
   const pathname = path.split('?')[0];
+  if (pathname === '/material-review') return 'material-review';
   if (pathname === '/collection') return 'achievements';
   return ({ '/': 'home', '/achievements': 'achievements', '/history': 'history', '/review': 'review', '/profile': 'profile', '/settings': 'settings', '/help': 'help', '/feedback': 'feedback' } as Record<string, string>)[pathname] ?? 'missing';
 }
@@ -139,7 +142,7 @@ function App() {
           const remote = await profileApi.analysis(imported.id);
           if (remote?.pgn === parsed.pgn && remote.version === ANALYSIS_VERSION && remote.results.length >= saved.results.length
             && (!hasCompleteAnalysis(parsed, saved) || hasCompleteAnalysis(parsed, remote))
-            && (remote.results.length > saved.results.length || remote.results.filter(result => result.topMoves?.length).length >= saved.results.filter(result => result.topMoves?.length).length)) saved = { ...remote, key: saved.key };
+            && (remote.results.length > saved.results.length || remote.results.filter(result => result.topMoves?.length).length >= saved.results.filter(result => result.topMoves?.length).length)) saved = { ...remote, key: saved.key, cleanGains: mergeCleanGainEvidence(saved.cleanGains, remote.cleanGains) };
         } catch { setError(t('Server analysis could not be loaded. The local checkpoint is still available.')); }
       }
       await saveCheckpoint(saved); remember(saved);
@@ -179,7 +182,7 @@ function App() {
         setCheckpoint(saved); remember(saved);
         latest = saved;
         setStatus(stage === 'virtual' ? 'virtual' : 'analyzing');
-        setMessage(stage === 'virtual' ? 'Exploring a separate engine finish…' : 'Reading the game, one move at a time.');
+        setMessage(stage === 'virtual' ? 'Exploring a separate engine finish…' : stage === 'material' ? 'Checking clean material…' : 'Reading the game, one move at a time.');
       }, playerColor && !savedVirtual ? { color: playerColor, owned: ownedElsewhere } : undefined);
       active.controller.signal.throwIfAborted();
       setStatus('complete'); setMessage('Analysis complete. Every played move is preserved.');
@@ -271,7 +274,9 @@ function App() {
     </nav>
     <nav aria-label={t('More navigation')} className="secondary-nav">
       {([[reviewPath, 'Game review'], ['/profile', 'Profile'], ['/settings', 'Settings'], ['/help', 'Help'], ['/feedback', 'Feedback']] as const).map(([path, label]) => <a key={label} href={path} onClick={event => navigate(event, path)} aria-current={page === pageFor(path) ? 'page' : undefined}>{t(label)}</a>)}
+      <a href="/material-review" onClick={event => navigate(event, '/material-review')} aria-current={page === 'material-review' ? 'page' : undefined}>Clean material testing</a>
     </nav>
+    {page === 'material-review' && <CleanGainReviewBoard locale={locale} currentPgn={game.pgn} />}
     {busy && status !== 'loading' && page !== 'review' && <div className="activity-banner" role="status"><span className="spinner" aria-hidden="true" />{t('Analysis continues in this browser.')}<button className="text-button" onClick={() => goTo(reviewPath)}>{t('View analysis')}</button><button className="text-button" onClick={pause}>{t('Pause analysis')}</button></div>}
     {page === 'home' && <HomeView profile={profile} entries={library.entries} invalid={library.invalid} locale={locale} busy={busy} activeId={gameId} working={busy && status !== 'loading'} loading={libraryLoading} failed={historyFailed} onOpen={open} onNavigate={goTo} />}
     {page === 'history' && <HistoryView entries={library.entries} invalid={library.invalid} locale={locale} busy={busy} activeId={gameId} working={busy && status !== 'loading'} loading={libraryLoading} failed={historyFailed} onOpen={open} />}
@@ -357,6 +362,8 @@ function App() {
           <button className="primary-button w-full" onClick={() => void start()} disabled={busy || !checkpoint || (status === 'complete' && choicesComplete)}>
             {busy ? t('Working in your browser…') : status === 'complete' ? t(choicesComplete ? 'Analysis complete ✓' : 'Add engine choices') : completed ? t('Resume analysis') : t('Analyze this game')}
           </button>
+          {status === 'complete' && !hasCleanMaterialAnalysis(game, checkpoint) &&
+            <button className="secondary-button mt-3 w-full" onClick={() => void start()}>{t('Continue material analysis')}</button>}
           {['downloading', 'analyzing', 'virtual'].includes(status) && <button className="text-button mt-3 w-full" onClick={pause}>{t('Pause analysis')}</button>}
           <button className="text-button mt-3" disabled={!checkpoint} onClick={exportResults}>{t('Export analysis JSON')}</button>
 

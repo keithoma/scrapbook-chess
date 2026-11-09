@@ -7,7 +7,7 @@ import { POLYGLOT_KEYS } from './polyglot-keys';
 export const BOOK_VERSION = manifest.id;
 // Polyglot weights are scaled independently at each position, not game counts.
 // Future reference data can supply observations and mover-relative losses here.
-export interface BookMoveEvidence { weight: number; games?: number; losses?: number }
+export interface BookMoveEvidence { weight: number; games?: number; losses?: number; wins?: number }
 const roles = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
 
 // Independent implementation of https://hgm.nubati.net/book_format.html.

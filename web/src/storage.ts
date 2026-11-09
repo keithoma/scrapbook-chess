@@ -1,4 +1,5 @@
 import type { EnginePick, Score } from './stockfish';
+import type { CleanGainEvidence } from './chess/clean-gain';
 import type { MoveAnnotations } from './chess/annotations';
 import { annotateMoves } from './chess/annotations';
 import { parseGame } from './game';
@@ -20,6 +21,7 @@ export interface Checkpoint {
   version: string;
   pgn: string;
   results: MoveResult[];
+  cleanGains?: CleanGainEvidence[];
   virtual: VirtualMove[];
   virtualStatus: 'pending' | 'mate' | 'limit' | 'terminal';
   virtualWinner?: 'white' | 'black';
