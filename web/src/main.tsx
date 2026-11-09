@@ -1,4 +1,5 @@
 import { OPENING_POLICY } from './achievements/mastery-policy';
+import { CARO_KANN_PGN } from './fixtures';
 import { skewerCandidates } from './tactics/skewers';
 import { SkewerInspector } from './tactics/skewer-inspector';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -383,6 +384,7 @@ function App() {
       <h1 id="help-title" className="text-3xl">{t('Help')}</h1>
       <h2 className="mt-6 text-xl">{t('Opening mastery')} · {t('Jobava London')} · {t("Queen's Pawn Game")}</h2>
       <p className="mt-3">{t('Each opening has separate White and Black masteries.')}</p>
+      <p className="mt-3">{t('Named Caro-Kann branches have separate White and Black tracks. Every recognized branch earns independent progress.')}</p>
       <p className="mt-3">{t("Queen's Pawn Game covers every game starting with 1.d4. A game can progress both this mastery and Jobava London.")}</p>
       <p className="mt-3">{t("Queen's Pawn Game requires {multiplier}× the XP for each level.", { multiplier: OPENING_POLICY.level_threshold_multipliers['queens-pawn-game'] / OPENING_POLICY.level_threshold_multipliers['rapport-jobava'] })}</p>
       <p className="mt-3">{t('Precise early conversion earns a bonus. Rewards fade permanently as a large advantage is converted; swings do not reset them.')}</p>
@@ -407,6 +409,7 @@ function App() {
             <button className="secondary-button" disabled={busy} onClick={() => open(FORK_PGN)}>{t('Fork example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => open(SKEWER_PGN)}>{t('Skewer example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => open(JOBAVA_PGN)}>{t('Jobava example')}</button>
+            <button className="secondary-button" disabled={busy} onClick={() => open(CARO_KANN_PGN)}>{t('Caro-Kann example')}</button>
             <button className="secondary-button" disabled={busy} onClick={() => open(PAWN_ENDGAME_PGN)}>{t('Pawn endgame example')}</button>
           </div>
           <label htmlFor="pgn" className="label">{t('PASTE ONE PGN')}</label>

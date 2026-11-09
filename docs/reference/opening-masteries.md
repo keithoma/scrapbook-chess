@@ -1,21 +1,27 @@
 # Opening masteries
 
-Jobava London and Queen's Pawn Game each have separate White and Black tracks.
+Jobava London, Queen's Pawn Game, and the named Caro-Kann branches each have
+separate White and Black tracks.
 The [Jobava catalog](../../data/achievements/masteries/openings/jobava-london.yml)
 retains The Modern Artist and The Art Critic; the
 [Queen's Pawn catalog](../../data/achievements/masteries/openings/queen-s-pawn-game.yml)
 adds the broad family. Both use the shared
 [opening scoring policy](../../data/rules/opening-mastery.yml). Its per-opening
 threshold multipliers make Queen's Pawn levels require substantially more XP,
-with the same independent grade gates and per-game scoring.
+with the same independent grade gates and per-game scoring. The
+[Caro-Kann catalog](../../data/achievements/masteries/openings/caro-kann-defense.yml)
+uses that policy too, preserving The Iron Wall and The Wall Breaker for its root.
+Broader Caro-Kann branches have higher threshold multipliers than narrower ones;
+these are prototype balance settings in the shared policy.
 Tactical mastery currently retains its previous scoring rules. Its top-three
 alternative comparison is [intended future work](../../design/mechanics/achievement-families.md#intended-tactical-scoring-follow-up).
 
 ## Recognition and book evidence
 
 [Recognition](../../web/src/openings/recognition.ts) matches legally replayed
-positions against [curated Jobava entries](../../data/openings/jobava.json) and
-the [Queen's Pawn entry](../../data/openings/queens-pawn-game.json).
+positions against [curated Jobava entries](../../data/openings/jobava.json),
+the [Queen's Pawn entry](../../data/openings/queens-pawn-game.json), and
+the [curated Caro-Kann entries](../../data/openings/caro-kann.json).
 Standard, Nf6-first, Bf4-first, and e6 setups can reach the same Jobava family.
 Queen's Pawn recognizes the position after 1.d4, including every Black response
 and subsequent named opening. Recognition returns every matching family, so a
@@ -25,6 +31,20 @@ an inferred hierarchy; entering a Jobava position by another route does not
 automatically establish the Queen's Pawn entry.
 Recognition requires a normal starting board. PGN Opening/ECO labels do not
 activate a mastery. Jobava's two color tracks retain the earlier draft IDs and names.
+
+Caro-Kann recognition covers every Caro-Kann Defense entry in the pinned Lichess
+snapshot. The vendored [source rows](../../data/openings/sources/caro-kann.tsv)
+allow offline coverage tests. Duplicate labels share one identity. The two Short
+Variation labels share one track pair, and generic Main Line, Exchange Line, and
+Retreat Line labels belong to their named parent. Eponymous lines such as Carlsbad,
+Czerniak, and Perlis retain their own identities. The recognition catalog records
+these reviewed aliases and legal entry positions explicitly.
+
+Each reached named position earns full independent XP and one eligible grade
+for its color track; ancestors are not inferred from label prefixes or ECO codes.
+For example, the ordinary Short Variation route recognizes Caro-Kann, Advance,
+and Short. Transposing through 3.Nc3 or 3.Nd2 can reach the same Classical entry.
+Unplayed sibling variations and simulated moves receive no credit.
 
 The [vendored move book](../../data/openings/README.md) is independent of named
 opening recognition. Both runtimes embed the same pinned Polyglot bytes and
@@ -133,4 +153,7 @@ Collection cards group contributions by game. Open a game to inspect book,
 independent-play, bonus, reward-weight and time/result evidence; replay buttons
 jump to the contributing moves. Saved awards survive analysis-cache eviction.
 English and German interfaces, Help, and the clocked synthetic **Jobava example**
-are available in Notebook. The example is not the author's historical game.
+and **Caro-Kann example** are available in Notebook. The examples are not the
+author's historical games. Mastery search accepts English and translated names,
+and the collection pages through the catalog. Replay lists only tracks with
+contributions in that game, including their zero totals before the award move.
