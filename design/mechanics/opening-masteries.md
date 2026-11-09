@@ -96,6 +96,10 @@ three additional marks, and level eight needs five more. XP always accumulates;
 marks can be banked. One game's grade satisfies only one gate in its own track.
 New policy versions must not silently reprice saved contributions.
 
+Opening mastery cards stay hidden until their own color track has at least one
+collected XP. Revealing a track does not reveal its other color, parent, or
+sibling tracks; each needs its own XP. Search and pagination follow this rule.
+
 ## Future catalog automation
 
 Future automation should generate opening recognition data from Lichess, then

@@ -151,7 +151,8 @@ export function CollectionView({ games, locale, onOpen, failed, busy, loading = 
     const game = parseGame(record.pgn);
     return [record.id, `${game.white} ${translate(locale, 'vs')} ${game.black}`];
   })), [games, locale]);
-  const masteries = [...MASTERIES.filter(definition => definition.family !== 'opening'), ...MASTERIES.filter(definition => definition.family === 'opening')].filter(definition =>
+  const masteries = [...MASTERIES.filter(definition => definition.family !== 'opening'), ...MASTERIES.filter(definition => definition.family === 'opening')]
+    .filter(definition => definition.family !== 'opening' || collection.masteries[definition.id].xp >= 1).filter(definition =>
     `${t(definition.name)} ${definition.name} ${definition.subcategory ?? ''}`.toLocaleLowerCase(locale)
       .includes(masteryQuery.trim().toLocaleLowerCase(locale)));
   const pageSize = 24;
