@@ -4,203 +4,205 @@
 
 [Implemented achievement index](../implemented-achievements.md).
 
+Descriptions come from the active badge definitions. See [qualification details](../badge-rules.md) for processing requirements and source-data limits.
+
 ## Domination / Body Count
 
 Definition: [body-count.yml](../../../data/achievements/badges/domination/body-count.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Winner | `badge_won_total` |
-| As Foretold | `badge_won_ultrabullet` |
-| Speed | `badge_won_hyperbullet` |
-| Vexillology | `badge_won_bullet` |
-| Blitz Losern't | `badge_won_blitz` |
-| Overthinking | `badge_won_rapid` |
-| Galaxy Brain | `badge_won_classical` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Winner | `badge_won_total` | Total games won across all time controls. |
+| As Foretold | `badge_won_ultrabullet` | Total Ultrabullet games won. |
+| Speed | `badge_won_hyperbullet` | Total Hyperbullet games won. |
+| Vexillology | `badge_won_bullet` | Total Bullet games won. |
+| Blitz Losern't | `badge_won_blitz` | Total Blitz games won. |
+| Overthinking | `badge_won_rapid` | Total Rapid games won. |
+| Galaxy Brain | `badge_won_classical` | Total Classical games won. |
 
 ## Domination / ChessDom
 
 Definition: [chessdom.yml](../../../data/achievements/badges/domination/chessdom.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Lightening | `badge_time_advantage` |
-| Clutch | `badge_time_scramble` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Lightening | `badge_time_advantage` | Win a game with always having more time than the opponent. |
+| Clutch | `badge_time_scramble` | Win a time scramble. |
 
 ## Domination / Phasewise
 
 Definition: [phasewise.yml](../../../data/achievements/badges/domination/phasewise.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Preparation | `badge_won_opening` |
-| Tactician | `badge_won_middlegame` |
-| Squeezing Stone | `badge_won_endgame` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Preparation | `badge_won_opening` | Total games won in the opening phase. |
+| Tactician | `badge_won_middlegame` | Total games won in the middlegame phase. |
+| Squeezing Stone | `badge_won_endgame` | Total games won in the endgame phase. |
 
 ## Domination / Punishment
 
 Definition: [punishment.yml](../../../data/achievements/badges/domination/punishment.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Customer Feedback | `badge_punish_mistakes` |
-| Find Out | `badge_punish_blunders` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Customer Feedback | `badge_punish_mistakes` | Punish opponents mistakes. |
+| Find Out | `badge_punish_blunders` | Punish opponents blunders. |
 
 ## Domination / Work-life balance
 
 Definition: [work-life-balance.yml](../../../data/achievements/badges/domination/work-life-balance.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Farming Trash Mobs | `badge_won_weekday` |
-| Mercury in Retrograde | `badge_won_weekend` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Farming Trash Mobs | `badge_won_weekday` | Total games won on weekdays. |
+| Mercury in Retrograde | `badge_won_weekend` | Total games won on weekends. |
 
 ## Material / Captures
 
 Definition: [captures.yml](../../../data/achievements/badges/material/captures.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Anti-antichess | `badge_material_total` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Anti-antichess | `badge_material_total` | Total points of materials captured. |
 
 ## Material / Clean Gains
 
 Definition: [clean-gains.yml](../../../data/achievements/badges/material/clean-gains.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Finders Keepers | `badge_clean_pawns` |
-| Horse Stable | `badge_clean_knight` |
-| Clerical Error | `badge_clean_bishop` |
-| Property Acquisition | `badge_clean_rook` |
-| Hostile Takeover | `badge_clean_queen` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Finders Keepers | `badge_clean_pawns` | Number of clean pawns won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap). |
+| Horse Stable | `badge_clean_knight` | Number of clean knights won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap). |
+| Clerical Error | `badge_clean_bishop` | Number of clean bishops won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap). |
+| Property Acquisition | `badge_clean_rook` | Number of clean rooks won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap). |
+| Hostile Takeover | `badge_clean_queen` | Number of clean queens won (a net material gain backed by at least 80% of its value in evaluation, confirmed by stable engine continuations; book lines require a verified trap). |
 
 ## Material / Promotions
 
 Definition: [promotions.yml](../../../data/achievements/badges/material/promotions.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Promotion Master | `badge_promotion` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Promotion Master | `badge_promotion` | Number of all promotions achieved. |
 
 ## Resilience / Against the Odds
 
 Definition: [against-the-odds.yml](../../../data/achievements/badges/resilience/against-the-odds.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Elo Is a Social Construct | `badge_upset` |
-| Agree to Disagree | `hold_your_own` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Elo Is a Social Construct | `badge_upset` | Beat an opponent rated 100 or more points higher than you. |
+| Agree to Disagree | `hold_your_own` | Draw against an opponent rated 150 or more points higher than you. |
 
 ## Resilience / Comebacks
 
 Definition: [comebacks.yml](../../../data/achievements/badges/resilience/comebacks.yml).
 
-| Achievement | ID |
-| --- | --- |
-| The Long Con | `badge_comeback_1_5_late` |
-| Speedrun the Apology | `badge_comeback_2_0_fast` |
-| Plot Armor | `badge_comeback_3_0_mid` |
-| Unfinished Business | `badge_comeback_endgame_2_0` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| The Long Con | `badge_comeback_1_5_late` | Be down 1.5 or more after the opening and the mid game and still win. |
+| Speedrun the Apology | `badge_comeback_2_0_fast` | Be down 2.0 or more after the opening and win in 20 moves after the opening. |
+| Plot Armor | `badge_comeback_3_0_mid` | Be down 3.0 or more after the opening and win. |
+| Unfinished Business | `badge_comeback_endgame_2_0` | Start the end game with 2.0 down and draw or win. |
 
 ## Resilience / Great Escapes
 
 Definition: [great-escapes.yml](../../../data/achievements/badges/resilience/great-escapes.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Say That Again | `badge_draw_lost_threefold` |
-| Terms of Surrender | `badge_draw_lost_agreement` |
-| The Waiting Game | `badge_draw_lost_50move` |
-| Nothing Personal | `badge_draw_lost_insufficient` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Say That Again | `badge_draw_lost_threefold` | Draw a previously lost position by three fold repetition. |
+| Terms of Surrender | `badge_draw_lost_agreement` | Draw a previously lost position by agreement. |
+| The Waiting Game | `badge_draw_lost_50move` | Draw a previously lost position by the 50 move rule. |
+| Nothing Personal | `badge_draw_lost_insufficient` | Draw a previously lost position by insufficient material. |
 
 ## Skill / Castling
 
 Definition: [castling.yml](../../../data/achievements/badges/skill/castling.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Mirror Dimension | `badge_opposite_side_casteling` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Mirror Dimension | `badge_opposite_side_casteling` | Win a game in which the players castled on opposite sides. |
 
 ## Skill / Development
 
 Definition: [development.yml](../../../data/achievements/badges/skill/development.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Flank Sniper | `badge_fianchetto_total` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Flank Sniper | `badge_fianchetto_total` | Total number of bishops developed via fianchetto. |
 
 ## Skill / King Pressure
 
 Definition: [king-pressure.yml](../../../data/achievements/badges/skill/king-pressure.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Inquisitor | `badge_total_checks` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Inquisitor | `badge_total_checks` | Total number of checks delivered to the enemy king. |
 
 ## Skill / Precision
 
 Definition: [precision.yml](../../../data/achievements/badges/skill/precision.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Adult Supervision | `badge_no_blunders` |
-| Terms of Perfection | `badge_no_mistakes_blunders` |
-| Always on Brand | `badge_perfect_eval` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Adult Supervision | `badge_no_blunders` | Win a game without any blunders. |
+| Terms of Perfection | `badge_no_mistakes_blunders` | Win a game without any mistakes and blunders. |
+| Always on Brand | `badge_perfect_eval` | Win a game with always being above 0.0 as white, or below +0.5 as black. |
 
 ## Variety / Special Moves
 
 Definition: [special-moves.yml](../../../data/achievements/badges/variety/special-moves.yml).
 
-| Achievement | ID |
-| --- | --- |
-| The French Move | `badge_en_passant` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| The French Move | `badge_en_passant` | Total number of en passants. |
 
 ## Veterancy / Chronotype
 
 Definition: [chronotype.yml](../../../data/achievements/badges/veterancy/chronotype.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Witching Hour | `badge_played_time_00_04` |
-| Dawn Patrol | `badge_played_time_04_08` |
-| Coffee & Castling | `badge_played_time_08_12` |
-| Post-Lunch Slump | `badge_played_time_12_16` |
-| Clocking Out | `badge_played_time_16_20` |
-| Prime Time | `badge_played_time_20_24` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Witching Hour | `badge_played_time_00_04` | Total games played between 00:00 and 04:00. |
+| Dawn Patrol | `badge_played_time_04_08` | Total games played between 04:00 and 08:00. |
+| Coffee & Castling | `badge_played_time_08_12` | Total games played between 08:00 and 12:00. |
+| Post-Lunch Slump | `badge_played_time_12_16` | Total games played between 12:00 and 16:00. |
+| Clocking Out | `badge_played_time_16_20` | Total games played between 16:00 and 20:00. |
+| Prime Time | `badge_played_time_20_24` | Total games played between 20:00 and 24:00. |
 
 ## Veterancy / Consolation Prize
 
 Definition: [consolation-prize.yml](../../../data/achievements/badges/veterancy/consolation-prize.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Effort | `badge_moves_played` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Effort | `badge_moves_played` | Play a valid move in any game. |
 
 ## Veterancy / DailyScape
 
 Definition: [dailyscape.yml](../../../data/achievements/badges/veterancy/dailyscape.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Delulu Monday | `badge_played_monday` |
-| Untitled Tuesday | `badge_played_tuesday` |
-| Wednesday | `badge_played_wednesday` |
-| Thtockfish Thursday | `badge_played_thursday` |
-| Freedom Friday | `badge_played_friday` |
-| Grass Saturday | `badge_played_saturday` |
-| Saint Sunday | `badge_played_sunday` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Delulu Monday | `badge_played_monday` | Total games played on Mondays. |
+| Untitled Tuesday | `badge_played_tuesday` | Total games played on Tuesdays. |
+| Wednesday | `badge_played_wednesday` | Total games played on Wednesdays. |
+| Thtockfish Thursday | `badge_played_thursday` | Total games played on Thursdays. |
+| Freedom Friday | `badge_played_friday` | Total games played on Fridays. |
+| Grass Saturday | `badge_played_saturday` | Total games played on Saturdays. |
+| Saint Sunday | `badge_played_sunday` | Total games played on Sundays. |
 
 ## Veterancy / Mileage
 
 Definition: [mileage.yml](../../../data/achievements/badges/veterancy/mileage.yml).
 
-| Achievement | ID |
-| --- | --- |
-| Obsession | `badge_played_total` |
-| StarCraft III | `badge_played_ultrabullet` |
-| Adderall | `badge_played_hyperbullet` |
-| Bullet Time | `badge_played_bullet` |
-| Blitz Dopamine Loop | `badge_played_blitz` |
-| Restroom Rapid Ritual | `badge_played_rapid` |
-| Improover | `badge_played_classical` |
+| Achievement | ID | When you get it |
+| --- | --- | --- |
+| Obsession | `badge_played_total` | Total games played across all time controls. |
+| StarCraft III | `badge_played_ultrabullet` | Total Ultrabullet games played. |
+| Adderall | `badge_played_hyperbullet` | Total Hyperbullet games played. |
+| Bullet Time | `badge_played_bullet` | Total Bullet games played. |
+| Blitz Dopamine Loop | `badge_played_blitz` | Total Blitz games played. |
+| Restroom Rapid Ritual | `badge_played_rapid` | Total Rapid games played. |
+| Improover | `badge_played_classical` | Total Classical games played. |
