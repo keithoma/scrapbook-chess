@@ -62,3 +62,19 @@ kebab-case folder and file names. Families are `badges`, `masteries`, and `scrap
 checker rejects missing categories, mismatched paths, and duplicate IDs across
 the YAML catalog. Group by the achievement's game-design subject, not the kind
 of data needed to detect it.
+
+## Implemented achievement inventory
+
+The [implemented achievement inventory](../reference/implemented-achievements.md)
+is generated from the application's active catalogs, including exact IDs, names,
+and source links. After changing catalog membership or names, run:
+
+```sh
+pnpm achievements:generate
+pnpm achievements:check
+pnpm docs:check
+```
+
+The freshness check writes no files and fails on stale or unexpected generated
+pages. The browser unit suite also verifies freshness and exact membership.
+Generation and freshness checks require the installed browser-app dependencies.

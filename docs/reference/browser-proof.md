@@ -124,10 +124,10 @@ this does not set the color for other uploaded games. Existing saved selections
 and an explicit correction take precedence over that example's default.
 The active badges use the current authored YAML definitions and thresholds. Badge
 names, tier labels, and flavor remain the authored English text;
-the surrounding interface is localized. Implemented mastery tracks cover
-[forks and skewers](tactical-masteries.md), [Jobava London](opening-masteries.md),
-and [Pawn vs Pawn](endgame-masteries.md). Other mastery tracks and story remain
-future work. All 61 YAML badges are active.
+the surrounding interface is localized. The
+[implemented achievement inventory](implemented-achievements.md) is the complete,
+generated list of active badges and mastery tracks, with their source definitions.
+It also distinguishes checkmate scraps from inactive story and named-scrap drafts.
 See [badge qualification](badge-rules.md) for calendar, phase, clock, development,
 and evaluation-based families.
 
