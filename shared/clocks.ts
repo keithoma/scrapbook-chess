@@ -7,6 +7,8 @@ export function pgnClock(comments?: string[]): number | undefined {
 }
 export function lichessClocks(raw: unknown, plies: number): (number | null)[] | undefined {
   if (!Array.isArray(raw)) return;
-  if (raw.length !== plies) return Array(plies).fill(null);
-  return raw.map(value => typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value / 100 : null);
+  // Lichess records one final clock state for an unplayed turn when a game ends
+  // asynchronously (for example resignation or timeout). Only played plies count.
+  if (raw.length !== plies && raw.length !== plies + 1) return Array(plies).fill(null);
+  return raw.slice(0, plies).map(value => typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value / 100 : null);
 }

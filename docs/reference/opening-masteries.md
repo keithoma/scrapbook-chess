@@ -128,6 +128,13 @@ credited time, reaching zero at the reward floor. Formula constants live in
 Wins multiply opening XP by two; draws by one; losses by one half. Neither time
 nor result modifiers affect grades. Lichess imports use API centiseconds,
 normalized to seconds; Chess.com imports normalize PGN clock annotations.
+Lichess can append one final clock state for an unplayed turn when a game ends
+by resignation, timeout, or another asynchronous event; its
+[finish implementation](https://github.com/lichess-org/lila/blob/master/modules/game/src/main/Game.scala)
+records that state. The [shared clock normalizer](../../shared/clocks.ts) uses
+only the entries for actual played plies. Other length mismatches remain unknown.
+Older imported records with missing or invalid clock arrays recover from their
+saved raw payload on read, including arrays previously filled with nulls.
 Checking games again can recover missing clock evidence without duplicating a
 game or repricing an already collected opening award. Platform errors remain
 visible through the existing import report; no clock duration is fabricated.
