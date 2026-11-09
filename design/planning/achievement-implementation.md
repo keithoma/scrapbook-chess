@@ -1,7 +1,9 @@
 # Achievement implementation map
 
-Recorded: 2026-11-08. Read alongside [product experience](../product/experience.md).
-This maps the existing catalog to implementation needs. It does not declare every
+Read alongside [product experience](../product/experience.md).
+The [implemented achievement inventory](../../docs/reference/implemented-achievements.md)
+is the authoritative generated list of active achievements. This map records
+implementation needs and open design decisions; it does not declare every
 existing description final or require the whole catalog in the first release.
 
 ## Source inventory
@@ -9,7 +11,9 @@ existing description final or require the whole catalog in the first release.
 - `design/content/achievement-ideas.md`: family concepts, episodes, tactical mastery ideas,
   hidden scraps, shelved mechanics, streak/diversity/group conditions.
 - `design/content/quote-ideas.md`: writing reference, not executable rules.
-- Twenty badge YAML files: 61 unique badge definitions and 515 tier entries.
+- Badge YAML: active definitions and their sources are enumerated in the
+  [implemented inventory](../../docs/reference/implemented-achievements.md); tiers
+  remain in their source definitions.
 - `masteries/tactics/`: knight-fork and skewer definitions, referencing the shared
   tactical progression policy under `data/rules/`.
 - `masteries/endgames/`: Pawn vs Pawn, with independent outcome/quality scoring
@@ -39,10 +43,10 @@ engine choices, allowing the shared only-move rule to compare the first two.
 
 ## Badge mechanics
 
-All 61 YAML badges are active, with complete names, taxonomy, base flavor, and
-all 515 tier entries. Each formerly unfinished badge was implemented and merged
-separately. Existing IDs and nonempty writing are preserved; previously blank
-names and flavor now have initial writing for the author to tune. Explicit tier
+The registered badges have complete names, taxonomy, base flavor, and tier
+writing, checked against their YAML sources. Existing IDs and nonempty writing
+are preserved; previously blank names and flavor now have initial writing for
+the author to tune. Explicit tier
 rebalancing follows the [progression-number principle](../mechanics/achievement-families.md#progression-numbers).
 
 The [badge qualification reference](../../docs/reference/badge-rules.md) is the
@@ -178,7 +182,8 @@ from centipawn losses. Repeated collection of the same move does not add XP agai
 
 The [opening rules](../mechanics/opening-masteries.md) and
 [intended tactical difficulty follow-up](../mechanics/achievement-families.md#intended-tactical-scoring-follow-up)
-separate their scoring policies. Top-three analysis is not implemented.
+separate their scoring policies. Top-three alternative comparison for tactical
+scoring is intended future work; engine review already stores ranked choices.
 
 Other tactical and opening masteries, story predicates/episodes, and the draft
 named scraps above still need authored rules. Their presence in YAML, JSON, or

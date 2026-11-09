@@ -2,7 +2,10 @@
 
 These documents serve the game designer and implementers. They describe intended
 experience, agreed rules, unfinished mechanics, and authored ideas. They do not
-assert that every feature is implemented. Current technical behavior belongs in
+assert that every feature is implemented. The
+[implemented achievement inventory](../docs/reference/implemented-achievements.md)
+is the authoritative list of active badges, mastery tracks, and scrap support.
+Current technical behavior belongs in
 [docs/](../docs/README.md), and executable achievement content lives in
 [data/achievements/](../data/achievements/).
 
@@ -22,8 +25,8 @@ platform collection, eligibility, and replay experience.
 
 ## Content
 
-- [Implemented Caro-Kann masteries](content/caro-kann-masteries.md) lists every
-  current identity and its grouped aliases for reviewing catalog granularity.
+- [Caro-Kann granularity review](content/caro-kann-masteries.md) groups opening
+  identities and aliases for design review.
 - [Achievement ideas](content/achievement-ideas.md) preserves draft mechanics,
   episode ideas, and shelved concepts.
 - [Quote ideas](content/quote-ideas.md) preserves writing references.

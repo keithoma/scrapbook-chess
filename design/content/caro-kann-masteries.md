@@ -1,22 +1,21 @@
-# Implemented Caro-Kann masteries
+# Caro-Kann granularity review
 
-This list serves the game designer when reviewing the granularity of the
-implemented Caro-Kann catalog. It contains **84 opening identities**: the base
-Caro-Kann Defense and 83 named variations or subvariations. Each numbered row has
-separate White and Black mastery tracks, giving **168 color tracks**.
+This curated design view groups opening identities and aliases for reviewing
+Caro-Kann catalog granularity. Use the generated
+[implemented achievement inventory](../../docs/reference/implemented-achievements.md)
+for current active White and Black mastery tracks and their exact IDs.
 
 Names come from the [recognition catalog](../../data/openings/caro-kann.json),
 with executable tracks in the
 [mastery YAML](../../data/achievements/masteries/openings/caro-kann-defense.yml).
-The catalog is authoritative when names or membership change; update this list
-alongside it. XP thresholds remain in the
+XP thresholds remain in the
 [shared opening policy](../../data/rules/opening-mastery.yml).
 
 The common “Caro-Kann Defense:” prefix is omitted below, except for the base
-opening. Commas retain the complete nested variation name. Each row counts once;
-a name component without its own row does not imply another implemented mastery.
-Headings group related names for reading. Recognition and credit follow the
-[opening mastery rules](../mechanics/opening-masteries.md#named-openings-and-branching).
+opening. Commas retain the complete nested variation name. Each row is a named
+opening identity; a name component without its own row does not imply another
+mastery. Headings group related names for design review. Recognition and credit
+follow the [opening mastery rules](../mechanics/opening-masteries.md#named-openings-and-branching).
 
 ## Base opening
 

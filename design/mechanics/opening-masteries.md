@@ -38,8 +38,9 @@ and Jobava. Broader Caro-Kann branches need more XP than narrower variations;
 the shared policy defines the multipliers. Other opening families and their
 memberships remain future work.
 
-See the [complete implemented list](../content/caro-kann-masteries.md) to review
-the base opening and every named variation or subvariation.
+See the [implemented achievement inventory](../../docs/reference/implemented-achievements.md)
+for active tracks and the [Caro-Kann granularity review](../content/caro-kann-masteries.md)
+for grouped opening identities and aliases.
 
 ## Theory and independent play
 

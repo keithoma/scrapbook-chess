@@ -16,6 +16,7 @@ up facts, and understanding the system have separate entry points.
 
 ## Reference
 
+- [Implemented achievements: authoritative generated inventory](reference/implemented-achievements.md).
 - [Browser proof configuration and storage](reference/browser-proof.md).
 - [Opening masteries](reference/opening-masteries.md).
 - [Tactical masteries](reference/tactical-masteries.md).

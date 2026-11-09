@@ -9,7 +9,9 @@
     "build": "pnpm --dir server build && pnpm --dir web build",
     "test": "pnpm --dir server test && pnpm --dir web test",
     "test:browser": "pnpm --dir server build && pnpm --dir web test:browser",
-    "book:check": "node scripts/check-opening-book.mjs"
+    "book:check": "node scripts/check-opening-book.mjs",
+    "achievements:generate": "pnpm --dir web exec node scripts/generate-achievements.mjs",
+    "achievements:check": "pnpm --dir web exec node scripts/generate-achievements.mjs --check"
   },
   "packageManager": "pnpm@12.18.0",
   "devEngines": {

@@ -1,6 +1,7 @@
 # Badge qualification
 
-All definitions under [badges](../../data/achievements/badges/) are active.
+The [implemented achievement inventory](implemented-achievements.md) lists every
+active badge, its exact ID, and its [YAML source](../../data/achievements/badges/).
 The [catalog](../../web/src/achievements/catalog.ts) selects their executable
 rules. Every badge has a name, category, subcategory, base flavor, and flavor for
 every tier. Existing IDs, tier amounts, and nonempty authored writing are retained.
