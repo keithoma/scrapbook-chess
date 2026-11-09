@@ -561,3 +561,36 @@ test('both providers derive one pawn endgame award from the selected side and pr
   }
   s.db.close();
 });
+
+test('clean material evidence survives profile synchronization, rejects illegal lines, and awards the actual capture once', async () => {
+  const fixture = JSON.parse(readFileSync(new URL('../../web/src/fixtures/clean-gain-engine/loose-pawn.json', import.meta.url), 'utf8'));
+  const raw = sample('lichess', { id: 'Clean001' });
+  const headers = raw.pgn.split('\n\n')[0].replaceAll('0-1', '1-0')
+    .replace('[White "Opponent"]', '[White "noctu2nality"]').replace('[Black "noctu2nality"]', '[Black "Opponent"]');
+  raw.pgn = `${headers}\n${fixture.pgn.replace('*', '1-0')}`;
+  [raw.players.white, raw.players.black] = [raw.players.black, raw.players.white];
+  raw.status = 'resign'; raw.winner = 'white'; raw.clocks = [60000, 59000];
+  const s = await setup({ fetcher: upstream({ lichess: [raw] }) });
+  await s.login(); await s.request('/profile/check-games', 'POST', {});
+  const me = await (await s.request('/me')).json();
+  assert.equal(me.games.length, 1);
+  const game = me.games[0];
+  const checkpoint = { key: '', pgn: game.pgn, version: fixture.analysisVersion,
+    results: ['c6c5', 'e4c5'].map((bestMove, i) => ({ ply: i + 1, bestMove, best: { type: 'cp', value: 0 }, played: { type: 'cp', value: 0 }, ms: 1 })),
+    cleanGains: [fixture.evidence], virtual: [], virtualStatus: 'pending', updatedAt: '' };
+  const path = `/profile/games/${encodeURIComponent(game.id)}`;
+  assert.equal((await s.request(`${path}/analysis`, 'PUT', { checkpoint })).status, 200);
+  assert.deepEqual((await (await s.request(`${path}/analysis`)).json()).cleanGains, [fixture.evidence]);
+  const collected = await s.request(`${path}/collect`, 'POST', { checkpoint });
+  assert.equal(collected.status, 200);
+  const grant = (await collected.json()).grant;
+  assert.deepEqual(grant.events.filter(event => event.badgeId === 'badge_clean_pawns').map(event => [event.ply, event.amount]), [[2, 1]]);
+  const stale = structuredClone(checkpoint); delete stale.cleanGains;
+  assert.equal((await s.request(`${path}/analysis`, 'PUT', { checkpoint: stale })).status, 200);
+  assert.deepEqual((await (await s.request(`${path}/analysis`)).json()).cleanGains, [fixture.evidence]);
+  assert.deepEqual((await (await s.request(`${path}/collect`, 'POST', {})).json()).grant.events, grant.events);
+  const invalid = structuredClone(checkpoint);
+  invalid.cleanGains[0].attempts[0].samples[0].after.pv[0] = 'a1a8';
+  assert.equal((await s.request(`${path}/analysis`, 'PUT', { checkpoint: invalid })).status, 400);
+  s.db.close();
+});

@@ -24,7 +24,7 @@
       - name: 'knight'
         amount: 2
         flavor:
-          text: The second pawn has cleared the inspection.
+          text: The second pawn has cleared the probation period.
 
       - name: 'bishop'
         amount: 3
@@ -34,7 +34,7 @@
       - name: 'rook'
         amount: 4
         flavor:
-          text: No, it was not poisoned. The continuation checked out.
+          text: No, it was not poisoned. We waited to check.
 
       - name: 'queen'
         amount: 5

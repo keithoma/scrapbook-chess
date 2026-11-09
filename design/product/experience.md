@@ -70,8 +70,9 @@ include planned behavior, not a claim that the browser proof implements it.
 - Replay the game with achievement progress attached to contributing moves.
 - Game-level contributions appear at the end. Allow jumping between achievement
   moments. Record enough evidence to explain the contribution later.
-- A condition can require later confirmation: a clean capture held for five turns
-  is associated with the capture but must not be awarded before it qualifies.
+- A condition can require analysis confirmation: a clean capture is associated
+  with its actual move, and qualifies only when engine evidence establishes a
+  retainable, sufficiently uncompensated net material gain.
 - Save actual contribution amounts, not only a list of ply numbers.
 - Reward pacing, batching, sound, and animation treatments remain design work.
 

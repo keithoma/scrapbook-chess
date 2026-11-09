@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  "Checking clean material…": "Saubere Materialgewinne werden geprüft…",
+  "Continue material analysis": "Materialanalyse fortsetzen",
   "Caro-Kann Defense": "Caro-Kann-Verteidigung",
   "Caro-Kann Defense: Accelerated Panov Attack": "Caro-Kann-Verteidigung: Beschleunigter Panov-Angriff",
   "Caro-Kann Defense: Accelerated Panov Attack, Modern Variation": "Caro-Kann-Verteidigung: Beschleunigter Panov-Angriff, Moderne Variante",

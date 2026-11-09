@@ -28,3 +28,17 @@ describe('review preparation', () => {
     expect(library.entries[0]).toMatchObject({ status: 'Ready to review', color: 'black', source: 'Lichess', game: { timeControl: '180+0' } });
   });
 });
+
+it('offers material analysis for legacy, stale and budget-limited evidence while retaining finished work', async () => {
+  const { cleanGainFixture } = await import('./fixtures/clean-gain-evidence');
+  const { hasCleanMaterialAnalysis } = await import('./review-state');
+  const { analyzed } = await import('./fixtures/test-analysis');
+  const { game, evidence } = cleanGainFixture();
+  const checkpoint = { ...analyzed(game), cleanGains: [evidence] };
+  expect(hasCleanMaterialAnalysis(game, checkpoint)).toBe(true);
+  evidence.budgetExhausted = true;
+  expect(hasCleanMaterialAnalysis(game, checkpoint)).toBe(false);
+  delete evidence.budgetExhausted; evidence.ruleVersion = 'obsolete';
+  expect(hasCleanMaterialAnalysis(game, checkpoint)).toBe(false);
+  expect(hasCleanMaterialAnalysis(game, analyzed(game))).toBe(false);
+});

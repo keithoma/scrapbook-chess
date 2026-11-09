@@ -98,23 +98,64 @@ contributes once at its final actual ply.
 
 ## Clean material gains
 
-Each clean-material badge counts actual captures of its named role. The capturing
-move must be neither a mistake nor a blunder. From that capture onward, the net
-captured material gain must remain at least the captured role's full value for
-ten subsequent actual plies, interpreted as five full turns. Promotions alone do
-not create a captured gain.
+Each badge requires an actual capture of its named role and the full role's net
+material value gained over the surrounding sequence. The
+[shared clean-gain rule](../../web/src/chess/clean-gain.ts) compares the position
+before an opponent's material-conceding move with both the position after that
+move and the position after the actual capture. From the capturing player's
+perspective, both evaluation gains must reach 80% of the captured role's nominal
+value: at least +0.80 for a pawn. Scaling that proportion to pieces is prototype
+tuning. The capture must also pass the shared mistake/blunder quality gate.
 
-Values are pawn 1, knight/bishop 3, rook 5, and queen 9. The running balance adds
-player captures and subtracts opponent captures within the window. Fair trades,
-queen-for-rook exchanges, and material returned during the window fail the full
-role-value requirement. A game ending before confirmation gives no credit;
-virtual continuations do not fill the window.
+Processing considers opponent moves within a bounded lookback before the capture.
+Shallow scores order these candidates without discarding any. The before-move,
+after-move, before-capture, and after-capture positions receive progressively
+deeper searches, with their complete legal principal variations saved as evidence.
+Two consecutive depths must agree on the qualification and retained net material,
+with evaluation changes inside the shared stability tolerance. Both after-move
+and after-capture continuations must end in a quiet tail without checks or material
+changes. Tactical PV endpoints receive bounded additional searches to establish
+that tail; the saved score remains the original root search score. Quiet tails alone do not establish a gain: all earlier moves in each
+continuation are replayed too. Unresolved, truncated, illegal, mate-valued, or
+disagreeing evidence gives no credit. Search limits are conservative prototype
+tuning, not proof that every tactical consequence has been exhausted. Whole-game
+processing shares a node budget; captures that exhaust it remain unconfirmed.
+**Continue material analysis** resumes saved depth samples with a fresh budget,
+and the dedicated review board can analyze an individual capture without that
+whole-game limit.
 
-The event appears at confirmation, with the original capture ply and retained
-gain saved as evidence. Each qualifying capture is a separate occurrence. This
-bounded observation rule is an implementation choice, not a general solver for
-sacrifices or compensation. Its configurable window is in
-[clean-gains YAML](../../data/achievements/badges/material/clean-gains.yml).
+A book entry at either the concession or capture excludes the sequence unless
+the opponent's material-losing move is a verified trap: its mover wins **below
+30%** of games, with at least the shared book minimum of 25 observations. Draws
+remain in the denominator. Reference presence is checked even if the move fails
+the ordinary book quality gate. Missing outcomes or insufficient samples do not
+establish the exception. The current pinned Polyglot book has no outcome counts,
+so its entries remain excluded; weights cannot establish a trap win rate.
+
+The contribution appears at the actual capture, retaining the opponent's
+concession ply, evaluation gain, net material, search depth, and rule version.
+Later recorded blunders cannot revoke it. Engine lines assess retainability;
+they do not award unplayed captures or supply actual survival turns. Ordinary
+trades, insufficient net gains, and material already hanging in a custom starting
+position cannot independently establish a new clean gain. Multiple captures
+charged to one concession share its material and evaluation budget. Previously
+collected analysis-backed awards retain their saved evidence as usual.
+
+### Review a detector decision
+
+Run `pnpm dev` and open `/material-review`, linked as **Clean material testing**.
+Choose an example or load a PGN, select a capture, and run the detector. The board
+can replay the actual game or any saved engine line, with controls for opponent
+baseline, depth, and position. The verdict exposes its evaluation and material
+requirements and the reason for an unconfirmed or excluded capture.
+
+In development, **Should count** and **Should not count** save an independent
+expectation, optional note, PGN, book evidence, and engine continuations under
+`web/src/fixtures/clean-gain-reviews/`. Changing a judgment replaces the same
+fixture. Saved fixtures automatically run through the shared detector in the
+[review regression tests](../../web/src/chess/clean-gain-review.test.ts); a
+mismatch fails rather than accepting the recorded engine observation as truth.
+The filesystem-writing endpoint is absent from production builds and preview.
 
 ## Comebacks
 
