@@ -249,9 +249,13 @@ function App() {
   useEffect(() => {
     if (!playing) return;
     if (page !== 'review' || !reviewReady || virtualPly || ply >= game.moves.length) { setPlaying(false); return; }
-    const timer = window.setTimeout(() => setPly(value => Math.min(game.moves.length, value + 1)), speed);
+    const timer = window.setTimeout(() => {
+      const target = ply + 1;
+      setPly(target);
+      if (target === nextHighlight || target === game.moves.length) setPlaying(false);
+    }, speed);
     return () => window.clearTimeout(timer);
-  }, [playing, speed, ply, page, reviewReady, virtualPly, game.moves.length]);
+  }, [playing, speed, ply, page, reviewReady, virtualPly, game.moves.length, nextHighlight]);
   useEffect(() => {
     const list = moveList.current;
     const selected = list?.querySelector<HTMLElement>('[aria-current="step"]');
