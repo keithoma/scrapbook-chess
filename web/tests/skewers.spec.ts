@@ -23,6 +23,8 @@ test('native skewers earn their own grades, XP and replay evidence without mixin
   expect(skewerXp).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText(`Skewers +${skewerXp} XP`);
+  await expect(page.getByTestId('collected-mastery_skewers')).toContainText(`Skewers +${skewerXp} XP`);
+  await expect(page.getByTestId('collected-mastery_skewers')).toContainText(savedGrade.replace('Skewer grade:', 'Grade:'));
   await expect(page.getByTestId('replay-skewer-xp')).toHaveText(`Skewers +${skewerXp} XP`);
   await page.getByRole('button', { name: 'First position', exact: true }).click();
   await expect(page.getByTestId('replay-skewer-xp')).toHaveText('Skewers +0 XP');

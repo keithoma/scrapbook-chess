@@ -130,6 +130,9 @@ footer a { text-decoration: underline; text-underline-offset: 3px; }
 .review-preparing .review-side { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 .playback-bar { justify-content: flex-start; margin-top: 16px; }
 .playback-bar label { font-size: .75rem; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.collected-masteries { margin-top: 16px; padding: 12px; border: 1px solid #b6d3c0; border-radius: 10px; background: #edf4ef; color: #215a3c; }
+.collected-masteries li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; font-size: .8rem; overflow-wrap: anywhere; }
+.mastery-grade { max-width: 100%; padding: 2px 8px; border-radius: 5px; background: #ffffffb3; font-size: .75rem; font-variant-numeric: tabular-nums; }
 .move-list { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 6px; max-height: 320px; overflow-y: auto; scrollbar-gutter: stable; font-variant-numeric: tabular-nums; }
 .move-list .move-button { text-align: left; }
 .review-actions .button-row { justify-content: flex-start; gap: 8px; margin-top: 12px; }

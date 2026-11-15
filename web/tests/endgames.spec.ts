@@ -22,9 +22,13 @@ test('pawn endings preview, collect and replay one stable grade with separate pr
   await expect(page.getByTestId('reward-reveal')).toContainText(`Pawn vs Pawn +${xp} XP`);
   await expect(page.getByTestId('replay-mastery_pawn_vs_pawn')).toHaveText(`Pawn vs Pawn +${xp} XP`);
   await expect(review.getByTestId('endgame-award')).toHaveText(`Collected +${xp} XP`);
+  const summaryMastery = page.getByTestId('collected-mastery_pawn_vs_pawn');
+  await expect(summaryMastery).toContainText(`Pawn vs Pawn +${xp} XP`);
+  await expect(summaryMastery).toContainText(grade!.replace('Endgame grade:', 'Grade:'));
   await review.getByRole('button', { name: 'Replay endgame', exact: true }).click();
   await expect(page.getByTestId('replay-position')).toHaveText('Ply 0 / 5');
   await expect(page.getByTestId('replay-mastery_pawn_vs_pawn')).toHaveText('Pawn vs Pawn +0 XP');
+  await expect(summaryMastery).toContainText(`Pawn vs Pawn +${xp} XP`);
   await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   const mastery = page.getByTestId('mastery_pawn_vs_pawn');
   await expect(mastery.getByTestId('mastery_pawn_vs_pawn-total-xp')).toHaveText(`${xp} XP`);

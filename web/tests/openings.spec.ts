@@ -16,6 +16,8 @@ test('native opening analysis collects overlapping masteries and separate sides,
   await moves.nth(0).click();
   await expect(page.getByText('Book candidate · frequency or loss statistics unavailable', { exact: true })).toBeVisible();
   await expect(page.getByTestId('opening-status')).toContainText("Jobava London · Queen's Pawn Game recognized");
+  const summaryMasteries = page.getByTestId('collected-masteries');
+  await expect(summaryMasteries).toHaveCount(0);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('The Modern Artist');
   await expect(page.getByTestId('reward-reveal')).toContainText("Queen's Pawn Game (White)");
@@ -23,8 +25,13 @@ test('native opening analysis collects overlapping masteries and separate sides,
   const replay = page.getByTestId('replay-mastery_rapport_jobava_white');
   const earned = await replay.innerText();
   expect(earned).not.toContain('+0 XP');
+  const collectedOpening = page.getByTestId('collected-mastery_rapport_jobava_white');
+  await expect(collectedOpening).toContainText(earned);
+  await expect(collectedOpening).toContainText(/Grade: [DCBAS][+-]?/);
+  await expect(page.getByTestId('collected-mastery_queens_pawn_game_white')).toBeVisible();
   await page.getByRole('button', { name: 'First position', exact: true }).click();
   await expect(replay).toContainText('+0 XP');
+  await expect(collectedOpening).toContainText(earned);
   await page.getByRole('link', { name: 'Achievements', exact: true }).click();
   const white = page.getByTestId('mastery_rapport_jobava_white');
   const black = page.getByTestId('mastery_rapport_jobava_black');
@@ -47,9 +54,11 @@ test('native opening analysis collects overlapping masteries and separate sides,
   await white.locator('summary').click();
   await white.getByRole('button', { name: 'Replay opening', exact: true }).click();
   await expect(page.getByTestId('replay-position')).toHaveText('Ply 11 / 33');
+  await expect(collectedOpening).toContainText(earned);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('No progress was counted twice.');
   await page.getByLabel('I played as').selectOption('black');
+  await expect(summaryMasteries).toHaveCount(0);
   await page.getByRole('button', { name: 'Collect rewards', exact: true }).click();
   await expect(page.getByTestId('reward-reveal')).toContainText('The Art Critic');
   await page.getByRole('link', { name: 'Achievements', exact: true }).click();

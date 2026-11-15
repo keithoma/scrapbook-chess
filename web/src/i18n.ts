@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 
 export const german = {
+  "Masteries earned this game": "In dieser Partie verdiente Meisterschaften",
+  "Grade: {grade}": "Bewertung: {grade}",
+  "Grades: {grades}": "Bewertungen: {grades}",
+  "Grade unavailable": "Bewertung nicht verfügbar",
   "Checking clean material…": "Saubere Materialgewinne werden geprüft…",
   "Continue material analysis": "Materialanalyse fortsetzen",
   "Caro-Kann Defense": "Caro-Kann-Verteidigung",

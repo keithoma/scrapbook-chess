@@ -63,6 +63,12 @@ or game end. Tactical highlights require a matching mastery XP award; unawarded
 fork and skewer candidates remain available in their inspectors. Collected-game
 reward previews retain the time zone recorded at collection.
 
+After collection, a summary below the board controls shows each mastery that
+earned XP in this game, its total collected XP, and its saved grades. Opening
+and endgame masteries use their game grade; multiple tactical awards keep their
+individual grades. The summary stays visible while replaying or reopening the
+collected game and follows the selected player color.
+
 ### Move evaluations and shared labels
 
 Both players' played moves have engine evaluations. Selecting a move shows its
