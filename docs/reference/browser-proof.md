@@ -57,8 +57,11 @@ locally using existing rules; there is no separate achievement-processing queue.
 Collection remains an explicit action. Saved server analysis is checked on opening
 a game: the server's `analyzed` flag alone indicates presence, not completion.
 Autoplay follows the played game; engine continuations retain their manual move
-buttons. Playback stops on navigation, manual replay jumps, a hidden tab, or game
-end. Collected-game reward previews retain the time zone recorded at collection.
+buttons. Playback pauses at each highlight; select **Autoplay** again to continue
+to the next one. It also stops on navigation, manual replay jumps, a hidden tab,
+or game end. Tactical highlights require a matching mastery XP award; unawarded
+fork and skewer candidates remain available in their inspectors. Collected-game
+reward previews retain the time zone recorded at collection.
 
 ### Move evaluations and shared labels
 
@@ -92,7 +95,8 @@ still ignore inaccuracies.
 annotations with their rule versions. Old checkpoints without choices remain
 reviewable and offer **Add engine choices**. The upgrade preserves completed
 choice analysis on resume; historical collected rewards retain their saved
-evidence. Only moves from either player also appear in highlight navigation.
+evidence. Only-move annotations add context to existing highlights without
+creating highlights on their own.
 
 ## Storage and offline behavior
 

@@ -55,9 +55,20 @@ test('PGN preparation gates review, playback and highlights work, and collection
   await expect(page.getByRole('button', { name: 'Autoplay', exact: true })).toHaveAttribute('aria-pressed', 'false');
   await page.getByRole('button', { name: 'First position', exact: true }).click();
   await expect(page.getByTestId('highlight-reasons')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Next highlight', exact: true }).click();
-  await expect(page.getByTestId('replay-position')).not.toHaveText('Ply 0 / 4');
-  for (let index = 0; index < 4 && await page.getByRole('button', { name: 'Next highlight', exact: true }).isEnabled(); index++) await page.getByRole('button', { name: 'Next highlight', exact: true }).click();
+  const highlightPlies: number[] = [];
+  while (await page.getByRole('button', { name: 'Next highlight', exact: true }).isEnabled()) {
+    await page.getByRole('button', { name: 'Next highlight', exact: true }).click();
+    highlightPlies.push(Number(await page.getByLabel('Replay position', { exact: true }).inputValue()));
+  }
+  expect(highlightPlies.length).toBeGreaterThan(1);
+  await page.getByRole('button', { name: 'First position', exact: true }).click();
+  await page.getByLabel('Autoplay speed', { exact: true }).selectOption('500');
+  for (const highlightPly of highlightPlies) {
+    await page.getByRole('button', { name: 'Autoplay', exact: true }).click();
+    await expect(page.getByTestId('replay-position')).toHaveText(`Ply ${highlightPly} / 4`);
+    await expect(page.getByTestId('highlight-reasons')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Autoplay', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  }
   await expect(page.getByTestId('replay-position')).toHaveText('Ply 4 / 4');
   await expect(page.getByTestId('highlight-reasons')).toContainText('Checkmate earned the Qh4# scrap.');
   await page.getByLabel('Language', { exact: true }).selectOption('de');

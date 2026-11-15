@@ -33,24 +33,33 @@ describe('review highlight explanations', () => {
     expect(highlights[1].reasons).toEqual(['Checkmate earned the Qh4# scrap.']);
   });
 
-  it('explains tactical candidates using their squares, without implying a reward or including the other side', () => {
+  it('does not highlight unawarded tactical candidates, even alongside another reward', () => {
     const forkGame = parseGame('[SetUp "1"]\n[FEN "3q3k/8/8/4N3/8/8/8/7K w - - 0 1"]\n\n1. Nf7+ *');
     const forks = knightForkCandidates(forkGame);
-    const highlights = reviewHighlights({ ...base(), forks });
-    expect(highlights[0].reasons).toEqual([
-      'Knight-fork candidate: the knight on f7 attacks enemy pieces on d8, h8. This alone does not guarantee mastery XP.',
-    ]);
+    expect(forks).toHaveLength(1);
+    expect(reviewHighlights({ ...base(), forks })).toEqual([]);
     expect(reviewHighlights({ ...base(), forks, color: 'black' })).toEqual([]);
     const skewerGame = parseGame('[SetUp "1"]\n[FEN "8/8/8/3k3q/8/8/8/RK6 w - - 0 1"]\n\n1. Ra5+ 1-0');
     // Use an actual detected line so explanation and detection agree on its targets.
     const skewers = skewerCandidates(skewerGame);
     expect(skewers).toHaveLength(1);
-    for (const skewer of skewers) {
-      const highlight = reviewHighlights({ ...base(), skewers: [skewer] })[0];
-      for (const line of skewer.lines) expect(highlight.reasons).toContain(
-        `Skewer candidate: ${line.attackerName} attacks ${line.front.name} with ${line.rear.name} behind it. This alone does not guarantee mastery XP.`,
-      );
-    }
+    expect(reviewHighlights({ ...base(), skewers })).toEqual([]);
+    const events: Contribution[] = [{ kind: 'badge', badgeId: 'badge_punish_blunders', amount: 1, originPly: 1, ply: 2 }];
+    const badgeHighlights = reviewHighlights({ ...base(), events });
+    expect(reviewHighlights({ ...base(), events, forks, skewers })).toEqual(badgeHighlights);
+  });
+
+  it('requires positive XP for the matching tactic at the candidate ply', () => {
+    const game = parseGame('[SetUp "1"]\n[FEN "3r3k/8/8/4N3/8/8/7K/3r4 w - - 0 1"]\n\n1. Nf7+ 1-0');
+    const forks = knightForkCandidates(game);
+    const [event] = masteryContributions(game, 'white', analyzed(game, 200));
+    expect(event).toBeDefined();
+    expect(reviewHighlights({ ...base(), forks, events: [{ ...event, amount: 0 }] })).toEqual([]);
+    const otherTactic: Contribution = { ...event, masteryId: 'mastery_skewers' };
+    expect(reviewHighlights({ ...base(), forks, events: [otherTactic] })).toEqual(
+      reviewHighlights({ ...base(), events: [otherTactic] }));
+    expect(reviewHighlights({ ...base(), forks, events: [{ ...event, ply: 2 }] })).toEqual(
+      reviewHighlights({ ...base(), events: [{ ...event, ply: 2 }] }));
   });
 
   it('never creates highlights from only-move annotations alone, but keeps their context on existing highlights', () => {
@@ -83,6 +92,18 @@ describe('review highlight explanations', () => {
     expect(highlights).toHaveLength(1);
     expect(highlights[0].reasons).toHaveLength(2);
     expect(highlights[0].reasons[0]).toBe(`Qualified tactic: Knight forks +${events[0].amount} XP.`);
+    expect(highlights[0].reasons[1]).toBe(
+      'Knight-fork candidate: the knight on f7 attacks enemy pieces on d8, h8. This alone does not guarantee mastery XP.');
+
+    const skewerGame = parseGame('[SetUp "1"]\n[FEN "8/8/8/3k3q/8/8/8/RK6 w - - 0 1"]\n\n1. Ra5+ 1-0');
+    const skewerEvents = masteryContributions(skewerGame, 'white', analyzed(skewerGame, 200));
+    expect(skewerEvents).toHaveLength(1);
+    const skewers = skewerCandidates(skewerGame);
+    const [skewerHighlight] = reviewHighlights({ ...base(), events: skewerEvents, skewers });
+    expect(skewerHighlight.reasons[0]).toBe(`Qualified tactic: Skewers +${skewerEvents[0].amount} XP.`);
+    for (const line of skewers[0].lines) expect(skewerHighlight.reasons).toContain(
+      `Skewer candidate: ${line.attackerName} attacks ${line.front.name} with ${line.rear.name} behind it. This alone does not guarantee mastery XP.`);
+    expect(reviewHighlights({ ...base(), skewers, events: skewerEvents.map(event => ({ ...event, amount: 0 })) })).toEqual([]);
 
     const openingGame = parseGame(jobavaPgn);
     const openingEvents = openingContributions(openingGame, 'white', analyzed(openingGame));

@@ -17,7 +17,7 @@ test('the supplied Black game exposes Nxe3, its recapture risk, and native engin
   const inspector = page.getByTestId('fork-inspector');
   await inspector.getByRole('button', { name: '15… Nxe3', exact: true }).click();
   await expect(page.getByTestId('replay-position')).toHaveText('Ply 30 / 52');
-  await expect(page.getByTestId('highlight-reasons')).toContainText('Knight-fork candidate: the knight on e3 attacks enemy pieces on f1, c2, g2.');
+  await expect(page.getByTestId('highlight-reasons')).toHaveCount(0);
   await expect(inspector.getByLabel('Attacked pieces')).toContainText('Queen on c2');
   await expect(inspector.getByLabel('Attacked pieces')).toContainText('Rook on f1');
   await expect(inspector).toContainText('Your opponent can legally capture the knight immediately.');

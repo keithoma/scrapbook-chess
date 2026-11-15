@@ -2,7 +2,7 @@ import type { Color } from 'chessops/types';
 import { makeSquare } from 'chessops/util';
 import { BADGES } from './achievements/catalog';
 import type { Contribution } from './achievements/collection';
-import { MASTERIES } from './achievements/mastery-policy';
+import { FORK_MASTERY, MASTERIES, SKEWER_MASTERY, type MasteryId } from './achievements/mastery-policy';
 import { translate, type Locale, type Message, type Parameters } from './i18n';
 import type { MoveResult } from './storage';
 import type { KnightForkCandidate } from './tactics/knight-forks';
@@ -20,6 +20,8 @@ export function reviewHighlights({ events, forks, skewers, results, color, local
     if (!byPly.has(ply)) byPly.set(ply, new Set());
     byPly.get(ply)!.add(reason);
   };
+  const awardedTactic = (ply: number, masteryId: MasteryId) => events.some(event =>
+    event.kind === 'mastery' && event.masteryId === masteryId && event.ply === ply && event.amount > 0);
 
   for (const event of events) {
     if (event.kind === 'badge') {
@@ -44,17 +46,17 @@ export function reviewHighlights({ events, forks, skewers, results, color, local
           ? '{mastery} +{xp} XP for a book move in this opening.'
           : '{mastery} +{xp} XP for your play beyond the opening book.', { mastery, xp: event.amount }));
         if (event.grade) add(event.ply, `${mastery} · ${t('Opening grade: {grade}', { grade: event.grade })}`);
-      } else {
+      } else if (event.amount > 0) {
         add(event.ply, t('Qualified tactic: {mastery} +{xp} XP.', { mastery, xp: event.amount }));
       }
     }
   }
-  for (const fork of forks.filter(fork => fork.color === color)) {
+  for (const fork of forks.filter(fork => fork.color === color && awardedTactic(fork.ply, FORK_MASTERY.id))) {
     add(fork.ply, t('Knight-fork candidate: the knight on {square} attacks enemy pieces on {targets}. This alone does not guarantee mastery XP.', {
       square: makeSquare(fork.square), targets: fork.targets.map(target => makeSquare(target.square)).join(', '),
     }));
   }
-  for (const skewer of skewers.filter(skewer => skewer.color === color)) {
+  for (const skewer of skewers.filter(skewer => skewer.color === color && awardedTactic(skewer.ply, SKEWER_MASTERY.id))) {
     for (const line of skewer.lines) add(skewer.ply, t('Skewer candidate: {attacker} attacks {front} with {rear} behind it. This alone does not guarantee mastery XP.', {
       attacker: line.attackerName, front: line.front.name, rear: line.rear.name,
     }));
