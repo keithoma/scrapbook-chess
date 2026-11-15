@@ -30,6 +30,7 @@ import { gameLibrary, gameDate, HomeView, HistoryView } from './game-library';
 import { hasCompleteAnalysis, hasEngineChoices, hasCleanMaterialAnalysis } from './review-state';
 import { EngineReview } from './engine-review';
 import { reviewHighlights } from './review-highlights';
+import { CollectedMasteries } from './achievements/collected-masteries';
 import { CleanGainReviewBoard } from './clean-gain-review';
 import { mergeCleanGainEvidence } from './chess/clean-gain';
 
@@ -314,6 +315,7 @@ function App() {
           <label>{t('Autoplay speed')}<select aria-label={t('Autoplay speed')} value={speed} onChange={event => setSpeed(Number(event.target.value))}><option value={2000}>{t('Slow')}</option><option value={1000}>{t('Normal')}</option><option value={500}>{t('Fast')}</option></select></label>
         </div>
         <input aria-label={t('Replay position')} className="mt-3 w-full accent-emerald-800" type="range" min={0} max={game.moves.length} value={ply} onChange={event => go(Number(event.target.value))} />
+        <CollectedMasteries game={savedGame} color={playerColor} locale={locale} />
         <div className="mt-4 rounded-xl border border-stone-300 bg-white/40 p-4">
           <div className="label mb-2">{virtualPly ? t('ENGINE CONTINUATION · NOT PLAYED') : ply ? t('PLAYED · {move}', { move: game.moves[ply - 1].san }) : t('STARTING POSITION')}</div>
           {(!!virtualPly || !result) && <p className="text-sm text-stone-600">{virtualPly ? t('A separate simulated finish. Your original game is unchanged.') : t('Select a move to see its evaluation.')}</p>}
