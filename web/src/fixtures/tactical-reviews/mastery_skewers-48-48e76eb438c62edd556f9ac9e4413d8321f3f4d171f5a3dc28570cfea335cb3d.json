@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "masteryId": "mastery_skewers",
+  "pgn": "[Event \"rated rapid game\"]\n[Site \"https://lichess.org/game/jrhXaNf4\"]\n[Date \"2026.11.08\"]\n[Round \"-\"]\n[White \"BobbyMoura\"]\n[Black \"noctu2nality\"]\n[Result \"0-1\"]\n[GameId \"jrhXaNf4\"]\n[UTCDate \"2026.11.08\"]\n[UTCTime \"09:58:41\"]\n[WhiteElo \"1724\"]\n[BlackElo \"1811\"]\n[WhiteRatingDiff \"-5\"]\n[BlackRatingDiff \"+16\"]\n[Variant \"Standard\"]\n[TimeControl \"600+0\"]\n[ECO \"B10\"]\n[Opening \"Caro-Kann Defense\"]\n[Termination \"Normal\"]\n\n1. e4 { [%clk 0:10:00] } 1... c6 { [%clk 0:10:00] } 2. Nf3 { [%clk 0:09:55] } 2... d5 { [%clk 0:09:58] } 3. exd5 { [%clk 0:09:53] } 3... cxd5 { [%clk 0:09:58] } 4. d4 { [%clk 0:09:50] } 4... Bg4 { [%clk 0:09:46] } 5. h3 { [%clk 0:09:44] } 5... Bxf3 { [%clk 0:09:39] } 6. Qxf3 { [%clk 0:09:41] } 6... Nc6 { [%clk 0:09:38] } 7. Qd1 { [%clk 0:09:07] } 7... e6 { [%clk 0:09:28] } 8. c3 { [%clk 0:08:21] } 8... Bd6 { [%clk 0:09:26] } 9. Be2 { [%clk 0:08:12] } 9... Nge7 { [%clk 0:09:21] } 10. O-O { [%clk 0:08:09] } 10... O-O { [%clk 0:09:19] } 11. Be3 { [%clk 0:07:45] } 11... Nf5 { [%clk 0:09:16] } 12. Qc2 { [%clk 0:07:38] } 12... a6 { [%clk 0:08:38] } 13. Bd3 { [%clk 0:07:30] } 13... Nce7 { [%clk 0:07:14] } 14. Nd2 { [%clk 0:07:21] } 14... Kh8 { [%clk 0:06:58] } 15. Rae1 { [%clk 0:07:08] } 15... Nxe3 { [%clk 0:06:48] } 16. fxe3 { [%clk 0:06:45] } 16... Rc8 { [%clk 0:06:27] } 17. e4 { [%clk 0:06:39] } 17... dxe4 { [%clk 0:06:15] } 18. Rxe4 { [%clk 0:06:00] } 18... Nf5 { [%clk 0:05:38] } 19. Rf3 { [%clk 0:05:06] } 19... Qg5 { [%clk 0:05:11] } 20. Rg4 { [%clk 0:04:50] } 20... Qh5 { [%clk 0:04:56] } 21. Bxf5 { [%clk 0:04:38] } 21... exf5 { [%clk 0:04:44] } 22. Rxf5 { [%clk 0:04:35] } 22... Qh6 { [%clk 0:04:35] } 23. Nf3 { [%clk 0:04:15] } 23... g6 { [%clk 0:03:52] } 24. Rf6 { [%clk 0:03:55] } 24... Qe3+ { [%clk 0:03:16] } 25. Kh1 { [%clk 0:03:40] } 25... Bb8 { [%clk 0:02:42] } 26. Ng5 { [%clk 0:02:46] } 26... Qe1+ { [%clk 0:02:29] } 0-1",
+  "ply": 48,
+  "expectedXp": "zero",
+  "analysis": {
+    "version": "stockfish-19.0.1-full-single-depth6-hash32-proof-v1",
+    "result": {
+      "ply": 48,
+      "best": {
+        "type": "cp",
+        "value": 34
+      },
+      "played": {
+        "type": "cp",
+        "value": 77
+      },
+      "bestMove": "d6e7"
+    }
+  },
+  "observed": {
+    "status": "rejected",
+    "xp": 0
+  }
+}
